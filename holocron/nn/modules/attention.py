@@ -6,8 +6,7 @@
 from typing import cast
 
 import torch
-import torch.nn as nn
-from torch import Tensor
+from torch import Tensor, nn
 
 from .downsample import ZPool
 

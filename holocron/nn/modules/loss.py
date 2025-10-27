@@ -3,11 +3,10 @@
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
-from typing import Any, List, Optional, Union, cast
+from typing import Any, cast
 
 import torch
-import torch.nn as nn
-from torch import Tensor
+from torch import Tensor, nn
 
 from .. import functional as F
 
@@ -25,13 +24,13 @@ __all__ = [
 class _Loss(nn.Module):
     def __init__(
         self,
-        weight: Optional[Union[float, List[float], Tensor]] = None,
+        weight: float | list[float] | Tensor | None = None,
         ignore_index: int = -100,
         reduction: str = "mean",
     ) -> None:
         super().__init__()
         # Cast class weights if possible
-        self.weight: Optional[Tensor]
+        self.weight: Tensor | None
         if isinstance(weight, (float, int)):
             self.register_buffer("weight", torch.Tensor([weight, 1 - weight]))
         elif isinstance(weight, list):
@@ -42,7 +41,7 @@ class _Loss(nn.Module):
             self.weight = None
         self.ignore_index = ignore_index
         # Set the reduction method
-        if reduction not in ["none", "mean", "sum"]:
+        if reduction not in {"none", "mean", "sum"}:
             raise NotImplementedError("argument reduction received an incorrect input")
         self.reduction = reduction
 
@@ -175,7 +174,7 @@ class MutualChannelLoss(_Loss):
 
     def __init__(
         self,
-        weight: Optional[Union[float, List[float], Tensor]] = None,
+        weight: float | list[float] | Tensor | None = None,
         ignore_index: int = -100,
         reduction: str = "mean",
         xi: int = 2,
@@ -204,7 +203,7 @@ class DiceLoss(_Loss):
 
     def __init__(
         self,
-        weight: Optional[Union[float, List[float], Tensor]] = None,
+        weight: float | list[float] | Tensor | None = None,
         gamma: float = 1.0,
         eps: float = 1e-8,
     ) -> None:

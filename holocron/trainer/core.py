@@ -5,7 +5,8 @@
 
 import math
 from collections import defaultdict
-from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union, cast
+from collections.abc import Callable, Sequence
+from typing import Any, cast
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -49,14 +50,14 @@ class Trainer:
         val_loader: DataLoader,
         criterion: nn.Module,
         optimizer: torch.optim.Optimizer,
-        gpu: Optional[int] = None,
+        gpu: int | None = None,
         output_file: str = "./checkpoint.pth",
         amp: bool = False,
         skip_nan_loss: bool = False,
         nan_tolerance: int = 5,
         gradient_acc: int = 1,
-        gradient_clip: Optional[float] = None,
-        on_epoch_end: Optional[Callable[[Dict[str, float]], Any]] = None,
+        gradient_clip: float | None = None,
+        on_epoch_end: Callable[[dict[str, float]], Any] | None = None,
     ) -> None:
         self.model = model
         self.train_loader = train_loader
@@ -81,17 +82,21 @@ class Trainer:
         self._grad_count = 0
         self.min_loss = math.inf
         self.gpu = gpu
-        self._params: Tuple[ParamSeq, ParamSeq] = ([], [])
-        self.lr_recorder: List[float] = []
-        self.loss_recorder: List[float] = []
+        self._params: tuple[ParamSeq, ParamSeq] = ([], [])
+        self.lr_recorder: list[float] = []
+        self.loss_recorder: list[float] = []
         self.set_device(gpu)
         self._reset_opt(self.optimizer.defaults["lr"])
 
-    def set_device(self, gpu: Optional[int] = None) -> None:
+    def set_device(self, gpu: int | None = None) -> None:
         """Move tensor objects to the target GPU
 
         Args:
             gpu: index of the target GPU device
+
+        Raises:
+            AssertionError: if PyTorch cannot access the GPU
+            ValueError: if the device index is invalid
         """
         if isinstance(gpu, int):
             if not torch.cuda.is_available():
@@ -120,7 +125,7 @@ class Trainer:
             _use_new_zipfile_serialization=False,
         )
 
-    def load(self, state: Dict[str, Any]) -> None:
+    def load(self, state: dict[str, Any]) -> None:
         """Resume from a trainer state
 
         Args:
@@ -137,6 +142,9 @@ class Trainer:
 
         Args:
             mb (fastprogress.master_bar): primary progress bar
+
+        Raises:
+            ValueError: if the loss value is NaN or inf
         """
         freeze_bn(self.model.train())
 
@@ -165,9 +173,20 @@ class Trainer:
         self.epoch += 1
 
     def to_cuda(
-        self, x: Tensor, target: Union[Tensor, List[Dict[str, Tensor]]]
-    ) -> Tuple[Tensor, Union[Tensor, List[Dict[str, Tensor]]]]:
-        """Move input and target to GPU"""
+        self, x: Tensor, target: Tensor | list[dict[str, Tensor]]
+    ) -> tuple[Tensor, Tensor | list[dict[str, Tensor]]]:
+        """Move input and target to GPU
+
+        Args:
+            x (Tensor): input tensor
+            target (Tensor | list[dict[str, Tensor]]): target tensor or list of target dictionaries
+
+        Returns:
+            tuple[Tensor, Tensor | list[dict[str, Tensor]]]: tuple of input and target tensors
+
+        Raises:
+            ValueError: if the device index is invalid
+        """
         if isinstance(self.gpu, int):
             if self.gpu >= torch.cuda.device_count():
                 raise ValueError("Invalid device index")
@@ -175,8 +194,7 @@ class Trainer:
         return x, target
 
     @staticmethod
-    def _to_cuda(x: Tensor, target: Tensor) -> Tuple[Tensor, Tensor]:
-        """Move input and target to GPU"""
+    def _to_cuda(x: Tensor, target: Tensor) -> tuple[Tensor, Tensor]:
         x = x.cuda(non_blocking=True)
         target = target.cuda(non_blocking=True)
         return x, target
@@ -207,7 +225,7 @@ class Trainer:
                 self.optimizer.zero_grad()
                 self._grad_count = 0
 
-    def _get_loss(self, x: Tensor, target: Tensor, return_logits: bool = False) -> Union[Tensor, Tuple[Tensor, Tensor]]:
+    def _get_loss(self, x: Tensor, target: Tensor, return_logits: bool = False) -> Tensor | tuple[Tensor, Tensor]:
         # AMP
         if self.amp:
             with torch.cuda.amp.autocast():
@@ -226,7 +244,7 @@ class Trainer:
             return loss, out
         return loss
 
-    def _set_params(self, norm_weight_decay: Optional[float] = None) -> None:
+    def _set_params(self, norm_weight_decay: float | None = None) -> None:
         if not any(p.requires_grad for p in self.model.parameters()):
             raise AssertionError("All parameters are frozen")
 
@@ -235,7 +253,7 @@ class Trainer:
         else:
             self._params = split_normalization_params(self.model)
 
-    def _reset_opt(self, lr: float, norm_weight_decay: Optional[float] = None) -> None:
+    def _reset_opt(self, lr: float, norm_weight_decay: float | None = None) -> None:
         """Reset the target params of the optimizer"""
         self.optimizer.defaults["lr"] = lr
         self.optimizer.state = defaultdict(dict)
@@ -246,13 +264,13 @@ class Trainer:
             self.optimizer.add_param_group({"params": self._params[0]})
         else:
             wd_groups = [norm_weight_decay, self.optimizer.defaults.get("weight_decay", 0)]
-            for _params, _wd in zip(self._params, wd_groups):
+            for _params, _wd in zip(self._params, wd_groups, strict=True):
                 if len(_params) > 0:
                     self.optimizer.add_param_group({"params": _params, "weight_decay": _wd})
         self.optimizer.zero_grad()
 
     @torch.inference_mode()
-    def evaluate(self):  # type: ignore[no-untyped-def]  # noqa: ANN201
+    def evaluate(self):  # type: ignore[no-untyped-def]  # noqa: D102, ANN201
         raise NotImplementedError
 
     @staticmethod
@@ -272,9 +290,9 @@ class Trainer:
         self,
         num_epochs: int,
         lr: float,
-        freeze_until: Optional[str] = None,
+        freeze_until: str | None = None,
         sched_type: str = "onecycle",
-        norm_weight_decay: Optional[float] = None,
+        norm_weight_decay: float | None = None,
         **kwargs: Any,
     ) -> None:
         """Train the model for a given number of epochs.
@@ -317,10 +335,10 @@ class Trainer:
 
     def find_lr(
         self,
-        freeze_until: Optional[str] = None,
+        freeze_until: str | None = None,
         start_lr: float = 1e-7,
         end_lr: float = 1,
-        norm_weight_decay: Optional[float] = None,
+        norm_weight_decay: float | None = None,
         num_it: int = 100,
     ) -> None:
         """Gridsearch the optimal learning rate for the training as described in
@@ -332,6 +350,9 @@ class Trainer:
            end_lr (float, optional): final learning rate
            norm_weight_decay (float, optional): weight decay to apply to normalization parameters
            num_it (int, optional): number of iterations to perform
+
+        Raises:
+            ValueError: if the number of iterations is greater than the number of available batches
         """
         if num_it > len(self.train_loader):
             raise ValueError("the value of `num_it` needs to be lower than the number of available batches")
@@ -375,6 +396,9 @@ class Trainer:
         Args:
             beta (float, optional): smoothing factor
             kwargs: keyword args of matplotlib.pyplot.show
+
+        Raises:
+            AssertionError: if the number of learning rate recorder and loss recorder are not the same or if the number of learning rate recorder is 0
         """
         if len(self.lr_recorder) != len(self.loss_recorder) or len(self.lr_recorder) == 0:
             raise AssertionError("Please run the `lr_find` method first")
@@ -406,9 +430,9 @@ class Trainer:
 
     def check_setup(
         self,
-        freeze_until: Optional[str] = None,
+        freeze_until: str | None = None,
         lr: float = 3e-4,
-        norm_weight_decay: Optional[float] = None,
+        norm_weight_decay: float | None = None,
         num_it: int = 100,
         **kwargs: Any,
     ) -> None:
@@ -420,6 +444,9 @@ class Trainer:
             norm_weight_decay (float, optional): weight decay to apply to normalization parameters
             num_it (int, optional): number of iterations to perform
             kwargs: keyword args of matplotlib.pyplot.show
+
+        Raises:
+            ValueError: if the loss value is NaN or inf
         """
         freeze_model(self.model.train(), freeze_until)
         # Update param groups & LR

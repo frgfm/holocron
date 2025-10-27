@@ -3,7 +3,8 @@
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
-from typing import Any, Callable, Dict, List, Optional, Type, Union
+from collections.abc import Callable
+from typing import Any
 
 from torch.nn import Module
 
@@ -16,7 +17,7 @@ from .resnet import ResNet, _ResBlock
 __all__ = ["PyBottleneck", "pyconv_resnet50", "pyconvhg_resnet50"]
 
 
-default_cfgs: Dict[str, Dict[str, Any]] = {
+default_cfgs: dict[str, dict[str, Any]] = {
     "pyconv_resnet50": {
         **IMAGENETTE.__dict__,
         "input_shape": (3, 224, 224),
@@ -38,13 +39,13 @@ class PyBottleneck(_ResBlock):
         inplanes: int,
         planes: int,
         stride: int = 1,
-        downsample: Optional[Module] = None,
-        groups: Optional[List[int]] = None,
+        downsample: Module | None = None,
+        groups: list[int] | None = None,
         base_width: int = 64,
         dilation: int = 1,
-        act_layer: Optional[Module] = None,
-        norm_layer: Optional[Callable[[int], Module]] = None,
-        drop_layer: Optional[Callable[..., Module]] = None,
+        act_layer: Module | None = None,
+        norm_layer: Callable[[int], Module] | None = None,
+        drop_layer: Callable[..., Module] | None = None,
         num_levels: int = 2,
         **kwargs: Any,
     ) -> None:
@@ -106,11 +107,11 @@ def _pyconvresnet(
     arch: str,
     pretrained: bool,
     progress: bool,
-    block: Type[Union[PyBottleneck, PyHGBottleneck]],
-    num_blocks: List[int],
-    out_chans: List[int],
+    block: type[PyBottleneck | PyHGBottleneck],
+    num_blocks: list[int],
+    out_chans: list[int],
     width_per_group: int,
-    groups: List[List[int]],
+    groups: list[list[int]],
     **kwargs: Any,
 ) -> ResNet:
     # Build the model

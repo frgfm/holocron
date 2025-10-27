@@ -4,11 +4,12 @@
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
 from collections import OrderedDict
+from collections.abc import Callable
 from enum import Enum
-from typing import Any, Callable, List, Optional, Tuple, Union
+from typing import Any
 
 import torch
-import torch.nn as nn
+from torch import nn
 
 from holocron.nn import DropBlock2d, GlobalAvgPool2d
 from holocron.nn.init import init_module
@@ -25,10 +26,10 @@ class ResBlock(_ResBlock):
         self,
         planes: int,
         mid_planes: int,
-        act_layer: Optional[nn.Module] = None,
-        norm_layer: Optional[Callable[[int], nn.Module]] = None,
-        drop_layer: Optional[Callable[..., nn.Module]] = None,
-        conv_layer: Optional[Callable[..., nn.Module]] = None,
+        act_layer: nn.Module | None = None,
+        norm_layer: Callable[[int], nn.Module] | None = None,
+        drop_layer: Callable[..., nn.Module] | None = None,
+        conv_layer: Callable[..., nn.Module] | None = None,
     ) -> None:
         super().__init__(
             conv_sequence(
@@ -73,14 +74,14 @@ class ResBlock(_ResBlock):
 class DarknetBodyV3(nn.Sequential):
     def __init__(
         self,
-        layout: List[Tuple[int, int]],
+        layout: list[tuple[int, int]],
         in_channels: int = 3,
         stem_channels: int = 32,
         num_features: int = 1,
-        act_layer: Optional[nn.Module] = None,
-        norm_layer: Optional[Callable[[int], nn.Module]] = None,
-        drop_layer: Optional[Callable[..., nn.Module]] = None,
-        conv_layer: Optional[Callable[..., nn.Module]] = None,
+        act_layer: nn.Module | None = None,
+        norm_layer: Callable[[int], nn.Module] | None = None,
+        drop_layer: Callable[..., nn.Module] | None = None,
+        conv_layer: Callable[..., nn.Module] | None = None,
     ) -> None:
         if act_layer is None:
             act_layer = nn.LeakyReLU(0.1, inplace=True)
@@ -113,7 +114,7 @@ class DarknetBodyV3(nn.Sequential):
                         self._make_layer(
                             num_blocks, _in_chans, out_chans, act_layer, norm_layer, drop_layer, conv_layer
                         )
-                        for _in_chans, (out_chans, num_blocks) in zip(in_chans, layout)
+                        for _in_chans, (out_chans, num_blocks) in zip(in_chans, layout, strict=True)
                     ]),
                 ),
             ])
@@ -125,10 +126,10 @@ class DarknetBodyV3(nn.Sequential):
         num_blocks: int,
         in_planes: int,
         out_planes: int,
-        act_layer: Optional[nn.Module] = None,
-        norm_layer: Optional[Callable[[int], nn.Module]] = None,
-        drop_layer: Optional[Callable[..., nn.Module]] = None,
-        conv_layer: Optional[Callable[..., nn.Module]] = None,
+        act_layer: nn.Module | None = None,
+        norm_layer: Callable[[int], nn.Module] | None = None,
+        drop_layer: Callable[..., nn.Module] | None = None,
+        conv_layer: Callable[..., nn.Module] | None = None,
     ) -> nn.Sequential:
         layers = conv_sequence(
             in_planes,
@@ -149,7 +150,7 @@ class DarknetBodyV3(nn.Sequential):
 
         return nn.Sequential(*layers)
 
-    def forward(self, x: torch.Tensor) -> Union[torch.Tensor, List[torch.Tensor]]:
+    def forward(self, x: torch.Tensor) -> torch.Tensor | list[torch.Tensor]:
         if self.num_features == 1:
             return super().forward(x)
 
@@ -168,14 +169,14 @@ class DarknetBodyV3(nn.Sequential):
 class DarknetV3(nn.Sequential):
     def __init__(
         self,
-        layout: List[Tuple[int, int]],
+        layout: list[tuple[int, int]],
         num_classes: int = 10,
         in_channels: int = 3,
         stem_channels: int = 32,
-        act_layer: Optional[nn.Module] = None,
-        norm_layer: Optional[Callable[[int], nn.Module]] = None,
-        drop_layer: Optional[Callable[..., nn.Module]] = None,
-        conv_layer: Optional[Callable[..., nn.Module]] = None,
+        act_layer: nn.Module | None = None,
+        norm_layer: Callable[[int], nn.Module] | None = None,
+        drop_layer: Callable[..., nn.Module] | None = None,
+        conv_layer: Callable[..., nn.Module] | None = None,
     ) -> None:
         super().__init__(
             OrderedDict([
@@ -192,9 +193,9 @@ class DarknetV3(nn.Sequential):
 
 
 def _darknet(
-    checkpoint: Union[Checkpoint, None],
+    checkpoint: Checkpoint | None,
     progress: bool,
-    layout: List[Tuple[int, int]],
+    layout: list[tuple[int, int]],
     **kwargs: Any,
 ) -> DarknetV3:
     # Build the model
@@ -223,7 +224,7 @@ class Darknet53_Checkpoint(Enum):
 
 def darknet53(
     pretrained: bool = False,
-    checkpoint: Union[Checkpoint, None] = None,
+    checkpoint: Checkpoint | None = None,
     progress: bool = True,
     **kwargs: Any,
 ) -> DarknetV3:

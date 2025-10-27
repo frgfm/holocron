@@ -6,12 +6,12 @@
 import functools
 import operator
 from collections import OrderedDict
+from collections.abc import Callable
 from enum import Enum
 from math import ceil
-from typing import Any, Callable, Optional, Union
+from typing import Any
 
-import torch.nn as nn
-from torch import Tensor
+from torch import Tensor, nn
 
 from holocron.nn import GlobalAvgPool2d, init
 
@@ -40,9 +40,9 @@ class SEBlock(nn.Module):
         self,
         channels: int,
         se_ratio: int = 12,
-        act_layer: Optional[nn.Module] = None,
-        norm_layer: Optional[Callable[[int], nn.Module]] = None,
-        drop_layer: Optional[Callable[..., nn.Module]] = None,
+        act_layer: nn.Module | None = None,
+        norm_layer: Callable[[int], nn.Module] | None = None,
+        drop_layer: Callable[..., nn.Module] | None = None,
     ) -> None:
         super().__init__()
         self.pool = GlobalAvgPool2d(flatten=False)
@@ -75,9 +75,9 @@ class ReXBlock(nn.Module):
         stride: int,
         use_se: bool = True,
         se_ratio: int = 12,
-        act_layer: Optional[nn.Module] = None,
-        norm_layer: Optional[Callable[[int], nn.Module]] = None,
-        drop_layer: Optional[Callable[..., nn.Module]] = None,
+        act_layer: nn.Module | None = None,
+        norm_layer: Callable[[int], nn.Module] | None = None,
+        drop_layer: Callable[..., nn.Module] | None = None,
     ) -> None:
         super().__init__()
 
@@ -156,9 +156,9 @@ class ReXNet(nn.Sequential):
         se_ratio: int = 12,
         dropout_ratio: float = 0.2,
         bn_momentum: float = 0.9,
-        act_layer: Optional[nn.Module] = None,
-        norm_layer: Optional[Callable[[int], nn.Module]] = None,
-        drop_layer: Optional[Callable[..., nn.Module]] = None,
+        act_layer: nn.Module | None = None,
+        norm_layer: Callable[[int], nn.Module] | None = None,
+        drop_layer: Callable[..., nn.Module] | None = None,
     ) -> None:
         """Mostly adapted from https://github.com/clovaai/rexnet/blob/master/rexnetv1.py"""
         super().__init__()
@@ -198,7 +198,7 @@ class ReXNet(nn.Sequential):
         )
 
         t = 1
-        for in_c, c, s, se in zip(chans[:-1], chans[1:], strides, ses):
+        for in_c, c, s, se in zip(chans[:-1], chans[1:], strides, ses, strict=True):
             layers.append(ReXBlock(in_channels=in_c, channels=c, t=t, stride=s, use_se=se, se_ratio=se_ratio))
             t = 6
 
@@ -230,7 +230,7 @@ class ReXNet(nn.Sequential):
 
 
 def _rexnet(
-    checkpoint: Union[Checkpoint, None],
+    checkpoint: Checkpoint | None,
     progress: bool,
     width_mult: float,
     depth_mult: float,
@@ -274,7 +274,7 @@ class ReXNet1_0x_Checkpoint(Enum):
 
 def rexnet1_0x(
     pretrained: bool = False,
-    checkpoint: Union[Checkpoint, None] = None,
+    checkpoint: Checkpoint | None = None,
     progress: bool = True,
     **kwargs: Any,
 ) -> ReXNet:
@@ -335,7 +335,7 @@ class ReXNet1_3x_Checkpoint(Enum):
 
 def rexnet1_3x(
     pretrained: bool = False,
-    checkpoint: Union[Checkpoint, None] = None,
+    checkpoint: Checkpoint | None = None,
     progress: bool = True,
     **kwargs: Any,
 ) -> ReXNet:
@@ -396,7 +396,7 @@ class ReXNet1_5x_Checkpoint(Enum):
 
 def rexnet1_5x(
     pretrained: bool = False,
-    checkpoint: Union[Checkpoint, None] = None,
+    checkpoint: Checkpoint | None = None,
     progress: bool = True,
     **kwargs: Any,
 ) -> ReXNet:
@@ -457,7 +457,7 @@ class ReXNet2_0x_Checkpoint(Enum):
 
 def rexnet2_0x(
     pretrained: bool = False,
-    checkpoint: Union[Checkpoint, None] = None,
+    checkpoint: Checkpoint | None = None,
     progress: bool = True,
     **kwargs: Any,
 ) -> ReXNet:
@@ -506,7 +506,7 @@ class ReXNet2_2x_Checkpoint(Enum):
 
 def rexnet2_2x(
     pretrained: bool = False,
-    checkpoint: Union[Checkpoint, None] = None,
+    checkpoint: Checkpoint | None = None,
     progress: bool = True,
     **kwargs: Any,
 ) -> ReXNet:

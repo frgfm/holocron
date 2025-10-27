@@ -1,5 +1,3 @@
-from typing import Optional
-
 import pytest
 import torch
 from torch import nn
@@ -80,7 +78,7 @@ def collate_fn(batch):
 
 
 def _test_trainer(
-    learner: trainer.Trainer, num_it: int, ref_param: str, freeze_until: Optional[str] = None, lr: float = 1e-3
+    learner: trainer.Trainer, num_it: int, ref_param: str, freeze_until: str | None = None, lr: float = 1e-3
 ) -> None:
     trainer.utils.freeze_model(learner.model.train(), freeze_until)
     learner._reset_opt(lr)

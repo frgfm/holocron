@@ -4,7 +4,7 @@
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
 import math
-from typing import Tuple, cast
+from typing import cast
 
 import torch
 from torch import Tensor
@@ -13,7 +13,7 @@ from torchvision.ops.boxes import box_area, box_iou
 __all__ = ["box_giou", "ciou_loss", "diou_loss"]
 
 
-def _box_iou(boxes1: Tensor, boxes2: Tensor) -> Tuple[Tensor, Tensor]:
+def _box_iou(boxes1: Tensor, boxes2: Tensor) -> tuple[Tensor, Tensor]:
     # from https://github.com/facebookresearch/detr/blob/master/util/box_ops.py
     area1 = box_area(boxes1)
     area2 = box_area(boxes2)
@@ -50,6 +50,9 @@ def box_giou(boxes1: Tensor, boxes2: Tensor) -> Tensor:
 
     Returns:
         torch.Tensor[M, N]: Generalized-IoU
+
+    Raises:
+        AssertionError: if the boxes are in incorrect coordinate format
     """
     # degenerate boxes gives inf / nan results
     # so do an early check

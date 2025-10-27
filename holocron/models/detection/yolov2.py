@@ -3,12 +3,12 @@
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from collections.abc import Callable
+from typing import Any
 
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
-from torch import Tensor
+from torch import Tensor, nn
 from torchvision.ops.misc import FrozenBatchNorm2d
 
 from holocron.nn import ConcatDownsample2d
@@ -22,7 +22,7 @@ from .yolo import _YOLO
 __all__ = ["YOLOv2", "yolov2"]
 
 
-default_cfgs: Dict[str, Dict[str, Any]] = {
+default_cfgs: dict[str, dict[str, Any]] = {
     "yolov2": {"arch": "YOLOv2", "backbone": dark_cfgs["darknet19"], "url": None},
 }
 
@@ -30,11 +30,11 @@ default_cfgs: Dict[str, Dict[str, Any]] = {
 class YOLOv2(_YOLO):
     def __init__(
         self,
-        layout: List[Tuple[int, int]],
+        layout: list[tuple[int, int]],
         num_classes: int = 20,
         in_channels: int = 3,
         stem_chanels: int = 32,
-        anchors: Optional[Tensor] = None,
+        anchors: Tensor | None = None,
         passthrough_ratio: int = 8,
         lambda_obj: float = 1,
         lambda_noobj: float = 0.5,
@@ -42,11 +42,11 @@ class YOLOv2(_YOLO):
         lambda_coords: float = 5,
         rpn_nms_thresh: float = 0.7,
         box_score_thresh: float = 0.05,
-        act_layer: Optional[nn.Module] = None,
-        norm_layer: Optional[Callable[[int], nn.Module]] = None,
-        drop_layer: Optional[Callable[..., nn.Module]] = None,
-        conv_layer: Optional[Callable[..., nn.Module]] = None,
-        backbone_norm_layer: Optional[Callable[[int], nn.Module]] = None,
+        act_layer: nn.Module | None = None,
+        norm_layer: Callable[[int], nn.Module] | None = None,
+        drop_layer: Callable[..., nn.Module] | None = None,
+        conv_layer: Callable[..., nn.Module] | None = None,
+        backbone_norm_layer: Callable[[int], nn.Module] | None = None,
     ) -> None:
         super().__init__(
             num_classes, rpn_nms_thresh, box_score_thresh, lambda_obj, lambda_noobj, lambda_class, lambda_coords
@@ -148,13 +148,14 @@ class YOLOv2(_YOLO):
         return self.anchors.shape[0]
 
     @staticmethod
-    def to_isoboxes(b_coords: Tensor, grid_shape: Tuple[int, int], clamp: bool = False) -> Tensor:
+    def to_isoboxes(b_coords: Tensor, grid_shape: tuple[int, int], clamp: bool = False) -> Tensor:
         """Converts xywh boxes to xyxy format.
 
         Args:
             b_coords: tensor of shape (..., 4) where the last dimension is xcenter,ycenter,w,h
             grid_shape: the size of the grid
             clamp: whether the coords should be clamped to the extreme values
+
         Returns:
             tensor with the boxes using relative coords
         """
@@ -166,7 +167,7 @@ class YOLOv2(_YOLO):
 
         return pred_xyxy
 
-    def _format_outputs(self, x: Tensor) -> Tuple[Tensor, Tensor, Tensor]:
+    def _format_outputs(self, x: Tensor) -> tuple[Tensor, Tensor, Tensor]:
         """Formats convolutional layer output
 
         Args:
@@ -211,8 +212,8 @@ class YOLOv2(_YOLO):
         return self.head(out)
 
     def forward(
-        self, x: Union[Tensor, List[Tensor], Tuple[Tensor, ...]], target: Optional[List[Dict[str, Tensor]]] = None
-    ) -> Union[Dict[str, Tensor], List[Dict[str, Tensor]]]:
+        self, x: Tensor | list[Tensor] | tuple[Tensor, ...], target: list[dict[str, Tensor]] | None = None
+    ) -> dict[str, Tensor] | list[dict[str, Tensor]]:
         """Perform detection on an image tensor and returns either the loss dictionary in training mode
         or the list of detections in eval mode.
 
@@ -220,6 +221,12 @@ class YOLOv2(_YOLO):
             x (torch.Tensor[N, 3, H, W]): input image tensor
             target (list<dict>, optional): each dict must have two keys `boxes` of type torch.Tensor[-1, 4]
             and `labels` of type torch.Tensor[-1]
+
+        Returns:
+            dict[str, Tensor] | list[dict[str, Tensor]]: loss dictionary in training mode or list of detections in eval mode
+
+        Raises:
+            ValueError: if `target` is not specified in training mode
         """
         if self.training and target is None:
             raise ValueError("`target` needs to be specified in training mode")
@@ -253,7 +260,7 @@ class YOLOv2(_YOLO):
 
 
 def _yolo(
-    arch: str, pretrained: bool, progress: bool, pretrained_backbone: bool, layout: List[Tuple[int, int]], **kwargs: Any
+    arch: str, pretrained: bool, progress: bool, pretrained_backbone: bool, layout: list[tuple[int, int]], **kwargs: Any
 ) -> YOLOv2:
     if pretrained:
         pretrained_backbone = False

@@ -3,11 +3,12 @@
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
+from collections.abc import Callable
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any
 
 import torch
-import torch.nn as nn
+from torch import nn
 
 from holocron.nn import GlobalAvgPool2d
 
@@ -19,7 +20,7 @@ from .resnet import ResNet, _ResBlock
 __all__ = ["SKBottleneck", "SKConv2d", "SKNet50_Checkpoint", "SoftAttentionLayer", "sknet50", "sknet101", "sknet152"]
 
 
-default_cfgs: Dict[str, Dict[str, Any]] = {
+default_cfgs: dict[str, dict[str, Any]] = {
     "sknet50": {
         **IMAGENETTE.__dict__,
         "input_shape": (3, 224, 224),
@@ -44,9 +45,9 @@ class SoftAttentionLayer(nn.Sequential):
         channels: int,
         sa_ratio: int = 16,
         out_multiplier: int = 1,
-        act_layer: Optional[nn.Module] = None,
-        norm_layer: Optional[Callable[[int], nn.Module]] = None,
-        drop_layer: Optional[Callable[..., nn.Module]] = None,
+        act_layer: nn.Module | None = None,
+        norm_layer: Callable[[int], nn.Module] | None = None,
+        drop_layer: Callable[..., nn.Module] | None = None,
     ) -> None:
         super().__init__(
             GlobalAvgPool2d(flatten=False),
@@ -79,9 +80,9 @@ class SKConv2d(nn.Module):
         out_channels: int,
         m: int = 2,
         sa_ratio: int = 16,
-        act_layer: Optional[nn.Module] = None,
-        norm_layer: Optional[Callable[[int], nn.Module]] = None,
-        drop_layer: Optional[Callable[..., nn.Module]] = None,
+        act_layer: nn.Module | None = None,
+        norm_layer: Callable[[int], nn.Module] | None = None,
+        drop_layer: Callable[..., nn.Module] | None = None,
         **kwargs: Any,
     ) -> None:
         super().__init__()
@@ -121,14 +122,14 @@ class SKBottleneck(_ResBlock):
         inplanes: int,
         planes: int,
         stride: int = 1,
-        downsample: Optional[nn.Module] = None,
+        downsample: nn.Module | None = None,
         groups: int = 32,
         base_width: int = 64,
         dilation: int = 1,
-        act_layer: Optional[nn.Module] = None,
-        norm_layer: Optional[Callable[[int], nn.Module]] = None,
-        drop_layer: Optional[Callable[..., nn.Module]] = None,
-        conv_layer: Optional[Callable[..., nn.Module]] = None,
+        act_layer: nn.Module | None = None,
+        norm_layer: Callable[[int], nn.Module] | None = None,
+        drop_layer: Callable[..., nn.Module] | None = None,
+        conv_layer: Callable[..., nn.Module] | None = None,
         **kwargs: Any,
     ) -> None:
         width = int(planes * (base_width / 64.0)) * groups
@@ -166,10 +167,10 @@ class SKBottleneck(_ResBlock):
 
 
 def _sknet(
-    checkpoint: Union[Checkpoint, None],
+    checkpoint: Checkpoint | None,
     progress: bool,
-    num_blocks: List[int],
-    out_chans: List[int],
+    num_blocks: list[int],
+    out_chans: list[int],
     **kwargs: Any,
 ) -> ResNet:
     # Build the model
@@ -198,7 +199,7 @@ class SKNet50_Checkpoint(Enum):
 
 def sknet50(
     pretrained: bool = False,
-    checkpoint: Union[Checkpoint, None] = None,
+    checkpoint: Checkpoint | None = None,
     progress: bool = True,
     **kwargs: Any,
 ) -> ResNet:
@@ -227,7 +228,7 @@ def sknet50(
 
 def sknet101(
     pretrained: bool = False,
-    checkpoint: Union[Checkpoint, None] = None,
+    checkpoint: Checkpoint | None = None,
     progress: bool = True,
     **kwargs: Any,
 ) -> ResNet:
@@ -248,7 +249,7 @@ def sknet101(
 
 def sknet152(
     pretrained: bool = False,
-    checkpoint: Union[Checkpoint, None] = None,
+    checkpoint: Checkpoint | None = None,
     progress: bool = True,
     **kwargs: Any,
 ) -> ResNet:

@@ -4,9 +4,10 @@
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
 import multiprocessing as mp
+from collections.abc import Callable, Iterable, Sequence
 from math import sqrt
 from multiprocessing.pool import ThreadPool
-from typing import Any, Callable, Iterable, Optional, Sequence, Tuple, TypeVar
+from typing import Any, TypeVar
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -23,7 +24,7 @@ __all__ = ["find_image_size", "parallel"]
 def parallel(
     func: Callable[[Inp], Out],
     arr: Sequence[Inp],
-    num_threads: Optional[int] = None,
+    num_threads: int | None = None,
     progress: bool = False,
     **kwargs: Any,
 ) -> Iterable[Out]:
@@ -52,15 +53,12 @@ def parallel(
     return results
 
 
-def find_image_size(dataset: Sequence[Tuple[Image.Image, Any]], **kwargs: Any) -> None:
+def find_image_size(dataset: Sequence[tuple[Image.Image, Any]], **kwargs: Any) -> None:
     """Computes the best image size target for a given set of images
 
     Args:
         dataset: an iterator yielding a PIL Image and a target object
         kwargs: keyword args of matplotlib.pyplot.show
-
-    Returns:
-        the suggested height and width to be used
     """
     # Record height & width
     shapes_ = parallel(lambda x: x[0].size, dataset, progress=True)

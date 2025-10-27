@@ -3,11 +3,10 @@
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
-from typing import ClassVar, List
+from typing import ClassVar
 
 import torch
-import torch.nn as nn
-from torch import Tensor
+from torch import Tensor, nn
 
 from .. import functional as F
 
@@ -15,7 +14,7 @@ __all__ = ["FReLU", "HardMish", "NLReLU"]
 
 
 class _Activation(nn.Module):
-    __constants__: ClassVar[List[str]] = ["inplace"]
+    __constants__: ClassVar[list[str]] = ["inplace"]
 
     def __init__(self, inplace: bool = False) -> None:
         super().__init__()

@@ -3,7 +3,6 @@
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
-from typing import Tuple
 
 import torch
 from torch import Tensor
@@ -35,7 +34,7 @@ class Mixup(torch.nn.Module):
             raise ValueError("`alpha` only takes positive values")
         self.alpha = alpha
 
-    def forward(self, inputs: Tensor, targets: Tensor) -> Tuple[Tensor, Tensor]:
+    def forward(self, inputs: Tensor, targets: Tensor) -> tuple[Tensor, Tensor]:  # noqa: D102
         # Convert target to one-hot
         if targets.ndim == 1:
             # (N,) --> (N, C)

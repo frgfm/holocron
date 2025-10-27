@@ -4,7 +4,8 @@
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
 import math
-from typing import Any, Dict, Sequence, Tuple, Union, cast
+from collections.abc import Sequence
+from typing import Any, cast
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -40,7 +41,7 @@ class ClassificationTrainer(Trainer):
     is_binary: bool = False
 
     @torch.inference_mode()
-    def evaluate(self) -> Dict[str, float]:
+    def evaluate(self) -> dict[str, float]:
         """Evaluate the model on the validation set
 
         Returns:
@@ -72,7 +73,7 @@ class ClassificationTrainer(Trainer):
         return {"val_loss": val_loss, "acc1": top1 / num_samples, "acc5": top5 / num_samples}
 
     @staticmethod
-    def _eval_metrics_str(eval_metrics: Dict[str, float]) -> str:
+    def _eval_metrics_str(eval_metrics: dict[str, float]) -> str:
         return (
             f"Validation loss: {eval_metrics['val_loss']:.4} "
             f"(Acc@1: {eval_metrics['acc1']:.2%}, Acc@5: {eval_metrics['acc5']:.2%})"
@@ -81,12 +82,24 @@ class ClassificationTrainer(Trainer):
     @torch.inference_mode()
     def plot_top_losses(
         self,
-        mean: Tuple[float, float, float],
-        std: Tuple[float, float, float],
-        classes: Union[Sequence[str], None] = None,
+        mean: tuple[float, float, float],
+        std: tuple[float, float, float],
+        classes: Sequence[str] | None = None,
         num_samples: int = 12,
         **kwargs: Any,
     ) -> None:
+        """Plot the top losses
+
+        Args:
+            mean (tuple[float, float, float]): mean of the dataset
+            std (tuple[float, float, float]): standard deviation of the dataset
+            classes (Sequence[str], optional): list of classes
+            num_samples (int, optional): number of samples to plot
+            kwargs: keyword args of matplotlib.pyplot.show
+
+        Raises:
+            AssertionError: if the argument 'classes' is not specified for multi-class classification
+        """
         # Record loss, prob, target, image
         losses = np.zeros(num_samples, dtype=np.float32)
         preds = np.zeros(num_samples, dtype=int)
@@ -142,7 +155,7 @@ class ClassificationTrainer(Trainer):
         num_cols = 4
         num_rows = math.ceil(num_samples / num_cols)
         _, axes = plt.subplots(num_rows, num_cols, figsize=(20, 5))
-        for idx, (img, pred, prob, target, loss) in enumerate(zip(images, preds, probs, targets, losses)):
+        for idx, (img, pred, prob, target, loss) in enumerate(zip(images, preds, probs, targets, losses, strict=True)):
             row = int(idx / num_cols)
             col = idx - num_cols * row
             axes[row][col].imshow(img)
@@ -177,7 +190,7 @@ class BinaryClassificationTrainer(ClassificationTrainer):
 
     def _get_loss(
         self, x: torch.Tensor, target: torch.Tensor, return_logits: bool = False
-    ) -> Union[Tensor, Tuple[Tensor, Tensor]]:
+    ) -> Tensor | tuple[Tensor, Tensor]:
         # In case target are stored as long
         target = target.to(dtype=x.dtype)
 
@@ -200,7 +213,7 @@ class BinaryClassificationTrainer(ClassificationTrainer):
         return loss
 
     @torch.inference_mode()
-    def evaluate(self) -> Dict[str, float]:
+    def evaluate(self) -> dict[str, float]:
         """Evaluate the model on the validation set
 
         Returns:
@@ -228,5 +241,5 @@ class BinaryClassificationTrainer(ClassificationTrainer):
         return {"val_loss": val_loss, "acc": top1 / num_samples}
 
     @staticmethod
-    def _eval_metrics_str(eval_metrics: Dict[str, float]) -> str:
+    def _eval_metrics_str(eval_metrics: dict[str, float]) -> str:
         return f"Validation loss: {eval_metrics['val_loss']:.4} (Acc: {eval_metrics['acc']:.2%})"

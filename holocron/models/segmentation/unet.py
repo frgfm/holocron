@@ -4,14 +4,15 @@
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
 from collections import OrderedDict
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from collections.abc import Callable
+from itertools import pairwise
+from typing import Any
 
 import torch
-import torch.nn as nn
-from torch import Tensor
+from torch import Tensor, nn
 from torch.nn import functional as F
 from torchvision.models import resnet34, vgg11
-from torchvision.models._utils import IntermediateLayerGetter
+from torchvision.models._utils import IntermediateLayerGetter  # noqa: PLC2701
 
 from ...nn import GlobalAvgPool2d
 from ...nn.init import init_module
@@ -21,7 +22,7 @@ from ..utils import conv_sequence, load_pretrained_params
 __all__ = ["DynamicUNet", "UNet", "unet", "unet2", "unet_rexnet13", "unet_tvresnet34", "unet_tvvgg11"]
 
 
-default_cfgs: Dict[str, Dict[str, Any]] = {
+default_cfgs: dict[str, dict[str, Any]] = {
     "unet": {"encoder_layout": [64, 128, 256, 512], "url": None},
     "unet2": {"encoder_layout": [64, 128, 256, 512], "backbone_layers": ["0", "1", "2", "3"], "url": None},
     "unet_vgg11": {"backbone_layers": ["1", "4", "9", "14", "19"], "url": None},
@@ -38,12 +39,12 @@ def down_path(
     out_chan: int,
     downsample: bool = True,
     padding: int = 0,
-    act_layer: Optional[nn.Module] = None,
-    norm_layer: Optional[Callable[[int], nn.Module]] = None,
-    drop_layer: Optional[Callable[..., nn.Module]] = None,
-    conv_layer: Optional[Callable[..., nn.Module]] = None,
+    act_layer: nn.Module | None = None,
+    norm_layer: Callable[[int], nn.Module] | None = None,
+    drop_layer: Callable[..., nn.Module] | None = None,
+    conv_layer: Callable[..., nn.Module] | None = None,
 ) -> nn.Sequential:
-    layers: List[nn.Module] = [nn.MaxPool2d(2)] if downsample else []
+    layers: list[nn.Module] = [nn.MaxPool2d(2)] if downsample else []
     layers.extend([
         *conv_sequence(
             in_chan, out_chan, act_layer, norm_layer, drop_layer, conv_layer, kernel_size=3, padding=padding
@@ -62,10 +63,10 @@ class UpPath(nn.Module):
         out_chan: int,
         bilinear_upsampling: bool = True,
         padding: int = 0,
-        act_layer: Optional[nn.Module] = None,
-        norm_layer: Optional[Callable[[int], nn.Module]] = None,
-        drop_layer: Optional[Callable[..., nn.Module]] = None,
-        conv_layer: Optional[Callable[..., nn.Module]] = None,
+        act_layer: nn.Module | None = None,
+        norm_layer: Callable[[int], nn.Module] | None = None,
+        drop_layer: Callable[..., nn.Module] | None = None,
+        conv_layer: Callable[..., nn.Module] | None = None,
     ) -> None:
         super().__init__()
 
@@ -84,7 +85,7 @@ class UpPath(nn.Module):
             ),
         )
 
-    def forward(self, downfeats: Union[Tensor, List[Tensor]], upfeat: Tensor) -> Tensor:
+    def forward(self, downfeats: Tensor | list[Tensor], upfeat: Tensor) -> Tensor:
         if not isinstance(downfeats, list):
             downfeats = [downfeats]
         # Upsample expansive features
@@ -104,23 +105,23 @@ class UpPath(nn.Module):
 class UNetBackbone(nn.Sequential):
     def __init__(
         self,
-        layout: List[int],
+        layout: list[int],
         in_channels: int = 3,
         num_classes: int = 10,
-        act_layer: Optional[nn.Module] = None,
-        norm_layer: Optional[Callable[[int], nn.Module]] = None,
-        drop_layer: Optional[Callable[..., nn.Module]] = None,
-        conv_layer: Optional[Callable[..., nn.Module]] = None,
+        act_layer: nn.Module | None = None,
+        norm_layer: Callable[[int], nn.Module] | None = None,
+        drop_layer: Callable[..., nn.Module] | None = None,
+        conv_layer: Callable[..., nn.Module] | None = None,
         same_padding: bool = True,
     ) -> None:
         if act_layer is None:
             act_layer = nn.ReLU(inplace=True)
 
         # Contracting path
-        layers: List[nn.Module] = []
+        layers: list[nn.Module] = []
         layout_ = [in_channels, *layout]
         pool = False
-        for in_chan, out_chan in zip(layout_[:-1], layout_[1:]):
+        for in_chan, out_chan in pairwise(layout_):
             layers.append(
                 down_path(in_chan, out_chan, pool, int(same_padding), act_layer, norm_layer, drop_layer, conv_layer)
             )
@@ -154,13 +155,13 @@ class UNet(nn.Module):
 
     def __init__(
         self,
-        layout: List[int],
+        layout: list[int],
         in_channels: int = 3,
         num_classes: int = 10,
-        act_layer: Optional[nn.Module] = None,
-        norm_layer: Optional[Callable[[int], nn.Module]] = None,
-        drop_layer: Optional[Callable[..., nn.Module]] = None,
-        conv_layer: Optional[Callable[..., nn.Module]] = None,
+        act_layer: nn.Module | None = None,
+        norm_layer: Callable[[int], nn.Module] | None = None,
+        drop_layer: Callable[..., nn.Module] | None = None,
+        conv_layer: Callable[..., nn.Module] | None = None,
         same_padding: bool = True,
         bilinear_upsampling: bool = True,
     ) -> None:
@@ -173,7 +174,7 @@ class UNet(nn.Module):
         self.encoder = nn.ModuleList([])
         layout_ = [in_channels, *layout]
         pool = False
-        for in_chan, out_chan in zip(layout_[:-1], layout_[1:]):
+        for in_chan, out_chan in pairwise(layout_):
             self.encoder.append(
                 down_path(in_chan, out_chan, pool, int(same_padding), act_layer, norm_layer, drop_layer, conv_layer)
             )
@@ -192,7 +193,7 @@ class UNet(nn.Module):
         # Expansive path
         self.decoder = nn.ModuleList([])
         layout_ = [chan // 2 if bilinear_upsampling else chan for chan in layout[::-1][:-1]] + [layout[0]]
-        for in_chan, out_chan in zip([2 * layout[-1]] + layout[::-1][:-1], layout_):
+        for in_chan, out_chan in zip([2 * layout[-1], *layout[::-1][:-1]], layout_, strict=True):
             self.decoder.append(
                 UpPath(
                     in_chan,
@@ -212,7 +213,7 @@ class UNet(nn.Module):
         init_module(self, "relu")
 
     def forward(self, x: Tensor) -> Tensor:
-        xs: List[Tensor] = []
+        xs: list[Tensor] = []
         # Contracting path
         for encoder in self.encoder:
             xs.append(encoder(xs[-1] if len(xs) > 0 else x))
@@ -233,10 +234,10 @@ class UBlock(nn.Module):
         up_chan: int,
         out_chan: int,
         padding: int = 0,
-        act_layer: Optional[nn.Module] = None,
-        norm_layer: Optional[Callable[[int], nn.Module]] = None,
-        drop_layer: Optional[Callable[..., nn.Module]] = None,
-        conv_layer: Optional[Callable[..., nn.Module]] = None,
+        act_layer: nn.Module | None = None,
+        norm_layer: Callable[[int], nn.Module] | None = None,
+        drop_layer: Callable[..., nn.Module] | None = None,
+        conv_layer: Callable[..., nn.Module] | None = None,
     ) -> None:
         super().__init__()
 
@@ -297,12 +298,12 @@ class DynamicUNet(nn.Module):
         self,
         encoder: IntermediateLayerGetter,
         num_classes: int = 10,
-        act_layer: Optional[nn.Module] = None,
-        norm_layer: Optional[Callable[[int], nn.Module]] = None,
-        drop_layer: Optional[Callable[..., nn.Module]] = None,
-        conv_layer: Optional[Callable[..., nn.Module]] = None,
+        act_layer: nn.Module | None = None,
+        norm_layer: Callable[[int], nn.Module] | None = None,
+        drop_layer: Callable[..., nn.Module] | None = None,
+        conv_layer: Callable[..., nn.Module] | None = None,
         same_padding: bool = True,
-        input_shape: Optional[Tuple[int, int, int]] = None,
+        input_shape: tuple[int, int, int] | None = None,
         final_upsampling: bool = False,
     ) -> None:
         super().__init__()
@@ -335,14 +336,14 @@ class DynamicUNet(nn.Module):
 
         # Expansive path
         self.decoder = nn.ModuleList([])
-        layout = chans[::-1][1:] + [chans[0]]
-        for up_chan, out_chan in zip(chans[::-1], layout):
+        layout = [*chans[::-1][1:], chans[0]]
+        for up_chan, out_chan in zip(chans[::-1], layout, strict=True):
             self.decoder.append(
                 UBlock(up_chan, up_chan, out_chan, int(same_padding), act_layer, norm_layer, drop_layer, conv_layer)
             )
 
         # Final upsampling if sizes don't match
-        self.upsample: Optional[nn.Sequential] = None
+        self.upsample: nn.Sequential | None = None
         if final_upsampling:
             self.upsample = nn.Sequential(
                 *conv_sequence(chans[0], chans[0] * 2**2, act_layer, norm_layer, drop_layer, conv_layer, kernel_size=1),
@@ -356,7 +357,7 @@ class DynamicUNet(nn.Module):
 
     def forward(self, x: Tensor) -> Tensor:
         # Contracting path
-        xs: List[Tensor] = list(self.encoder(x).values())
+        xs: list[Tensor] = list(self.encoder(x).values())
         x = self.bridge(xs[-1])
 
         # Expansive path

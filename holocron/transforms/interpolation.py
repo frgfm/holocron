@@ -3,9 +3,9 @@
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
-from enum import Enum
+from enum import StrEnum
 from math import sqrt
-from typing import Any, Tuple, Union
+from typing import Any
 
 import torch
 from PIL import Image
@@ -16,7 +16,7 @@ from torchvision.transforms.functional import pad, resize
 __all__ = ["RandomZoomOut", "Resize"]
 
 
-class ResizeMethod(str, Enum):
+class ResizeMethod(StrEnum):
     """Resize methods
     Available methods are ``squish``, ``pad``.
     """
@@ -25,7 +25,7 @@ class ResizeMethod(str, Enum):
     PAD = "pad"
 
 
-def _get_image_shape(image: Union[Image.Image, torch.Tensor]) -> Tuple[int, int]:
+def _get_image_shape(image: Image.Image | torch.Tensor) -> tuple[int, int]:
     if isinstance(image, torch.Tensor):
         if image.ndim != 3:
             raise ValueError("the input tensor is expected to be 3-dimensional")
@@ -61,20 +61,20 @@ class Resize(T.Resize):
 
     def __init__(
         self,
-        size: Tuple[int, int],
+        size: tuple[int, int],
         mode: ResizeMethod = ResizeMethod.SQUISH,
         pad_mode: str = "constant",
         **kwargs: Any,
     ) -> None:
         if not isinstance(mode, ResizeMethod):
-            raise ValueError("mode is expected to be a ResizeMethod")
+            raise TypeError("mode is expected to be a ResizeMethod")
         if not isinstance(size, (tuple, list)) or len(size) != 2 or any(s <= 0 for s in size):
             raise ValueError("size is expected to be a sequence of 2 positive integers")
         super().__init__(size, **kwargs)
         self.mode = mode
         self.pad_mode = pad_mode
 
-    def get_params(self, image: Union[Image.Image, torch.Tensor]) -> Tuple[int, int]:
+    def get_params(self, image: Image.Image | torch.Tensor) -> tuple[int, int]:  # noqa: D102
         h, w = _get_image_shape(image)
         o_ratio = h / w
         if self.size[0] / self.size[1] > o_ratio:
@@ -84,7 +84,7 @@ class Resize(T.Resize):
 
         return h_, w_
 
-    def forward(self, image: Union[Image.Image, torch.Tensor]) -> Union[Image.Image, torch.Tensor]:
+    def forward(self, image: Image.Image | torch.Tensor) -> Image.Image | torch.Tensor:  # noqa: D102
         if self.mode == ResizeMethod.SQUISH:
             return super().forward(image)
         h, w = self.get_params(image)
@@ -116,7 +116,7 @@ class RandomZoomOut(nn.Module):
         the resized image
     """
 
-    def __init__(self, size: Tuple[int, int], scale: Tuple[float, float] = (0.5, 1.0), **kwargs: Any) -> None:
+    def __init__(self, size: tuple[int, int], scale: tuple[float, float] = (0.5, 1.0), **kwargs: Any) -> None:
         if not isinstance(size, (tuple, list)) or len(size) != 2 or any(s <= 0 for s in size):
             raise ValueError("size is expected to be a sequence of 2 positive integers")
         if len(scale) != 2 or scale[0] > scale[1]:
@@ -126,7 +126,7 @@ class RandomZoomOut(nn.Module):
         self.scale = scale
         self._kwargs = kwargs
 
-    def get_params(self, image: Union[Image.Image, torch.Tensor]) -> Tuple[int, int]:
+    def get_params(self, image: Image.Image | torch.Tensor) -> tuple[int, int]:  # noqa: D102
         h, w = _get_image_shape(image)
 
         scale = (self.scale[1] - self.scale[0]) * torch.rand(1).item() + self.scale[0]
@@ -141,7 +141,7 @@ class RandomZoomOut(nn.Module):
 
         return h_, w_
 
-    def forward(self, image: Union[Image.Image, torch.Tensor]) -> Union[Image.Image, torch.Tensor]:
+    def forward(self, image: Image.Image | torch.Tensor) -> Image.Image | torch.Tensor:  # noqa: D102
         # Skip dummy cases
         if self.scale[0] == 1:
             return image

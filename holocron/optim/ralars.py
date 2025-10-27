@@ -4,7 +4,7 @@
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
 import math
-from typing import Callable, Iterable, Optional, Tuple
+from collections.abc import Callable, Iterable
 
 import torch
 from torch.optim.optimizer import Optimizer
@@ -29,11 +29,11 @@ class RaLars(Optimizer):
         self,
         params: Iterable[torch.nn.Parameter],
         lr: float = 1e-3,
-        betas: Tuple[float, float] = (0.9, 0.999),
+        betas: tuple[float, float] = (0.9, 0.999),
         eps: float = 1e-8,
         weight_decay: float = 0.0,
         force_adaptive_momentum: bool = False,
-        scale_clip: Optional[Tuple[float, float]] = None,
+        scale_clip: tuple[float, float] | None = None,
     ) -> None:
         if lr < 0.0:
             raise ValueError(f"Invalid learning rate: {lr}")
@@ -44,7 +44,7 @@ class RaLars(Optimizer):
         if not 0.0 <= betas[1] < 1.0:
             raise ValueError(f"Invalid beta parameter at index 1: {betas[1]}")
         defaults = {"lr": lr, "betas": betas, "eps": eps, "weight_decay": weight_decay}
-        super(RaLars, self).__init__(params, defaults)
+        super().__init__(params, defaults)
         # RAdam tweaks
         self.force_adaptive_momentum = force_adaptive_momentum
         # LARS arguments
@@ -53,11 +53,17 @@ class RaLars(Optimizer):
             self.scale_clip = (0, 10)
 
     @torch.no_grad()
-    def step(self, closure: Optional[Callable[[], float]] = None) -> Optional[float]:  # type: ignore[override]
+    def step(self, closure: Callable[[], float] | None = None) -> float | None:  # type: ignore[override]
         """Performs a single optimization step.
 
         Arguments:
             closure (callable, optional): A closure that reevaluates the model and returns the loss.
+
+        Returns:
+            float | None: loss value
+
+        Raises:
+            RuntimeError: if the optimizer does not support sparse gradients
         """
         loss = None
         if closure is not None:
@@ -112,15 +118,14 @@ class RaLars(Optimizer):
                     update.addcdiv_(
                         exp_avg / bias_correction1, (exp_avg_sq / bias_correction2).sqrt().add_(group["eps"]), value=r_t
                     )
+                elif self.force_adaptive_momentum:
+                    # Adaptive momentum without variance rectification (Adam)
+                    update.addcdiv_(
+                        exp_avg / bias_correction1, (exp_avg_sq / bias_correction2).sqrt().add_(group["eps"])
+                    )
                 else:
-                    if self.force_adaptive_momentum:
-                        # Adaptive momentum without variance rectification (Adam)
-                        update.addcdiv_(
-                            exp_avg / bias_correction1, (exp_avg_sq / bias_correction2).sqrt().add_(group["eps"])
-                        )
-                    else:
-                        # Unadapted momentum
-                        update.add_(exp_avg / bias_correction1)
+                    # Unadapted momentum
+                    update.add_(exp_avg / bias_correction1)
 
                 # Weight decay
                 if group["weight_decay"] != 0:

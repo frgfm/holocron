@@ -3,7 +3,7 @@
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
-from typing import Callable, Iterable, Optional, Tuple
+from collections.abc import Callable, Iterable
 
 import torch
 from torch.optim.optimizer import Optimizer
@@ -55,10 +55,10 @@ class LAMB(Optimizer):
         self,
         params: Iterable[torch.nn.Parameter],
         lr: float = 1e-3,
-        betas: Tuple[float, float] = (0.9, 0.999),
+        betas: tuple[float, float] = (0.9, 0.999),
         eps: float = 1e-8,
         weight_decay: float = 0.0,
-        scale_clip: Optional[Tuple[float, float]] = None,
+        scale_clip: tuple[float, float] | None = None,
     ) -> None:
         if lr < 0.0:
             raise ValueError(f"Invalid learning rate: {lr}")
@@ -76,11 +76,17 @@ class LAMB(Optimizer):
             self.scale_clip = (0.0, 10.0)
 
     @torch.no_grad()
-    def step(self, closure: Optional[Callable[[], float]] = None) -> Optional[float]:  # type: ignore[override]
+    def step(self, closure: Callable[[], float] | None = None) -> float | None:  # type: ignore[override]
         """Performs a single optimization step.
 
         Arguments:
             closure (callable, optional): A closure that reevaluates the model and returns the loss.
+
+        Returns:
+            float | None: loss value
+
+        Raises:
+            RuntimeError: if the optimizer does not support sparse gradients
         """
         loss = None
         if closure is not None:

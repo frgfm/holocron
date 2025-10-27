@@ -3,7 +3,7 @@
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
-from typing import Callable, Dict, Iterable, Optional, Tuple
+from collections.abc import Callable, Iterable
 
 import torch
 from torch.optim.optimizer import Optimizer
@@ -58,7 +58,7 @@ class LARS(Optimizer):
         dampening: float = 0.0,
         weight_decay: float = 0.0,
         nesterov: bool = False,
-        scale_clip: Optional[Tuple[float, float]] = None,
+        scale_clip: tuple[float, float] | None = None,
     ) -> None:
         if not isinstance(lr, float) or lr < 0.0:
             raise ValueError(f"Invalid learning rate: {lr}")
@@ -82,17 +82,20 @@ class LARS(Optimizer):
         if self.scale_clip is None:
             self.scale_clip = (0.0, 10.0)
 
-    def __setstate__(self, state: Dict[str, torch.Tensor]) -> None:
+    def __setstate__(self, state: dict[str, torch.Tensor]) -> None:
         super().__setstate__(state)
         for group in self.param_groups:
             group.setdefault("nesterov", False)
 
     @torch.no_grad()
-    def step(self, closure: Optional[Callable[[], float]] = None) -> Optional[float]:  # type: ignore[override]
+    def step(self, closure: Callable[[], float] | None = None) -> float | None:  # type: ignore[override]
         """Performs a single optimization step.
 
         Arguments:
             closure (callable, optional): A closure that reevaluates the model and returns the loss.
+
+        Returns:
+            float | None: loss value
         """
         loss = None
         if closure is not None:

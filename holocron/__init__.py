@@ -1,3 +1,4 @@
+from importlib.metadata import version
 from holocron import models, nn, ops, optim, trainer, transforms, utils
 
-from .version import __version__
+__version__ = version("torchcam")

@@ -4,14 +4,13 @@
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
 import math
-from typing import Any, List, Optional, cast
+from typing import Any, cast
 
 import torch
-import torch.nn as nn
-from torch import Tensor
+from torch import Tensor, nn
 from torch.nn.functional import pad
-from torch.nn.modules.conv import _ConvNd
-from torch.nn.modules.utils import _pair
+from torch.nn.modules.conv import _ConvNd  # noqa: PLC2701
+from torch.nn.modules.utils import _pair  # noqa: PLC2701
 
 from .. import functional as F
 
@@ -396,7 +395,7 @@ class PyConv2d(nn.ModuleList):
         kernel_size: int,
         num_levels: int = 2,
         padding: int = 0,
-        groups: Optional[List[int]] = None,
+        groups: list[int] | None = None,
         **kwargs: Any,
     ) -> None:
         if num_levels == 1:
@@ -420,7 +419,8 @@ class PyConv2d(nn.ModuleList):
             k_sizes = [kernel_size + 2 * idx for idx in range(num_levels)]
             if groups is None:
                 groups = [1] + [
-                    min(2 ** (2 + idx), out_chan) for idx, out_chan in zip(range(num_levels - 1), out_chans[1:])
+                    min(2 ** (2 + idx), out_chan)
+                    for idx, out_chan in zip(range(num_levels - 1), out_chans[1:], strict=True)
                 ]
             elif not isinstance(groups, list) or len(groups) != num_levels:
                 raise ValueError("The argument `group` is expected to be a list of integer of size `num_levels`.")
@@ -428,7 +428,7 @@ class PyConv2d(nn.ModuleList):
 
             super().__init__([
                 nn.Conv2d(in_channels, out_chan, k_size, padding=padding, groups=group, **kwargs)
-                for out_chan, k_size, padding, group in zip(out_chans, k_sizes, paddings, groups)
+                for out_chan, k_size, padding, group in zip(out_chans, k_sizes, paddings, groups, strict=True)
             ])
         self.num_levels = num_levels
 

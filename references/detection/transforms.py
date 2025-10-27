@@ -3,9 +3,7 @@
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
-"""
-Transformation for object detection
-"""
+"""Transformation for object detection"""
 
 import torch
 from torchvision.transforms import functional as F
@@ -43,7 +41,7 @@ class Compose(transforms.Compose):
         return image, target
 
 
-class ImageTransform(object):
+class ImageTransform:
     def __init__(self, transform):
         self.transform = transform
 

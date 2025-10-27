@@ -5,8 +5,7 @@
 
 import logging
 from dataclasses import dataclass
-from enum import Enum
-from typing import Dict, List, Tuple, Union
+from enum import StrEnum
 
 from torchvision.transforms.functional import InterpolationMode
 
@@ -32,19 +31,19 @@ class TrainingRecipe:
         args: the argument values that were passed to the reference script to train this.
     """
 
-    commit: Union[str, None]
-    script: Union[str, None]
-    args: Union[str, None]
+    commit: str | None
+    script: str | None
+    args: str | None
 
 
-class Metric(str, Enum):
+class Metric(StrEnum):
     """Evaluation metric"""
 
     TOP1_ACC = "top1-accuracy"
     TOP5_ACC = "top5-accuracy"
 
 
-class Dataset(str, Enum):
+class Dataset(StrEnum):
     """Training/evaluation dataset"""
 
     IMAGENET1K = "imagenet-1k"
@@ -57,7 +56,7 @@ class Evaluation:
     """Results of model evaluation"""
 
     dataset: Dataset
-    results: Dict[Metric, float]
+    results: dict[Metric, float]
 
 
 @dataclass
@@ -69,16 +68,16 @@ class LoadingMeta:
     size: int
     arch: str
     num_params: int
-    categories: List[str]
+    categories: list[str]
 
 
 @dataclass
 class PreProcessing:
     """Preprocessing metadata for the model"""
 
-    input_shape: Tuple[int, ...]
-    mean: Tuple[float, ...]
-    std: Tuple[float, ...]
+    input_shape: tuple[int, ...]
+    mean: tuple[float, ...]
+    std: tuple[float, ...]
     interpolation: InterpolationMode = InterpolationMode.BILINEAR
 
 
@@ -98,9 +97,9 @@ class Checkpoint:
 
 def _handle_legacy_pretrained(
     pretrained: bool = False,
-    checkpoint: Union[Checkpoint, None] = None,
-    default_checkpoint: Union[Checkpoint, None] = None,
-) -> Union[Checkpoint, None]:
+    checkpoint: Checkpoint | None = None,
+    default_checkpoint: Checkpoint | None = None,
+) -> Checkpoint | None:
     checkpoint = checkpoint or (default_checkpoint if pretrained else None)
 
     if pretrained and checkpoint is None:

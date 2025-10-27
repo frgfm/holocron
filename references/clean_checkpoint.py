@@ -4,6 +4,7 @@
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
 import hashlib
+from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 from pathlib import Path
 
 import torch
@@ -19,11 +20,7 @@ def main(args):
 
 
 def parse_args():
-    import argparse
-
-    parser = argparse.ArgumentParser(
-        description="Training checkpoint cleanup", formatter_class=argparse.ArgumentDefaultsHelpFormatter
-    )
+    parser = ArgumentParser(description="Training checkpoint cleanup", formatter_class=ArgumentDefaultsHelpFormatter)
 
     parser.add_argument("checkpoint", type=str, help="path to the training checkpoint")
     parser.add_argument("outfile", type=str, help="model")

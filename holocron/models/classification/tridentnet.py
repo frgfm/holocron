@@ -3,10 +3,11 @@
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
-from typing import Any, Callable, Dict, List, Optional
+from collections.abc import Callable
+from typing import Any
 
 import torch
-import torch.nn as nn
+from torch import nn
 from torch.nn import functional as F
 
 from ..presets import IMAGENETTE
@@ -15,7 +16,7 @@ from .resnet import ResNet, _ResBlock
 
 __all__ = ["Tridentneck", "tridentnet50"]
 
-default_cfgs: Dict[str, Dict[str, Any]] = {
+default_cfgs: dict[str, dict[str, Any]] = {
     "tridentnet50": {
         **IMAGENETTE.__dict__,
         "input_shape": (3, 224, 224),
@@ -52,7 +53,7 @@ class TridentConv2d(nn.Conv2d):
                     (dilation,) * len(self.dilation),
                     self.groups,
                 )
-                for _x, dilation in zip(torch.chunk(x, self.num_branches, 1), dilations)
+                for _x, dilation in zip(torch.chunk(x, self.num_branches, 1), dilations, strict=True)
             ],
             1,
         )
@@ -66,13 +67,13 @@ class Tridentneck(_ResBlock):
         inplanes: int,
         planes: int,
         stride: int = 1,
-        downsample: Optional[nn.Module] = None,
+        downsample: nn.Module | None = None,
         groups: int = 1,
         base_width: int = 64,
         dilation: int = 3,
-        act_layer: Optional[nn.Module] = None,
-        norm_layer: Optional[Callable[[int], nn.Module]] = None,
-        drop_layer: Optional[Callable[..., nn.Module]] = None,
+        act_layer: nn.Module | None = None,
+        norm_layer: Callable[[int], nn.Module] | None = None,
+        drop_layer: Callable[..., nn.Module] | None = None,
         **kwargs: Any,
     ) -> None:
         if norm_layer is None:
@@ -138,8 +139,8 @@ def _tridentnet(
     arch: str,
     pretrained: bool,
     progress: bool,
-    num_blocks: List[int],
-    out_chans: List[int],
+    num_blocks: list[int],
+    out_chans: list[int],
     **kwargs: Any,
 ) -> ResNet:
     # Build the model

@@ -6,14 +6,13 @@
 __all__ = ["CIFAR10", "IMAGENET", "IMAGENETTE"]
 
 from dataclasses import dataclass
-from typing import List, Tuple
 
 
 @dataclass
 class _Dataset:
-    mean: Tuple[float, ...]
-    std: Tuple[float, ...]
-    classes: List[str]
+    mean: tuple[float, ...]
+    std: tuple[float, ...]
+    classes: list[str]
 
 
 IMAGENET = _Dataset(

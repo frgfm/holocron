@@ -4,7 +4,7 @@
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
 import math
-from typing import Callable, Iterable, List, Optional, Tuple
+from collections.abc import Callable, Iterable
 
 import torch
 from torch import Tensor
@@ -63,7 +63,7 @@ class AdamP(Adam):
         self,
         params: Iterable[torch.nn.Parameter],
         lr: float = 1e-3,
-        betas: Tuple[float, float] = (0.9, 0.999),
+        betas: tuple[float, float] = (0.9, 0.999),
         eps: float = 1e-8,
         weight_decay: float = 0.0,
         amsgrad: bool = False,
@@ -73,11 +73,17 @@ class AdamP(Adam):
         self.delta = delta
 
     @torch.no_grad()
-    def step(self, closure: Optional[Callable[[], float]] = None) -> Optional[float]:  # type: ignore[override]
+    def step(self, closure: Callable[[], float] | None = None) -> float | None:  # type: ignore[override]
         """Performs a single optimization step.
 
         Arguments:
             closure (callable, optional): A closure that reevaluates the model and returns the loss.
+
+        Returns:
+            float | None: loss value
+
+        Raises:
+            RuntimeError: if the optimizer does not support sparse gradients
         """
         loss = None
         if closure is not None:
@@ -142,12 +148,12 @@ class AdamP(Adam):
 
 
 def adamp(
-    params: List[Tensor],
-    grads: List[Tensor],
-    exp_avgs: List[Tensor],
-    exp_avg_sqs: List[Tensor],
-    max_exp_avg_sqs: List[Tensor],
-    state_steps: List[int],
+    params: list[Tensor],
+    grads: list[Tensor],
+    exp_avgs: list[Tensor],
+    exp_avg_sqs: list[Tensor],
+    max_exp_avg_sqs: list[Tensor],
+    state_steps: list[int],
     amsgrad: bool,
     beta1: float,
     beta2: float,

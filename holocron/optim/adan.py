@@ -4,7 +4,7 @@
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
 import math
-from typing import Callable, Iterable, List, Optional, Tuple
+from collections.abc import Callable, Iterable
 
 import torch
 from torch import Tensor
@@ -57,7 +57,7 @@ class Adan(Adam):
         self,
         params: Iterable[torch.nn.Parameter],
         lr: float = 1e-3,
-        betas: Tuple[float, float, float] = (0.98, 0.92, 0.99),
+        betas: tuple[float, float, float] = (0.98, 0.92, 0.99),
         eps: float = 1e-8,
         weight_decay: float = 0.0,
         amsgrad: bool = False,
@@ -65,11 +65,17 @@ class Adan(Adam):
         super().__init__(params, lr, betas, eps, weight_decay, amsgrad)  # type: ignore[arg-type]
 
     @torch.no_grad()
-    def step(self, closure: Optional[Callable[[], float]] = None) -> Optional[float]:  # type: ignore[override]
+    def step(self, closure: Callable[[], float] | None = None) -> float | None:  # type: ignore[override]
         """Performs a single optimization step.
 
         Arguments:
             closure (callable, optional): A closure that reevaluates the model and returns the loss.
+
+        Returns:
+            float | None: loss value
+
+        Raises:
+            RuntimeError: if the optimizer does not support sparse gradients
         """
         loss = None
         if closure is not None:
@@ -143,14 +149,14 @@ class Adan(Adam):
 
 
 def adan(
-    params: List[Tensor],
-    grads: List[Tensor],
-    prev_grads: List[Tensor],
-    exp_avgs: List[Tensor],
-    exp_avg_sqs: List[Tensor],
-    exp_avg_deltas: List[Tensor],
-    max_exp_avg_deltas: List[Tensor],
-    state_steps: List[int],
+    params: list[Tensor],
+    grads: list[Tensor],
+    prev_grads: list[Tensor],
+    exp_avgs: list[Tensor],
+    exp_avg_sqs: list[Tensor],
+    exp_avg_deltas: list[Tensor],
+    max_exp_avg_deltas: list[Tensor],
+    state_steps: list[int],
     amsgrad: bool,
     beta1: float,
     beta2: float,
@@ -196,4 +202,4 @@ def adan(
 
         param.add_(pt, alpha=-lr)
         if weight_decay != 0:
-            param /= 1 + weight_decay * lr
+            param /= 1 + weight_decay * lr  # noqa: PLW2901

@@ -4,12 +4,12 @@
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
 from collections import OrderedDict
+from collections.abc import Callable
 from enum import Enum
-from typing import Any, Callable, List, Optional, Union, cast
+from typing import Any, cast
 
 import torch
-import torch.nn as nn
-from torch import Tensor
+from torch import Tensor, nn
 
 from holocron.nn import GlobalAvgPool2d, init
 
@@ -36,7 +36,7 @@ class DepthConvBlock(nn.ModuleList):
         channels: int,
         num_blocks: int,
         stride: int = 1,
-        norm_layer: Optional[Callable[[int], nn.Module]] = None,
+        norm_layer: Callable[[int], nn.Module] | None = None,
     ) -> None:
         if norm_layer is None:
             norm_layer = nn.BatchNorm2d
@@ -104,7 +104,7 @@ class PointConvBlock(nn.ModuleList):
         in_channels: int,
         out_channels: int,
         num_blocks: int,
-        norm_layer: Optional[Callable[[int], nn.Module]] = None,
+        norm_layer: Callable[[int], nn.Module] | None = None,
     ) -> None:
         if norm_layer is None:
             norm_layer = nn.BatchNorm2d
@@ -155,8 +155,8 @@ class MobileOneBlock(nn.Sequential):
         out_channels: int,
         overparam_factor: int = 1,
         stride: int = 1,
-        act_layer: Optional[nn.Module] = None,
-        norm_layer: Optional[Callable[[int], nn.Module]] = None,
+        act_layer: nn.Module | None = None,
+        norm_layer: Callable[[int], nn.Module] | None = None,
     ) -> None:
         super().__init__()
 
@@ -181,13 +181,13 @@ class MobileOneBlock(nn.Sequential):
 class MobileOne(nn.Sequential):
     def __init__(
         self,
-        num_blocks: List[int],
-        width_multipliers: List[float],
+        num_blocks: list[int],
+        width_multipliers: list[float],
         overparam_factor: int = 1,
         num_classes: int = 10,
         in_channels: int = 3,
-        act_layer: Optional[nn.Module] = None,
-        norm_layer: Optional[Callable[[int], nn.Module]] = None,
+        act_layer: nn.Module | None = None,
+        norm_layer: Callable[[int], nn.Module] | None = None,
     ) -> None:
         if norm_layer is None:
             norm_layer = nn.BatchNorm2d
@@ -195,14 +195,14 @@ class MobileOne(nn.Sequential):
             act_layer = nn.ReLU(inplace=True)
 
         base_planes = [64, 128, 256, 512]
-        planes = [round(mult * chans) for mult, chans in zip(width_multipliers, base_planes)]
+        planes = [round(mult * chans) for mult, chans in zip(width_multipliers, base_planes, strict=True)]
 
         in_planes = min(64, planes[0])
         # Stem
-        layers: List[nn.Module] = [MobileOneBlock(in_channels, in_planes, overparam_factor, 2, act_layer, norm_layer)]
+        layers: list[nn.Module] = [MobileOneBlock(in_channels, in_planes, overparam_factor, 2, act_layer, norm_layer)]
 
         # Consecutive convolutional blocks
-        for _num_blocks, _planes in zip(num_blocks, planes):
+        for _num_blocks, _planes in zip(num_blocks, planes, strict=True):
             # Stride & channel changes
             stage = [MobileOneBlock(in_planes, _planes, overparam_factor, 2, act_layer, norm_layer)]
             # Depth
@@ -236,9 +236,9 @@ class MobileOne(nn.Sequential):
 
 
 def _mobileone(
-    checkpoint: Union[Checkpoint, None],
+    checkpoint: Checkpoint | None,
     progress: bool,
-    width_multipliers: List[float],
+    width_multipliers: list[float],
     overparam_factor: int,
     **kwargs: Any,
 ) -> MobileOne:
@@ -268,7 +268,7 @@ class MobileOne_S0_Checkpoint(Enum):
 
 def mobileone_s0(
     pretrained: bool = False,
-    checkpoint: Union[Checkpoint, None] = None,
+    checkpoint: Checkpoint | None = None,
     progress: bool = True,
     **kwargs: Any,
 ) -> MobileOne:
@@ -316,7 +316,7 @@ class MobileOne_S1_Checkpoint(Enum):
 
 def mobileone_s1(
     pretrained: bool = False,
-    checkpoint: Union[Checkpoint, None] = None,
+    checkpoint: Checkpoint | None = None,
     progress: bool = True,
     **kwargs: Any,
 ) -> MobileOne:
@@ -364,7 +364,7 @@ class MobileOne_S2_Checkpoint(Enum):
 
 def mobileone_s2(
     pretrained: bool = False,
-    checkpoint: Union[Checkpoint, None] = None,
+    checkpoint: Checkpoint | None = None,
     progress: bool = True,
     **kwargs: Any,
 ) -> MobileOne:
@@ -412,7 +412,7 @@ class MobileOne_S3_Checkpoint(Enum):
 
 def mobileone_s3(
     pretrained: bool = False,
-    checkpoint: Union[Checkpoint, None] = None,
+    checkpoint: Checkpoint | None = None,
     progress: bool = True,
     **kwargs: Any,
 ) -> MobileOne:

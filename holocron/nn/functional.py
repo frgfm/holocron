@@ -3,8 +3,9 @@
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
+from collections.abc import Callable
 from math import ceil, floor
-from typing import Callable, Optional, Tuple, Union, cast
+from typing import cast
 
 import torch
 import torch.nn.functional as F
@@ -33,6 +34,7 @@ def hard_mish(x: Tensor, inplace: bool = False) -> Tensor:
     Args:
         x: input tensor
         inplace: whether the operation should be conducted inplace
+
     Returns:
         output tensor
     """
@@ -48,6 +50,7 @@ def nl_relu(x: Tensor, beta: float = 1.0, inplace: bool = False) -> Tensor:
         x: input tensor
         beta: beta used for NReLU
         inplace: whether the operation should be performed inplace
+
     Returns:
         output tensor
     """
@@ -59,7 +62,7 @@ def nl_relu(x: Tensor, beta: float = 1.0, inplace: bool = False) -> Tensor:
 def focal_loss(
     x: Tensor,
     target: Tensor,
-    weight: Optional[Tensor] = None,
+    weight: Tensor | None = None,
     ignore_index: int = -100,
     reduction: str = "mean",
     gamma: float = 2.0,
@@ -124,6 +127,9 @@ def concat_downsample2d(x: Tensor, scale_factor: int) -> Tensor:
 
     Returns:
         torch.Tensor[N, scale_factor ** 2 * C, H / scale_factor, W / scale_factor]: downsampled tensor
+
+    Raises:
+        AssertionError: if the spatial size of the input tensor is not multiples of `scale_factor`
     """
     b, c, h, w = x.shape
 
@@ -143,12 +149,15 @@ def z_pool(x: Tensor, dim: int) -> Tensor:
     Args:
         x: input tensor
         dim: dimension to pool
+
+    Returns:
+        torch.Tensor: z-pooled tensor
     """
     return torch.cat([x.max(dim, keepdim=True).values, x.mean(dim, keepdim=True)], dim=dim)
 
 
 def multilabel_cross_entropy(
-    x: Tensor, target: Tensor, weight: Optional[Tensor] = None, ignore_index: int = -100, reduction: str = "mean"
+    x: Tensor, target: Tensor, weight: Tensor | None = None, ignore_index: int = -100, reduction: str = "mean"
 ) -> Tensor:
     """Implements the cross entropy loss for multi-label targets
 
@@ -175,7 +184,7 @@ def multilabel_cross_entropy(
         # Tensor type
         if weight.type() != x.data.type():
             weight = weight.type_as(x.data)
-        logpt = logpt * weight.view(1, -1, *([1] * (x.ndim - 2)))
+        logpt *= weight.view(1, -1, *([1] * (x.ndim - 2)))
 
     # CE Loss
     loss = -target * logpt
@@ -194,7 +203,7 @@ def multilabel_cross_entropy(
 def complement_cross_entropy(
     x: Tensor,
     target: Tensor,
-    weight: Optional[Tensor] = None,
+    weight: Tensor | None = None,
     ignore_index: int = -100,
     reduction: str = "mean",
     gamma: float = -1,
@@ -222,7 +231,7 @@ def complement_cross_entropy(
     # logpt = F.log_softmax(x, dim=1)
 
     pt = F.softmax(x, dim=1)
-    pt = pt / (1 - pt.transpose(0, 1).gather(0, target.unsqueeze(0)).transpose(0, 1))
+    pt /= 1 - pt.transpose(0, 1).gather(0, target.unsqueeze(0)).transpose(0, 1)
 
     loss = -1 / (x.shape[1] - 1) * pt * torch.log(pt)
 
@@ -241,7 +250,7 @@ def complement_cross_entropy(
         # Tensor type
         if weight.type() != x.data.type():
             weight = weight.type_as(x.data)
-        loss = loss * weight.view(1, -1, *([1] * (x.ndim - 2)))
+        loss *= weight.view(1, -1, *([1] * (x.ndim - 2)))
 
     # Loss reduction
     if reduction == "sum":
@@ -258,7 +267,7 @@ def complement_cross_entropy(
 def mutual_channel_loss(
     x: Tensor,
     target: Tensor,
-    weight: Optional[Tensor] = None,
+    weight: Tensor | None = None,
     ignore_index: int = -100,
     reduction: str = "mean",
     xi: int = 2,
@@ -323,15 +332,15 @@ def _xcorr2d(
     fn: Callable[[Tensor, Tensor], Tensor],
     x: Tensor,
     weight: Tensor,
-    bias: Optional[Tensor] = None,
-    stride: Union[int, Tuple[int, int]] = 1,
-    padding: Union[int, Tuple[int, int]] = 0,
-    dilation: Union[int, Tuple[int, int]] = 1,
+    bias: Tensor | None = None,
+    stride: int | tuple[int, int] = 1,
+    padding: int | tuple[int, int] = 0,
+    dilation: int | tuple[int, int] = 1,
     groups: int = 1,
     normalize_slices: bool = False,
     eps: float = 1e-14,
 ) -> Tensor:
-    """Implements cross-correlation operation"""
+    """Implements cross-correlation operation"""  # noqa: DOC201
     # Reshape input Tensor into properly sized slices
     h, w = x.shape[-2:]
     if isinstance(dilation, int):
@@ -371,6 +380,9 @@ def _convNd(x: Tensor, weight: Tensor) -> Tensor:
     Args:
         x (torch.Tensor[N, num_slices, Cin * K1 * ...]): input Tensor
         weight (torch.Tensor[Cout, Cin, K1, ...]): filters
+
+    Returns:
+        torch.Tensor: output tensor
     """
     return x @ weight.view(weight.size(0), -1).t()
 
@@ -378,10 +390,10 @@ def _convNd(x: Tensor, weight: Tensor) -> Tensor:
 def norm_conv2d(
     x: Tensor,
     weight: Tensor,
-    bias: Optional[Tensor] = None,
-    stride: Union[int, Tuple[int, int]] = 1,
-    padding: Union[int, Tuple[int, int]] = 0,
-    dilation: Union[int, Tuple[int, int]] = 1,
+    bias: Tensor | None = None,
+    stride: int | tuple[int, int] = 1,
+    padding: int | tuple[int, int] = 0,
+    dilation: int | tuple[int, int] = 1,
     groups: int = 1,
     eps: float = 1e-14,
 ) -> Tensor:
@@ -404,6 +416,9 @@ def norm_conv2d(
           number of groups. Default: 1
         eps (float, optional): a value added to the denominator for numerical stability.
             Default: 1e-14
+
+    Returns:
+        torch.Tensor: output tensor
     Examples::
         >>> # With square kernels and equal stride
         >>> filters = torch.randn(8,4,3,3)
@@ -419,6 +434,9 @@ def _addNd(x: Tensor, weight: Tensor) -> Tensor:
     Args:
         x (torch.Tensor[N, num_slices, Cin * K1 * ...]): input Tensor
         weight (torch.Tensor[Cout, Cin, K1, ...]): filters
+
+    Returns:
+        torch.Tensor: output tensor
     """
     return -(x.unsqueeze(2) - weight.view(weight.size(0), -1)).abs().sum(-1)
 
@@ -426,10 +444,10 @@ def _addNd(x: Tensor, weight: Tensor) -> Tensor:
 def add2d(
     x: Tensor,
     weight: Tensor,
-    bias: Optional[Tensor] = None,
-    stride: Union[int, Tuple[int, int]] = 1,
-    padding: Union[int, Tuple[int, int]] = 0,
-    dilation: Union[int, Tuple[int, int]] = 1,
+    bias: Tensor | None = None,
+    stride: int | tuple[int, int] = 1,
+    padding: int | tuple[int, int] = 0,
+    dilation: int | tuple[int, int] = 1,
     groups: int = 1,
     normalize_slices: bool = False,
     eps: float = 1e-14,
@@ -453,6 +471,9 @@ def add2d(
         normalize_slices (bool, optional): whether input slices should be normalized
         eps (float, optional): a value added to the denominator for numerical stability.
             Default: 1e-14
+
+    Returns:
+        torch.Tensor: output tensor
     Examples::
         >>> # With square kernels and equal stride
         >>> filters = torch.randn(8,4,3,3)
@@ -472,6 +493,9 @@ def dropblock2d(x: Tensor, drop_prob: float, block_size: int, inplace: bool = Fa
         block_size (int): size of each block that is expended from the sampled mask
         inplace (bool, optional): whether the operation should be done inplace
         training (bool, optional): whether the input should be processed in training mode
+
+    Returns:
+        torch.Tensor: output tensor
     """
     if not training or drop_prob == 0:
         return x
@@ -503,7 +527,7 @@ def dropblock2d(x: Tensor, drop_prob: float, block_size: int, inplace: bool = Fa
 def dice_loss(
     x: Tensor,
     target: Tensor,
-    weight: Optional[Tensor] = None,
+    weight: Tensor | None = None,
     gamma: float = 1.0,
     eps: float = 1e-8,
 ) -> Tensor:
@@ -541,7 +565,7 @@ def poly_loss(
     x: Tensor,
     target: Tensor,
     eps: float = 2.0,
-    weight: Optional[Tensor] = None,
+    weight: Tensor | None = None,
     ignore_index: int = -100,
     reduction: str = "mean",
 ) -> Tensor:
@@ -558,6 +582,10 @@ def poly_loss(
 
     Returns:
         torch.Tensor: loss reduced with `reduction` method
+
+    Raises:
+        TypeError: if the target dtype is not torch.int64
+        ValueError: if the target shape is invalid
     """
     # log(P[class]) = log_softmax(score)[class]
     # Shape (N, K, ...)
@@ -574,7 +602,7 @@ def poly_loss(
         if target.ndim != x.ndim or target.shape[0] != x.shape[0] or target.shape[1] != x.shape[1]:
             raise ValueError("invalid target shape")
         # Shape (N, K, ...)
-        logpt = logpt * target
+        logpt *= target
 
     # Get P(class)
     loss = cast(Tensor, -1 * logpt + eps * (1 - logpt.exp()))
@@ -604,10 +632,9 @@ def poly_loss(
         loss = loss[valid_idxs].sum() if target.ndim == x.ndim - 1 else loss[:, valid_idxs].sum()
     elif reduction == "mean":
         loss = loss[valid_idxs].mean() if target.ndim == x.ndim - 1 else loss[:, valid_idxs].sum(1).mean()
-    else:
-        # if no reduction, reshape tensor like target
-        # (N, ...)
-        if target.ndim == x.ndim:
-            loss = loss[:, valid_idxs].sum(1)
+    # if no reduction, reshape tensor like target
+    # (N, ...)
+    elif target.ndim == x.ndim:
+        loss = loss[:, valid_idxs].sum(1)
 
     return loss

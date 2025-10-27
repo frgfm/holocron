@@ -3,17 +3,17 @@
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
-"""
-Implementation of Res2Net
+"""Implementation of Res2Net
 based on https://github.com/rwightman/pytorch-image-models/blob/master/timm/models/res2net.py
 """
 
 import math
+from collections.abc import Callable
 from enum import Enum
-from typing import Any, Callable, List, Optional, Union
+from typing import Any
 
 import torch
-import torch.nn as nn
+from torch import nn
 
 from ..checkpoints import Checkpoint, _handle_legacy_pretrained
 from ..utils import _checkpoint, _configure_model, conv_sequence
@@ -31,9 +31,9 @@ class ScaleConv2d(nn.Module):
         stride: int = 1,
         groups: int = 1,
         downsample: bool = False,
-        act_layer: Optional[nn.Module] = None,
-        norm_layer: Optional[Callable[[int], nn.Module]] = None,
-        drop_layer: Optional[Callable[..., nn.Module]] = None,
+        act_layer: nn.Module | None = None,
+        norm_layer: Callable[[int], nn.Module] | None = None,
+        drop_layer: Callable[..., nn.Module] | None = None,
     ) -> None:
         super().__init__()
 
@@ -65,7 +65,7 @@ class ScaleConv2d(nn.Module):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         # Split the channel dimension into groups of self.width channels
         split_x = torch.split(x, self.width, 1)
-        out: List[torch.Tensor] = []
+        out: list[torch.Tensor] = []
         for idx, layer in enumerate(self.conv):
             # If downsampled, don't add previous branch
             res = split_x[idx] if idx == 0 or self.downsample is not None else out[-1] + split_x[idx]
@@ -89,13 +89,13 @@ class Bottle2neck(_ResBlock):
         inplanes: int,
         planes: int,
         stride: int = 1,
-        downsample: Optional[nn.Module] = None,
+        downsample: nn.Module | None = None,
         groups: int = 1,
         base_width: int = 26,
         dilation: int = 1,
-        act_layer: Optional[nn.Module] = None,
-        norm_layer: Optional[Callable[[int], nn.Module]] = None,
-        drop_layer: Optional[Callable[..., nn.Module]] = None,
+        act_layer: nn.Module | None = None,
+        norm_layer: Callable[[int], nn.Module] | None = None,
+        drop_layer: Callable[..., nn.Module] | None = None,
         scale: int = 4,
     ) -> None:
         if norm_layer is None:
@@ -137,16 +137,16 @@ class Bottle2neck(_ResBlock):
 
 
 def _res2net(
-    checkpoint: Union[Checkpoint, None],
+    checkpoint: Checkpoint | None,
     progress: bool,
-    num_blocks: List[int],
-    out_chans: List[int],
+    num_blocks: list[int],
+    out_chans: list[int],
     width_per_group: int,
     scale: int,
     **kwargs: Any,
 ) -> ResNet:
     # Build the model
-    model = model = ResNet(
+    model = ResNet(
         Bottle2neck,  # type: ignore[arg-type]
         num_blocks,
         out_chans,
@@ -178,7 +178,7 @@ class Res2Net50_26w_4s_Checkpoint(Enum):
 
 def res2net50_26w_4s(
     pretrained: bool = False,
-    checkpoint: Union[Checkpoint, None] = None,
+    checkpoint: Checkpoint | None = None,
     progress: bool = True,
     **kwargs: Any,
 ) -> ResNet:

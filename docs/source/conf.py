@@ -17,7 +17,7 @@
 #
 import sys
 import textwrap
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from tabulate import tabulate
@@ -32,7 +32,7 @@ from holocron import models
 
 master_doc = "index"
 project = "holocron"
-copyright = f"2019-{datetime.now(tz=timezone.utc).year}, François-Guillaume Fernandez"
+copyright = f"2019-{datetime.now(tz=UTC).year}, François-Guillaume Fernandez"
 author = "François-Guillaume Fernandez"
 
 # The full version, including alpha/beta/rc tags
@@ -174,7 +174,7 @@ TypedField.make_field = patched_make_field
 
 
 def inject_checkpoint_metadata(app, what, name, obj, options, lines):
-    """This hook is used to generate docs for the models weights.
+    """The hook is used to generate docs for the models weights.
     Objects like ConvNeXt_Atto_Checkpoint are enums with fields, where each field is a Weight object.
     Enums aren't easily documented in Python so the solution we're going for is to:
     - add an autoclass directive in the model's builder docstring, e.g.
@@ -186,7 +186,7 @@ def inject_checkpoint_metadata(app, what, name, obj, options, lines):
     - then this hook is called automatically when building the docs, and it generates the text that gets
       used within the autoclass directive.
     """
-    if obj.__name__.endswith(("_Checkpoint")):
+    if obj.__name__.endswith("_Checkpoint"):
         if len(obj) == 0:
             lines[:] = ["There are no available pre-trained checkpoints."]
             return
@@ -257,7 +257,7 @@ def generate_checkpoint_table(module, table_name, metrics):
     # Unpack the enum
     [c for checkpoint_enum in checkpoint_enums for c in checkpoint_enum]
 
-    metrics_keys, metrics_names = zip(*metrics)
+    metrics_keys, metrics_names = zip(*metrics, strict=True)
     column_names = ["Checkpoint", *metrics_names, "Params", "Size (MB)"]  # Final column order
     column_names = [f"**{name}**" for name in column_names]  # Add bold
 
@@ -281,7 +281,7 @@ def generate_checkpoint_table(module, table_name, metrics):
 
     generated_dir = Path("generated")
     generated_dir.mkdir(exist_ok=True)
-    with Path(generated_dir / f"{table_name}_table.rst").open("w+") as table_file:
+    with Path(generated_dir / f"{table_name}_table.rst").open("w+", encoding="utf-8") as table_file:
         table_file.write(".. rst-class:: table-checkpoints\n")  # Custom CSS class, see custom_theme.css
         table_file.write(".. table::\n")
         table_file.write(f"    :widths: {widths_table} \n\n")
@@ -304,16 +304,16 @@ html_static_path = ["_static"]
 # ref: https://github.com/orenhecht/googleanalytics/blob/master/sphinxcontrib/googleanalytics.py
 def add_ga_javascript(app, pagename, templatename, context, doctree):
     metatags = context.get("metatags", "")
-    metatags += """
+    metatags += f"""
     <!-- Global site tag (gtag.js) - Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id={0}"></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id={app.config.googleanalytics_id}"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){{dataLayer.push(arguments);}}
   gtag('js', new Date());
-  gtag('config', '{0}');
+  gtag('config', '{app.config.googleanalytics_id}');
 </script>
-    """.format(app.config.googleanalytics_id)
+    """
     context["metatags"] = metatags
 
 

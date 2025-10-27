@@ -4,9 +4,11 @@
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
 from collections import OrderedDict
-from typing import Any, Callable, Dict, List, Optional
+from collections.abc import Callable
+from itertools import pairwise
+from typing import Any
 
-import torch.nn as nn
+from torch import nn
 
 from holocron.nn import GlobalAvgPool2d
 from holocron.nn.init import init_module
@@ -17,7 +19,7 @@ from ..utils import conv_sequence, load_pretrained_params
 __all__ = ["DarknetV1", "darknet24"]
 
 
-default_cfgs: Dict[str, Dict[str, Any]] = {
+default_cfgs: dict[str, dict[str, Any]] = {
     "darknet24": {
         **IMAGENETTE.__dict__,
         "input_shape": (3, 224, 224),
@@ -29,13 +31,13 @@ default_cfgs: Dict[str, Dict[str, Any]] = {
 class DarknetBodyV1(nn.Sequential):
     def __init__(
         self,
-        layout: List[List[int]],
+        layout: list[list[int]],
         in_channels: int = 3,
         stem_channels: int = 64,
-        act_layer: Optional[nn.Module] = None,
-        norm_layer: Optional[Callable[[int], nn.Module]] = None,
-        drop_layer: Optional[Callable[..., nn.Module]] = None,
-        conv_layer: Optional[Callable[..., nn.Module]] = None,
+        act_layer: nn.Module | None = None,
+        norm_layer: Callable[[int], nn.Module] | None = None,
+        drop_layer: Callable[..., nn.Module] | None = None,
+        conv_layer: Callable[..., nn.Module] | None = None,
     ) -> None:
         if act_layer is None:
             act_layer = nn.LeakyReLU(0.1, inplace=True)
@@ -65,7 +67,7 @@ class DarknetBodyV1(nn.Sequential):
                     "layers",
                     nn.Sequential(*[
                         self._make_layer([_in_chans, *planes], act_layer, norm_layer, drop_layer, conv_layer)
-                        for _in_chans, planes in zip(in_chans, layout)
+                        for _in_chans, planes in zip(in_chans, layout, strict=True)
                     ]),
                 ),
             ])
@@ -74,15 +76,15 @@ class DarknetBodyV1(nn.Sequential):
 
     @staticmethod
     def _make_layer(
-        planes: List[int],
-        act_layer: Optional[nn.Module] = None,
-        norm_layer: Optional[Callable[[int], nn.Module]] = None,
-        drop_layer: Optional[Callable[..., nn.Module]] = None,
-        conv_layer: Optional[Callable[..., nn.Module]] = None,
+        planes: list[int],
+        act_layer: nn.Module | None = None,
+        norm_layer: Callable[[int], nn.Module] | None = None,
+        drop_layer: Callable[..., nn.Module] | None = None,
+        conv_layer: Callable[..., nn.Module] | None = None,
     ) -> nn.Sequential:
-        layers: List[nn.Module] = [nn.MaxPool2d(2)]
+        layers: list[nn.Module] = [nn.MaxPool2d(2)]
         k1 = True
-        for in_planes, out_planes in zip(planes[:-1], planes[1:]):
+        for in_planes, out_planes in pairwise(planes):
             layers.extend(
                 conv_sequence(
                     in_planes,
@@ -104,14 +106,14 @@ class DarknetBodyV1(nn.Sequential):
 class DarknetV1(nn.Sequential):
     def __init__(
         self,
-        layout: List[List[int]],
+        layout: list[list[int]],
         num_classes: int = 10,
         in_channels: int = 3,
         stem_channels: int = 64,
-        act_layer: Optional[nn.Module] = None,
-        norm_layer: Optional[Callable[[int], nn.Module]] = None,
-        drop_layer: Optional[Callable[..., nn.Module]] = None,
-        conv_layer: Optional[Callable[..., nn.Module]] = None,
+        act_layer: nn.Module | None = None,
+        norm_layer: Callable[[int], nn.Module] | None = None,
+        drop_layer: Callable[..., nn.Module] | None = None,
+        conv_layer: Callable[..., nn.Module] | None = None,
     ) -> None:
         super().__init__(
             OrderedDict([
@@ -127,7 +129,7 @@ class DarknetV1(nn.Sequential):
         init_module(self, "leaky_relu")
 
 
-def _darknet(arch: str, pretrained: bool, progress: bool, layout: List[List[int]], **kwargs: Any) -> DarknetV1:
+def _darknet(arch: str, pretrained: bool, progress: bool, layout: list[list[int]], **kwargs: Any) -> DarknetV1:
     # Build the model
     model = DarknetV1(layout, **kwargs)
     model.default_cfg = default_cfgs[arch]  # type: ignore[assignment]

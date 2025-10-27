@@ -3,7 +3,7 @@
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
-from typing import Any, Dict
+from typing import Any
 
 import torch
 
@@ -36,7 +36,7 @@ class SegmentationTrainer(Trainer):
         self.num_classes = num_classes
 
     @torch.inference_mode()
-    def evaluate(self, ignore_index: int = 255) -> Dict[str, float]:
+    def evaluate(self, ignore_index: int = 255) -> dict[str, float]:
         """Evaluate the model on the validation set
 
         Args:
@@ -76,7 +76,7 @@ class SegmentationTrainer(Trainer):
         return {"val_loss": val_loss, "acc_global": acc_global, "mean_iou": mean_iou}
 
     @staticmethod
-    def _eval_metrics_str(eval_metrics: Dict[str, float]) -> str:
+    def _eval_metrics_str(eval_metrics: dict[str, float]) -> str:
         return (
             f"Validation loss: {eval_metrics['val_loss']:.4} "
             f"(Acc: {eval_metrics['acc_global']:.2%} | Mean IoU: {eval_metrics['mean_iou']:.2%})"

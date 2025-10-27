@@ -4,13 +4,14 @@
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
 import time
+from typing import Annotated
 
-from fastapi import FastAPI, Request, status
+from fastapi import FastAPI, File, Request, UploadFile, status
 from fastapi.openapi.utils import get_openapi
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from app.config import settings
-from app.routes import classification
+from app.vision import CLF_CFG, classify_image, decode_image
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -20,8 +21,23 @@ app = FastAPI(
 )
 
 
+class ClsCandidate(BaseModel):
+    """Classification result"""
+
+    value: str = Field(..., json_schema_extra=[{"example": "Wookie"}])
+    confidence: float = Field(..., json_schema_extra=[{"gte": 0, "lte": 1}])
+
+
 # Routing
-app.include_router(classification.router, prefix="/classification", tags=["classification"])
+@app.post("/classification", status_code=status.HTTP_200_OK, summary="Perform image classification")
+def classify(file: Annotated[UploadFile, File(...)]) -> ClsCandidate:
+    """Runs holocron vision model to analyze the input image"""
+    probs = classify_image(decode_image(file.file.read()))
+
+    return ClsCandidate(
+        value=CLF_CFG["classes"][probs.argmax()],
+        confidence=float(probs.max()),
+    )
 
 
 class Status(BaseModel):
@@ -30,12 +46,11 @@ class Status(BaseModel):
 
 # Healthcheck
 @app.get(
-    "/status",
+    "/health",
     status_code=status.HTTP_200_OK,
-    summary="Healthcheck for the API",
     include_in_schema=False,
 )
-def get_status() -> Status:
+def health_check() -> Status:
     return Status(status="ok")
 
 

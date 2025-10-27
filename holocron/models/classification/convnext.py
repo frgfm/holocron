@@ -4,13 +4,13 @@
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
 from collections import OrderedDict
+from collections.abc import Callable
 from enum import Enum
 from functools import partial
-from typing import Any, Callable, List, Optional, Union
+from typing import Any
 
 import torch
-import torch.nn as nn
-from torch import Tensor
+from torch import Tensor, nn
 from torchvision.ops.stochastic_depth import StochasticDepth
 
 from holocron.nn import GlobalAvgPool2d
@@ -56,9 +56,9 @@ class Bottlenext(_ResBlock):
     def __init__(
         self,
         inplanes: int,
-        act_layer: Optional[nn.Module] = None,
-        norm_layer: Optional[Callable[[int], nn.Module]] = None,
-        drop_layer: Optional[Callable[..., nn.Module]] = None,
+        act_layer: nn.Module | None = None,
+        norm_layer: Callable[[int], nn.Module] | None = None,
+        drop_layer: Callable[..., nn.Module] | None = None,
         chan_expansion: int = 4,
         stochastic_depth_prob: float = 0.1,
         layer_scale: float = 1e-6,
@@ -116,14 +116,14 @@ class Bottlenext(_ResBlock):
 class ConvNeXt(nn.Sequential):
     def __init__(
         self,
-        num_blocks: List[int],
-        planes: List[int],
+        num_blocks: list[int],
+        planes: list[int],
         num_classes: int = 10,
         in_channels: int = 3,
-        conv_layer: Optional[Callable[..., nn.Module]] = None,
-        act_layer: Optional[nn.Module] = None,
-        norm_layer: Optional[Callable[[int], nn.Module]] = None,
-        drop_layer: Optional[Callable[..., nn.Module]] = None,
+        conv_layer: Callable[..., nn.Module] | None = None,
+        act_layer: nn.Module | None = None,
+        norm_layer: Callable[[int], nn.Module] | None = None,
+        drop_layer: Callable[..., nn.Module] | None = None,
         stochastic_depth_prob: float = 0.0,
     ) -> None:
         if conv_layer is None:
@@ -150,12 +150,12 @@ class ConvNeXt(nn.Sequential):
 
         block_idx = 0
         tot_blocks = sum(num_blocks)
-        for _num_blocks, _planes, _oplanes in zip(num_blocks, planes, planes[1:] + [planes[-1]]):
+        for _num_blocks, _planes, _oplanes in zip(num_blocks, planes, [*planes[1:], planes[-1]], strict=True):
             # adjust stochastic depth probability based on the depth of the stage block
             sd_probs = [stochastic_depth_prob * (block_idx + _idx) / (tot_blocks - 1.0) for _idx in range(_num_blocks)]
-            stage: List[nn.Module] = [
+            stage: list[nn.Module] = [
                 Bottlenext(_planes, act_layer, norm_layer, drop_layer, stochastic_depth_prob=sd_prob)
-                for _idx, sd_prob in zip(range(_num_blocks), sd_probs)
+                for _idx, sd_prob in zip(range(_num_blocks), sd_probs, strict=True)
             ]
             if _planes != _oplanes:
                 stage.append(
@@ -190,10 +190,10 @@ class ConvNeXt(nn.Sequential):
 
 
 def _convnext(
-    checkpoint: Union[Checkpoint, None],
+    checkpoint: Checkpoint | None,
     progress: bool,
-    num_blocks: List[int],
-    out_chans: List[int],
+    num_blocks: list[int],
+    out_chans: list[int],
     **kwargs: Any,
 ) -> ConvNeXt:
     # Build the model
@@ -222,7 +222,7 @@ class ConvNeXt_Atto_Checkpoint(Enum):
 
 def convnext_atto(
     pretrained: bool = False,
-    checkpoint: Union[Checkpoint, None] = None,
+    checkpoint: Checkpoint | None = None,
     progress: bool = True,
     **kwargs: Any,
 ) -> ConvNeXt:
@@ -250,7 +250,7 @@ def convnext_atto(
 
 
 def convnext_femto(
-    pretrained: bool = False, checkpoint: Union[Checkpoint, None] = None, progress: bool = True, **kwargs: Any
+    pretrained: bool = False, checkpoint: Checkpoint | None = None, progress: bool = True, **kwargs: Any
 ) -> ConvNeXt:
     """ConvNeXt-Femto variant of Ross Wightman inspired by
     `"A ConvNet for the 2020s" <https://arxiv.org/pdf/2201.03545.pdf>`_
@@ -269,7 +269,7 @@ def convnext_femto(
 
 
 def convnext_pico(
-    pretrained: bool = False, checkpoint: Union[Checkpoint, None] = None, progress: bool = True, **kwargs: Any
+    pretrained: bool = False, checkpoint: Checkpoint | None = None, progress: bool = True, **kwargs: Any
 ) -> ConvNeXt:
     """ConvNeXt-Pico variant of Ross Wightman inspired by
     `"A ConvNet for the 2020s" <https://arxiv.org/pdf/2201.03545.pdf>`_
@@ -288,7 +288,7 @@ def convnext_pico(
 
 
 def convnext_nano(
-    pretrained: bool = False, checkpoint: Union[Checkpoint, None] = None, progress: bool = True, **kwargs: Any
+    pretrained: bool = False, checkpoint: Checkpoint | None = None, progress: bool = True, **kwargs: Any
 ) -> ConvNeXt:
     """ConvNeXt-Nano variant of Ross Wightman inspired by
     `"A ConvNet for the 2020s" <https://arxiv.org/pdf/2201.03545.pdf>`_
@@ -307,7 +307,7 @@ def convnext_nano(
 
 
 def convnext_tiny(
-    pretrained: bool = False, checkpoint: Union[Checkpoint, None] = None, progress: bool = True, **kwargs: Any
+    pretrained: bool = False, checkpoint: Checkpoint | None = None, progress: bool = True, **kwargs: Any
 ) -> ConvNeXt:
     """ConvNeXt-T from
     `"A ConvNet for the 2020s" <https://arxiv.org/pdf/2201.03545.pdf>`_
@@ -326,7 +326,7 @@ def convnext_tiny(
 
 
 def convnext_small(
-    pretrained: bool = False, checkpoint: Union[Checkpoint, None] = None, progress: bool = True, **kwargs: Any
+    pretrained: bool = False, checkpoint: Checkpoint | None = None, progress: bool = True, **kwargs: Any
 ) -> ConvNeXt:
     """ConvNeXt-S from
     `"A ConvNet for the 2020s" <https://arxiv.org/pdf/2201.03545.pdf>`_
@@ -345,7 +345,7 @@ def convnext_small(
 
 
 def convnext_base(
-    pretrained: bool = False, checkpoint: Union[Checkpoint, None] = None, progress: bool = True, **kwargs: Any
+    pretrained: bool = False, checkpoint: Checkpoint | None = None, progress: bool = True, **kwargs: Any
 ) -> ConvNeXt:
     """ConvNeXt-B from
     `"A ConvNet for the 2020s" <https://arxiv.org/pdf/2201.03545.pdf>`_
@@ -364,7 +364,7 @@ def convnext_base(
 
 
 def convnext_large(
-    pretrained: bool = False, checkpoint: Union[Checkpoint, None] = None, progress: bool = True, **kwargs: Any
+    pretrained: bool = False, checkpoint: Checkpoint | None = None, progress: bool = True, **kwargs: Any
 ) -> ConvNeXt:
     """ConvNeXt-L from
     `"A ConvNet for the 2020s" <https://arxiv.org/pdf/2201.03545.pdf>`_
@@ -383,7 +383,7 @@ def convnext_large(
 
 
 def convnext_xl(
-    pretrained: bool = False, checkpoint: Union[Checkpoint, None] = None, progress: bool = True, **kwargs: Any
+    pretrained: bool = False, checkpoint: Checkpoint | None = None, progress: bool = True, **kwargs: Any
 ) -> ConvNeXt:
     """ConvNeXt-XL from
     `"A ConvNet for the 2020s" <https://arxiv.org/pdf/2201.03545.pdf>`_

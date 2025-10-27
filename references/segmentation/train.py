@@ -3,21 +3,20 @@
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
-"""
-Training script for semantic segmentation
-"""
+"""Training script for semantic segmentation"""
 
 import datetime
 import os
 import time
+from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
-import torch.nn as nn
 import torch.utils.data
 import wandb
 from codecarbon import track_emissions
+from torch import nn
 from torch.utils.data import RandomSampler, SequentialSampler
 from torchvision import transforms as T
 from torchvision.datasets import VOCSegmentation
@@ -273,7 +272,7 @@ def main(args):
         return
 
     # Training monitoring
-    current_time = datetime.datetime.now(tz=datetime.timezone.utc).strftime("%Y%m%d-%H%M%S")
+    current_time = datetime.datetime.now(tz=datetime.UTC).strftime("%Y%m%d-%H%M%S")
     exp_name = f"{args.arch}-{current_time}" if args.name is None else args.name
 
     # W&B
@@ -307,11 +306,7 @@ def main(args):
 
 
 def get_parser():
-    import argparse
-
-    parser = argparse.ArgumentParser(
-        description="Holocron Segmentation Training", formatter_class=argparse.ArgumentDefaultsHelpFormatter
-    )
+    parser = ArgumentParser(description="Holocron Segmentation Training", formatter_class=ArgumentDefaultsHelpFormatter)
 
     # Data & model
     group = parser.add_argument_group("Data & model")

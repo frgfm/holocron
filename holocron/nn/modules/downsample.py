@@ -3,12 +3,11 @@
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
-from typing import Callable, Dict, List
+from collections.abc import Callable
 
 import numpy as np
 import torch
-import torch.nn as nn
-from torch import Tensor
+from torch import Tensor, nn
 
 from .. import functional as F
 
@@ -40,7 +39,7 @@ class ConcatDownsample2d(nn.Module):
 
 
 @torch.jit.script
-class ConcatDownsample2dJit(object):
+class ConcatDownsample2dJit:
     """Implements a loss-less downsampling operation described in `"YOLO9000: Better, Faster, Stronger"
     <https://pjreddie.com/media/files/papers/YOLO9000.pdf>`_ by stacking adjacent information on the channel dimension.
 
@@ -130,7 +129,7 @@ class BlurPool2d(nn.Module):
         pad_size = [get_padding(kernel_size, stride, dilation=1)] * 4
         self.padding = nn.ReflectionPad2d(pad_size)  # type: ignore[arg-type]
         self._coeffs = torch.tensor((np.poly1d((0.5, 0.5)) ** (self.kernel_size - 1)).coeffs)  # for torchscript compat
-        self.kernel: Dict[str, Tensor] = {}  # lazy init by device for DataParallel compat
+        self.kernel: dict[str, Tensor] = {}  # lazy init by device for DataParallel compat
 
     def _create_filter(self, like: Tensor) -> Tensor:
         blur_filter = (self._coeffs[:, None] * self._coeffs[None, :]).to(dtype=like.dtype, device=like.device)
@@ -159,7 +158,7 @@ class SPP(nn.ModuleList):
         kernel_sizes (list<int>): kernel sizes of each pooling
     """
 
-    def __init__(self, kernel_sizes: List[int]) -> None:
+    def __init__(self, kernel_sizes: list[int]) -> None:
         super().__init__([nn.MaxPool2d(k_size, stride=1, padding=k_size // 2) for k_size in kernel_sizes])
 
     def forward(self, x: Tensor) -> Tensor:

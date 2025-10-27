@@ -3,7 +3,6 @@
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
-from typing import Optional
 
 import torch
 import torch.nn.functional as F
@@ -35,8 +34,8 @@ class LambdaLayer(nn.Module):
         in_channels: int,
         out_channels: int,
         dim_k: int,
-        n: Optional[int] = None,
-        r: Optional[int] = None,
+        n: int | None = None,
+        r: int | None = None,
         num_heads: int = 4,
         dim_u: int = 1,
     ) -> None:
@@ -90,18 +89,18 @@ class LambdaLayer(nn.Module):
         k = k.softmax(dim=-1)
 
         # Content function
-        λc = einsum("b u k m, b u v m -> b k v", k, v)
-        Yc = einsum("b h k n, b k v -> b n h v", q, λc)
+        lambda_c = einsum("b u k m, b u v m -> b k v", k, v)
+        Yc = einsum("b h k n, b k v -> b n h v", q, lambda_c)
 
         # Position function
         if self.local_contexts:
             # B x dim_u x dim_v x (H * W) -> B x dim_u x dim_v x H x W
             v = v.reshape(b, self.u, v.shape[2], h, w)
-            λp = F.conv3d(v, self.R, padding=(0, self.padding, self.padding))
-            Yp = einsum("b h k n, b k v n -> b n h v", q, λp.flatten(3))
+            lambda_p = F.conv3d(v, self.R, padding=(0, self.padding, self.padding))
+            Yp = einsum("b h k n, b k v n -> b n h v", q, lambda_p.flatten(3))
         else:
-            λp = einsum("n m k u, b u v m -> b n k v", self.pos_emb, v)
-            Yp = einsum("b h k n, b n k v -> b n h v", q, λp)
+            lambda_p = einsum("n m k u, b u v m -> b n k v", self.pos_emb, v)
+            Yp = einsum("b h k n, b n k v -> b n h v", q, lambda_p)
 
         Y = Yc + Yp
         # B x (H * W) x num_heads x dim_v -> B x (num_heads * dim_v) x H x W

@@ -3,9 +3,7 @@
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
-"""
-Transformation for semantic segmentation
-"""
+"""Transformation for semantic segmentation"""
 
 import numpy as np
 import torch
@@ -25,7 +23,7 @@ def pad_if_smaller(img, size, fill=0):
 
 class Compose(transforms.Compose):
     def __init__(self, transforms):
-        super(Compose, self).__init__(transforms)
+        super().__init__(transforms)
 
     def __call__(self, image, target):
         for t in self.transforms:
@@ -33,7 +31,7 @@ class Compose(transforms.Compose):
         return image, target
 
 
-class Resize(object):
+class Resize:
     def __init__(self, output_size, interpolation=InterpolationMode.BILINEAR):
         self.output_size = output_size
         self.interpolation = interpolation
@@ -47,7 +45,7 @@ class Resize(object):
         return f"{self.__class__.__name__}(output_size={self.output_size})"
 
 
-class RandomResize(object):
+class RandomResize:
     def __init__(self, min_size, max_size=None, interpolation=InterpolationMode.BILINEAR):
         self.min_size = min_size
         if max_size is None:
@@ -68,7 +66,7 @@ class RandomResize(object):
         return f"{self.__class__.__name__}(min_size={self.min_size}, max_size={self.max_size})"
 
 
-class RandomHorizontalFlip(object):
+class RandomHorizontalFlip:
     def __init__(self, prob):
         self.prob = prob
 
@@ -84,7 +82,7 @@ class RandomHorizontalFlip(object):
         return f"{self.__class__.__name__}(p={self.prob})"
 
 
-class RandomCrop(object):
+class RandomCrop:
     def __init__(self, size):
         self.size = size
 
@@ -102,13 +100,13 @@ class RandomCrop(object):
 
 class ToTensor(transforms.ToTensor):
     def __call__(self, img, target):
-        img = super(ToTensor, self).__call__(img)
+        img = super().__call__(img)
         target = torch.as_tensor(np.array(target), dtype=torch.int64)
 
         return img, target
 
 
-class ImageTransform(object):
+class ImageTransform:
     def __init__(self, transform):
         self.transform = transform
 

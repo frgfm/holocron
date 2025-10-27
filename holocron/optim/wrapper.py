@@ -4,7 +4,8 @@
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
 from collections import defaultdict
-from typing import Any, Callable, Dict, Optional
+from collections.abc import Callable
+from typing import Any
 
 import torch
 from torch.optim.optimizer import Optimizer
@@ -49,7 +50,7 @@ class Lookahead(Optimizer):
         for group in self.base_optimizer.param_groups:
             self._add_param_group(group)
 
-    def __getstate__(self) -> Dict[str, Any]:
+    def __getstate__(self) -> dict[str, Any]:
         return {
             "defaults": self.defaults,
             "state": self.state,
@@ -58,23 +59,26 @@ class Lookahead(Optimizer):
             "param_groups": self.param_groups,
         }
 
-    def state_dict(self) -> Dict[str, Any]:
-        return dict(**super(Lookahead, self).state_dict(), base_state_dict=self.base_optimizer.state_dict())
+    def state_dict(self) -> dict[str, Any]:  # noqa: D102
+        return dict(**super().state_dict(), base_state_dict=self.base_optimizer.state_dict())
 
-    def load_state_dict(self, state_dict: Dict[str, Any]) -> None:
+    def load_state_dict(self, state_dict: dict[str, Any]) -> None:  # noqa: D102
         self.base_optimizer.load_state_dict(state_dict["base_state_dict"])
-        super(Lookahead, self).load_state_dict(state_dict)
+        super().load_state_dict(state_dict)
         # Update last key of class dict
         self.__setstate__({"base_state_dict": self.base_optimizer.state_dict()})
 
-    def zero_grad(self, set_to_none: bool = True) -> None:
+    def zero_grad(self, set_to_none: bool = True) -> None:  # noqa: D102
         self.base_optimizer.zero_grad(set_to_none)
 
-    def step(self, closure: Optional[Callable[[], float]] = None) -> Optional[float]:  # type: ignore[override]
+    def step(self, closure: Callable[[], float] | None = None) -> float | None:  # type: ignore[override]
         """Performs a single optimization step.
 
         Arguments:
             closure (callable, optional): A closure that reevaluates the model and returns the loss.
+
+        Returns:
+            float | None: loss value
         """
         # Update fast params
         loss = self.base_optimizer.step(closure)
@@ -94,7 +98,7 @@ class Lookahead(Optimizer):
         format_string += "\n)"
         return format_string
 
-    def _add_param_group(self, param_group: Dict[str, Any]) -> None:
+    def _add_param_group(self, param_group: dict[str, Any]) -> None:
         """Adds a new slow parameter group
 
         Args:
@@ -107,7 +111,7 @@ class Lookahead(Optimizer):
             p.reguires_grad = False
         self.param_groups.append(group)
 
-    def add_param_group(self, param_group: Dict[str, Any]) -> None:
+    def add_param_group(self, param_group: dict[str, Any]) -> None:
         """Adds a parameter group to base optimizer (fast weights) and its corresponding slow version
 
         Args:
@@ -126,8 +130,8 @@ class Lookahead(Optimizer):
         Args:
             sync_rate (float): synchronization rate of parameters
         """
-        for fast_group, slow_group in zip(self.base_optimizer.param_groups, self.param_groups):
-            for fast_p, slow_p in zip(fast_group["params"], slow_group["params"]):
+        for fast_group, slow_group in zip(self.base_optimizer.param_groups, self.param_groups, strict=True):
+            for fast_p, slow_p in zip(fast_group["params"], slow_group["params"], strict=True):
                 # Outer update
                 if sync_rate > 0:
                     slow_p.data.add_(fast_p.data - slow_p.data, alpha=sync_rate)
@@ -175,7 +179,7 @@ class Scout(Optimizer):
         # Buffer for scouting
         self.buffer = [p.data.unsqueeze(0) for group in self.param_groups for p in group["params"]]
 
-    def __getstate__(self) -> Dict[str, Any]:
+    def __getstate__(self) -> dict[str, Any]:
         return {
             "defaults": self.defaults,
             "state": self.state,
@@ -184,23 +188,26 @@ class Scout(Optimizer):
             "param_groups": self.param_groups,
         }
 
-    def state_dict(self) -> Dict[str, Any]:
-        return dict(**super(Scout, self).state_dict(), base_state_dict=self.base_optimizer.state_dict())
+    def state_dict(self) -> dict[str, Any]:  # noqa: D102
+        return dict(**super().state_dict(), base_state_dict=self.base_optimizer.state_dict())
 
-    def load_state_dict(self, state_dict: Dict[str, Any]) -> None:
+    def load_state_dict(self, state_dict: dict[str, Any]) -> None:  # noqa: D102
         self.base_optimizer.load_state_dict(state_dict["base_state_dict"])
-        super(Scout, self).load_state_dict(state_dict)
+        super().load_state_dict(state_dict)
         # Update last key of class dict
         self.__setstate__({"base_state_dict": self.base_optimizer.state_dict()})
 
-    def zero_grad(self, set_to_none: bool = True) -> None:
+    def zero_grad(self, set_to_none: bool = True) -> None:  # noqa: D102
         self.base_optimizer.zero_grad(set_to_none)
 
-    def step(self, closure: Optional[Callable[[], float]] = None) -> Optional[float]:  # type: ignore[override]
+    def step(self, closure: Callable[[], float] | None = None) -> float | None:  # type: ignore[override]
         """Performs a single optimization step.
 
         Arguments:
             closure (callable, optional): A closure that reevaluates the model and returns the loss.
+
+        Returns:
+            float | None: loss value
         """
         # Update fast params
         loss = self.base_optimizer.step(closure)
@@ -242,7 +249,7 @@ class Scout(Optimizer):
         format_string += "\n)"
         return format_string
 
-    def _add_param_group(self, param_group: Dict[str, Any]) -> None:
+    def _add_param_group(self, param_group: dict[str, Any]) -> None:
         """Adds a new slow parameter group
 
         Args:
@@ -255,7 +262,7 @@ class Scout(Optimizer):
             p.reguires_grad = False
         self.param_groups.append(group)
 
-    def add_param_group(self, param_group: Dict[str, Any]) -> None:
+    def add_param_group(self, param_group: dict[str, Any]) -> None:
         """Adds a parameter group to base optimizer (fast weights) and its corresponding slow version
 
         Args:
@@ -274,8 +281,8 @@ class Scout(Optimizer):
         Args:
             sync_rate (float): synchronization rate of parameters
         """
-        for fast_group, slow_group in zip(self.base_optimizer.param_groups, self.param_groups):
-            for fast_p, slow_p in zip(fast_group["params"], slow_group["params"]):
+        for fast_group, slow_group in zip(self.base_optimizer.param_groups, self.param_groups, strict=True):
+            for fast_p, slow_p in zip(fast_group["params"], slow_group["params"], strict=True):
                 # Outer update
                 if sync_rate > 0:
                     slow_p.data.add_(fast_p.data - slow_p.data, alpha=sync_rate)

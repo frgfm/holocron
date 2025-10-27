@@ -3,15 +3,14 @@
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
-"""
-Training script for image classification
-"""
+"""Training script for image classification"""
 
 import datetime
 import logging
 import math
 import os
 import time
+from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -255,7 +254,7 @@ def main(args):
         return
 
     # Training monitoring
-    current_time = datetime.datetime.now(tz=datetime.timezone.utc).strftime("%Y%m%d-%H%M%S")
+    current_time = datetime.datetime.now(tz=datetime.UTC).strftime("%Y%m%d-%H%M%S")
     exp_name = f"{args.arch}-{current_time}" if args.name is None else args.name
 
     # W&B
@@ -300,10 +299,8 @@ def main(args):
 
 
 def get_parser():
-    import argparse
-
-    parser = argparse.ArgumentParser(
-        description="Holocron Classification Training", formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    parser = ArgumentParser(
+        description="Holocron Classification Training", formatter_class=ArgumentDefaultsHelpFormatter
     )
 
     # Data & model
