@@ -37,8 +37,8 @@ class ScaleConv2d(nn.Module):
     ) -> None:
         super().__init__()
 
-        self.scale = scale
-        self.width = planes // scale
+        self.scale: int = scale
+        self.width: int = planes // scale
         self.conv = nn.ModuleList([
             nn.Sequential(
                 *conv_sequence(

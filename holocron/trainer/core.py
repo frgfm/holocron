@@ -12,8 +12,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 from fastprogress import master_bar, progress_bar
-from fastprogress.fastprogress import ConsoleMasterBar
+from fastprogress.fastprogress import ConsoleMasterBar, NBMasterBar
 from torch import Tensor, nn
+from torch.cuda.amp.grad_scaler import GradScaler
 from torch.optim.lr_scheduler import CosineAnnealingLR, LRScheduler, MultiplicativeLR, OneCycleLR
 from torch.utils.data import DataLoader
 
@@ -65,7 +66,7 @@ class Trainer:
         self.criterion = criterion
         self.optimizer = optimizer
         self.amp = amp
-        self.scaler: torch.cuda.amp.grad_scaler.GradScaler
+        self.scaler: GradScaler
         self.on_epoch_end = on_epoch_end
         self.skip_nan_loss = skip_nan_loss
         self.nan_tolerance = nan_tolerance
@@ -137,7 +138,7 @@ class Trainer:
         self.min_loss = state["min_loss"]
         self.model.load_state_dict(state["model"])
 
-    def _fit_epoch(self, mb: ConsoleMasterBar) -> None:
+    def _fit_epoch(self, mb: ConsoleMasterBar | NBMasterBar) -> None:
         """Fit a single epoch
 
         Args:

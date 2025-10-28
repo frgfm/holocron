@@ -165,7 +165,7 @@ class DarknetBodyV4(nn.Sequential):
             ])
         )
 
-        self.num_features = num_features
+        self.num_features: int = num_features
 
     def forward(self, x: torch.Tensor) -> torch.Tensor | list[torch.Tensor]:
         if self.num_features == 1:

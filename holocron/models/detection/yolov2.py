@@ -190,6 +190,7 @@ class YOLOv2(_YOLO):
         # Box coordinates
         b_x = (torch.sigmoid(x[..., 0]) + c_x.reshape(1, 1, -1, 1)) / w
         b_y = (torch.sigmoid(x[..., 1]) + c_y.reshape(1, -1, 1, 1)) / h
+        self.anchors: Tensor
         b_w = self.anchors[:, 0].reshape(1, 1, 1, -1) * torch.exp(x[..., 2])
         b_h = self.anchors[:, 1].reshape(1, 1, 1, -1) * torch.exp(x[..., 3])
         # (B, H, W, num_anchors, 4)
@@ -232,7 +233,7 @@ class YOLOv2(_YOLO):
             raise ValueError("`target` needs to be specified in training mode")
 
         if isinstance(x, (list, tuple)):
-            x = torch.stack(x, dim=0)
+            x = torch.stack(x, dim=0)  # ty: ignore[invalid-argument-type]
 
         out = self._forward(x)
 

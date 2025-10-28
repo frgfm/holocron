@@ -87,9 +87,9 @@ class ReXBlock(nn.Module):
         if norm_layer is None:
             norm_layer = nn.BatchNorm2d
 
-        self.use_shortcut = stride == 1 and in_channels <= channels
-        self.in_channels = in_channels
-        self.out_channels = channels
+        self.use_shortcut: bool = stride == 1 and in_channels <= channels
+        self.in_channels: int = in_channels
+        self.out_channels: int = channels
 
         layers = []
         if t != 1:

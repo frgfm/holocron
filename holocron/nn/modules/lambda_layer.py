@@ -40,8 +40,8 @@ class LambdaLayer(nn.Module):
         dim_u: int = 1,
     ) -> None:
         super().__init__()
-        self.u = dim_u
-        self.num_heads = num_heads
+        self.u: int = dim_u
+        self.num_heads: int = num_heads
 
         if out_channels % num_heads != 0:
             raise AssertionError("values dimension must be divisible by number of heads for multi-head query")
@@ -55,11 +55,11 @@ class LambdaLayer(nn.Module):
         self.norm_q = nn.BatchNorm2d(dim_k * num_heads)
         self.norm_v = nn.BatchNorm2d(dim_v * dim_u)
 
-        self.local_contexts = r is not None
+        self.local_contexts: bool = r is not None
         if r is not None:
             if r % 2 != 1:
                 raise AssertionError("Receptive kernel size should be odd")
-            self.padding = r // 2
+            self.padding: int = r // 2
             self.R = nn.Parameter(torch.randn(dim_k, dim_u, 1, r, r))
         else:
             if n is None:

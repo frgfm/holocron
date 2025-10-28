@@ -80,7 +80,7 @@ class DarknetBodyV2(nn.Sequential):
             ])
         )
 
-        self.passthrough = passthrough
+        self.passthrough: bool = passthrough
 
     @staticmethod
     def _make_layer(

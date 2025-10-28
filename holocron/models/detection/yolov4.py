@@ -247,21 +247,21 @@ class YoloLayer(nn.Module):
         ignore_thresh: float = 0.5,
     ) -> None:
         super().__init__()
-        self.num_classes = num_classes
+        self.num_classes: int = num_classes
         self.register_buffer("anchors", anchors)
 
-        self.rpn_nms_thresh = rpn_nms_thresh
-        self.box_score_thresh = box_score_thresh
-        self.ignore_thresh = ignore_thresh
-        self.lambda_obj = lambda_obj
-        self.lambda_noobj = lambda_noobj
-        self.lambda_class = lambda_class
-        self.lambda_coords = lambda_coords
+        self.rpn_nms_thresh: float = rpn_nms_thresh
+        self.box_score_thresh: float = box_score_thresh
+        self.ignore_thresh: float = ignore_thresh
+        self.lambda_obj: float = lambda_obj
+        self.lambda_noobj: float = lambda_noobj
+        self.lambda_class: float = lambda_class
+        self.lambda_coords: float = lambda_coords
 
         # cf. https://github.com/AlexeyAB/darknet/blob/master/cfg/yolov4.cfg#L1150
-        self.scale_xy = scale_xy
+        self.scale_xy: float = scale_xy
         # cf. https://github.com/AlexeyAB/darknet/blob/master/cfg/yolov4.cfg#L1151
-        self.iou_thresh = iou_thresh
+        self.iou_thresh: float = iou_thresh
 
     def extra_repr(self) -> str:
         return f"num_classes={self.num_classes}, scale_xy={self.scale_xy}"

@@ -71,8 +71,8 @@ class Resize(T.Resize):
         if not isinstance(size, (tuple, list)) or len(size) != 2 or any(s <= 0 for s in size):
             raise ValueError("size is expected to be a sequence of 2 positive integers")
         super().__init__(size, **kwargs)
-        self.mode = mode
-        self.pad_mode = pad_mode
+        self.mode: ResizeMethod = mode
+        self.pad_mode: str = pad_mode
 
     def get_params(self, image: Image.Image | torch.Tensor) -> tuple[int, int]:  # noqa: D102
         h, w = _get_image_shape(image)
@@ -88,12 +88,12 @@ class Resize(T.Resize):
         if self.mode == ResizeMethod.SQUISH:
             return super().forward(image)
         h, w = self.get_params(image)
-        img = resize(image, (h, w), self.interpolation)
+        img = resize(image, (h, w), self.interpolation)  # ty: ignore[invalid-argument-type]
         # get the padding
         h_pad, w_pad = self.size[0] - h, self.size[1] - w
         padding = w_pad // 2, h_pad // 2, w_pad - w_pad // 2, h_pad - h_pad // 2
         # Fill the rest up to target_size
-        return pad(img, padding, padding_mode=self.pad_mode)
+        return pad(img, padding, padding_mode=self.pad_mode)  # ty: ignore[invalid-argument-type]
 
 
 class RandomZoomOut(nn.Module):
@@ -122,9 +122,9 @@ class RandomZoomOut(nn.Module):
         if len(scale) != 2 or scale[0] > scale[1]:
             raise ValueError("scale is expected to be a couple of floats, the first one being small than the second")
         super().__init__()
-        self.size = size
-        self.scale = scale
-        self._kwargs = kwargs
+        self.size: tuple[int, int] = size
+        self.scale: tuple[float, float] = scale
+        self._kwargs: dict[str, Any] = kwargs
 
     def get_params(self, image: Image.Image | torch.Tensor) -> tuple[int, int]:  # noqa: D102
         h, w = _get_image_shape(image)
@@ -148,9 +148,9 @@ class RandomZoomOut(nn.Module):
         # Get the size of the small image
         h, w = self.get_params(image)
         # Resize the image to this
-        img = resize(image, (h, w), **self._kwargs)
+        img = resize(image, (h, w), **self._kwargs)  # ty: ignore[invalid-argument-type]
         # get the padding
         h_delta, w_delta = self.size[0] - h, self.size[1] - w
         padding = w_delta // 2, h_delta // 2, w_delta - w_delta // 2, h_delta - h_delta // 2
         # Fill the rest up to size
-        return pad(img, padding)
+        return pad(img, padding)  # ty: ignore[invalid-argument-type]

@@ -49,7 +49,7 @@ class LayerScale(nn.Module):
         self.register_parameter("weight", nn.Parameter(scale * torch.ones(chans)))
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return x * self.weight.reshape(1, -1, *((1,) * (x.ndim - 2)))
+        return x * self.weight.reshape(1, -1, *((1,) * (x.ndim - 2)))  # ty: ignore[call-non-callable]
 
 
 class Bottlenext(_ResBlock):
@@ -132,7 +132,7 @@ class ConvNeXt(nn.Sequential):
             norm_layer = partial(LayerNorm2d, eps=1e-6)
         if act_layer is None:
             act_layer = nn.GELU()
-        self.dilation = 1
+        self.dilation: int = 1
 
         # Patchify-like stem
         layers = conv_sequence(

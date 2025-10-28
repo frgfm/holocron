@@ -67,7 +67,7 @@ class _ResBlock(nn.Module):
         # Main branch
         self.conv = nn.Sequential(*convs)
         # Shortcut connection
-        self.downsample = downsample
+        self.downsample: nn.Module | None = downsample
 
         if isinstance(act_layer, nn.Module):
             self.activation = act_layer
@@ -212,7 +212,7 @@ class Bottleneck(_ResBlock):
 class ChannelRepeat(nn.Module):
     def __init__(self, chan_repeats: int = 1) -> None:
         super().__init__()
-        self.chan_repeats = chan_repeats
+        self.chan_repeats: int = chan_repeats
 
     def forward(self, x: Tensor) -> Tensor:
         repeats = [1] * x.ndim
@@ -247,7 +247,7 @@ class ResNet(nn.Sequential):
             norm_layer = nn.BatchNorm2d
         if act_layer is None:
             act_layer = nn.ReLU(inplace=True)
-        self.dilation = 1
+        self.dilation: int = 1
 
         in_planes = 64
         # Deep stem from ResNet-C
@@ -352,9 +352,9 @@ class ResNet(nn.Sequential):
         if zero_init_residual:
             for m in self.modules():
                 if isinstance(m, Bottleneck):
-                    m.convs[2][1].weight.data.zero_()
+                    m.convs[2][1].weight.data.zero_()  # ty: ignore[non-subscriptable,possibly-missing-attribute]
                 elif isinstance(m, BasicBlock):
-                    m.convs[1][1].weight.data.zero_()
+                    m.convs[1][1].weight.data.zero_()  # ty: ignore[non-subscriptable,possibly-missing-attribute]
 
     @staticmethod
     def _make_layer(

@@ -38,12 +38,12 @@ class _Loss(nn.Module):
         elif isinstance(weight, Tensor):
             self.register_buffer("weight", weight)
         else:
-            self.weight = None
-        self.ignore_index = ignore_index
+            self.weight: Tensor | None = None
+        self.ignore_index: int = ignore_index
         # Set the reduction method
         if reduction not in {"none", "mean", "sum"}:
             raise NotImplementedError("argument reduction received an incorrect input")
-        self.reduction = reduction
+        self.reduction: str = reduction
 
 
 class FocalLoss(_Loss):
@@ -74,7 +74,7 @@ class FocalLoss(_Loss):
 
     def __init__(self, gamma: float = 2.0, **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        self.gamma = gamma
+        self.gamma: float = gamma
 
     def forward(self, x: Tensor, target: Tensor) -> Tensor:
         return F.focal_loss(x, target, self.weight, self.ignore_index, self.reduction, self.gamma)
@@ -115,7 +115,7 @@ class ComplementCrossEntropy(_Loss):
 
     def __init__(self, gamma: float = -1, **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        self.gamma = gamma
+        self.gamma: float = gamma
 
     def forward(self, x: Tensor, target: Tensor) -> Tensor:
         return F.complement_cross_entropy(x, target, self.weight, self.ignore_index, self.reduction, self.gamma)
@@ -145,12 +145,12 @@ class ClassBalancedWrapper(nn.Module):
     def __init__(self, criterion: nn.Module, num_samples: Tensor, beta: float = 0.99) -> None:
         super().__init__()
         self.criterion = criterion
-        self.beta = beta
+        self.beta: float = beta
         cb_weights = (1 - beta) / (1 - beta**num_samples)
         if self.criterion.weight is None:
-            self.criterion.weight = cb_weights
+            self.criterion.weight: Tensor | None = cb_weights
         else:
-            self.criterion.weight *= cb_weights.to(device=self.criterion.weight.device)
+            self.criterion.weight *= cb_weights.to(device=self.criterion.weight.device)  # ty: ignore[invalid-argument-type,possibly-missing-attribute]
 
     def forward(self, x: Tensor, target: Tensor) -> Tensor:
         return cast(Tensor, self.criterion.forward(x, target))
@@ -181,8 +181,8 @@ class MutualChannelLoss(_Loss):
         alpha: float = 1,
     ) -> None:
         super().__init__(weight, ignore_index, reduction)
-        self.xi = xi
-        self.alpha = alpha
+        self.xi: int = xi
+        self.alpha: float = alpha
 
     def forward(self, x: Tensor, target: Tensor) -> Tensor:
         return F.mutual_channel_loss(x, target, self.weight, self.ignore_index, self.reduction, self.xi, self.alpha)
@@ -208,8 +208,8 @@ class DiceLoss(_Loss):
         eps: float = 1e-8,
     ) -> None:
         super().__init__(weight)
-        self.gamma = gamma
-        self.eps = eps
+        self.gamma: float = gamma
+        self.eps: float = eps
 
     def forward(self, x: Tensor, target: Tensor) -> Tensor:
         return F.dice_loss(x, target, self.weight, self.gamma, self.eps)
@@ -236,7 +236,7 @@ class PolyLoss(_Loss):
         **kwargs: Any,
     ) -> None:
         super().__init__(*args, **kwargs)
-        self.eps = eps
+        self.eps: float = eps
 
     def forward(self, x: Tensor, target: Tensor) -> Tensor:
         return F.poly_loss(x, target, self.eps, self.weight, self.ignore_index, self.reduction)

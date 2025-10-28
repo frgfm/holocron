@@ -44,7 +44,7 @@ class DimAttention(nn.Module):
             nn.BatchNorm2d(1, eps=1e-5, momentum=0.01),
             nn.Sigmoid(),
         )
-        self.dim = dim
+        self.dim: int = dim
 
     def forward(self, x: Tensor) -> Tensor:
         if self.dim != 1:

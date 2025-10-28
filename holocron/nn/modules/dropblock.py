@@ -25,9 +25,9 @@ class DropBlock2d(nn.Module):
 
     def __init__(self, p: float = 0.1, block_size: int = 7, inplace: bool = False) -> None:
         super().__init__()
-        self.p = p
-        self.block_size = block_size
-        self.inplace = inplace
+        self.p: float = p
+        self.block_size: int = block_size
+        self.inplace: bool = inplace
 
     @property
     def drop_prob(self) -> float:

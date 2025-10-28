@@ -53,7 +53,7 @@ class ClassificationTrainer(Trainer):
         for x, target in self.val_loader:
             x, target = self.to_cuda(x, target)
 
-            loss, out = self._get_loss(x, target, return_logits=True)
+            loss, out = self._get_loss(x, target, return_logits=True)  # ty: ignore[invalid-argument-type]
 
             # Safeguard for NaN loss
             if not torch.isnan(loss) and not torch.isinf(loss):
@@ -61,7 +61,7 @@ class ClassificationTrainer(Trainer):
                 num_valid_batches += 1
 
             pred = out.topk(5, dim=1)[1] if out.shape[1] >= 5 else out.argmax(dim=1, keepdim=True)
-            correct = pred.eq(target.view(-1, 1).expand_as(pred))
+            correct = pred.eq(target.view(-1, 1).expand_as(pred))  # ty: ignore[possibly-missing-attribute]
             top1 += cast(int, correct[:, 0].sum().item())
             if out.shape[1] >= 5:
                 top5 += cast(int, correct.any(dim=1).sum().item())
@@ -118,7 +118,7 @@ class ClassificationTrainer(Trainer):
             x, target = self.to_cuda(x, target)
 
             # Forward
-            batch_loss, logits = self._get_loss(x, target, return_logits=True)
+            batch_loss, logits = self._get_loss(x, target, return_logits=True)  # ty: ignore[invalid-argument-type]
 
             # Binary
             if self.is_binary:
@@ -136,7 +136,7 @@ class ClassificationTrainer(Trainer):
                 probs = np.concatenate((probs[kept_idcs], probs_.cpu().numpy()))
                 if not self.is_binary:
                     preds = np.concatenate((preds[kept_idcs], logits[added_idcs].argmax(dim=1).cpu().numpy()))
-                targets = np.concatenate((targets[kept_idcs], target[added_idcs].cpu().numpy()))
+                targets = np.concatenate((targets[kept_idcs], target[added_idcs].cpu().numpy()))  # ty: ignore[invalid-argument-type]
                 imgs = x[added_idcs].cpu() * torch.tensor(std).view(-1, 1, 1)
                 imgs += torch.tensor(mean).view(-1, 1, 1)
                 images = [images[idx] for idx in kept_idcs] + [to_pil_image(img) for img in imgs]
@@ -225,14 +225,14 @@ class BinaryClassificationTrainer(ClassificationTrainer):
         for x, target in self.val_loader:
             x, target = self.to_cuda(x, target)
 
-            loss, out = self._get_loss(x, target, return_logits=True)
+            loss, out = self._get_loss(x, target, return_logits=True)  # ty: ignore[invalid-argument-type]
 
             # Safeguard for NaN loss
             if not torch.isnan(loss) and not torch.isinf(loss):
                 val_loss += loss.item()
                 num_valid_batches += 1
 
-            top1 += torch.sum((target.view_as(out) >= 0.5) == (torch.sigmoid(out) >= 0.5)).item() / out[0].numel()
+            top1 += torch.sum((target.view_as(out) >= 0.5) == (torch.sigmoid(out) >= 0.5)).item() / out[0].numel()  # ty: ignore[possibly-missing-attribute]
 
             num_samples += x.shape[0]
 

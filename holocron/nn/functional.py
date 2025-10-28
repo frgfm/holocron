@@ -551,7 +551,7 @@ def dice_loss(
 
     # Weight
     if weight is None:
-        loss = cast(Tensor, 1 - (1 + 1 / gamma) * dice_coeff.mean())
+        loss = 1 - (1 + 1 / gamma) * dice_coeff.mean()
     else:
         # Tensor type
         if weight.type() != x.data.type():
@@ -605,7 +605,7 @@ def poly_loss(
         logpt *= target
 
     # Get P(class)
-    loss = cast(Tensor, -1 * logpt + eps * (1 - logpt.exp()))
+    loss = -1 * logpt + eps * (1 - logpt.exp())
 
     # Weight
     if isinstance(weight, Tensor):

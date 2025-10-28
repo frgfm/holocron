@@ -64,7 +64,7 @@ class DepthConvBlock(nn.ModuleList):
         super().__init__(layers)
 
     def forward(self, x: Tensor) -> Tensor:
-        return sum(mod(x) for mod in self)
+        return sum(mod(x) for mod in self)  # ty: ignore[invalid-return-type]
 
     def reparametrize(self) -> nn.Conv2d:
         chans = cast(nn.Sequential, self[1])[0].in_channels
@@ -116,7 +116,7 @@ class PointConvBlock(nn.ModuleList):
         super().__init__(layers)
 
     def forward(self, x: Tensor) -> Tensor:
-        return sum(mod(x) for mod in self)
+        return sum(mod(x) for mod in self)  # ty: ignore[invalid-return-type]
 
     def reparametrize(self) -> nn.Conv2d:
         seq_idx = 1 if not isinstance(self[0], nn.Sequential) else 0

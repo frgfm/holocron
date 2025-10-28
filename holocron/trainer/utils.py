@@ -25,7 +25,7 @@ def freeze_bn(mod: nn.Module) -> None:
     for m in mod.modules():
         if isinstance(m, _BatchNorm) and m.affine and all(not p.requires_grad for p in m.parameters()):
             # Switch back to commented code when https://github.com/pytorch/pytorch/issues/37823 is resolved
-            m.track_running_stats = False
+            m.track_running_stats = False  # ty: ignore[unresolved-attribute]
             m.eval()
 
 
@@ -91,7 +91,7 @@ def split_normalization_params(
     # Borrowed from https://github.com/pytorch/vision/blob/main/torchvision/ops/_utils.py
     # Adapted from https://github.com/facebookresearch/ClassyVision/blob/659d7f78/classy_vision/generic/util.py#L501
     if not norm_classes:
-        norm_classes = [nn.modules.batchnorm._BatchNorm, nn.LayerNorm, nn.GroupNorm]  # noqa: SLF001
+        norm_classes = [_BatchNorm, nn.LayerNorm, nn.GroupNorm]
 
     for t in norm_classes:
         if not issubclass(t, nn.Module):

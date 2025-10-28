@@ -4,7 +4,7 @@
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
 import math
-from typing import Any, cast
+from typing import Any, Literal, cast
 
 import torch
 from torch import Tensor, nn
@@ -30,7 +30,7 @@ class _NormConvNd(_ConvNd):
         output_padding: int,
         groups: int,
         bias: bool,
-        padding_mode: str,
+        padding_mode: Literal["zeros", "reflect", "replicate", "circular"],
         normalize_slices: bool = False,
         eps: float = 1e-14,
     ) -> None:
@@ -47,8 +47,8 @@ class _NormConvNd(_ConvNd):
             bias,
             padding_mode,
         )
-        self.normalize_slices = normalize_slices
-        self.eps = eps
+        self.normalize_slices: bool = normalize_slices
+        self.eps: float = eps
 
 
 class NormConv2d(_NormConvNd):
@@ -99,7 +99,7 @@ class NormConv2d(_NormConvNd):
         dilation: int = 1,
         groups: int = 1,
         bias: bool = True,
-        padding_mode: str = "zeros",
+        padding_mode: Literal["zeros", "reflect", "replicate", "circular"] = "zeros",
         eps: float = 1e-14,
     ) -> None:
         kernel_size = _pair(kernel_size)
@@ -197,7 +197,7 @@ class Add2d(_NormConvNd):
         dilation: int = 1,
         groups: int = 1,
         bias: bool = True,
-        padding_mode: str = "zeros",
+        padding_mode: Literal["zeros", "reflect", "replicate", "circular"] = "zeros",
         normalize_slices: bool = False,
         eps: float = 1e-14,
     ) -> None:
@@ -332,7 +332,7 @@ class SlimConv2d(nn.Module):
         dilation: int = 1,
         groups: int = 1,
         bias: bool = True,
-        padding_mode: str = "zeros",
+        padding_mode: Literal["zeros", "reflect", "replicate", "circular"] = "zeros",
         r: int = 32,
         L: int = 2,  # noqa: N803
     ) -> None:
@@ -430,7 +430,7 @@ class PyConv2d(nn.ModuleList):
                 nn.Conv2d(in_channels, out_chan, k_size, padding=padding, groups=group, **kwargs)
                 for out_chan, k_size, padding, group in zip(out_chans, k_sizes, paddings, groups, strict=True)
             ])
-        self.num_levels = num_levels
+        self.num_levels: int = num_levels
 
     def forward(self, x: Tensor) -> Tensor:
         if self.num_levels == 1:
@@ -470,10 +470,10 @@ class Involution2d(nn.Module):
     ) -> None:
         super().__init__()
 
-        self.groups = groups
-        self.k_size = kernel_size
+        self.groups: int = groups
+        self.k_size: int = kernel_size
 
-        self.pool = nn.AvgPool2d(stride, stride) if stride > 1 else None
+        self.pool: nn.AvgPool2d | None = nn.AvgPool2d(stride, stride) if stride > 1 else None
         self.reduce = nn.Conv2d(in_channels, int(in_channels // reduction_ratio), 1)
         self.span = nn.Conv2d(int(in_channels // reduction_ratio), kernel_size**2 * groups, 1)
         self.unfold = nn.Unfold(kernel_size, dilation, padding, stride)

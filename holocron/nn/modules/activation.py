@@ -18,7 +18,7 @@ class _Activation(nn.Module):
 
     def __init__(self, inplace: bool = False) -> None:
         super().__init__()
-        self.inplace = inplace
+        self.inplace: bool = inplace
 
     def extra_repr(self) -> str:
         return "inplace=True" if self.inplace else ""

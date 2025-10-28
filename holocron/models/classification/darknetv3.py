@@ -119,7 +119,7 @@ class DarknetBodyV3(nn.Sequential):
                 ),
             ])
         )
-        self.num_features = num_features
+        self.num_features: int = num_features
 
     @staticmethod
     def _make_layer(

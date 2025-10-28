@@ -29,10 +29,10 @@ class Mixup(torch.nn.Module):
 
     def __init__(self, num_classes: int, alpha: float = 0.2) -> None:
         super().__init__()
-        self.num_classes = num_classes
+        self.num_classes: int = num_classes
         if alpha < 0:
             raise ValueError("`alpha` only takes positive values")
-        self.alpha = alpha
+        self.alpha: float = alpha
 
     def forward(self, inputs: Tensor, targets: Tensor) -> tuple[Tensor, Tensor]:  # noqa: D102
         # Convert target to one-hot

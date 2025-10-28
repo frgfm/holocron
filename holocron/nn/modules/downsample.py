@@ -32,7 +32,7 @@ class ConcatDownsample2d(nn.Module):
 
     def __init__(self, scale_factor: int) -> None:
         super().__init__()
-        self.scale_factor = scale_factor
+        self.scale_factor: int = scale_factor
 
     def forward(self, x: Tensor) -> Tensor:
         return F.concat_downsample2d(x, self.scale_factor)
@@ -64,7 +64,7 @@ class GlobalAvgPool2d(nn.Module):
 
     def __init__(self, flatten: bool = False) -> None:
         super().__init__()
-        self.flatten = flatten
+        self.flatten: bool = flatten
 
     def forward(self, x: Tensor) -> Tensor:
         if self.flatten:
@@ -86,7 +86,7 @@ class GlobalMaxPool2d(nn.Module):
 
     def __init__(self, flatten: bool = False) -> None:
         super().__init__()
-        self.flatten = flatten
+        self.flatten: bool = flatten
 
     def forward(self, x: Tensor) -> Tensor:
         if self.flatten:
@@ -121,11 +121,11 @@ class BlurPool2d(nn.Module):
 
     def __init__(self, channels: int, kernel_size: int = 3, stride: int = 2) -> None:
         super().__init__()
-        self.channels = channels
+        self.channels: int = channels
         if kernel_size <= 1:
             raise AssertionError
-        self.kernel_size = kernel_size
-        self.stride = stride
+        self.kernel_size: int = kernel_size
+        self.stride: int = stride
         pad_size = [get_padding(kernel_size, stride, dilation=1)] * 4
         self.padding = nn.ReflectionPad2d(pad_size)  # type: ignore[arg-type]
         self._coeffs = torch.tensor((np.poly1d((0.5, 0.5)) ** (self.kernel_size - 1)).coeffs)  # for torchscript compat
@@ -137,7 +137,7 @@ class BlurPool2d(nn.Module):
 
     def _apply(self, fn: Callable[[nn.Module], None]) -> None:  # type: ignore[override]
         # override nn.Module _apply, reset filter cache if used
-        self.kernel = {}
+        self.kernel: dict[str, Tensor] = {}
         super()._apply(fn)
 
     def forward(self, input_tensor: Tensor) -> Tensor:
@@ -176,7 +176,7 @@ class ZPool(nn.Module):
 
     def __init__(self, dim: int = 1) -> None:
         super().__init__()
-        self.dim = dim
+        self.dim: int = dim
 
     def forward(self, x: Tensor) -> Tensor:
         return F.z_pool(x, self.dim)

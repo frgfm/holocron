@@ -82,7 +82,7 @@ jobs:
         run: |
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
-  
+
   pytest:
     runs-on: ubuntu-latest
     steps:
@@ -96,7 +96,7 @@ jobs:
           version: ${{ env.UV_VERSION }}
       - name: Run docker test
         run: make test-backend
-  
+
   ghcr:
     runs-on: ubuntu-latest
     permissions:

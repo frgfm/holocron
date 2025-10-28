@@ -37,13 +37,14 @@ class _YOLO(nn.Module):
         lambda_coords: float = 5,
     ) -> None:
         super().__init__()
-        self.num_classes = num_classes
-        self.rpn_nms_thresh = rpn_nms_thresh
-        self.box_score_thresh = box_score_thresh
-        self.lambda_obj = lambda_obj
-        self.lambda_noobj = lambda_noobj
-        self.lambda_class = lambda_class
-        self.lambda_coords = lambda_coords
+        self.num_classes: int = num_classes
+        self.rpn_nms_thresh: float = rpn_nms_thresh
+        self.box_score_thresh: float = box_score_thresh
+        self.lambda_obj: float = lambda_obj
+        self.lambda_noobj: float = lambda_noobj
+        self.lambda_class: float = lambda_class
+        self.lambda_coords: float = lambda_coords
+        self.num_anchors: int
 
     def _compute_losses(
         self,
@@ -307,7 +308,7 @@ class YOLOv1(_YOLO):
             nn.Dropout(0.5),
             nn.Linear(head_hidden_nodes, 7**2 * (num_anchors * 5 + num_classes)),
         )
-        self.num_anchors = num_anchors
+        self.num_anchors: int = num_anchors
 
         init_module(self.block4, "leaky_relu")
         init_module(self.classifier, "leaky_relu")
@@ -366,7 +367,7 @@ class YOLOv1(_YOLO):
             raise ValueError("`target` needs to be specified in training mode")
 
         if isinstance(x, (list, tuple)):
-            x = torch.stack(x, dim=0)
+            x = torch.stack(x, dim=0)  # ty: ignore[invalid-argument-type]
 
         out = self._forward(x)
 
