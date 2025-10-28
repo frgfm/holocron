@@ -61,6 +61,6 @@ jobs:
         with:
           license: 'Apache-2.0'
           owner: 'François-Guillaume Fernandez'
-          starting-year: 2020
+          starting-year: 2019
           folders: 'holocron,scripts,references,api/app,demo,docs,.github'
           ignore-files: '__init__.py'
