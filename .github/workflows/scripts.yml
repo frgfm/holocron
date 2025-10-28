@@ -31,4 +31,4 @@ jobs:
       - name: Run script
         run: |
           make install-scripts
-          python scripts/eval_latency.py rexnet1_0x
+          make bench-latency

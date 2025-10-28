@@ -3,6 +3,7 @@ DEMO_DIR = ./demo
 TESTS_DIR = ./tests
 DOCS_DIR = ./docs
 BACKEND_DIR = ./api
+SCRIPTS_DIR = ./scripts
 PACKAGE_DIR = ${PY_DIR}/holocron
 PYPROJECT_FILE = ${PY_DIR}/pyproject.toml
 PYTHON_REQ_FILE = /tmp/requirements.txt
@@ -14,6 +15,7 @@ API_LOCK_FILE = ${BACKEND_DIR}/uv.lock
 API_REQ_FILE = ${BACKEND_DIR}/requirements.txt
 DEMO_REQ_FILE = ${DEMO_DIR}/requirements.txt
 DEMO_FILE = ${DEMO_DIR}/app.py
+LATENCY_SCRIPT = ${SCRIPTS_DIR}/eval_latency.py
 REPO_OWNER ?= frgfm
 REPO_NAME ?= holocron
 DOCKER_NAMESPACE ?= ghcr.io/${REPO_OWNER}
@@ -90,6 +92,16 @@ install-test: ${PY_DIR} ${PYPROJECT_FILE} ## Install with test dependencies
 
 test: ${PYPROJECT_FILE} ## Run the tests
 	uv run pytest --cov-report xml
+
+########################################################
+# Scripts
+########################################################
+
+install-scripts: ${PY_DIR} ${PYPROJECT_FILE} ## Install with test dependencies
+	uv pip install -e '${PY_DIR}[scripts]'
+
+bench-latency: ${PYPROJECT_FILE} ${LATENCY_SCRIPT} ## Run the tests
+	uv run python ${LATENCY_SCRIPT} rexnet1_0x
 
 
 ########################################################
