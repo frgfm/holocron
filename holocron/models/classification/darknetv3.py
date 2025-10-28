@@ -91,33 +91,37 @@ class DarknetBodyV3(nn.Sequential):
         in_chans = [stem_channels] + [_layout[0] for _layout in layout[:-1]]
 
         super().__init__(
-            OrderedDict([
-                (
-                    "stem",
-                    nn.Sequential(
-                        *conv_sequence(
-                            in_channels,
-                            stem_channels,
-                            act_layer,
-                            norm_layer,
-                            drop_layer,
-                            conv_layer,
-                            kernel_size=3,
-                            padding=1,
-                            bias=(norm_layer is None),
-                        )
+            OrderedDict(
+                [
+                    (
+                        "stem",
+                        nn.Sequential(
+                            *conv_sequence(
+                                in_channels,
+                                stem_channels,
+                                act_layer,
+                                norm_layer,
+                                drop_layer,
+                                conv_layer,
+                                kernel_size=3,
+                                padding=1,
+                                bias=(norm_layer is None),
+                            )
+                        ),
                     ),
-                ),
-                (
-                    "layers",
-                    nn.Sequential(*[
-                        self._make_layer(
-                            num_blocks, _in_chans, out_chans, act_layer, norm_layer, drop_layer, conv_layer
-                        )
-                        for _in_chans, (out_chans, num_blocks) in zip(in_chans, layout, strict=True)
-                    ]),
-                ),
-            ])
+                    (
+                        "layers",
+                        nn.Sequential(
+                            *[
+                                self._make_layer(
+                                    num_blocks, _in_chans, out_chans, act_layer, norm_layer, drop_layer, conv_layer
+                                )
+                                for _in_chans, (out_chans, num_blocks) in zip(in_chans, layout, strict=True)
+                            ]
+                        ),
+                    ),
+                ]
+            )
         )
         self.num_features: int = num_features
 
@@ -143,10 +147,12 @@ class DarknetBodyV3(nn.Sequential):
             stride=2,
             bias=(norm_layer is None),
         )
-        layers.extend([
-            ResBlock(out_planes, out_planes // 2, act_layer, norm_layer, drop_layer, conv_layer)
-            for _ in range(num_blocks)
-        ])
+        layers.extend(
+            [
+                ResBlock(out_planes, out_planes // 2, act_layer, norm_layer, drop_layer, conv_layer)
+                for _ in range(num_blocks)
+            ]
+        )
 
         return nn.Sequential(*layers)
 
@@ -179,14 +185,18 @@ class DarknetV3(nn.Sequential):
         conv_layer: Callable[..., nn.Module] | None = None,
     ) -> None:
         super().__init__(
-            OrderedDict([
-                (
-                    "features",
-                    DarknetBodyV3(layout, in_channels, stem_channels, 1, act_layer, norm_layer, drop_layer, conv_layer),
-                ),
-                ("pool", GlobalAvgPool2d(flatten=True)),
-                ("classifier", nn.Linear(layout[-1][0], num_classes)),
-            ])
+            OrderedDict(
+                [
+                    (
+                        "features",
+                        DarknetBodyV3(
+                            layout, in_channels, stem_channels, 1, act_layer, norm_layer, drop_layer, conv_layer
+                        ),
+                    ),
+                    ("pool", GlobalAvgPool2d(flatten=True)),
+                    ("classifier", nn.Linear(layout[-1][0], num_classes)),
+                ]
+            )
         )
 
         init_module(self, "leaky_relu")
@@ -229,7 +239,7 @@ def darknet53(
     **kwargs: Any,
 ) -> DarknetV3:
     """Darknet-53 from
-    `"YOLOv3: An Incremental Improvement" <https://pjreddie.com/media/files/papers/YOLOv3.pdf>`_
+    ["YOLOv3: An Incremental Improvement"](https://pjreddie.com/media/files/papers/YOLOv3.pdf)
 
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
@@ -240,8 +250,9 @@ def darknet53(
     Returns:
         torch.nn.Module: classification model
 
-    .. autoclass:: holocron.models.Darknet53_Checkpoint
-        :members:
+    ::: holocron.models.Darknet53_Checkpoint
+        options:
+            heading_level: 4
     """
     checkpoint = _handle_legacy_pretrained(
         pretrained,

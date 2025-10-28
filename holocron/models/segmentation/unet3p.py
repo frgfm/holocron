@@ -40,19 +40,23 @@ class FSAggreg(nn.Module):
         # Get UNet depth
         depth = len(e_chans) + 1 + len(d_chans)
         # Downsample = max pooling + conv for channel reduction
-        self.downsamples = nn.ModuleList([
-            nn.Sequential(nn.MaxPool2d(2 ** (len(e_chans) - idx)), nn.Conv2d(e_chan, base_chan, 3, padding=1))
-            for idx, e_chan in enumerate(e_chans)
-        ])
+        self.downsamples = nn.ModuleList(
+            [
+                nn.Sequential(nn.MaxPool2d(2 ** (len(e_chans) - idx)), nn.Conv2d(e_chan, base_chan, 3, padding=1))
+                for idx, e_chan in enumerate(e_chans)
+            ]
+        )
         self.skip = nn.Conv2d(skip_chan, base_chan, 3, padding=1) if len(e_chans) > 0 else nn.Identity()
         # Upsample = bilinear interpolation + conv for channel reduction
-        self.upsamples = nn.ModuleList([
-            nn.Sequential(
-                nn.Upsample(scale_factor=2 ** (idx + 1), mode="bilinear", align_corners=True),
-                nn.Conv2d(d_chan, base_chan, 3, padding=1),
-            )
-            for idx, d_chan in enumerate(d_chans)
-        ])
+        self.upsamples = nn.ModuleList(
+            [
+                nn.Sequential(
+                    nn.Upsample(scale_factor=2 ** (idx + 1), mode="bilinear", align_corners=True),
+                    nn.Conv2d(d_chan, base_chan, 3, padding=1),
+                )
+                for idx, d_chan in enumerate(d_chans)
+            ]
+        )
 
         self.block = nn.Sequential(
             *conv_sequence(
@@ -171,10 +175,9 @@ def _unet(arch: str, pretrained: bool, progress: bool, **kwargs: Any) -> nn.Modu
 
 def unet3p(pretrained: bool = False, progress: bool = True, **kwargs: Any) -> UNet3p:
     """UNet3+ from
-    `"UNet 3+: A Full-Scale Connected UNet For Medical Image Segmentation" <https://arxiv.org/pdf/2004.08790.pdf>`_
+    ["UNet 3+: A Full-Scale Connected UNet For Medical Image Segmentation"](https://arxiv.org/pdf/2004.08790.pdf)
 
-    .. image:: https://github.com/frgfm/Holocron/releases/download/v0.1.3/unet3p.png
-        :align: center
+    ![UNet 3+ architecture](https://github.com/frgfm/Holocron/releases/download/v0.1.3/unet3p.png)
 
     Args:
         pretrained: If True, returns a model pre-trained on PASCAL VOC2012

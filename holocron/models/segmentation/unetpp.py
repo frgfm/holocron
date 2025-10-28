@@ -74,10 +74,12 @@ class UNetp(nn.Module):
         layout_ = [layout[-1], *layout[1:][::-1]]
         for left_chan, up_chan, num_cells in zip(layout[::-1], layout_, range(1, len(layout) + 1), strict=True):
             self.decoder.append(
-                nn.ModuleList([
-                    UpPath(left_chan + up_chan, left_chan, True, 1, act_layer, norm_layer, drop_layer, conv_layer)
-                    for _ in range(num_cells)
-                ])
+                nn.ModuleList(
+                    [
+                        UpPath(left_chan + up_chan, left_chan, True, 1, act_layer, norm_layer, drop_layer, conv_layer)
+                        for _ in range(num_cells)
+                    ]
+                )
             )
 
         # Classifier
@@ -153,19 +155,21 @@ class UNetpp(nn.Module):
         layout_ = [layout[-1], *layout[1:][::-1]]
         for left_chan, up_chan, num_cells in zip(layout[::-1], layout_, range(1, len(layout) + 1), strict=True):
             self.decoder.append(
-                nn.ModuleList([
-                    UpPath(
-                        up_chan + (idx + 1) * left_chan,
-                        left_chan,
-                        True,
-                        1,
-                        act_layer,
-                        norm_layer,
-                        drop_layer,
-                        conv_layer,
-                    )
-                    for idx in range(num_cells)
-                ])
+                nn.ModuleList(
+                    [
+                        UpPath(
+                            up_chan + (idx + 1) * left_chan,
+                            left_chan,
+                            True,
+                            1,
+                            act_layer,
+                            norm_layer,
+                            drop_layer,
+                            conv_layer,
+                        )
+                        for idx in range(num_cells)
+                    ]
+                )
             )
 
         # Classifier
@@ -204,11 +208,9 @@ def _unet(arch: str, pretrained: bool, progress: bool, **kwargs: Any) -> nn.Modu
 
 
 def unetp(pretrained: bool = False, progress: bool = True, **kwargs: Any) -> UNetp:
-    """UNet+ from `"UNet++: Redesigning Skip Connections to Exploit Multiscale Features in Image Segmentation"
-    <https://arxiv.org/pdf/1912.05074.pdf>`_
+    """UNet+ from ["UNet++: Redesigning Skip Connections to Exploit Multiscale Features in Image Segmentation"](https://arxiv.org/pdf/1912.05074.pdf)
 
-    .. image:: https://github.com/frgfm/Holocron/releases/download/v0.1.3/unetp.png
-        :align: center
+    ![UNet+ architecture](https://github.com/frgfm/Holocron/releases/download/v0.1.3/unetp.png)
 
     Args:
         pretrained: If True, returns a model pre-trained on PASCAL VOC2012
@@ -222,11 +224,9 @@ def unetp(pretrained: bool = False, progress: bool = True, **kwargs: Any) -> UNe
 
 
 def unetpp(pretrained: bool = False, progress: bool = True, **kwargs: Any) -> UNetpp:
-    """UNet++ from `"UNet++: Redesigning Skip Connections to Exploit Multiscale Features in Image Segmentation"
-    <https://arxiv.org/pdf/1912.05074.pdf>`_
+    """UNet++ from ["UNet++: Redesigning Skip Connections to Exploit Multiscale Features in Image Segmentation"](https://arxiv.org/pdf/1912.05074.pdf)
 
-    .. image:: https://github.com/frgfm/Holocron/releases/download/v0.1.3/unetpp.png
-        :align: center
+    ![UNet++ architecture](https://github.com/frgfm/Holocron/releases/download/v0.1.3/unetpp.png)
 
     Args:
         pretrained: If True, returns a model pre-trained on PASCAL VOC2012

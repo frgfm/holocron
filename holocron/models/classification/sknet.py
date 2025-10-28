@@ -86,23 +86,25 @@ class SKConv2d(nn.Module):
         **kwargs: Any,
     ) -> None:
         super().__init__()
-        self.path_convs = nn.ModuleList([
-            nn.Sequential(
-                *conv_sequence(
-                    in_channels,
-                    out_channels,
-                    act_layer,
-                    norm_layer,
-                    drop_layer,
-                    kernel_size=3,
-                    bias=(norm_layer is None),
-                    dilation=idx + 1,
-                    padding=idx + 1,
-                    **kwargs,
+        self.path_convs = nn.ModuleList(
+            [
+                nn.Sequential(
+                    *conv_sequence(
+                        in_channels,
+                        out_channels,
+                        act_layer,
+                        norm_layer,
+                        drop_layer,
+                        kernel_size=3,
+                        bias=(norm_layer is None),
+                        dilation=idx + 1,
+                        padding=idx + 1,
+                        **kwargs,
+                    )
                 )
-            )
-            for idx in range(m)
-        ])
+                for idx in range(m)
+            ]
+        )
         self.sa = SoftAttentionLayer(out_channels, sa_ratio, m, act_layer, norm_layer, drop_layer)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -204,7 +206,7 @@ def sknet50(
     **kwargs: Any,
 ) -> ResNet:
     """SKNet-50 from
-    `"Selective Kernel Networks" <https://arxiv.org/pdf/1903.06586.pdf>`_
+    ["Selective Kernel Networks"](https://arxiv.org/pdf/1903.06586.pdf)
 
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
@@ -215,8 +217,9 @@ def sknet50(
     Returns:
         torch.nn.Module: classification model
 
-    .. autoclass:: holocron.models.SKNet50_Checkpoint
-        :members:
+    ::: holocron.models.SKNet50_Checkpoint
+        options:
+            heading_level: 4
     """
     checkpoint = _handle_legacy_pretrained(
         pretrained,
@@ -233,7 +236,7 @@ def sknet101(
     **kwargs: Any,
 ) -> ResNet:
     """SKNet-101 from
-    `"Selective Kernel Networks" <https://arxiv.org/pdf/1903.06586.pdf>`_
+    ["Selective Kernel Networks"](https://arxiv.org/pdf/1903.06586.pdf)
 
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
@@ -254,7 +257,7 @@ def sknet152(
     **kwargs: Any,
 ) -> ResNet:
     """SKNet-152 from
-    `"Selective Kernel Networks" <https://arxiv.org/pdf/1903.06586.pdf>`_
+    ["Selective Kernel Networks"](https://arxiv.org/pdf/1903.06586.pdf)
 
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet

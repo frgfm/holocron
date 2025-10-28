@@ -53,14 +53,16 @@ class RepBlock(nn.Module):
         if act_layer is None:
             act_layer = nn.ReLU(inplace=True)
 
-        self.branches: nn.Conv2d | nn.ModuleList = nn.ModuleList([
-            nn.Sequential(
-                *conv_sequence(inplanes, planes, None, norm_layer, kernel_size=3, padding=1, stride=stride),
-            ),
-            nn.Sequential(
-                *conv_sequence(inplanes, planes, None, norm_layer, kernel_size=1, padding=0, stride=stride),
-            ),
-        ])
+        self.branches: nn.Conv2d | nn.ModuleList = nn.ModuleList(
+            [
+                nn.Sequential(
+                    *conv_sequence(inplanes, planes, None, norm_layer, kernel_size=3, padding=1, stride=stride),
+                ),
+                nn.Sequential(
+                    *conv_sequence(inplanes, planes, None, norm_layer, kernel_size=1, padding=0, stride=stride),
+                ),
+            ]
+        )
 
         self.activation = act_layer
 
@@ -159,11 +161,13 @@ class RepVGG(nn.Sequential):
             stages.append(nn.Sequential(*layers))
 
         super().__init__(
-            OrderedDict([
-                ("features", nn.Sequential(*stages)),
-                ("pool", GlobalAvgPool2d(flatten=True)),
-                ("head", nn.Linear(chans[-1], num_classes)),
-            ])
+            OrderedDict(
+                [
+                    ("features", nn.Sequential(*stages)),
+                    ("pool", GlobalAvgPool2d(flatten=True)),
+                    ("head", nn.Linear(chans[-1], num_classes)),
+                ]
+            )
         )
         # Init all layers
         init.init_module(self, nonlinearity="relu")
@@ -215,7 +219,7 @@ def repvgg_a0(
     **kwargs: Any,
 ) -> RepVGG:
     """RepVGG-A0 from
-    `"RepVGG: Making VGG-style ConvNets Great Again" <https://arxiv.org/pdf/2101.03697.pdf>`_
+    ["RepVGG: Making VGG-style ConvNets Great Again"](https://arxiv.org/pdf/2101.03697.pdf)
 
     Args:
         pretrained: If True, returns a model pre-trained on ImageNette
@@ -226,8 +230,9 @@ def repvgg_a0(
     Returns:
         torch.nn.Module: classification model
 
-    .. autoclass:: holocron.models.RepVGG_A0_Checkpoint
-        :members:
+    ::: holocron.models.RepVGG_A0_Checkpoint
+        options:
+            heading_level: 4
     """
     checkpoint = _handle_legacy_pretrained(
         pretrained,
@@ -263,7 +268,7 @@ def repvgg_a1(
     **kwargs: Any,
 ) -> RepVGG:
     """RepVGG-A1 from
-    `"RepVGG: Making VGG-style ConvNets Great Again" <https://arxiv.org/pdf/2101.03697.pdf>`_
+    ["RepVGG: Making VGG-style ConvNets Great Again"](https://arxiv.org/pdf/2101.03697.pdf)
 
     Args:
         pretrained: If True, returns a model pre-trained on ImageNette
@@ -274,8 +279,9 @@ def repvgg_a1(
     Returns:
         torch.nn.Module: classification model
 
-    .. autoclass:: holocron.models.RepVGG_A1_Checkpoint
-        :members:
+    ::: holocron.models.RepVGG_A1_Checkpoint
+        options:
+            heading_level: 4
     """
     checkpoint = _handle_legacy_pretrained(
         pretrained,
@@ -311,7 +317,7 @@ def repvgg_a2(
     **kwargs: Any,
 ) -> RepVGG:
     """RepVGG-A2 from
-    `"RepVGG: Making VGG-style ConvNets Great Again" <https://arxiv.org/pdf/2101.03697.pdf>`_
+    ["RepVGG: Making VGG-style ConvNets Great Again"](https://arxiv.org/pdf/2101.03697.pdf)
 
     Args:
         pretrained: If True, returns a model pre-trained on ImageNette
@@ -322,8 +328,9 @@ def repvgg_a2(
     Returns:
         torch.nn.Module: classification model
 
-    .. autoclass:: holocron.models.RepVGG_A2_Checkpoint
-        :members:
+    ::: holocron.models.RepVGG_A2_Checkpoint
+        options:
+            heading_level: 4
     """
     checkpoint = _handle_legacy_pretrained(
         pretrained,
@@ -359,7 +366,7 @@ def repvgg_b0(
     **kwargs: Any,
 ) -> RepVGG:
     """RepVGG-B0 from
-    `"RepVGG: Making VGG-style ConvNets Great Again" <https://arxiv.org/pdf/2101.03697.pdf>`_
+    ["RepVGG: Making VGG-style ConvNets Great Again"](https://arxiv.org/pdf/2101.03697.pdf)
 
     Args:
         pretrained: If True, returns a model pre-trained on ImageNette
@@ -370,8 +377,9 @@ def repvgg_b0(
     Returns:
         torch.nn.Module: classification model
 
-    .. autoclass:: holocron.models.RepVGG_B0_Checkpoint
-        :members:
+    ::: holocron.models.RepVGG_B0_Checkpoint
+        options:
+            heading_level: 4
     """
     checkpoint = _handle_legacy_pretrained(
         pretrained,
@@ -407,7 +415,7 @@ def repvgg_b1(
     **kwargs: Any,
 ) -> RepVGG:
     """RepVGG-B1 from
-    `"RepVGG: Making VGG-style ConvNets Great Again" <https://arxiv.org/pdf/2101.03697.pdf>`_
+    ["RepVGG: Making VGG-style ConvNets Great Again"](https://arxiv.org/pdf/2101.03697.pdf)
 
     Args:
         pretrained: If True, returns a model pre-trained on ImageNette
@@ -418,8 +426,9 @@ def repvgg_b1(
     Returns:
         torch.nn.Module: classification model
 
-    .. autoclass:: holocron.models.RepVGG_B1_Checkpoint
-        :members:
+    ::: holocron.models.RepVGG_B1_Checkpoint
+        options:
+            heading_level: 4
     """
     checkpoint = _handle_legacy_pretrained(
         pretrained,
@@ -455,7 +464,7 @@ def repvgg_b2(
     **kwargs: Any,
 ) -> RepVGG:
     """RepVGG-B2 from
-    `"RepVGG: Making VGG-style ConvNets Great Again" <https://arxiv.org/pdf/2101.03697.pdf>`_
+    ["RepVGG: Making VGG-style ConvNets Great Again"](https://arxiv.org/pdf/2101.03697.pdf)
 
     Args:
         pretrained: If True, returns a model pre-trained on ImageNette
@@ -466,8 +475,9 @@ def repvgg_b2(
     Returns:
         torch.nn.Module: classification model
 
-    .. autoclass:: holocron.models.RepVGG_B2_Checkpoint
-        :members:
+    ::: holocron.models.RepVGG_B2_Checkpoint
+        options:
+            heading_level: 4
     """
     checkpoint = _handle_legacy_pretrained(
         pretrained,
@@ -484,7 +494,7 @@ def repvgg_b3(
     **kwargs: Any,
 ) -> RepVGG:
     """RepVGG-B3 from
-    `"RepVGG: Making VGG-style ConvNets Great Again" <https://arxiv.org/pdf/2101.03697.pdf>`_
+    ["RepVGG: Making VGG-style ConvNets Great Again"](https://arxiv.org/pdf/2101.03697.pdf)
 
     Args:
         pretrained: If True, returns a model pre-trained on ImageNette

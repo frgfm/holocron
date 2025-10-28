@@ -138,31 +138,37 @@ class DarknetBodyV4(nn.Sequential):
         in_chans = [stem_channels] + [_layout[0] for _layout in layout[:-1]]
 
         super().__init__(
-            OrderedDict([
-                (
-                    "stem",
-                    nn.Sequential(
-                        *conv_sequence(
-                            in_channels,
-                            stem_channels,
-                            act_layer,
-                            norm_layer,
-                            drop_layer,
-                            conv_layer,
-                            kernel_size=3,
-                            padding=1,
-                            bias=(norm_layer is None),
-                        )
+            OrderedDict(
+                [
+                    (
+                        "stem",
+                        nn.Sequential(
+                            *conv_sequence(
+                                in_channels,
+                                stem_channels,
+                                act_layer,
+                                norm_layer,
+                                drop_layer,
+                                conv_layer,
+                                kernel_size=3,
+                                padding=1,
+                                bias=(norm_layer is None),
+                            )
+                        ),
                     ),
-                ),
-                (
-                    "stages",
-                    nn.Sequential(*[
-                        CSPStage(_in_chans, out_chans, num_blocks, act_layer, norm_layer, drop_layer, conv_layer)
-                        for _in_chans, (out_chans, num_blocks) in zip(in_chans, layout, strict=True)
-                    ]),
-                ),
-            ])
+                    (
+                        "stages",
+                        nn.Sequential(
+                            *[
+                                CSPStage(
+                                    _in_chans, out_chans, num_blocks, act_layer, norm_layer, drop_layer, conv_layer
+                                )
+                                for _in_chans, (out_chans, num_blocks) in zip(in_chans, layout, strict=True)
+                            ]
+                        ),
+                    ),
+                ]
+            )
         )
 
         self.num_features: int = num_features
@@ -197,23 +203,25 @@ class DarknetV4(nn.Sequential):
         conv_layer: Callable[..., nn.Module] | None = None,
     ) -> None:
         super().__init__(
-            OrderedDict([
-                (
-                    "features",
-                    DarknetBodyV4(
-                        layout,
-                        in_channels,
-                        stem_channels,
-                        num_features,
-                        act_layer,
-                        norm_layer,
-                        drop_layer,
-                        conv_layer,
+            OrderedDict(
+                [
+                    (
+                        "features",
+                        DarknetBodyV4(
+                            layout,
+                            in_channels,
+                            stem_channels,
+                            num_features,
+                            act_layer,
+                            norm_layer,
+                            drop_layer,
+                            conv_layer,
+                        ),
                     ),
-                ),
-                ("pool", GlobalAvgPool2d(flatten=True)),
-                ("classifier", nn.Linear(layout[-1][0], num_classes)),
-            ])
+                    ("pool", GlobalAvgPool2d(flatten=True)),
+                    ("classifier", nn.Linear(layout[-1][0], num_classes)),
+                ]
+            )
         )
 
         init_module(self, "leaky_relu")
@@ -256,7 +264,7 @@ def cspdarknet53(
     **kwargs: Any,
 ) -> DarknetV4:
     """CSP-Darknet-53 from
-    `"CSPNet: A New Backbone that can Enhance Learning Capability of CNN" <https://arxiv.org/pdf/1911.11929.pdf>`_
+    ["CSPNet: A New Backbone that can Enhance Learning Capability of CNN"](https://arxiv.org/pdf/1911.11929.pdf)
 
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
@@ -267,8 +275,9 @@ def cspdarknet53(
     Returns:
         torch.nn.Module: classification model
 
-    .. autoclass:: holocron.models.CSPDarknet53_Checkpoint
-        :members:
+    ::: holocron.models.CSPDarknet53_Checkpoint
+        options:
+            heading_level: 4
     """
     checkpoint = _handle_legacy_pretrained(
         pretrained,
@@ -304,7 +313,7 @@ def cspdarknet53_mish(
     **kwargs: Any,
 ) -> DarknetV4:
     """Modified version of CSP-Darknet-53 from
-    `"CSPNet: A New Backbone that can Enhance Learning Capability of CNN" <https://arxiv.org/pdf/1911.11929.pdf>`_
+    ["CSPNet: A New Backbone that can Enhance Learning Capability of CNN"](https://arxiv.org/pdf/1911.11929.pdf)
     with Mish as activation layer and DropBlock as regularization layer.
 
     Args:
@@ -316,8 +325,9 @@ def cspdarknet53_mish(
     Returns:
         torch.nn.Module: classification model
 
-    .. autoclass:: holocron.models.CSPDarknet53_Mish_Checkpoint
-        :members:
+    ::: holocron.models.CSPDarknet53_Mish_Checkpoint
+        options:
+            heading_level: 4
     """
     kwargs["act_layer"] = nn.Mish(inplace=True)
     kwargs["drop_layer"] = DropBlock2d

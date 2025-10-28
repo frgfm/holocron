@@ -63,13 +63,15 @@ class YOLOv2(_YOLO):
         if anchors is None:
             # cf. https://github.com/pjreddie/darknet/blob/master/cfg/yolov2-voc.cfg#L242
             anchors = (
-                torch.tensor([
-                    [1.3221, 1.73145],
-                    [3.19275, 4.00944],
-                    [5.05587, 8.09892],
-                    [9.47112, 4.84053],
-                    [11.2364, 10.0071],
-                ])
+                torch.tensor(
+                    [
+                        [1.3221, 1.73145],
+                        [3.19275, 4.00944],
+                        [5.05587, 8.09892],
+                        [9.47112, 4.84053],
+                        [11.2364, 10.0071],
+                    ]
+                )
                 / 13
             )
 
@@ -286,25 +288,27 @@ def _yolo(
 
 def yolov2(pretrained: bool = False, progress: bool = True, pretrained_backbone: bool = True, **kwargs: Any) -> YOLOv2:
     r"""YOLOv2 model from
-    `"YOLO9000: Better, Faster, Stronger" <https://pjreddie.com/media/files/papers/YOLO9000.pdf>`_.
+    ["YOLO9000: Better, Faster, Stronger"](https://pjreddie.com/media/files/papers/YOLO9000.pdf).
 
     YOLOv2 improves upon YOLO by raising the number of boxes predicted by grid cell (default: 5), introducing
     bounding box priors and predicting class scores for each anchor box in the grid cell.
 
     For training, YOLOv2 uses the same multi-part loss as YOLO apart from its classification loss:
 
-    .. math::
-        \mathcal{L}_{classification} = \sum\limits_{i=0}^{S^2}  \sum\limits_{j=0}^{B}
-        \mathbb{1}_{ij}^{obj} \sum\limits_{c \in classes}
-        (p_{ij}(c) - \hat{p}_{ij}(c))^2
+    $$
+    \mathcal{L}_{classification} = \sum\limits_{i=0}^{S^2}  \sum\limits_{j=0}^{B}
+    \mathbb{1}_{ij}^{obj} \sum\limits_{c \in classes}
+    (p_{ij}(c) - \hat{p}_{ij}(c))^2
+    $$
 
-    where :math:`S` is size of the output feature map (13 for an input size :math:`(416, 416)`),
-    :math:`B` is the number of anchor boxes per grid cell (default: 5),
-    :math:`\mathbb{1}_{ij}^{obj}` equals to 1 if a GT center falls inside the i-th grid cell and among the
+    where:
+    - $S$ is size of the output feature map (13 for an input size $(416, 416)$),
+    - $B$ is the number of anchor boxes per grid cell (default: 5),
+    - $\mathbb{1}_{ij}^{obj}$ equals to 1 if a GT center falls inside the i-th grid cell and among the
     anchor boxes of that cell, has the highest IoU with the j-th box else 0,
-    :math:`p_{ij}(c)` equals 1 if the assigned ground truth to the j-th anchor box of the i-th cell is classified
-    as class :math:`c`,
-    and :math:`\hat{p}_{ij}(c)` is the predicted probability of class :math:`c` for the j-th anchor box
+    - $p_{ij}(c)$ equals 1 if the assigned ground truth to the j-th anchor box of the i-th cell is classified
+    as class $c$,
+    - $\hat{p}_{ij}(c)$ is the predicted probability of class $c$ for the j-th anchor box
     in the i-th cell.
 
     Args:

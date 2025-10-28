@@ -133,8 +133,8 @@ def _pyconvresnet(
 
 
 def pyconv_resnet50(pretrained: bool = False, progress: bool = True, **kwargs: Any) -> ResNet:
-    """PyConvResNet-50 from `"Pyramidal Convolution: Rethinking Convolutional Neural Networks
-    for Visual Recognition" <https://arxiv.org/pdf/2006.11538.pdf>`_
+    """PyConvResNet-50 from ["Pyramidal Convolution: Rethinking Convolutional Neural Networks
+    for Visual Recognition"](https://arxiv.org/pdf/2006.11538.pdf)
 
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
@@ -158,8 +158,8 @@ def pyconv_resnet50(pretrained: bool = False, progress: bool = True, **kwargs: A
 
 
 def pyconvhg_resnet50(pretrained: bool = False, progress: bool = True, **kwargs: Any) -> ResNet:
-    """PyConvHGResNet-50 from `"Pyramidal Convolution: Rethinking Convolutional Neural Networks
-    for Visual Recognition" <https://arxiv.org/pdf/2006.11538.pdf>`_
+    """PyConvHGResNet-50 from ["Pyramidal Convolution: Rethinking Convolutional Neural Networks
+    for Visual Recognition"](https://arxiv.org/pdf/2006.11538.pdf)
 
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet

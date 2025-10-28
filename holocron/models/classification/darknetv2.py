@@ -51,33 +51,37 @@ class DarknetBodyV2(nn.Sequential):
         in_chans = [stem_channels] + [_layout[0] for _layout in layout[:-1]]
 
         super().__init__(
-            OrderedDict([
-                (
-                    "stem",
-                    nn.Sequential(
-                        *conv_sequence(
-                            in_channels,
-                            stem_channels,
-                            act_layer,
-                            norm_layer,
-                            drop_layer,
-                            conv_layer,
-                            kernel_size=3,
-                            padding=1,
-                            bias=(norm_layer is None),
-                        )
+            OrderedDict(
+                [
+                    (
+                        "stem",
+                        nn.Sequential(
+                            *conv_sequence(
+                                in_channels,
+                                stem_channels,
+                                act_layer,
+                                norm_layer,
+                                drop_layer,
+                                conv_layer,
+                                kernel_size=3,
+                                padding=1,
+                                bias=(norm_layer is None),
+                            )
+                        ),
                     ),
-                ),
-                (
-                    "layers",
-                    nn.Sequential(*[
-                        self._make_layer(
-                            num_blocks, _in_chans, out_chans, act_layer, norm_layer, drop_layer, conv_layer
-                        )
-                        for _in_chans, (out_chans, num_blocks) in zip(in_chans, layout, strict=True)
-                    ]),
-                ),
-            ])
+                    (
+                        "layers",
+                        nn.Sequential(
+                            *[
+                                self._make_layer(
+                                    num_blocks, _in_chans, out_chans, act_layer, norm_layer, drop_layer, conv_layer
+                                )
+                                for _in_chans, (out_chans, num_blocks) in zip(in_chans, layout, strict=True)
+                            ]
+                        ),
+                    ),
+                ]
+            )
         )
 
         self.passthrough: bool = passthrough
@@ -164,16 +168,18 @@ class DarknetV2(nn.Sequential):
         conv_layer: Callable[..., nn.Module] | None = None,
     ) -> None:
         super().__init__(
-            OrderedDict([
-                (
-                    "features",
-                    DarknetBodyV2(
-                        layout, in_channels, stem_channels, False, act_layer, norm_layer, drop_layer, conv_layer
+            OrderedDict(
+                [
+                    (
+                        "features",
+                        DarknetBodyV2(
+                            layout, in_channels, stem_channels, False, act_layer, norm_layer, drop_layer, conv_layer
+                        ),
                     ),
-                ),
-                ("classifier", nn.Conv2d(layout[-1][0], num_classes, 1)),
-                ("pool", GlobalAvgPool2d(flatten=True)),
-            ])
+                    ("classifier", nn.Conv2d(layout[-1][0], num_classes, 1)),
+                    ("pool", GlobalAvgPool2d(flatten=True)),
+                ]
+            )
         )
 
         init_module(self, "leaky_relu")
@@ -216,7 +222,7 @@ def darknet19(
     **kwargs: Any,
 ) -> DarknetV2:
     """Darknet-19 from
-    `"YOLO9000: Better, Faster, Stronger" <https://pjreddie.com/media/files/papers/YOLO9000.pdf>`_
+    ["YOLO9000: Better, Faster, Stronger"](https://pjreddie.com/media/files/papers/YOLO9000.pdf)
 
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNette
@@ -227,8 +233,9 @@ def darknet19(
     Returns:
         torch.nn.Module: classification model
 
-    .. autoclass:: holocron.models.Darknet19_Checkpoint
-        :members:
+    ::: holocron.models.Darknet19_Checkpoint
+        options:
+            heading_level: 4
     """
     checkpoint = _handle_legacy_pretrained(
         pretrained,

@@ -218,11 +218,13 @@ class ReXNet(nn.Sequential):
         )
 
         super().__init__(
-            OrderedDict([
-                ("features", nn.Sequential(*layers)),
-                ("pool", GlobalAvgPool2d(flatten=True)),
-                ("head", nn.Sequential(nn.Dropout(dropout_ratio), nn.Linear(pen_channels, num_classes))),
-            ])
+            OrderedDict(
+                [
+                    ("features", nn.Sequential(*layers)),
+                    ("pool", GlobalAvgPool2d(flatten=True)),
+                    ("head", nn.Sequential(nn.Dropout(dropout_ratio), nn.Linear(pen_channels, num_classes))),
+                ]
+            )
         )
 
         # Init all layers
@@ -279,8 +281,7 @@ def rexnet1_0x(
     **kwargs: Any,
 ) -> ReXNet:
     """ReXNet-1.0x from
-    `"ReXNet: Diminishing Representational Bottleneck on Convolutional Neural Network"
-    <https://arxiv.org/pdf/2007.00992.pdf>`_
+    ["ReXNet: Diminishing Representational Bottleneck on Convolutional Neural Network"](https://arxiv.org/pdf/2007.00992.pdf)
 
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNette
@@ -291,8 +292,9 @@ def rexnet1_0x(
     Returns:
         torch.nn.Module: classification model
 
-    .. autoclass:: holocron.models.ReXNet1_0x_Checkpoint
-        :members:
+    ::: holocron.models.ReXNet1_0x_Checkpoint
+        options:
+            heading_level: 4
     """
     checkpoint = _handle_legacy_pretrained(
         pretrained,
@@ -340,8 +342,7 @@ def rexnet1_3x(
     **kwargs: Any,
 ) -> ReXNet:
     """ReXNet-1.3x from
-    `"ReXNet: Diminishing Representational Bottleneck on Convolutional Neural Network"
-    <https://arxiv.org/pdf/2007.00992.pdf>`_
+    ["ReXNet: Diminishing Representational Bottleneck on Convolutional Neural Network"](https://arxiv.org/pdf/2007.00992.pdf)
 
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
@@ -352,8 +353,9 @@ def rexnet1_3x(
     Returns:
         torch.nn.Module: classification model
 
-    .. autoclass:: holocron.models.ReXNet1_3x_Checkpoint
-        :members:
+    ::: holocron.models.ReXNet1_3x_Checkpoint
+        options:
+            heading_level: 4
     """
     checkpoint = _handle_legacy_pretrained(
         pretrained,
@@ -401,8 +403,7 @@ def rexnet1_5x(
     **kwargs: Any,
 ) -> ReXNet:
     """ReXNet-1.5x from
-    `"ReXNet: Diminishing Representational Bottleneck on Convolutional Neural Network"
-    <https://arxiv.org/pdf/2007.00992.pdf>`_
+    ["ReXNet: Diminishing Representational Bottleneck on Convolutional Neural Network"](https://arxiv.org/pdf/2007.00992.pdf)
 
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
@@ -413,8 +414,9 @@ def rexnet1_5x(
     Returns:
         torch.nn.Module: classification model
 
-    .. autoclass:: holocron.models.ReXNet1_5x_Checkpoint
-        :members:
+    ::: holocron.models.ReXNet1_5x_Checkpoint
+        options:
+            heading_level: 4
     """
     checkpoint = _handle_legacy_pretrained(
         pretrained,
@@ -462,8 +464,7 @@ def rexnet2_0x(
     **kwargs: Any,
 ) -> ReXNet:
     """ReXNet-2.0x from
-    `"ReXNet: Diminishing Representational Bottleneck on Convolutional Neural Network"
-    <https://arxiv.org/pdf/2007.00992.pdf>`_
+    ["ReXNet: Diminishing Representational Bottleneck on Convolutional Neural Network"](https://arxiv.org/pdf/2007.00992.pdf)
 
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
@@ -474,8 +475,9 @@ def rexnet2_0x(
     Returns:
         torch.nn.Module: classification model
 
-    .. autoclass:: holocron.models.ReXNet2_0x_Checkpoint
-        :members:
+    ::: holocron.models.ReXNet2_0x_Checkpoint
+        options:
+            heading_level: 4
     """
     checkpoint = _handle_legacy_pretrained(
         pretrained,
@@ -511,8 +513,7 @@ def rexnet2_2x(
     **kwargs: Any,
 ) -> ReXNet:
     """ReXNet-2.2x from
-    `"ReXNet: Diminishing Representational Bottleneck on Convolutional Neural Network"
-    <https://arxiv.org/pdf/2007.00992.pdf>`_
+    ["ReXNet: Diminishing Representational Bottleneck on Convolutional Neural Network"](https://arxiv.org/pdf/2007.00992.pdf)
 
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
@@ -523,8 +524,9 @@ def rexnet2_2x(
     Returns:
         torch.nn.Module: classification model
 
-    .. autoclass:: holocron.models.ReXNet2_2x_Checkpoint
-        :members:
+    ::: holocron.models.ReXNet2_2x_Checkpoint
+        options:
+            heading_level: 4
     """
     checkpoint = _handle_legacy_pretrained(
         pretrained,

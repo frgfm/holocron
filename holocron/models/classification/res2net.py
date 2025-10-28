@@ -39,23 +39,25 @@ class ScaleConv2d(nn.Module):
 
         self.scale: int = scale
         self.width: int = planes // scale
-        self.conv = nn.ModuleList([
-            nn.Sequential(
-                *conv_sequence(
-                    self.width,
-                    self.width,
-                    act_layer,
-                    norm_layer,
-                    drop_layer,
-                    kernel_size=3,
-                    stride=stride,
-                    padding=1,
-                    groups=groups,
-                    bias=(norm_layer is None),
+        self.conv = nn.ModuleList(
+            [
+                nn.Sequential(
+                    *conv_sequence(
+                        self.width,
+                        self.width,
+                        act_layer,
+                        norm_layer,
+                        drop_layer,
+                        kernel_size=3,
+                        stride=stride,
+                        padding=1,
+                        groups=groups,
+                        bias=(norm_layer is None),
+                    )
                 )
-            )
-            for _ in range(max(1, scale - 1))
-        ])
+                for _ in range(max(1, scale - 1))
+            ]
+        )
 
         if downsample:
             self.downsample = nn.AvgPool2d(kernel_size=3, stride=stride, padding=1)
@@ -183,7 +185,7 @@ def res2net50_26w_4s(
     **kwargs: Any,
 ) -> ResNet:
     """Res2Net-50 26wx4s from
-    `"Res2Net: A New Multi-scale Backbone Architecture" <https://arxiv.org/pdf/1904.01169.pdf>`_
+    ["Res2Net: A New Multi-scale Backbone Architecture"](https://arxiv.org/pdf/1904.01169.pdf)
 
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
@@ -194,8 +196,9 @@ def res2net50_26w_4s(
     Returns:
         torch.nn.Module: classification model
 
-    .. autoclass:: holocron.models.Res2Net50_26w_4s_Checkpoint
-        :members:
+    ::: holocron.models.Res2Net50_26w_4s_Checkpoint
+        options:
+            heading_level: 4
     """
     checkpoint = _handle_legacy_pretrained(
         pretrained,

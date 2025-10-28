@@ -47,20 +47,22 @@ class DepthConvBlock(nn.ModuleList):
                 *conv_sequence(channels, channels, kernel_size=1, stride=stride, norm_layer=norm_layer, groups=channels)
             ),
         )
-        layers.extend([
-            nn.Sequential(
-                *conv_sequence(
-                    channels,
-                    channels,
-                    kernel_size=3,
-                    padding=1,
-                    stride=stride,
-                    norm_layer=norm_layer,
-                    groups=channels,
+        layers.extend(
+            [
+                nn.Sequential(
+                    *conv_sequence(
+                        channels,
+                        channels,
+                        kernel_size=3,
+                        padding=1,
+                        stride=stride,
+                        norm_layer=norm_layer,
+                        groups=channels,
+                    )
                 )
-            )
-            for _ in range(num_blocks)
-        ])
+                for _ in range(num_blocks)
+            ]
+        )
         super().__init__(layers)
 
     def forward(self, x: Tensor) -> Tensor:
@@ -109,10 +111,12 @@ class PointConvBlock(nn.ModuleList):
         if norm_layer is None:
             norm_layer = nn.BatchNorm2d
         layers = [norm_layer(out_channels)] if out_channels == in_channels else []
-        layers.extend([
-            nn.Sequential(*conv_sequence(in_channels, out_channels, kernel_size=1, norm_layer=norm_layer))
-            for _ in range(num_blocks)
-        ])
+        layers.extend(
+            [
+                nn.Sequential(*conv_sequence(in_channels, out_channels, kernel_size=1, norm_layer=norm_layer))
+                for _ in range(num_blocks)
+            ]
+        )
         super().__init__(layers)
 
     def forward(self, x: Tensor) -> Tensor:
@@ -206,20 +210,24 @@ class MobileOne(nn.Sequential):
             # Stride & channel changes
             stage = [MobileOneBlock(in_planes, _planes, overparam_factor, 2, act_layer, norm_layer)]
             # Depth
-            stage.extend([
-                MobileOneBlock(_planes, _planes, overparam_factor, 1, act_layer, norm_layer)
-                for _ in range(_num_blocks - 1)
-            ])
+            stage.extend(
+                [
+                    MobileOneBlock(_planes, _planes, overparam_factor, 1, act_layer, norm_layer)
+                    for _ in range(_num_blocks - 1)
+                ]
+            )
             in_planes = _planes
 
             layers.append(nn.Sequential(*stage))
 
         super().__init__(
-            OrderedDict([
-                ("features", nn.Sequential(*layers)),
-                ("pool", GlobalAvgPool2d(flatten=True)),
-                ("head", nn.Linear(in_planes, num_classes)),
-            ])
+            OrderedDict(
+                [
+                    ("features", nn.Sequential(*layers)),
+                    ("pool", GlobalAvgPool2d(flatten=True)),
+                    ("head", nn.Linear(in_planes, num_classes)),
+                ]
+            )
         )
 
         # Init all layers
@@ -273,7 +281,7 @@ def mobileone_s0(
     **kwargs: Any,
 ) -> MobileOne:
     """MobileOne-S0 from
-    `"An Improved One millisecond Mobile Backbone" <https://arxiv.org/pdf/2206.04040.pdf>`_
+    ["An Improved One millisecond Mobile Backbone"](https://arxiv.org/pdf/2206.04040.pdf)
 
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
@@ -284,8 +292,9 @@ def mobileone_s0(
     Returns:
         torch.nn.Module: classification model
 
-    .. autoclass:: holocron.models.MobileOne_S0_Checkpoint
-        :members:
+    ::: holocron.models.MobileOne_S0_Checkpoint
+        options:
+            heading_level: 4
     """
     checkpoint = _handle_legacy_pretrained(
         pretrained,
@@ -321,7 +330,7 @@ def mobileone_s1(
     **kwargs: Any,
 ) -> MobileOne:
     """MobileOne-S1 from
-    `"An Improved One millisecond Mobile Backbone" <https://arxiv.org/pdf/2206.04040.pdf>`_
+    ["An Improved One millisecond Mobile Backbone"](https://arxiv.org/pdf/2206.04040.pdf)
 
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
@@ -332,8 +341,9 @@ def mobileone_s1(
     Returns:
         torch.nn.Module: classification model
 
-    .. autoclass:: holocron.models.MobileOne_S1_Checkpoint
-        :members:
+    ::: holocron.models.MobileOne_S1_Checkpoint
+        options:
+            heading_level: 4
     """
     checkpoint = _handle_legacy_pretrained(
         pretrained,
@@ -369,7 +379,7 @@ def mobileone_s2(
     **kwargs: Any,
 ) -> MobileOne:
     """MobileOne-S2 from
-    `"An Improved One millisecond Mobile Backbone" <https://arxiv.org/pdf/2206.04040.pdf>`_
+    ["An Improved One millisecond Mobile Backbone"](https://arxiv.org/pdf/2206.04040.pdf)
 
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
@@ -380,8 +390,9 @@ def mobileone_s2(
     Returns:
         torch.nn.Module: classification model
 
-    .. autoclass:: holocron.models.MobileOne_S2_Checkpoint
-        :members:
+    ::: holocron.models.MobileOne_S2_Checkpoint
+        options:
+            heading_level: 4
     """
     checkpoint = _handle_legacy_pretrained(
         pretrained,
@@ -417,7 +428,7 @@ def mobileone_s3(
     **kwargs: Any,
 ) -> MobileOne:
     """MobileOne-S3 from
-    `"An Improved One millisecond Mobile Backbone" <https://arxiv.org/pdf/2206.04040.pdf>`_
+    ["An Improved One millisecond Mobile Backbone"](https://arxiv.org/pdf/2206.04040.pdf)
 
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
@@ -428,8 +439,9 @@ def mobileone_s3(
     Returns:
         torch.nn.Module: classification model
 
-    .. autoclass:: holocron.models.MobileOne_S3_Checkpoint
-        :members:
+    ::: holocron.models.MobileOne_S3_Checkpoint
+        options:
+            heading_level: 4
     """
     checkpoint = _handle_legacy_pretrained(
         pretrained,

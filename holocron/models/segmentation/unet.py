@@ -45,14 +45,16 @@ def down_path(
     conv_layer: Callable[..., nn.Module] | None = None,
 ) -> nn.Sequential:
     layers: list[nn.Module] = [nn.MaxPool2d(2)] if downsample else []
-    layers.extend([
-        *conv_sequence(
-            in_chan, out_chan, act_layer, norm_layer, drop_layer, conv_layer, kernel_size=3, padding=padding
-        ),
-        *conv_sequence(
-            out_chan, out_chan, act_layer, norm_layer, drop_layer, conv_layer, kernel_size=3, padding=padding
-        ),
-    ])
+    layers.extend(
+        [
+            *conv_sequence(
+                in_chan, out_chan, act_layer, norm_layer, drop_layer, conv_layer, kernel_size=3, padding=padding
+            ),
+            *conv_sequence(
+                out_chan, out_chan, act_layer, norm_layer, drop_layer, conv_layer, kernel_size=3, padding=padding
+            ),
+        ]
+    )
     return nn.Sequential(*layers)
 
 
@@ -128,11 +130,13 @@ class UNetBackbone(nn.Sequential):
             pool = True
 
         super().__init__(
-            OrderedDict([
-                ("features", nn.Sequential(*layers)),
-                ("pool", GlobalAvgPool2d(flatten=True)),
-                ("head", nn.Linear(layout[-1], num_classes)),
-            ])
+            OrderedDict(
+                [
+                    ("features", nn.Sequential(*layers)),
+                    ("pool", GlobalAvgPool2d(flatten=True)),
+                    ("head", nn.Linear(layout[-1], num_classes)),
+                ]
+            )
         )
 
         init_module(self, "relu")
@@ -383,10 +387,9 @@ def _unet(arch: str, pretrained: bool, progress: bool, **kwargs: Any) -> UNet:
 
 def unet(pretrained: bool = False, progress: bool = True, **kwargs: Any) -> UNet:
     """U-Net from
-    `"U-Net: Convolutional Networks for Biomedical Image Segmentation" <https://arxiv.org/pdf/1505.04597.pdf>`_
+    ["U-Net: Convolutional Networks for Biomedical Image Segmentation"](https://arxiv.org/pdf/1505.04597.pdf)
 
-    .. image:: https://github.com/frgfm/Holocron/releases/download/v0.1.3/unet.png
-        :align: center
+    ![UNet explanation](https://github.com/frgfm/Holocron/releases/download/v0.1.3/unet.png)
 
     Args:
         pretrained: If True, returns a model pre-trained on PASCAL VOC2012
@@ -417,12 +420,10 @@ def _dynamic_unet(
 
 def unet2(pretrained: bool = False, progress: bool = True, in_channels: int = 3, **kwargs: Any) -> DynamicUNet:
     """Modified version of U-Net from
-    `"U-Net: Convolutional Networks for Biomedical Image Segmentation" <https://arxiv.org/pdf/1505.04597.pdf>`_
-    that includes a more advanced upscaling block inspired by `fastai
-    <https://docs.fast.ai/vision.models.unet.html#DynamicUnet>`_.
+    ["U-Net: Convolutional Networks for Biomedical Image Segmentation"](https://arxiv.org/pdf/1505.04597.pdf)
+    that includes a more advanced upscaling block inspired by [fastai](https://docs.fast.ai/vision.models.unet.html#DynamicUnet)
 
-    .. image:: https://github.com/frgfm/Holocron/releases/download/v0.1.3/unet.png
-        :align: center
+    ![UNet architecture](https://github.com/frgfm/Holocron/releases/download/v0.1.3/unet.png)
 
     Args:
         pretrained: If True, returns a model pre-trained on PASCAL VOC2012
@@ -442,9 +443,8 @@ def unet_tvvgg11(
     pretrained: bool = False, pretrained_backbone: bool = True, progress: bool = True, **kwargs: Any
 ) -> DynamicUNet:
     """U-Net from
-    `"U-Net: Convolutional Networks for Biomedical Image Segmentation" <https://arxiv.org/pdf/1505.04597.pdf>`_
-    with a VGG-11 backbone used as encoder, and more advanced upscaling blocks inspired by `fastai
-    <https://docs.fast.ai/vision.models.unet.html#DynamicUnet>`_.
+    ["U-Net: Convolutional Networks for Biomedical Image Segmentation"](https://arxiv.org/pdf/1505.04597.pdf)
+    with a VGG-11 backbone used as encoder, and more advanced upscaling blocks inspired by [fastai](https://docs.fast.ai/vision.models.unet.html#DynamicUnet)
 
     Args:
         pretrained: If True, returns a model pre-trained on PASCAL VOC2012
@@ -465,9 +465,8 @@ def unet_tvresnet34(
     pretrained: bool = False, pretrained_backbone: bool = True, progress: bool = True, **kwargs: Any
 ) -> DynamicUNet:
     """U-Net from
-    `"U-Net: Convolutional Networks for Biomedical Image Segmentation" <https://arxiv.org/pdf/1505.04597.pdf>`_
-    with a ResNet-34 backbone used as encoder, and more advanced upscaling blocks inspired by `fastai
-    <https://docs.fast.ai/vision.models.unet.html#DynamicUnet>`_.
+    ["U-Net: Convolutional Networks for Biomedical Image Segmentation"](https://arxiv.org/pdf/1505.04597.pdf)
+    with a ResNet-34 backbone used as encoder, and more advanced upscaling blocks inspired by [fastai](https://docs.fast.ai/vision.models.unet.html#DynamicUnet)
 
     Args:
         pretrained: If True, returns a model pre-trained on PASCAL VOC2012
@@ -493,9 +492,8 @@ def unet_rexnet13(
     **kwargs: Any,
 ) -> DynamicUNet:
     """U-Net from
-    `"U-Net: Convolutional Networks for Biomedical Image Segmentation" <https://arxiv.org/pdf/1505.04597.pdf>`_
-    with a ReXNet-1.3x backbone used as encoder, and more advanced upscaling blocks inspired by `fastai
-    <https://docs.fast.ai/vision.models.unet.html#DynamicUnet>`_.
+    ["U-Net: Convolutional Networks for Biomedical Image Segmentation"](https://arxiv.org/pdf/1505.04597.pdf)
+    with a ReXNet-1.3x backbone used as encoder, and more advanced upscaling blocks inspired by [fastai](https://docs.fast.ai/vision.models.unet.html#DynamicUnet).
 
     Args:
         pretrained: If True, returns a model pre-trained on PASCAL VOC2012

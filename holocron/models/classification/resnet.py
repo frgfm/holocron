@@ -338,11 +338,13 @@ class ResNet(nn.Sequential):
             stride = 2
 
         super().__init__(
-            OrderedDict([
-                ("features", nn.Sequential(*layers)),
-                ("pool", GlobalAvgPool2d(flatten=True)),
-                ("head", nn.Linear(num_repeats * in_planes, num_classes)),
-            ])
+            OrderedDict(
+                [
+                    ("features", nn.Sequential(*layers)),
+                    ("pool", GlobalAvgPool2d(flatten=True)),
+                    ("head", nn.Linear(num_repeats * in_planes, num_classes)),
+                ]
+            )
         )
 
         # Init all layers
@@ -419,20 +421,22 @@ class ResNet(nn.Sequential):
                 **block_args,
             )
         ]
-        layers.extend([
-            block(
-                block.expansion * planes,
-                planes,
-                1,
-                None,
-                base_width=width_per_group,
-                act_layer=act_layer,
-                norm_layer=norm_layer,
-                drop_layer=drop_layer,
-                **block_args,
-            )
-            for _ in range(num_blocks - 1)
-        ])
+        layers.extend(
+            [
+                block(
+                    block.expansion * planes,
+                    planes,
+                    1,
+                    None,
+                    base_width=width_per_group,
+                    act_layer=act_layer,
+                    norm_layer=norm_layer,
+                    drop_layer=drop_layer,
+                    **block_args,
+                )
+                for _ in range(num_blocks - 1)
+            ]
+        )
 
         return nn.Sequential(*layers)
 
@@ -487,8 +491,9 @@ def resnet18(
     Returns:
         torch.nn.Module: classification model
 
-    .. autoclass:: holocron.models.ResNet18_Checkpoint
-        :members:
+    ::: holocron.models.ResNet18_Checkpoint
+        options:
+            heading_level: 4
     """
     checkpoint = _handle_legacy_pretrained(
         pretrained,
@@ -535,8 +540,9 @@ def resnet34(
     Returns:
         torch.nn.Module: classification model
 
-    .. autoclass:: holocron.models.ResNet34_Checkpoint
-        :members:
+    ::: holocron.models.ResNet34_Checkpoint
+        options:
+            heading_level: 4
     """
     return _resnet(checkpoint, progress, BasicBlock, [3, 4, 6, 3], [64, 128, 256, 512], **kwargs)
 
@@ -578,8 +584,9 @@ def resnet50(
     Returns:
         torch.nn.Module: classification model
 
-    .. autoclass:: holocron.models.ResNet50_Checkpoint
-        :members:
+    ::: holocron.models.ResNet50_Checkpoint
+        options:
+            heading_level: 4
     """
     checkpoint = _handle_legacy_pretrained(
         pretrained,
@@ -627,8 +634,9 @@ def resnet50d(
     Returns:
         torch.nn.Module: classification model
 
-    .. autoclass:: holocron.models.ResNet50D_Checkpoint
-        :members:
+    ::: holocron.models.ResNet50D_Checkpoint
+        options:
+            heading_level: 4
     """
     return _resnet(
         checkpoint,

@@ -727,26 +727,26 @@ def _yolo(
 
 def yolov4(pretrained: bool = False, progress: bool = True, pretrained_backbone: bool = True, **kwargs: Any) -> YOLOv4:
     r"""YOLOv4 model from
-    `"YOLOv4: Optimal Speed and Accuracy of Object Detection" <https://arxiv.org/pdf/2004.10934.pdf>`_.
+    ["YOLOv4: Optimal Speed and Accuracy of Object Detection"](https://arxiv.org/pdf/2004.10934.pdf).
 
-    The architecture improves upon YOLOv3 by including: the usage of `DropBlock
-    <https://arxiv.org/pdf/1810.12890.pdf>`_ regularization, `Mish <https://arxiv.org/pdf/1908.08681.pdf>`_ activation,
-    `CSP <https://arxiv.org/pdf/2004.10934.pdf>`_ and `SAM <https://arxiv.org/pdf/1807.06521.pdf>`_ in the
-    backbone, `SPP <https://arxiv.org/pdf/1406.4729.pdf>`_ and `PAN <https://arxiv.org/pdf/1803.01534.pdf>`_ in the
+    The architecture improves upon YOLOv3 by including: the usage of [DropBlock](https://arxiv.org/pdf/1810.12890.pdf) regularization, [Mish](https://arxiv.org/pdf/1908.08681.pdf) activation, [CSP](https://arxiv.org/pdf/2004.10934.pdf) and [SAM](https://arxiv.org/pdf/1807.06521.pdf) in the
+    backbone, [SPP](https://arxiv.org/pdf/1406.4729.pdf) and [PAN](https://arxiv.org/pdf/1803.01534.pdf) in the
     neck.
 
     For training, YOLOv4 uses the same multi-part loss as YOLOv3 apart from its box coordinate loss:
 
-    .. math::
+    $$
         \mathcal{L}_{coords} = \sum\limits_{i=0}^{S^2}  \sum\limits_{j=0}^{B}
         \min\limits_{k \in [1, M]} C_{IoU}(\hat{loc}_{ij}, loc^{GT}_k)
+    $$
 
-    where :math:`S` is size of the output feature map (13 for an input size :math:`(416, 416)`),
-    :math:`B` is the number of anchor boxes per grid cell (default: 3),
-    :math:`M` is the number of ground truth boxes,
-    :math:`C_{IoU}` is the complete IoU loss,
-    :math:`\hat{loc}_{ij}` is the predicted bounding box for grid cell :math:`i` at anchor :math:`j`,
-    and :math:`loc^{GT}_k` is the k-th ground truth bounding box.
+    where:
+    - $S$ is size of the output feature map (13 for an input size $(416, 416)$),
+    - $B$ is the number of anchor boxes per grid cell (default: 3),
+    - $M$ is the number of ground truth boxes,
+    - $C_{IoU}$ is the complete IoU loss,
+    - $\hat{loc}_{ij}$ is the predicted bounding box for grid cell $i$ at anchor $j$,
+    and $loc^{GT}_k$ is the k-th ground truth bounding box.
 
     Args:
         pretrained (bool, optional): If True, returns a model pre-trained on ImageNet

@@ -168,17 +168,19 @@ class ConvNeXt(nn.Sequential):
             block_idx += _num_blocks
 
         super().__init__(
-            OrderedDict([
-                ("features", nn.Sequential(*layers)),
-                ("pool", GlobalAvgPool2d(flatten=True)),
-                (
-                    "head",
-                    nn.Sequential(
-                        nn.LayerNorm(planes[-1], eps=1e-6),
-                        nn.Linear(planes[-1], num_classes),
+            OrderedDict(
+                [
+                    ("features", nn.Sequential(*layers)),
+                    ("pool", GlobalAvgPool2d(flatten=True)),
+                    (
+                        "head",
+                        nn.Sequential(
+                            nn.LayerNorm(planes[-1], eps=1e-6),
+                            nn.Linear(planes[-1], num_classes),
+                        ),
                     ),
-                ),
-            ])
+                ]
+            )
         )
 
         # Init all layers
@@ -227,7 +229,7 @@ def convnext_atto(
     **kwargs: Any,
 ) -> ConvNeXt:
     """ConvNeXt-Atto variant of Ross Wightman inspired by
-    `"A ConvNet for the 2020s" <https://arxiv.org/pdf/2201.03545.pdf>`_
+    ["A ConvNet for the 2020s"](https://arxiv.org/pdf/2201.03545.pdf)
 
     Args:
         pretrained: If True, returns a model pre-trained on ImageNette
@@ -238,8 +240,9 @@ def convnext_atto(
     Returns:
         torch.nn.Module: classification model
 
-    .. autoclass:: holocron.models.ConvNeXt_Atto_Checkpoint
-        :members:
+    ::: holocron.models.ConvNeXt_Atto_Checkpoint
+        options:
+            heading_level: 4
     """
     checkpoint = _handle_legacy_pretrained(
         pretrained,
@@ -253,7 +256,7 @@ def convnext_femto(
     pretrained: bool = False, checkpoint: Checkpoint | None = None, progress: bool = True, **kwargs: Any
 ) -> ConvNeXt:
     """ConvNeXt-Femto variant of Ross Wightman inspired by
-    `"A ConvNet for the 2020s" <https://arxiv.org/pdf/2201.03545.pdf>`_
+    ["A ConvNet for the 2020s"](https://arxiv.org/pdf/2201.03545.pdf)
 
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNette
@@ -272,7 +275,7 @@ def convnext_pico(
     pretrained: bool = False, checkpoint: Checkpoint | None = None, progress: bool = True, **kwargs: Any
 ) -> ConvNeXt:
     """ConvNeXt-Pico variant of Ross Wightman inspired by
-    `"A ConvNet for the 2020s" <https://arxiv.org/pdf/2201.03545.pdf>`_
+    ["A ConvNet for the 2020s"](https://arxiv.org/pdf/2201.03545.pdf)
 
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNette
@@ -291,7 +294,7 @@ def convnext_nano(
     pretrained: bool = False, checkpoint: Checkpoint | None = None, progress: bool = True, **kwargs: Any
 ) -> ConvNeXt:
     """ConvNeXt-Nano variant of Ross Wightman inspired by
-    `"A ConvNet for the 2020s" <https://arxiv.org/pdf/2201.03545.pdf>`_
+    ["A ConvNet for the 2020s"](https://arxiv.org/pdf/2201.03545.pdf)
 
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNette
@@ -310,7 +313,7 @@ def convnext_tiny(
     pretrained: bool = False, checkpoint: Checkpoint | None = None, progress: bool = True, **kwargs: Any
 ) -> ConvNeXt:
     """ConvNeXt-T from
-    `"A ConvNet for the 2020s" <https://arxiv.org/pdf/2201.03545.pdf>`_
+    ["A ConvNet for the 2020s"](https://arxiv.org/pdf/2201.03545.pdf)
 
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNette
@@ -329,7 +332,7 @@ def convnext_small(
     pretrained: bool = False, checkpoint: Checkpoint | None = None, progress: bool = True, **kwargs: Any
 ) -> ConvNeXt:
     """ConvNeXt-S from
-    `"A ConvNet for the 2020s" <https://arxiv.org/pdf/2201.03545.pdf>`_
+    ["A ConvNet for the 2020s"](https://arxiv.org/pdf/2201.03545.pdf)
 
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNette
@@ -348,7 +351,7 @@ def convnext_base(
     pretrained: bool = False, checkpoint: Checkpoint | None = None, progress: bool = True, **kwargs: Any
 ) -> ConvNeXt:
     """ConvNeXt-B from
-    `"A ConvNet for the 2020s" <https://arxiv.org/pdf/2201.03545.pdf>`_
+    ["A ConvNet for the 2020s"](https://arxiv.org/pdf/2201.03545.pdf)
 
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNette
@@ -367,7 +370,7 @@ def convnext_large(
     pretrained: bool = False, checkpoint: Checkpoint | None = None, progress: bool = True, **kwargs: Any
 ) -> ConvNeXt:
     """ConvNeXt-L from
-    `"A ConvNet for the 2020s" <https://arxiv.org/pdf/2201.03545.pdf>`_
+    ["A ConvNet for the 2020s"](https://arxiv.org/pdf/2201.03545.pdf)
 
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNette
@@ -386,7 +389,7 @@ def convnext_xl(
     pretrained: bool = False, checkpoint: Checkpoint | None = None, progress: bool = True, **kwargs: Any
 ) -> ConvNeXt:
     """ConvNeXt-XL from
-    `"A ConvNet for the 2020s" <https://arxiv.org/pdf/2201.03545.pdf>`_
+    ["A ConvNet for the 2020s"](https://arxiv.org/pdf/2201.03545.pdf)
 
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNette

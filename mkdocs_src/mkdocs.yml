@@ -1,0 +1,132 @@
+site_name: Holocron
+site_description: PyTorch implementations of recent Computer Vision tricks 
+site_url: https://frgfm.github.io/holocron
+site_author: François-Guillaume Fernandez
+copyright: Copyright (C) 2019-2025, François-Guillaume Fernandez
+repo_name: frgfm/holocron
+repo_url: https://github.com/frgfm/holocron
+edit_uri: blob/main/docs
+remote_branch: gh-pages
+theme:
+  name: material
+  locale: en
+  highlightjs: true
+  favicon: img/favicon.ico
+  language: en
+  logo: img/logo.png
+  palette:
+  - media: (prefers-color-scheme)
+    toggle:
+      icon: material/lightbulb-auto
+      name: Switch to light mode
+  - media: '(prefers-color-scheme: light)'
+    scheme: default
+    primary: blue grey
+    accent: deep purple
+    toggle:
+      icon: material/lightbulb
+      name: Switch to dark mode
+  - media: '(prefers-color-scheme: dark)'
+    scheme: slate
+    primary: blue grey
+    accent: deep purple
+    toggle:
+      icon: material/lightbulb-outline
+      name: Switch to system preference
+  features:
+  - content.code.annotate
+  - content.code.copy
+  - content.footnote.tooltips
+  - content.tabs.link
+  - content.tooltips
+  - navigation.footer
+  - navigation.indexes
+  - navigation.instant
+  - navigation.instant.prefetch
+  - navigation.instant.progress
+  - navigation.path
+  - navigation.tabs
+  - navigation.tabs.sticky
+  - navigation.top
+  - navigation.tracking
+  - search.highlight
+  - search.share
+  - search.suggest
+  - toc.follow
+plugins:
+  search:
+  autorefs:
+  mkdocstrings:
+    handlers:
+      python:
+        options:
+          extensions:
+          - griffe_typingdoc
+          show_root_heading: true
+          show_if_no_docstring: true
+          preload_modules:
+          - httpx
+          - starlette
+          inherited_members: true
+          members_order: source
+          separate_signature: true
+          unwrap_annotated: true
+          filters:
+          - '!^_'
+          merge_init_into_class: true
+          docstring_section_style: spacy
+          signature_crossrefs: true
+          show_symbol_type_heading: true
+          show_symbol_type_toc: true
+markdown_extensions:
+  toc:
+    permalink: true
+  pymdownx.emoji:
+    emoji_index: !!python/name:material.extensions.emoji.twemoji
+    emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  pymdownx.highlight:
+    anchor_linenums: true
+    line_spans: __span
+    pygments_lang_class: true
+  pymdownx.inlinehilite:
+  pymdownx.snippets:
+  pymdownx.superfences:
+  pymdownx.blocks.admonition:
+    types:
+    - note
+    - attention
+    - caution
+    - danger
+    - error
+    - tip
+    - hint
+    - warning
+    - info
+    - check
+  pymdownx.arithmatex:
+    generic: true
+extra_javascript:
+  - js/katex.js
+  - https://unpkg.com/katex@0/dist/katex.min.js
+  - https://unpkg.com/katex@0/dist/contrib/auto-render.min.js
+extra_css:
+  - https://unpkg.com/katex@0/dist/katex.min.css
+extra:
+  social:
+  - icon: fontawesome/brands/github
+    link: https://github.com/frgfm/holocron
+  - icon: fontawesome/brands/twitter
+    link: https://x.com/frg_fm
+  - icon: fontawesome/brands/linkedin
+    link: https://www.linkedin.com/in/fgfm
+  - icon: fontawesome/solid/globe
+    link: https://fgfm.dev
+nav:
+  - Home: index.md
+  - Getting started:
+    - getting-started/installation.md
+    - getting-started/notebooks.md
+  - Package Reference:
+    - reference/models.md
+  - Notes:
+    - notes/changelog.md

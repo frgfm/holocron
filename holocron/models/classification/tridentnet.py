@@ -155,7 +155,7 @@ def _tridentnet(
 
 def tridentnet50(pretrained: bool = False, progress: bool = True, **kwargs: Any) -> ResNet:
     """TridentNet-50 from
-    `"Scale-Aware Trident Networks for Object Detection" <https://arxiv.org/pdf/1901.01892.pdf>`_
+    ["Scale-Aware Trident Networks for Object Detection"](https://arxiv.org/pdf/1901.01892.pdf)
 
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
