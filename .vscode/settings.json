@@ -15,10 +15,12 @@
           "source.fixAll": "explicit"
         }
     },
-    "ruff.configuration": "./pyproject.toml",
-    "ty.interpreter": [".venv/bin/python"],
+    "ruff.configuration": "${workspaceFolder}/pyproject.toml",
+    "ty.interpreter": ["${workspaceFolder}/.venv/bin/python"],
     "ty.path": [
-        ".venv/bin/ty"
+        "${workspaceFolder}/.venv/bin/ty"
     ],
-    "python.languageServer": "None"
+    "python.languageServer": "None",
+    "ty.inlayHints.callArgumentNames": false,
+    "ty.inlayHints.variableTypes": false
 }
