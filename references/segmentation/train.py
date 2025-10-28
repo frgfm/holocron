@@ -18,10 +18,10 @@ import wandb
 from codecarbon import track_emissions
 from torch import nn
 from torch.utils.data import RandomSampler, SequentialSampler
-from torchvision import transforms as T
 from torchvision.datasets import VOCSegmentation
 from torchvision.models import segmentation as tv_segmentation
-from torchvision.transforms.functional import InterpolationMode, to_pil_image
+from torchvision.transforms import v2 as T
+from torchvision.transforms.v2.functional import InterpolationMode, to_pil_image
 from transforms import Compose, ImageTransform, RandomCrop, RandomHorizontalFlip, RandomResize, Resize, ToTensor
 
 import holocron

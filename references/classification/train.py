@@ -22,9 +22,8 @@ from torch import nn
 from torch.utils.data import RandomSampler, SequentialSampler
 from torch.utils.data._utils.collate import default_collate
 from torchvision.datasets import CIFAR10, CIFAR100, ImageFolder
-from torchvision.transforms import autoaugment as A
-from torchvision.transforms import transforms as T
-from torchvision.transforms.functional import InterpolationMode, to_pil_image
+from torchvision.transforms import v2 as T
+from torchvision.transforms.v2.functional import InterpolationMode, to_pil_image
 
 from holocron.models import classification
 from holocron.models.presets import CIFAR10 as CIF10
@@ -99,7 +98,7 @@ def main(args):
                 T.Compose([
                     T.RandomResizedCrop(args.train_crop_size, scale=(0.3, 1.0), interpolation=interpolation),
                     T.RandomHorizontalFlip(),
-                    A.TrivialAugmentWide(interpolation=interpolation),
+                    T.TrivialAugmentWide(interpolation=interpolation),
                     T.PILToTensor(),
                     T.ConvertImageDtype(torch.float32),
                     normalize,
@@ -113,7 +112,7 @@ def main(args):
                 True,
                 T.Compose([
                     T.RandomHorizontalFlip(),
-                    A.TrivialAugmentWide(interpolation=interpolation),
+                    T.TrivialAugmentWide(interpolation=interpolation),
                     T.PILToTensor(),
                     T.ConvertImageDtype(torch.float32),
                     normalize,

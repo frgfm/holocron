@@ -6,8 +6,8 @@
 """Transformation for object detection"""
 
 import torch
-from torchvision.transforms import functional as F
-from torchvision.transforms import transforms
+from torchvision.transforms import v2 as T
+from torchvision.transforms.v2 import functional as F
 
 
 class VOCTargetTransform:
@@ -34,7 +34,7 @@ class VOCTargetTransform:
         return image, {"boxes": boxes, "labels": labels}
 
 
-class Compose(transforms.Compose):
+class Compose(T.Compose):
     def __call__(self, image, target):
         for t in self.transforms:
             image, target = t(image, target)
@@ -53,7 +53,7 @@ class ImageTransform:
         return self.transform.__repr__()
 
 
-class CenterCrop(transforms.CenterCrop):
+class CenterCrop(T.CenterCrop):
     def __call__(self, image, target):
         image = F.center_crop(image, self.size)
         x = int(image.size[0] / 2 - self.size[0] / 2)
@@ -67,7 +67,7 @@ class CenterCrop(transforms.CenterCrop):
         return image, target
 
 
-class Resize(transforms.Resize):
+class Resize(T.Resize):
     def __call__(self, image, target):
         if isinstance(self.size, int):
             if image.size[1] < image.size[0]:
@@ -80,7 +80,7 @@ class Resize(transforms.Resize):
         return F.resize(image, self.size, self.interpolation), target
 
 
-class RandomResizedCrop(transforms.RandomResizedCrop):
+class RandomResizedCrop(T.RandomResizedCrop):
     def __call__(self, image, target):
         i, j, h, w = self.get_params(image, self.scale, self.ratio)
         image = F.resized_crop(image, i, j, h, w, self.size, self.interpolation)
@@ -114,7 +114,7 @@ def convert_to_relative(image, target):
     return image, target
 
 
-class RandomHorizontalFlip(transforms.RandomHorizontalFlip):
+class RandomHorizontalFlip(T.RandomHorizontalFlip):
     def __call__(self, image, target):
         if torch.rand(1).item() < self.p:
             _, width = image.size

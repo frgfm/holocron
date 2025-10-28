@@ -40,7 +40,7 @@ dependencies = [
     "numpy>=1.17.2,<2.0.0",
     "fastprogress>=1.0.0,<2.0.0",
     "matplotlib>=3.0.0,<4.0.0",
-    "huggingface-hub>=0.4.0",
+    "huggingface-hub>=1.0.0,<2.0.0",
     # Indirect deps
     # cf. https://github.com/advisories/GHSA-98vv-pw6r-q6q4
     # cf. https://github.com/pytorch/vision/issues/4934

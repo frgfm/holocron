@@ -54,8 +54,8 @@ This project was created for quality implementations, increased developer flexib
 
 ```python
 from PIL import Image
-from torchvision.transforms import Compose, ConvertImageDtype, Normalize, PILToTensor, Resize
-from torchvision.transforms.functional import InterpolationMode
+from torchvision.transforms.v2 import Compose, ConvertImageDtype, Normalize, PILToTensor, Resize
+from torchvision.transforms.v2.functional import InterpolationMode
 from holocron.models.classification import repvgg_a0
 
 # Load your model
@@ -94,12 +94,6 @@ You can install the last stable release of the package using [pypi](https://pypi
 
 ```shell
 pip install pylocron
-```
-
-or using [conda](https://anaconda.org/frgfm/pylocron):
-
-```shell
-conda install -c frgfm pylocron
 ```
 
 ### Developer mode

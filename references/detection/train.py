@@ -19,10 +19,10 @@ import wandb
 from codecarbon import track_emissions
 from matplotlib.patches import Rectangle
 from torch.utils.data import RandomSampler, SequentialSampler
-from torchvision import transforms as T
 from torchvision.datasets import VOCDetection
 from torchvision.models import detection as tv_detection
-from torchvision.transforms.functional import InterpolationMode, to_pil_image
+from torchvision.transforms import v2 as T
+from torchvision.transforms.v2.functional import InterpolationMode, to_pil_image
 from transforms import Compose, ImageTransform, RandomHorizontalFlip, Resize, VOCTargetTransform, convert_to_relative
 
 import holocron

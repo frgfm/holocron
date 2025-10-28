@@ -7,8 +7,8 @@
 
 import numpy as np
 import torch
-from torchvision.transforms import InterpolationMode, transforms
-from torchvision.transforms import functional as F
+from torchvision.transforms.v2 import InterpolationMode, transforms
+from torchvision.transforms.v2 import functional as F
 
 
 def pad_if_smaller(img, size, fill=0):
