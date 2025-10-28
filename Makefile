@@ -7,13 +7,13 @@ PACKAGE_DIR = ${PY_DIR}/holocron
 PYPROJECT_FILE = ${PY_DIR}/pyproject.toml
 PYTHON_REQ_FILE = /tmp/requirements.txt
 
-DOCKERFILE_PATH = ./api/Dockerfile
+BACKEND_DOCKERFILE = ${BACKEND_DIR}/Dockerfile
 PKG_TEST_DIR = ${PY_DIR}/tests
 API_CONFIG_FILE = ${BACKEND_DIR}/pyproject.toml
 API_LOCK_FILE = ${BACKEND_DIR}/uv.lock
 API_REQ_FILE = ${BACKEND_DIR}/requirements.txt
 DEMO_REQ_FILE = ${DEMO_DIR}/requirements.txt
-DEMO_SCRIPT = ${DEMO_DIR}/app.py
+DEMO_FILE = ${DEMO_DIR}/app.py
 REPO_OWNER ?= frgfm
 REPO_NAME ?= holocron
 DOCKER_NAMESPACE ?= ghcr.io/${REPO_OWNER}
@@ -61,7 +61,7 @@ precommit: ${PYPROJECT_FILE} .pre-commit-config.yaml ## Run pre-commit hooks
 	pre-commit run --all-files
 
 typing-check: ${PYPROJECT_FILE} ## Check type annotations
-	uvx ty check .
+	uv run ty check .
 
 deps-check: .github/verify_deps_sync.py ## Check dependency synchronization
 	uv run --script .github/verify_deps_sync.py
@@ -111,12 +111,12 @@ docs-full: ${DOCS_DIR}
 # Demo
 ########################################################
 
-install-demo: ${PYPROJECT_FILE}
-	uv pip install -e ".[demo]"
+install-demo: ${DEMO_REQ_FILE}
+	uv pip install -r ${DEMO_REQ_FILE}
 
 # Run the Gradio demo
 run-demo: ${DEMO_FILE}
-	uv run streamlit run ${DEMO_FILE}
+	uv run python ${DEMO_FILE} --port 3000
 
 ########################################################
 # Backend
@@ -139,11 +139,11 @@ push-backend: build-backend
 # Run backend
 ########################################################
 
-uvicorn-backend: ${BACKEND_DIR} .env
-	uv --project ${BACKEND_DIR} run uvicorn app.main:app --reload --reload-dir ${BACKEND_DIR} --host 0.0.0.0 --port 3000 --proxy-headers --use-colors --log-level info --app-dir ${BACKEND_DIR} --env-file .env
+uvicorn-backend: ${BACKEND_DIR}
+	uv --project ${BACKEND_DIR} run uvicorn app.main:app --reload --reload-dir ${BACKEND_DIR} --host 0.0.0.0 --port 8080 --proxy-headers --use-colors --log-level info --app-dir ${BACKEND_DIR}
 
 start-backend: build-backend ${BACKEND_DIR}
-	docker run -p 3000:3000 ${DOCKER_NAMESPACE}/${REPO_NAME}-backend:${DOCKER_TAG}
+	docker run -p 8080:8080 ${DOCKER_NAMESPACE}/${REPO_NAME}-backend:${DOCKER_TAG}
 
 stop-backend: ${BACKEND_DIR}
 	docker stop ${DOCKER_NAMESPACE}/${REPO_NAME}-backend:${DOCKER_TAG}
