@@ -54,6 +54,7 @@ test = [
     "pytest-cov==6.2.1",
     "pytest-pretty==1.3.0",
     "onnx>=1.13.0,<2.0.0",
+    "onnxscript>=0.5.0,<1.0.0",
 ]
 training = [
     "wandb>=0.10.31,<1.0.0",
@@ -207,7 +208,7 @@ known-third-party = ["wandb", "fastapi"]
 "holocron/nn/modules/**.py" = ["N806", "D102"]
 "holocron/models/classification/**.py" = ["N801"]
 "holocron/models/*/**.py" = ["D101", "ARG", "D102"]
-"holocron/nn/functional.py" = ["N802", "ARG", "PLR0912"]
+"holocron/nn/functional.py" = ["N802", "ARG", "PLR0912", "PLR6104"]
 "holocron/trainer/**.py" = ["ARG", "PLW2901"]
 
 [tool.ruff.format]

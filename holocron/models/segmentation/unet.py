@@ -11,7 +11,7 @@ from typing import Any
 import torch
 from torch import Tensor, nn
 from torch.nn import functional as F
-from torchvision.models import resnet34, vgg11
+from torchvision.models import get_model, get_model_weights
 from torchvision.models._utils import IntermediateLayerGetter  # noqa: PLC2701
 
 from ...nn import GlobalAvgPool2d
@@ -45,14 +45,16 @@ def down_path(
     conv_layer: Callable[..., nn.Module] | None = None,
 ) -> nn.Sequential:
     layers: list[nn.Module] = [nn.MaxPool2d(2)] if downsample else []
-    layers.extend([
-        *conv_sequence(
-            in_chan, out_chan, act_layer, norm_layer, drop_layer, conv_layer, kernel_size=3, padding=padding
-        ),
-        *conv_sequence(
-            out_chan, out_chan, act_layer, norm_layer, drop_layer, conv_layer, kernel_size=3, padding=padding
-        ),
-    ])
+    layers.extend(
+        [
+            *conv_sequence(
+                in_chan, out_chan, act_layer, norm_layer, drop_layer, conv_layer, kernel_size=3, padding=padding
+            ),
+            *conv_sequence(
+                out_chan, out_chan, act_layer, norm_layer, drop_layer, conv_layer, kernel_size=3, padding=padding
+            ),
+        ]
+    )
     return nn.Sequential(*layers)
 
 
@@ -128,11 +130,13 @@ class UNetBackbone(nn.Sequential):
             pool = True
 
         super().__init__(
-            OrderedDict([
-                ("features", nn.Sequential(*layers)),
-                ("pool", GlobalAvgPool2d(flatten=True)),
-                ("head", nn.Linear(layout[-1], num_classes)),
-            ])
+            OrderedDict(
+                [
+                    ("features", nn.Sequential(*layers)),
+                    ("pool", GlobalAvgPool2d(flatten=True)),
+                    ("head", nn.Linear(layout[-1], num_classes)),
+                ]
+            )
         )
 
         init_module(self, "relu")
@@ -455,7 +459,8 @@ def unet_tvvgg11(
     Returns:
         semantic segmentation model
     """
-    backbone = vgg11(pretrained=pretrained_backbone and not pretrained).features
+    weights = get_model_weights("vgg11").DEFAULT if pretrained_backbone and not pretrained else None  # ty: ignore[unresolved-attribute]
+    backbone: nn.Module = get_model("vgg11", weights=weights).features  # ty: ignore[invalid-assignment]
 
     return _dynamic_unet("unet_vgg11", backbone, pretrained, progress, **kwargs)
 
@@ -477,7 +482,8 @@ def unet_tvresnet34(
     Returns:
         semantic segmentation model
     """
-    backbone = resnet34(pretrained=pretrained_backbone and not pretrained)
+    weights = get_model_weights("resnet34").DEFAULT if pretrained_backbone and not pretrained else None  # ty: ignore[unresolved-attribute]
+    backbone = get_model("resnet34", weights=weights)
     kwargs["final_upsampling"] = kwargs.get("final_upsampling", True)
 
     return _dynamic_unet("unet_tvresnet34", backbone, pretrained, progress, **kwargs)

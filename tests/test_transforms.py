@@ -13,7 +13,7 @@ def test_resize():
     with pytest.raises(ValueError):
         T.Resize(16)
 
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         T.Resize((16, 16), mode="stretch")
 
     with pytest.raises(ValueError):
@@ -66,7 +66,7 @@ def test_randomzoomout():
         T.RandomZoomOut(224)
 
     with pytest.raises(ValueError):
-        T.Resize((16, 16), (1, 0.5))
+        T.RandomZoomOut((16, 16), (1, 0.5))
 
     pil_img = Image.fromarray(np.full((64, 64, 3), 255, dtype=np.uint8))
     torch_img = torch.ones((3, 64, 64), dtype=torch.float32)

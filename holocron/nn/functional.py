@@ -184,7 +184,7 @@ def multilabel_cross_entropy(
         # Tensor type
         if weight.type() != x.data.type():
             weight = weight.type_as(x.data)
-        logpt *= weight.view(1, -1, *([1] * (x.ndim - 2)))
+        logpt = logpt * weight.view(1, -1, *([1] * (x.ndim - 2)))
 
     # CE Loss
     loss = -target * logpt
@@ -231,7 +231,7 @@ def complement_cross_entropy(
     # logpt = F.log_softmax(x, dim=1)
 
     pt = F.softmax(x, dim=1)
-    pt /= 1 - pt.transpose(0, 1).gather(0, target.unsqueeze(0)).transpose(0, 1)
+    pt = pt / (1 - pt.transpose(0, 1).gather(0, target.unsqueeze(0)).transpose(0, 1))
 
     loss = -1 / (x.shape[1] - 1) * pt * torch.log(pt)
 
@@ -250,7 +250,7 @@ def complement_cross_entropy(
         # Tensor type
         if weight.type() != x.data.type():
             weight = weight.type_as(x.data)
-        loss *= weight.view(1, -1, *([1] * (x.ndim - 2)))
+        loss = loss * weight.view(1, -1, *([1] * (x.ndim - 2)))
 
     # Loss reduction
     if reduction == "sum":
@@ -602,7 +602,7 @@ def poly_loss(
         if target.ndim != x.ndim or target.shape[0] != x.shape[0] or target.shape[1] != x.shape[1]:
             raise ValueError("invalid target shape")
         # Shape (N, K, ...)
-        logpt *= target
+        logpt = target * logpt
 
     # Get P(class)
     loss = -1 * logpt + eps * (1 - logpt.exp())

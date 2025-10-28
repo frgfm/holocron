@@ -196,7 +196,7 @@ class BinaryClassificationTrainer(ClassificationTrainer):
 
         # AMP
         if self.amp:
-            with torch.cuda.amp.autocast():
+            with torch.amp.autocast("cuda"):
                 # Forward
                 out = self.model(x)
                 # Loss computation

@@ -70,7 +70,7 @@ class DetectionTrainer(Trainer):
     def _get_loss(self, x: list[Tensor], target: list[dict[str, Tensor]]) -> Tensor:  # type: ignore[override]
         # AMP
         if self.amp:
-            with torch.cuda.amp.autocast():
+            with torch.amp.autocast("cuda"):
                 # Forward & loss computation
                 loss_dict = self.model(x, target)
                 return sum(loss_dict.values())
@@ -104,7 +104,7 @@ class DetectionTrainer(Trainer):
             x, target = self.to_cuda(x, target)
 
             if self.amp:
-                with torch.cuda.amp.autocast():
+                with torch.amp.autocast("cuda"):
                     detections = self.model(x)
             else:
                 detections = self.model(x)

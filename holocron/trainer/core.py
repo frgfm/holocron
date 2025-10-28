@@ -14,7 +14,7 @@ import torch
 from fastprogress import master_bar, progress_bar
 from fastprogress.fastprogress import ConsoleMasterBar, NBMasterBar
 from torch import Tensor, nn
-from torch.cuda.amp.grad_scaler import GradScaler
+from torch.amp.grad_scaler import GradScaler
 from torch.optim.lr_scheduler import CosineAnnealingLR, LRScheduler, MultiplicativeLR, OneCycleLR
 from torch.utils.data import DataLoader
 
@@ -229,7 +229,7 @@ class Trainer:
     def _get_loss(self, x: Tensor, target: Tensor, return_logits: bool = False) -> Tensor | tuple[Tensor, Tensor]:
         # AMP
         if self.amp:
-            with torch.cuda.amp.autocast():
+            with torch.amp.autocast("cuda"):
                 # Forward
                 out = self.model(x)
                 # Loss computation
@@ -313,7 +313,7 @@ class Trainer:
         self._reset_scheduler(lr, num_epochs, sched_type, **kwargs)
 
         if self.amp:
-            self.scaler = torch.cuda.amp.GradScaler()
+            self.scaler = GradScaler("cuda")
 
         mb = master_bar(range(num_epochs))
         for _ in mb:
@@ -368,7 +368,7 @@ class Trainer:
         self.loss_recorder = []
 
         if self.amp:
-            self.scaler = torch.cuda.amp.GradScaler()
+            self.scaler = GradScaler("cuda")
 
         for batch_idx, (x, target) in enumerate(self.train_loader):
             x, target = self.to_cuda(x, target)
@@ -459,7 +459,7 @@ class Trainer:
         losses = []
 
         if self.amp:
-            self.scaler = torch.cuda.amp.GradScaler()
+            self.scaler = GradScaler("cuda")
 
         for _ in range(num_it):
             # Forward
