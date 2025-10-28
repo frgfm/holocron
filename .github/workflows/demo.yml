@@ -1,0 +1,40 @@
+name: demo
+
+on:
+  push:
+    branches: main
+    paths:
+      - '.github/workflows/demo.yml'
+      - 'demo/**'
+  pull_request:
+    branches: main
+    paths:
+      - '.github/workflows/demo.yml'
+      - 'demo/**'
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: "3.11"
+  UV_VERSION: "0.9.5"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          architecture: x64
+      - uses: astral-sh/setup-uv@v7
+        with:
+          version: ${{ env.UV_VERSION }}
+          activate-environment: true
+      - name: Install dependencies
+        env:
+          UV_TORCH_BACKEND: cpu
+        run: make install-demo
+      - name: Run demo app
+        run: |
+          screen -dm make run-demo
+          sleep 10 && nc -vz localhost 3000

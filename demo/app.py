@@ -3,8 +3,8 @@
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
-import argparse
 import json
+from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 from pathlib import Path
 
 import gradio as gr
@@ -70,8 +70,8 @@ def main(args):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Holocron image classification demo", formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    parser = ArgumentParser(
+        description="Holocron image classification demo", formatter_class=ArgumentDefaultsHelpFormatter
     )
     parser.add_argument("--repo", type=str, default="frgfm/rexnet1_0x", help="HF Hub repo to use")
     parser.add_argument("--port", type=int, default=8001, help="Port on which the webserver will be run")

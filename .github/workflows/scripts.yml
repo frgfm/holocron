@@ -1,0 +1,34 @@
+name: scripts
+
+on:
+  push:
+    branches: main
+    paths:
+      - '.github/workflows/scripts.yml'
+      - 'scripts/**'
+  pull_request:
+    branches: main
+    paths:
+      - '.github/workflows/scripts.yml'
+      - 'scripts/**'
+
+env:
+  PYTHON_VERSION: "3.11"
+  UV_VERSION: "0.9.5"
+
+jobs:
+  eval-latency:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          architecture: x64
+      - uses: astral-sh/setup-uv@v5
+        with:
+          version: ${{ env.UV_VERSION }}
+      - name: Run script
+        run: |
+          make install-scripts
+          python scripts/eval_latency.py rexnet1_0x
