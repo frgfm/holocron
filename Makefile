@@ -167,4 +167,4 @@ stop-backend: ${BACKEND_DIR}
 	docker stop ${DOCKER_NAMESPACE}/${REPO_NAME}-backend:${DOCKER_TAG}
 
 test-backend:  ${BACKEND_DIR}/tests
-	uv --project ${BACKEND_DIR} run pytest
+	uv --project ${BACKEND_DIR} --directory ${BACKEND_DIR} run pytest
