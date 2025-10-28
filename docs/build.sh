@@ -6,32 +6,36 @@ function deploy_doc(){
     COMMIT=$(git rev-parse --short HEAD)
     echo "Creating doc at commit" $COMMIT "and pushing to folder $2"
     # Hotfix
-    if [ -d ../requirements.txt ]; then
+    if [ -f ../requirements.txt ]; then
         sed -i "s/^torchvision.*/&,<0.11.0/" ../requirements.txt
     fi
-    sed -i "s/torchvision>=.*',/&,<0.11.0',/" ../setup.py
-    sed -i "s/',,/,/" ../setup.py
-    uv pip install --system --upgrade ..
-    git checkout ../setup.py
-    if [ -d ../requirements.txt ]; then
+    if [ -f ../setup.py ]; then
+        sed -i "s/torchvision>=.*',/&,<0.11.0',/" ../setup.py
+        sed -i "s/',,/,/" ../setup.py
+    fi
+    uv pip install ..
+    if [ -f ../setup.py ]; then
+        git checkout ../setup.py
+    fi
+    if [ -f ../requirements.txt ]; then
         git checkout ../requirements.txt
     fi
     if [ ! -z "$2" ]
     then
         if [ "$2" == "latest" ]; then
             echo "Pushing main"
-            sphinx-build source build/$2 -a
+            uv run sphinx-build source build/$2 -a
         elif [ -d build/$2 ]; then
-            echo "Directory" $2 "already exists"
+        echo "Directory" $2 "already exists"
         else
             echo "Pushing version" $2
             cp -r _static source/ && cp _conf.py source/conf.py
-            sphinx-build source build/$2 -a
+            uv run sphinx-build source build/$2 -a
         fi
     else
         echo "Pushing stable"
         cp -r _static source/ && cp _conf.py source/conf.py
-        sphinx-build source build -a
+        uv run sphinx-build source build -a
     fi
     git checkout source/ && git clean -f source/
 }
