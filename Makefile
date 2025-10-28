@@ -50,12 +50,12 @@ install-quality: ${PY_DIR} ${PYPROJECT_FILE} ## Install with quality dependencie
 	uv pip install -e '${PY_DIR}[quality]'
 
 lint-check: ${PYPROJECT_FILE} ## Check code formatting and linting
-	ruff format --check . --config ${PYPROJECT_FILE}
 	ruff check . --config ${PYPROJECT_FILE}
+	ruff format --check . --config ${PYPROJECT_FILE}
 
 lint-format: ${PYPROJECT_FILE} ## Format code and fix linting issues
-	ruff format . --config ${PYPROJECT_FILE}
 	ruff check --fix . --config ${PYPROJECT_FILE}
+	ruff format . --config ${PYPROJECT_FILE}
 
 precommit: ${PYPROJECT_FILE} .pre-commit-config.yaml ## Run pre-commit hooks
 	pre-commit run --all-files
@@ -126,6 +126,9 @@ lock-backend: ${BACKEND_DIR} ${BACKEND_PYPROJECT} ## Lock the backend dependenci
 	uv lock --project ${BACKEND_DIR}
 
 install-backend: ${BACKEND_DIR} ${BACKEND_PYPROJECT} ## Install the backend deps
+	uv --project ${BACKEND_DIR} sync --locked --no-dev  --no-install-project
+
+import-backend: ${BACKEND_DIR} ${BACKEND_PYPROJECT} ## Install the backend deps
 	uv export --project ${BACKEND_DIR} --no-hashes --locked --no-dev -o ${PYTHON_REQ_FILE}
 	uv pip install -r ${PYTHON_REQ_FILE}
 
@@ -148,8 +151,5 @@ start-backend: build-backend ${BACKEND_DIR}
 stop-backend: ${BACKEND_DIR}
 	docker stop ${DOCKER_NAMESPACE}/${REPO_NAME}-backend:${DOCKER_TAG}
 
-test-backend:  ${API_CONFIG_FILE} ${PYTHON_LOCK_FILE} ${DOCKERFILE_PATH} ${BACKEND_DIR}/tests
-	uv export --no-hashes --locked --extra test -q -o ${API_REQ_FILE} --project ${API_DIR}
-	docker compose -f ${BACKEND_DIR}/docker-compose.yml up -d --wait --build
-	- docker compose -f ${BACKEND_DIR}/docker-compose.yml exec -T backend pytest tests/
-	docker compose -f ${BACKEND_DIR}/docker-compose.yml down
+test-backend:  ${BACKEND_DIR}/tests
+	uv --project ${BACKEND_DIR} run pytest

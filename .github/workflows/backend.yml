@@ -94,8 +94,11 @@ jobs:
       - uses: astral-sh/setup-uv@v7
         with:
           version: ${{ env.UV_VERSION }}
+          activate-environment: true
       - name: Run docker test
-        run: make test-backend
+        run: |
+          make install-backend
+          make test-backend
 
   ghcr:
     runs-on: ubuntu-latest
