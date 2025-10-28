@@ -136,4 +136,4 @@ def test_classification_onnx_export(arch, tmpdir_factory):
     tmp_path = Path(str(tmpdir_factory.mktemp("onnx"))).joinpath(f"{arch}.onnx")
     img_tensor = torch.rand((1, 3, 224, 224))
     with torch.no_grad():
-        torch.onnx.export(model, img_tensor, tmp_path, export_params=True, opset_version=14)
+        torch.onnx.export(model, img_tensor, tmp_path, export_params=True, opset_version=20, verbose=False)

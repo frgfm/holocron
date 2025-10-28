@@ -38,7 +38,8 @@ def main(args):
         img_tensor,
         args.path,
         export_params=True,
-        opset_version=14,
+        opset_version=20,
+        verbose=False,
     )
 
 

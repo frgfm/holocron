@@ -16,7 +16,7 @@ def test_resize():
     with pytest.raises(TypeError):
         T.Resize((16, 16), mode="stretch")
 
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         T.Resize((16, 16), mode="pad")
 
     img1 = np.full((16, 32, 3), 255, dtype=np.uint8)
