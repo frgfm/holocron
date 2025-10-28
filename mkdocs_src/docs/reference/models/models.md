@@ -34,25 +34,6 @@ darknet19 = models.darknet19(num_classes=10)
 * [RepVGG](./classification/repvgg.md)
 * [MobileOne](./classification/mobileone.md)
 
-.. toctree::
-  :caption: Supported architectures
-  :maxdepth: 1
-
-  models/resnet
-  models/resnext
-  models/res2net
-  models/tridentnet
-  models/convnext
-  models/pyconv_resnet
-  models/rexnet
-  models/sknet
-  models/darknet
-  models/darknetv2
-  models/darknetv3
-  models/darknetv4
-  models/repvgg
-  models/mobileone
-
 ### Available checkpoints
 
 Here is the list of available checkpoints:

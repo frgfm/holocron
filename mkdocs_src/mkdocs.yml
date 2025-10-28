@@ -127,6 +127,32 @@ nav:
     - getting-started/installation.md
     - getting-started/notebooks.md
   - Package Reference:
-    - reference/models.md
+    - Models:
+      - reference/models/models.md
+      - Classification:
+        - reference/models/classification/resnet.md
+        - reference/models/classification/resnext.md
+        - reference/models/classification/res2net.md
+        - reference/models/classification/tridentnet.md
+        - reference/models/classification/convnext.md
+        - reference/models/classification/pyconv_resnet.md
+        - reference/models/classification/rexnet.md
+        - reference/models/classification/sknet.md
+        - reference/models/classification/darknet.md
+        - reference/models/classification/darknetv2.md
+        - reference/models/classification/darknetv3.md
+        - reference/models/classification/darknetv4.md
+        - reference/models/classification/repvgg.md
+        - reference/models/classification/mobileone.md
+    - Layers:
+      - NN: reference/nn.md
+      - NN Functional: reference/nn.functional.md
+    - Operators: reference/ops.md
+    - Optimizers: reference/optim.md
+    - Trainer: reference/trainer.md
+    - Transforms: reference/transforms.md
+    - Utils:
+      - reference/utils.md
+      - Data: reference/utils.data.md
   - Notes:
     - notes/changelog.md
