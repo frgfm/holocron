@@ -29,7 +29,7 @@ jobs:
           UV_TORCH_BACKEND: cpu
         run: |
           make install-docs
-          make full-docs
+          make docs-full
       - name: Documentation sanity check
         run: test -e docs/build/index.html || exit
 
