@@ -46,7 +46,7 @@ jobs:
         run: |
           screen -dm uvicorn app.main:app --reload --host 0.0.0.0 --port 8080 --proxy-headers --use-colors --log-level info --app-dir ./api
           sleep 10
-          curl http://localhost:8080/health
+          curl -f http://localhost:8080/health --max-time 3
 
   docker:
     if: github.event_name == 'pull_request'
@@ -94,10 +94,9 @@ jobs:
       - uses: astral-sh/setup-uv@v7
         with:
           version: ${{ env.UV_VERSION }}
-          activate-environment: true
       - name: Run docker test
         run: |
-          make install-backend
+          make install-backend-test
           make test-backend
 
   ghcr:

@@ -140,6 +140,9 @@ lock-backend: ${BACKEND_DIR} ${BACKEND_PYPROJECT} ## Lock the backend dependenci
 install-backend: ${BACKEND_DIR} ${BACKEND_PYPROJECT} ## Install the backend deps
 	uv --project ${BACKEND_DIR} sync --locked --no-dev  --no-install-project
 
+install-backend-test: ${BACKEND_DIR} ${BACKEND_PYPROJECT} ## Install the backend deps
+	uv --project ${BACKEND_DIR} sync --locked --no-dev --extra test --no-install-project
+
 import-backend: ${BACKEND_DIR} ${BACKEND_PYPROJECT} ## Install the backend deps
 	uv export --project ${BACKEND_DIR} --no-hashes --locked --no-dev -o ${PYTHON_REQ_FILE}
 	uv pip install -r ${PYTHON_REQ_FILE}
