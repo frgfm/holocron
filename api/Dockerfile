@@ -1,5 +1,5 @@
 # Builder stage
-FROM python:3.11-alpine AS builder
+FROM python:3.11-slim AS builder
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
@@ -11,7 +11,7 @@ ENV UV_LINK_MODE=copy
 # cf. https://github.com/astral-sh/uv/issues/8085#issuecomment-2438256688
 ENV UV_PROJECT_ENVIRONMENT="/opt/venv"
 
-RUN apk add --no-cache gcc python3-dev musl-dev linux-headers
+RUN apt-get update && apt-get install -y --no-install-recommends gcc python3-dev && rm -rf /var/lib/apt/lists/*
 # Install the project's dependencies using the lockfile and settings
 # https://docs.astral.sh/uv/guides/integration/docker/#using-uv-temporarily
 RUN --mount=from=ghcr.io/astral-sh/uv:0.9.5,source=/uv,target=/bin/uv \
@@ -21,7 +21,7 @@ RUN --mount=from=ghcr.io/astral-sh/uv:0.9.5,source=/uv,target=/bin/uv \
     uv sync --locked --no-install-project --no-dev --no-editable
 
 # Runtime stage
-FROM python:3.11-alpine AS runtime
+FROM python:3.11-slim AS runtime
 
 WORKDIR /app
 
@@ -35,7 +35,7 @@ ENV PYTHON_PATH="/opt/venv/lib/python3.11/site-packages"
 LABEL maintainer="F-G Fernandez <fg-feedback@protonmail.com>"
 
 # Install only curl for healthcheck
-RUN apk add --no-cache curl
+RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
 
 # Copy installed dependencies from builder
 COPY --from=builder /opt/venv /opt/venv
