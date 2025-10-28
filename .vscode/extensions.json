@@ -1,10 +1,11 @@
 {
     "recommendations": [
+      "ms-python.python",
       "charliermarsh.ruff",
       "astral-sh.ty",
-      "ms-python.python",
       "ms-vscode.makefile-tools",
       "ms-azuretools.vscode-containers",
-      "github.vscode-github-actions"
+      "github.vscode-github-actions",
+      "tamasfe.even-better-toml"
     ]
   }
