@@ -155,7 +155,8 @@ select = [  # https://docs.astral.sh/ruff/rules/
     "TRY",  # tryceratops
 ]
 ignore = [
-    "E501",  # line too long, handled by black
+    # formatter conflicts https://docs.astral.sh/ruff/formatter/#conflicting-lint-rules
+    "W191", "E111", "E114", "E117", "D206", "D300", "Q000", "Q001", "Q002", "Q003", "COM812", "COM819", "E501",
     "B904",  # raise from
     "C901",  # too complex
     "F403",  # star imports
@@ -163,7 +164,6 @@ ignore = [
     "C416",  # list comprehension to list()
     "ANN002",  # missing type annotations on *args
     "ANN003",  # missing type annotations on **kwargs
-    "COM812",  # trailing comma missing
     "N812",  # lowercase imported as non-lowercase
     "ISC001",  # implicit string concatenation (handled by format)
     "ANN401",  # Dynamically typed expressions (typing.Any) are disallowed

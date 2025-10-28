@@ -74,12 +74,10 @@ class UNetp(nn.Module):
         layout_ = [layout[-1], *layout[1:][::-1]]
         for left_chan, up_chan, num_cells in zip(layout[::-1], layout_, range(1, len(layout) + 1), strict=True):
             self.decoder.append(
-                nn.ModuleList(
-                    [
-                        UpPath(left_chan + up_chan, left_chan, True, 1, act_layer, norm_layer, drop_layer, conv_layer)
-                        for _ in range(num_cells)
-                    ]
-                )
+                nn.ModuleList([
+                    UpPath(left_chan + up_chan, left_chan, True, 1, act_layer, norm_layer, drop_layer, conv_layer)
+                    for _ in range(num_cells)
+                ])
             )
 
         # Classifier
@@ -155,21 +153,19 @@ class UNetpp(nn.Module):
         layout_ = [layout[-1], *layout[1:][::-1]]
         for left_chan, up_chan, num_cells in zip(layout[::-1], layout_, range(1, len(layout) + 1), strict=True):
             self.decoder.append(
-                nn.ModuleList(
-                    [
-                        UpPath(
-                            up_chan + (idx + 1) * left_chan,
-                            left_chan,
-                            True,
-                            1,
-                            act_layer,
-                            norm_layer,
-                            drop_layer,
-                            conv_layer,
-                        )
-                        for idx in range(num_cells)
-                    ]
-                )
+                nn.ModuleList([
+                    UpPath(
+                        up_chan + (idx + 1) * left_chan,
+                        left_chan,
+                        True,
+                        1,
+                        act_layer,
+                        norm_layer,
+                        drop_layer,
+                        conv_layer,
+                    )
+                    for idx in range(num_cells)
+                ])
             )
 
         # Classifier

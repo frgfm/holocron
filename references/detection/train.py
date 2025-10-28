@@ -112,18 +112,16 @@ def main(args):
             args.data_path,
             image_set="train",
             download=True,
-            transforms=Compose(
-                [
-                    VOCTargetTransform(VOC_CLASSES),
-                    Resize((args.img_size, args.img_size), interpolation=interpolation_mode),
-                    RandomHorizontalFlip(),
-                    convert_to_relative if args.source == "holocron" else lambda x, y: (x, y),
-                    ImageTransform(T.ColorJitter(brightness=0.3, contrast=0.3, saturation=0.1, hue=0.02)),
-                    ImageTransform(T.PILToTensor()),
-                    ImageTransform(T.ConvertImageDtype(torch.float32)),
-                    ImageTransform(normalize),
-                ]
-            ),
+            transforms=Compose([
+                VOCTargetTransform(VOC_CLASSES),
+                Resize((args.img_size, args.img_size), interpolation=interpolation_mode),
+                RandomHorizontalFlip(),
+                convert_to_relative if args.source == "holocron" else lambda x, y: (x, y),
+                ImageTransform(T.ColorJitter(brightness=0.3, contrast=0.3, saturation=0.1, hue=0.02)),
+                ImageTransform(T.PILToTensor()),
+                ImageTransform(T.ConvertImageDtype(torch.float32)),
+                ImageTransform(normalize),
+            ]),
         )
 
         # Suggest size
@@ -158,16 +156,14 @@ def main(args):
             args.data_path,
             image_set="val",
             download=True,
-            transforms=Compose(
-                [
-                    VOCTargetTransform(VOC_CLASSES),
-                    Resize((args.img_size, args.img_size), interpolation=interpolation_mode),
-                    convert_to_relative if args.source == "holocron" else lambda x, y: (x, y),
-                    ImageTransform(T.PILToTensor()),
-                    ImageTransform(T.ConvertImageDtype(torch.float32)),
-                    ImageTransform(normalize),
-                ]
-            ),
+            transforms=Compose([
+                VOCTargetTransform(VOC_CLASSES),
+                Resize((args.img_size, args.img_size), interpolation=interpolation_mode),
+                convert_to_relative if args.source == "holocron" else lambda x, y: (x, y),
+                ImageTransform(T.PILToTensor()),
+                ImageTransform(T.ConvertImageDtype(torch.float32)),
+                ImageTransform(normalize),
+            ]),
         )
 
         val_loader = torch.utils.data.DataLoader(

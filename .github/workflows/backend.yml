@@ -99,6 +99,7 @@ jobs:
 
   ghcr:
     runs-on: ubuntu-latest
+    if: github.event_name == 'push'
     permissions:
       packages: write
       contents: read

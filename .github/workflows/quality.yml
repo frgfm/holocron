@@ -27,6 +27,8 @@ jobs:
           path: ~/.cache/uv
           key: uv-${{ runner.os }}-${{ hashFiles('pyproject.toml') }}
       - name: Run ruff
+        env:
+          UV_TORCH_BACKEND: cpu
         run: |
           make install-quality
           ruff --version
