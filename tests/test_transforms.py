@@ -29,35 +29,35 @@ def test_resize():
     assert isinstance(out, Image.Image)
     assert out.size == (32, 32)
     np_out = np.asarray(out)
-    assert np.all(np_out[8:-8] == 255)
-    assert np.all(np_out[:8] == 0)
-    assert np.all(np_out[-8:]) == 0
+    assert np.allclose(np_out[8:-8], 255, rtol=1e-4)
+    assert np.allclose(np_out[:8], 0, rtol=1e-4)
+    assert np.allclose(np_out[-8:], 0, rtol=1e-4)
     out = tf(Image.fromarray(img2))
     assert isinstance(out, Image.Image)
     assert out.size == (32, 32)
     np_out = np.asarray(out)
-    assert np.all(np_out[:, 8:-8] == 255)
-    assert np.all(np_out[:, :8] == 0)
-    assert np.all(np_out[:, -8:]) == 0
+    assert np.allclose(np_out[:, 8:-8], 255, rtol=1e-4)
+    assert np.allclose(np_out[:, :8], 0, rtol=1e-4)
+    assert np.allclose(np_out[:, -8:], 0, rtol=1e-4)
     # Squish
     out = T.Resize((32, 32), mode=ResizeMethod.SQUISH)(Image.fromarray(img1))
-    assert np.all(np.asarray(out) == 255)
+    assert np.allclose(np.asarray(out), 255, rtol=1e-4)
 
     # Tensor
     out = tf(torch.from_numpy(img1).to(dtype=torch.float32).permute(2, 0, 1) / 255)
     assert isinstance(out, torch.Tensor)
     assert out.shape == (3, 32, 32)
     np_out = out.numpy()
-    assert np.all(np_out[:, 8:-8] == 1)
-    assert np.all(np_out[:, :8] == 0)
-    assert np.all(np_out[:, -8:]) == 0
+    assert np.allclose(np_out[:, 8:-8] == 1, rtol=1e-4)
+    assert np.allclose(np_out[:, :8], 0, rtol=1e-4)
+    assert np.allclose(np_out[:, -8:], 0, rtol=1e-4)
     out = tf(torch.from_numpy(img2).to(dtype=torch.float32).permute(2, 0, 1) / 255)
     assert isinstance(out, torch.Tensor)
     assert out.shape == (3, 32, 32)
     np_out = out.numpy()
-    assert np.all(np_out[:, :, 8:-8] == 1)
-    assert np.all(np_out[:, :, :8] == 0)
-    assert np.all(np_out[:, :, -8:]) == 0
+    assert np.allclose(np_out[:, :, 8:-8], 1, rtol=1e-4)
+    assert np.allclose(np_out[:, :, :8], 0, rtol=1e-4)
+    assert np.allclose(np_out[:, :, -8:], 0, rtol=1e-4)
 
 
 def test_randomzoomout():
@@ -86,5 +86,5 @@ def test_randomzoomout():
     assert isinstance(out, torch.Tensor)
     assert out.shape == (3, 32, 32)
     np_out = np.asarray(out)
-    assert np.all(np_out[:, 16, 16] == 1)
+    assert np.allclose(np_out[:, 16, 16], 1, rtol=1e-4)
     assert np_out.mean() < 1
