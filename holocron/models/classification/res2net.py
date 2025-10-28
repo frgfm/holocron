@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2024, François-Guillaume Fernandez.
+# Copyright (C) 2019-2025, François-Guillaume Fernandez.
 
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
@@ -39,23 +39,25 @@ class ScaleConv2d(nn.Module):
 
         self.scale: int = scale
         self.width: int = planes // scale
-        self.conv = nn.ModuleList([
-            nn.Sequential(
-                *conv_sequence(
-                    self.width,
-                    self.width,
-                    act_layer,
-                    norm_layer,
-                    drop_layer,
-                    kernel_size=3,
-                    stride=stride,
-                    padding=1,
-                    groups=groups,
-                    bias=(norm_layer is None),
+        self.conv = nn.ModuleList(
+            [
+                nn.Sequential(
+                    *conv_sequence(
+                        self.width,
+                        self.width,
+                        act_layer,
+                        norm_layer,
+                        drop_layer,
+                        kernel_size=3,
+                        stride=stride,
+                        padding=1,
+                        groups=groups,
+                        bias=(norm_layer is None),
+                    )
                 )
-            )
-            for _ in range(max(1, scale - 1))
-        ])
+                for _ in range(max(1, scale - 1))
+            ]
+        )
 
         if downsample:
             self.downsample = nn.AvgPool2d(kernel_size=3, stride=stride, padding=1)

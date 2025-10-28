@@ -1,4 +1,4 @@
-# Copyright (C) 2022-2024, François-Guillaume Fernandez.
+# Copyright (C) 2022-2025, François-Guillaume Fernandez.
 
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
@@ -168,17 +168,19 @@ class ConvNeXt(nn.Sequential):
             block_idx += _num_blocks
 
         super().__init__(
-            OrderedDict([
-                ("features", nn.Sequential(*layers)),
-                ("pool", GlobalAvgPool2d(flatten=True)),
-                (
-                    "head",
-                    nn.Sequential(
-                        nn.LayerNorm(planes[-1], eps=1e-6),
-                        nn.Linear(planes[-1], num_classes),
+            OrderedDict(
+                [
+                    ("features", nn.Sequential(*layers)),
+                    ("pool", GlobalAvgPool2d(flatten=True)),
+                    (
+                        "head",
+                        nn.Sequential(
+                            nn.LayerNorm(planes[-1], eps=1e-6),
+                            nn.Linear(planes[-1], num_classes),
+                        ),
                     ),
-                ),
-            ])
+                ]
+            )
         )
 
         # Init all layers

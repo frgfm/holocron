@@ -1,4 +1,4 @@
-# Copyright (C) 2021-2024, François-Guillaume Fernandez.
+# Copyright (C) 2021-2025, François-Guillaume Fernandez.
 
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
@@ -53,14 +53,16 @@ class RepBlock(nn.Module):
         if act_layer is None:
             act_layer = nn.ReLU(inplace=True)
 
-        self.branches: nn.Conv2d | nn.ModuleList = nn.ModuleList([
-            nn.Sequential(
-                *conv_sequence(inplanes, planes, None, norm_layer, kernel_size=3, padding=1, stride=stride),
-            ),
-            nn.Sequential(
-                *conv_sequence(inplanes, planes, None, norm_layer, kernel_size=1, padding=0, stride=stride),
-            ),
-        ])
+        self.branches: nn.Conv2d | nn.ModuleList = nn.ModuleList(
+            [
+                nn.Sequential(
+                    *conv_sequence(inplanes, planes, None, norm_layer, kernel_size=3, padding=1, stride=stride),
+                ),
+                nn.Sequential(
+                    *conv_sequence(inplanes, planes, None, norm_layer, kernel_size=1, padding=0, stride=stride),
+                ),
+            ]
+        )
 
         self.activation = act_layer
 
@@ -159,11 +161,13 @@ class RepVGG(nn.Sequential):
             stages.append(nn.Sequential(*layers))
 
         super().__init__(
-            OrderedDict([
-                ("features", nn.Sequential(*stages)),
-                ("pool", GlobalAvgPool2d(flatten=True)),
-                ("head", nn.Linear(chans[-1], num_classes)),
-            ])
+            OrderedDict(
+                [
+                    ("features", nn.Sequential(*stages)),
+                    ("pool", GlobalAvgPool2d(flatten=True)),
+                    ("head", nn.Linear(chans[-1], num_classes)),
+                ]
+            )
         )
         # Init all layers
         init.init_module(self, nonlinearity="relu")

@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2024, François-Guillaume Fernandez.
+# Copyright (C) 2019-2025, François-Guillaume Fernandez.
 
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
@@ -217,12 +217,14 @@ def inject_checkpoint_metadata(app, what, name, obj, options, lines):
 
             # Loading Meta
             meta = field.value.meta
-            table.extend((
-                ("url", f"`link <{meta.url}>`__"),
-                ("sha256", meta.sha256[:16]),
-                ("size", f"{meta.size / 1024**2:.1f}MB"),
-                ("num_params", f"{meta.num_params / 1000000.0:.1f}M"),
-            ))
+            table.extend(
+                (
+                    ("url", f"`link <{meta.url}>`__"),
+                    ("sha256", meta.sha256[:16]),
+                    ("size", f"{meta.size / 1024**2:.1f}MB"),
+                    ("num_params", f"{meta.num_params / 1000000.0:.1f}M"),
+                )
+            )
             # Wrap the text
             max_visible = 3
             v = meta.categories

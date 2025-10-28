@@ -1,4 +1,4 @@
-# Copyright (C) 2020-2024, François-Guillaume Fernandez.
+# Copyright (C) 2020-2025, François-Guillaume Fernandez.
 
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
@@ -63,13 +63,15 @@ class YOLOv2(_YOLO):
         if anchors is None:
             # cf. https://github.com/pjreddie/darknet/blob/master/cfg/yolov2-voc.cfg#L242
             anchors = (
-                torch.tensor([
-                    [1.3221, 1.73145],
-                    [3.19275, 4.00944],
-                    [5.05587, 8.09892],
-                    [9.47112, 4.84053],
-                    [11.2364, 10.0071],
-                ])
+                torch.tensor(
+                    [
+                        [1.3221, 1.73145],
+                        [3.19275, 4.00944],
+                        [5.05587, 8.09892],
+                        [9.47112, 4.84053],
+                        [11.2364, 10.0071],
+                    ]
+                )
                 / 13
             )
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2024, François-Guillaume Fernandez.
+# Copyright (C) 2019-2025, François-Guillaume Fernandez.
 
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
@@ -129,14 +129,16 @@ def main(args):
             args.data_path,
             image_set="train",
             download=True,
-            transforms=Compose([
-                RandomResize(min_size, max_size, interpolation_mode),
-                RandomCrop(crop_size),
-                RandomHorizontalFlip(0.5),
-                ImageTransform(T.ColorJitter(brightness=0.3, contrast=0.3, saturation=0.1, hue=0.02)),
-                ToTensor(),
-                ImageTransform(normalize),
-            ]),
+            transforms=Compose(
+                [
+                    RandomResize(min_size, max_size, interpolation_mode),
+                    RandomCrop(crop_size),
+                    RandomHorizontalFlip(0.5),
+                    ImageTransform(T.ColorJitter(brightness=0.3, contrast=0.3, saturation=0.1, hue=0.02)),
+                    ToTensor(),
+                    ImageTransform(normalize),
+                ]
+            ),
         )
 
         # Suggest size
@@ -170,11 +172,13 @@ def main(args):
             args.data_path,
             image_set="val",
             download=True,
-            transforms=Compose([
-                Resize((crop_size, crop_size), interpolation_mode),
-                ToTensor(),
-                ImageTransform(normalize),
-            ]),
+            transforms=Compose(
+                [
+                    Resize((crop_size, crop_size), interpolation_mode),
+                    ToTensor(),
+                    ImageTransform(normalize),
+                ]
+            ),
         )
 
         val_loader = torch.utils.data.DataLoader(

@@ -1,4 +1,4 @@
-# Copyright (C) 2020-2024, François-Guillaume Fernandez.
+# Copyright (C) 2020-2025, François-Guillaume Fernandez.
 
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
@@ -45,14 +45,16 @@ def down_path(
     conv_layer: Callable[..., nn.Module] | None = None,
 ) -> nn.Sequential:
     layers: list[nn.Module] = [nn.MaxPool2d(2)] if downsample else []
-    layers.extend([
-        *conv_sequence(
-            in_chan, out_chan, act_layer, norm_layer, drop_layer, conv_layer, kernel_size=3, padding=padding
-        ),
-        *conv_sequence(
-            out_chan, out_chan, act_layer, norm_layer, drop_layer, conv_layer, kernel_size=3, padding=padding
-        ),
-    ])
+    layers.extend(
+        [
+            *conv_sequence(
+                in_chan, out_chan, act_layer, norm_layer, drop_layer, conv_layer, kernel_size=3, padding=padding
+            ),
+            *conv_sequence(
+                out_chan, out_chan, act_layer, norm_layer, drop_layer, conv_layer, kernel_size=3, padding=padding
+            ),
+        ]
+    )
     return nn.Sequential(*layers)
 
 
@@ -128,11 +130,13 @@ class UNetBackbone(nn.Sequential):
             pool = True
 
         super().__init__(
-            OrderedDict([
-                ("features", nn.Sequential(*layers)),
-                ("pool", GlobalAvgPool2d(flatten=True)),
-                ("head", nn.Linear(layout[-1], num_classes)),
-            ])
+            OrderedDict(
+                [
+                    ("features", nn.Sequential(*layers)),
+                    ("pool", GlobalAvgPool2d(flatten=True)),
+                    ("head", nn.Linear(layout[-1], num_classes)),
+                ]
+            )
         )
 
         init_module(self, "relu")
