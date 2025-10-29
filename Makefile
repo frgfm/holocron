@@ -113,14 +113,14 @@ install-docs: ${PYPROJECT_FILE}
 
 # Build documentation for current version
 serve-docs: ${DOCS_DIR}
-	uv run mkdocs serve -f ${DOCS_DIR}/mkdocs.yml
+	DYLD_FALLBACK_LIBRARY_PATH=/opt/homebrew/lib uv run mkdocs serve -f ${DOCS_DIR}/mkdocs.yml
 
 # Check that docs can build
 build-docs: ${DOCS_DIR}
-	uv run mkdocs build -f ${DOCS_DIR}/mkdocs.yml
+	DYLD_FALLBACK_LIBRARY_PATH=/opt/homebrew/lib uv run mkdocs build -f ${DOCS_DIR}/mkdocs.yml
 
 push-docs: ${DOCS_DIR}
-	uv run mkdocs gh-deploy -f ${DOCS_DIR}/mkdocs.yml --force
+	DYLD_FALLBACK_LIBRARY_PATH=/opt/homebrew/lib uv run mkdocs gh-deploy -f ${DOCS_DIR}/mkdocs.yml --force
 
 ########################################################
 # Demo

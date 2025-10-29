@@ -1,7 +1,7 @@
 # Holocron: a Deep Learning toolbox for PyTorch
 
 <p align="center">
-    <img src="img/logo_text.png" alt="Holocron logo">
+    <img src="img/logo_text.svg" alt="Holocron logo" width="50%">
 </p>
 
 Holocron is meant to bridge the gap between [PyTorch](https://pytorch.org/) and latest research papers. It brings training components that are not available yet in PyTorch with a similar interface.

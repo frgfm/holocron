@@ -1,7 +1,7 @@
 # Project information
 site_name: Holocron
 site_url: https://frgfm.github.io/holocron
-site_description: PyTorch implementations of recent Computer Vision tricks
+site_description: PyTorch implementations of recent Computer Vision tricks (ReXNet, RepVGG, Unet3p, YOLOv4, CIoU loss, AdaBelief, PolyLoss, MobileOne).
 site_author: François-Guillaume Fernandez
 copyright: Copyright &copy; 2019-2025, François-Guillaume Fernandez
 
@@ -16,9 +16,9 @@ theme:
   name: material
   locale: en
   highlightjs: true
-  favicon: img/favicon.ico
+  favicon: img/favicon.svg
   language: en
-  logo: img/logo.png
+  logo: img/logo.svg
   icon:
     repo: fontawesome/brands/github-alt
   palette:
@@ -65,6 +65,9 @@ theme:
 plugins:
   search:
   autorefs:
+  social:
+    cards_layout_options:
+      background_color: "#3e192b"
   mkdocstrings:
     handlers:
       python:

@@ -1,10 +1,10 @@
 <svg version="1.1" viewBox="320 100 320 320" fill="none" stroke="none" stroke-linecap="square" stroke-miterlimit="10" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
     <style>
-    path { stroke: #a84c7a; }
-    rect { fill: white; }
+    path { stroke: white; }
+    rect { fill: #3e192b; }
     </style>
     <g>
-        <!-- <rect x="320" y="100" width="320" height="320"/> -->
+        <rect x="320" y="100" width="320" height="320"/>
         <path stroke-width="8" stroke-linejoin="round" d="m351.3302 128.75601l257.25983 0l0 257.25986l-257.25983 0z"/>
         <path stroke-width="2" stroke-linejoin="round" d="m351.38934 257.3268l0 0c0 -71.040344 57.58957 -128.62993 128.62991 -128.62993l0 0c34.114777 0 66.832306 13.552048 90.95511 37.674835c24.122803 24.122787 37.674805 56.840317 37.674805 90.95509l0 0c0 71.040344 -57.58954 128.62991 -128.62991 128.62991l0 0c-71.040344 0 -128.62991 -57.58957 -128.62991 -128.62991z"/>
         <path stroke-width="8" stroke-linejoin="round" d="m351.40115 257.38593l128.62994 -128.62991l128.62991 128.62991l-128.62991 128.62994z"/>
