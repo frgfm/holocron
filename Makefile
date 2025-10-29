@@ -112,12 +112,15 @@ install-docs: ${PYPROJECT_FILE}
 	uv pip install -e ".[docs]"
 
 # Build documentation for current version
-docs-latest: ${DOCS_DIR}
-	uv run sphinx-build ${DOCS_DIR}/source ${DOCS_DIR}/_build -a
+serve-docs: ${DOCS_DIR}
+	uv run mkdocs serve -f ${DOCS_DIR}/mkdocs.yml
 
 # Check that docs can build
-docs-full: ${DOCS_DIR}
-	cd ${DOCS_DIR} && bash build.sh
+build-docs: ${DOCS_DIR}
+	uv run mkdocs build -f ${DOCS_DIR}/mkdocs.yml
+
+push-docs: ${DOCS_DIR}
+	uv run mkdocs gh-deploy -f ${DOCS_DIR}/mkdocs.yml --force
 
 ########################################################
 # Demo

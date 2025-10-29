@@ -77,7 +77,8 @@ class FReLU(nn.Module):
     `kernel_size`, same padding and groups equal to the number of input channels, followed by a batch normalization.
 
     Args:
-        inplace: should the operation be performed inplace
+        in_channels: number of input channels
+        kernel_size: size of the convolution filter
     """
 
     def __init__(self, in_channels: int, kernel_size: int = 3) -> None:

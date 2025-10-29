@@ -221,9 +221,8 @@ class YOLOv2(_YOLO):
         or the list of detections in eval mode.
 
         Args:
-            x (torch.Tensor[N, 3, H, W]): input image tensor
-            target (list<dict>, optional): each dict must have two keys `boxes` of type torch.Tensor[-1, 4]
-            and `labels` of type torch.Tensor[-1]
+            x: input image tensor of shape (N, 3, H, W)
+            target: each dict must have two keys `boxes` of type torch.Tensor[-1, 4] and `labels` of type torch.Tensor[-1]
 
         Returns:
             loss dictionary in training mode or list of detections in eval mode

@@ -119,7 +119,7 @@ class ComplementCrossEntropy(Loss):
 
     Args:
         gamma: smoothing factor
-        *args: args of [`Loss`][holocron.nn.modules.loss.Loss]
+        **kwargs: keyword args of [`Loss`][holocron.nn.modules.loss.Loss]
     """
 
     def __init__(self, gamma: float = -1, **kwargs: Any) -> None:

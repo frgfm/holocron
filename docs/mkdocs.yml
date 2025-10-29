@@ -1,12 +1,17 @@
+# Project information
 site_name: Holocron
-site_description: PyTorch implementations of recent Computer Vision tricks 
 site_url: https://frgfm.github.io/holocron
+site_description: PyTorch implementations of recent Computer Vision tricks 
 site_author: François-Guillaume Fernandez
-copyright: Copyright (C) 2019-2025, François-Guillaume Fernandez
+copyright: Copyright &copy; 2019-2025, François-Guillaume Fernandez
+
+# Repository
 repo_name: frgfm/holocron
 repo_url: https://github.com/frgfm/holocron
 edit_uri: blob/main/docs
 remote_branch: gh-pages
+
+# Configuration
 theme:
   name: material
   locale: en
@@ -14,6 +19,8 @@ theme:
   favicon: img/favicon.ico
   language: en
   logo: img/logo.png
+  icon:
+    repo: fontawesome/brands/github-alt
   palette:
   - media: (prefers-color-scheme)
     toggle:
@@ -21,15 +28,15 @@ theme:
       name: Switch to light mode
   - media: '(prefers-color-scheme: light)'
     scheme: default
-    primary: blue grey
-    accent: deep purple
+    primary: black
+    accent: cyan
     toggle:
       icon: material/lightbulb
       name: Switch to dark mode
   - media: '(prefers-color-scheme: dark)'
     scheme: slate
-    primary: blue grey
-    accent: deep purple
+    primary: white
+    accent: cyan
     toggle:
       icon: material/lightbulb-outline
       name: Switch to system preference
@@ -53,6 +60,8 @@ theme:
   - search.share
   - search.suggest
   - toc.follow
+
+# Plugins
 plugins:
   search:
   autorefs:
@@ -95,6 +104,8 @@ plugins:
           separate_signature: true
           signature_crossrefs: true
           unwrap_annotated: true
+
+# Extensions
 markdown_extensions:
   toc:
     permalink: true
@@ -129,11 +140,16 @@ extra_javascript:
 extra_css:
   - https://unpkg.com/katex@0/dist/katex.min.css
 extra:
+  analytics:
+    provider: google
+    property: UA-148140560-2
   social:
   - icon: fontawesome/brands/github
     link: https://github.com/frgfm/holocron
+  - icon: fontawesome/brands/python
+    link: https://pypi.org/project/pylocron/
   - icon: fontawesome/brands/twitter
-    link: https://x.com/frg_fm
+    link: https://twitter.com/frg_fm
   - icon: fontawesome/brands/linkedin
     link: https://www.linkedin.com/in/fgfm
   - icon: fontawesome/solid/globe

@@ -531,6 +531,7 @@ def rexnet2_2x(
     ::: holocron.models.ReXNet2_2x_Checkpoint
         options:
             heading_level: 4
+            show_if_no_docstring: true
     """
     checkpoint = _handle_legacy_pretrained(
         pretrained,
