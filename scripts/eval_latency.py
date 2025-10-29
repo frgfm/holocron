@@ -76,7 +76,7 @@ def main(args):
         img_tensor,
         "tmp.onnx",
         export_params=True,
-        opset_version=20,
+        opset_version=18,
         verbose=False,
     )
     onnx_session = onnxruntime.InferenceSession("tmp.onnx")

@@ -48,7 +48,7 @@ def test_resize():
     assert isinstance(out, torch.Tensor)
     assert out.shape == (3, 32, 32)
     np_out = out.numpy()
-    assert np.allclose(np_out[:, 8:-8] == 1, rtol=1e-4)
+    assert np.allclose(np_out[:, 8:-8], 1, rtol=1e-4)
     assert np.allclose(np_out[:, :8], 0, rtol=1e-4)
     assert np.allclose(np_out[:, -8:], 0, rtol=1e-4)
     out = tf(torch.from_numpy(img2).to(dtype=torch.float32).permute(2, 0, 1) / 255)
@@ -78,7 +78,7 @@ def test_randomzoomout():
     assert isinstance(out, Image.Image)
     assert out.size == (32, 32)
     np_out = np.asarray(out)
-    assert np.all(np_out[16, 16] == 255)
+    assert np.allclose(np_out[16, 16], 255, rtol=1e-4)
     assert np_out.mean() < 255
 
     # Tensor
