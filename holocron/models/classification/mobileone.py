@@ -48,22 +48,20 @@ class DepthConvBlock(nn.ModuleList):
                 *conv_sequence(channels, channels, kernel_size=1, stride=stride, norm_layer=norm_layer, groups=channels)
             ),
         )
-        layers.extend(
-            [
-                nn.Sequential(
-                    *conv_sequence(
-                        channels,
-                        channels,
-                        kernel_size=3,
-                        padding=1,
-                        stride=stride,
-                        norm_layer=norm_layer,
-                        groups=channels,
-                    )
+        layers.extend([
+            nn.Sequential(
+                *conv_sequence(
+                    channels,
+                    channels,
+                    kernel_size=3,
+                    padding=1,
+                    stride=stride,
+                    norm_layer=norm_layer,
+                    groups=channels,
                 )
-                for _ in range(num_blocks)
-            ]
-        )
+            )
+            for _ in range(num_blocks)
+        ])
         super().__init__(layers)
 
     def forward(self, x: Tensor) -> Tensor:
@@ -112,12 +110,10 @@ class PointConvBlock(nn.ModuleList):
         if norm_layer is None:
             norm_layer = nn.BatchNorm2d
         layers = [norm_layer(out_channels)] if out_channels == in_channels else []
-        layers.extend(
-            [
-                nn.Sequential(*conv_sequence(in_channels, out_channels, kernel_size=1, norm_layer=norm_layer))
-                for _ in range(num_blocks)
-            ]
-        )
+        layers.extend([
+            nn.Sequential(*conv_sequence(in_channels, out_channels, kernel_size=1, norm_layer=norm_layer))
+            for _ in range(num_blocks)
+        ])
         super().__init__(layers)
 
     def forward(self, x: Tensor) -> Tensor:
@@ -211,24 +207,20 @@ class MobileOne(nn.Sequential):
             # Stride & channel changes
             stage = [MobileOneBlock(in_planes, _planes, overparam_factor, 2, act_layer, norm_layer)]
             # Depth
-            stage.extend(
-                [
-                    MobileOneBlock(_planes, _planes, overparam_factor, 1, act_layer, norm_layer)
-                    for _ in range(_num_blocks - 1)
-                ]
-            )
+            stage.extend([
+                MobileOneBlock(_planes, _planes, overparam_factor, 1, act_layer, norm_layer)
+                for _ in range(_num_blocks - 1)
+            ])
             in_planes = _planes
 
             layers.append(nn.Sequential(*stage))
 
         super().__init__(
-            OrderedDict(
-                [
-                    ("features", nn.Sequential(*layers)),
-                    ("pool", GlobalAvgPool2d(flatten=True)),
-                    ("head", nn.Linear(in_planes, num_classes)),
-                ]
-            )
+            OrderedDict([
+                ("features", nn.Sequential(*layers)),
+                ("pool", GlobalAvgPool2d(flatten=True)),
+                ("head", nn.Linear(in_planes, num_classes)),
+            ])
         )
 
         # Init all layers

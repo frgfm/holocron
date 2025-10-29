@@ -1,7 +1,7 @@
 # Project information
 site_name: Holocron
 site_url: https://frgfm.github.io/holocron
-site_description: PyTorch implementations of recent Computer Vision tricks 
+site_description: PyTorch implementations of recent Computer Vision tricks
 site_author: François-Guillaume Fernandez
 copyright: Copyright &copy; 2019-2025, François-Guillaume Fernandez
 
