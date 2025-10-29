@@ -36,5 +36,5 @@ jobs:
         run: make install-demo
       - name: Run demo app
         run: |
-          screen -dm make run-demo
+          make run-demo
           sleep 20 && nc -vz localhost 3000
