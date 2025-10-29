@@ -142,7 +142,7 @@ extra_css:
 extra:
   analytics:
     provider: google
-    property: UA-148140560-2
+    property: G-NYXYENL0V8
   social:
   - icon: fontawesome/brands/github
     link: https://github.com/frgfm/holocron
