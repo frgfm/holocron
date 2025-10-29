@@ -1,17 +1,16 @@
-# Copyright (C) 2019-2024, François-Guillaume Fernandez.
+# Copyright (C) 2019-2025, François-Guillaume Fernandez.
 
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
-"""
-Training script for image classification
-"""
+"""Training script for image classification"""
 
 import datetime
 import logging
 import math
 import os
 import time
+from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -23,9 +22,8 @@ from torch import nn
 from torch.utils.data import RandomSampler, SequentialSampler
 from torch.utils.data._utils.collate import default_collate
 from torchvision.datasets import CIFAR10, CIFAR100, ImageFolder
-from torchvision.transforms import autoaugment as A
-from torchvision.transforms import transforms as T
-from torchvision.transforms.functional import InterpolationMode, to_pil_image
+from torchvision.transforms import v2 as T
+from torchvision.transforms.v2.functional import InterpolationMode, to_pil_image
 
 from holocron.models import classification
 from holocron.models.presets import CIFAR10 as CIF10
@@ -100,7 +98,7 @@ def main(args):
                 T.Compose([
                     T.RandomResizedCrop(args.train_crop_size, scale=(0.3, 1.0), interpolation=interpolation),
                     T.RandomHorizontalFlip(),
-                    A.TrivialAugmentWide(interpolation=interpolation),
+                    T.TrivialAugmentWide(interpolation=interpolation),
                     T.PILToTensor(),
                     T.ConvertImageDtype(torch.float32),
                     normalize,
@@ -114,7 +112,7 @@ def main(args):
                 True,
                 T.Compose([
                     T.RandomHorizontalFlip(),
-                    A.TrivialAugmentWide(interpolation=interpolation),
+                    T.TrivialAugmentWide(interpolation=interpolation),
                     T.PILToTensor(),
                     T.ConvertImageDtype(torch.float32),
                     normalize,
@@ -255,7 +253,7 @@ def main(args):
         return
 
     # Training monitoring
-    current_time = datetime.datetime.now(tz=datetime.timezone.utc).strftime("%Y%m%d-%H%M%S")
+    current_time = datetime.datetime.now(tz=datetime.UTC).strftime("%Y%m%d-%H%M%S")
     exp_name = f"{args.arch}-{current_time}" if args.name is None else args.name
 
     # W&B
@@ -300,10 +298,8 @@ def main(args):
 
 
 def get_parser():
-    import argparse
-
-    parser = argparse.ArgumentParser(
-        description="Holocron Classification Training", formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    parser = ArgumentParser(
+        description="Holocron Classification Training", formatter_class=ArgumentDefaultsHelpFormatter
     )
 
     # Data & model

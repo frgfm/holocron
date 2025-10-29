@@ -1,16 +1,17 @@
-# Copyright (C) 2019-2024, François-Guillaume Fernandez.
+# Copyright (C) 2019-2025, François-Guillaume Fernandez.
 
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
 import json
 import logging
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar, Union
+from typing import Any, TypeVar
 
 import torch
-import torch.nn as nn
 from huggingface_hub.file_download import hf_hub_download
+from torch import nn
 from torch.hub import load_state_dict_from_url
 
 from holocron import models
@@ -28,15 +29,15 @@ logger = logging.getLogger(__name__)
 def conv_sequence(
     in_channels: int,
     out_channels: int,
-    act_layer: Optional[nn.Module] = None,
-    norm_layer: Optional[Callable[[int], nn.Module]] = None,
-    drop_layer: Optional[Callable[..., nn.Module]] = None,
-    conv_layer: Optional[Callable[..., nn.Module]] = None,
-    bn_channels: Optional[int] = None,
-    attention_layer: Optional[Callable[[int], nn.Module]] = None,
+    act_layer: nn.Module | None = None,
+    norm_layer: Callable[[int], nn.Module] | None = None,
+    drop_layer: Callable[..., nn.Module] | None = None,
+    conv_layer: Callable[..., nn.Module] | None = None,
+    bn_channels: int | None = None,
+    attention_layer: Callable[[int], nn.Module] | None = None,
     blurpool: bool = False,
     **kwargs: Any,
-) -> List[nn.Module]:
+) -> list[nn.Module]:
     """Builds a sequence of convolutional layers.
 
     >>> from torch import nn
@@ -88,10 +89,10 @@ def conv_sequence(
 
 def load_pretrained_params(
     model: nn.Module,
-    url: Optional[str] = None,
+    url: str | None = None,
     progress: bool = True,
-    key_replacement: Optional[Tuple[str, str]] = None,
-    key_filter: Optional[str] = None,
+    key_replacement: tuple[str, str] | None = None,
+    key_filter: str | None = None,
 ) -> None:
     """Loads a checkpoint on a model given its URL.
 
@@ -113,7 +114,7 @@ def load_pretrained_params(
         model.load_state_dict(state_dict)
 
 
-def fuse_conv_bn(conv: nn.Conv2d, bn: nn.BatchNorm2d) -> Tuple[torch.Tensor, torch.Tensor]:
+def fuse_conv_bn(conv: nn.Conv2d, bn: nn.BatchNorm2d) -> tuple[torch.Tensor, torch.Tensor]:
     """Fuse convolution and batch normalization layers into a convolution with bias.
 
     >>> from torch import nn
@@ -123,8 +124,12 @@ def fuse_conv_bn(conv: nn.Conv2d, bn: nn.BatchNorm2d) -> Tuple[torch.Tensor, tor
     Args:
         conv: the convolutional layer
         bn: the batch normalization layer
+
     Returns:
         the fused kernel and bias of the new convolution
+
+    Raises:
+        AssertionError: if the number of output channels is not the same for both `conv` and `bn`
     """
     # Check compatibility of both layers
     if bn.bias.data.shape[0] != conv.weight.data.shape[0]:
@@ -152,6 +157,7 @@ def model_from_hf_hub(repo_id: str, **kwargs: Any) -> nn.Module:
     Args:
         repo_id: HuggingFace model hub repo
         kwargs: kwargs of `hf_hub_download`
+
     Returns:
         Model loaded with the checkpoint
     """
@@ -177,7 +183,7 @@ def model_from_hf_hub(repo_id: str, **kwargs: Any) -> nn.Module:
 
 def _configure_model(
     model: M,
-    checkpoint: Union[Checkpoint, None],
+    checkpoint: Checkpoint | None,
     **kwargs: Any,
 ) -> M:
     model.default_cfg = checkpoint  # type: ignore[assignment]
@@ -188,7 +194,7 @@ def _configure_model(
     return model
 
 
-def _checkpoint_from_hub_config(hub_config: Dict[str, Any]) -> Checkpoint:
+def _checkpoint_from_hub_config(hub_config: dict[str, Any]) -> Checkpoint:
     return Checkpoint(
         evaluation=Evaluation(
             dataset=Dataset.IMAGENETTE,
@@ -212,8 +218,8 @@ def _checkpoint(
     sha256: str,
     size: int,
     num_params: int,
-    commit: Union[str, None] = None,
-    train_args: Union[str, None] = None,
+    commit: str | None = None,
+    train_args: str | None = None,
     dataset: Dataset = Dataset.IMAGENETTE,
 ) -> Checkpoint:
     preset = IMAGENETTE if dataset == Dataset.IMAGENETTE else IMAGENET

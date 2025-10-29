@@ -127,3 +127,6 @@ flagged/
 
 # Training
 checkpoints/
+
+# Docs
+docs/site

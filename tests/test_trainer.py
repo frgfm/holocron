@@ -1,10 +1,8 @@
-from typing import Optional
-
 import pytest
 import torch
 from torch import nn
 from torch.utils.data import DataLoader, Dataset
-from torchvision.models.detection import fasterrcnn_mobilenet_v3_large_320_fpn
+from torchvision.models import get_model, get_model_weights
 
 from holocron import trainer
 from holocron.nn import GlobalAvgPool2d
@@ -80,7 +78,7 @@ def collate_fn(batch):
 
 
 def _test_trainer(
-    learner: trainer.Trainer, num_it: int, ref_param: str, freeze_until: Optional[str] = None, lr: float = 1e-3
+    learner: trainer.Trainer, num_it: int, ref_param: str, freeze_until: str | None = None, lr: float = 1e-3
 ) -> None:
     trainer.utils.freeze_model(learner.model.train(), freeze_until)
     learner._reset_opt(lr)
@@ -276,7 +274,8 @@ def test_detection_trainer(tmpdir_factory):
     num_it = 10
     batch_size = 2
     # Generate all dependencies
-    model = fasterrcnn_mobilenet_v3_large_320_fpn(pretrained_backbone=True, num_classes=10)
+    weights = get_model_weights("mobilenet_v3_large").DEFAULT
+    model = get_model("fasterrcnn_mobilenet_v3_large_320_fpn", weights_backbone=weights, num_classes=10)
     train_loader = DataLoader(MockDetDataset(num_it * batch_size), batch_size=batch_size, collate_fn=collate_fn)
     optimizer = torch.optim.Adam(model.parameters())
 

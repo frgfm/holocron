@@ -1,10 +1,21 @@
-# Copyright (C) 2022-2024, François-Guillaume Fernandez.
+# Copyright (C) 2022-2025, François-Guillaume Fernandez.
 
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
-import argparse
+# /// script
+# requires-python = ">=3.11"
+# dependencies = [
+#     "gradio>=5.0.0,<6.0.0",
+#     "huggingface-hub>=1.0.0,<2.0.0",
+#     "numpy>=1.19.5,<3.0.0",
+#     "onnxruntime>=1.22.0,<2.0.0",
+#     "Pillow>=8.4.0,!=9.2.0",
+# ]
+# ///
+
 import json
+from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 from pathlib import Path
 
 import gradio as gr
@@ -51,7 +62,7 @@ def main(args):
         out_exp = np.exp(ort_out[0][0])
         probs = out_exp / out_exp.sum()
 
-        return {class_name: float(conf) for class_name, conf in zip(cfg["classes"], probs)}
+        return {class_name: float(conf) for class_name, conf in zip(cfg["classes"], probs, strict=True)}
 
     interface = gr.Interface(
         fn=predict,
@@ -59,9 +70,9 @@ def main(args):
         outputs=gr.Label(num_top_classes=3),
         title="Holocron: image classification demo",
         article=(
-            "<p style='text-align: center'><a href='https://github.com/frgfm/Holocron'>"
+            "<p style='text-align: center'><a href='https://github.com/frgfm/holocron'>"
             "Github Repo</a> | "
-            "<a href='https://frgfm.github.io/Holocron/'>Documentation</a></p>"
+            "<a href='https://frgfm.github.io/holocron/'>Documentation</a></p>"
         ),
         live=True,
     )
@@ -70,8 +81,8 @@ def main(args):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Holocron image classification demo", formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    parser = ArgumentParser(
+        description="Holocron image classification demo", formatter_class=ArgumentDefaultsHelpFormatter
     )
     parser.add_argument("--repo", type=str, default="frgfm/rexnet1_0x", help="HF Hub repo to use")
     parser.add_argument("--port", type=int, default=8001, help="Port on which the webserver will be run")

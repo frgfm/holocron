@@ -1,22 +1,22 @@
-# Copyright (C) 2022-2024, François-Guillaume Fernandez.
+# Copyright (C) 2022-2025, François-Guillaume Fernandez.
 
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
-from enum import Enum
+from enum import StrEnum
 from math import sqrt
-from typing import Any, Tuple, Union
+from typing import Any
 
 import torch
 from PIL import Image
 from torch import nn
-from torchvision.transforms import transforms as T
-from torchvision.transforms.functional import pad, resize
+from torchvision.transforms import v2 as T
+from torchvision.transforms.v2.functional import pad, resize
 
 __all__ = ["RandomZoomOut", "Resize"]
 
 
-class ResizeMethod(str, Enum):
+class ResizeMethod(StrEnum):
     """Resize methods
     Available methods are ``squish``, ``pad``.
     """
@@ -25,7 +25,7 @@ class ResizeMethod(str, Enum):
     PAD = "pad"
 
 
-def _get_image_shape(image: Union[Image.Image, torch.Tensor]) -> Tuple[int, int]:
+def _get_image_shape(image: Image.Image | torch.Tensor) -> tuple[int, int]:
     if isinstance(image, torch.Tensor):
         if image.ndim != 3:
             raise ValueError("the input tensor is expected to be 3-dimensional")
@@ -41,8 +41,7 @@ def _get_image_shape(image: Union[Image.Image, torch.Tensor]) -> Tuple[int, int]
 class Resize(T.Resize):
     """Implements a more flexible resizing scheme.
 
-    .. image:: https://github.com/frgfm/Holocron/releases/download/v0.2.1/resize_example.png
-        :align: center
+    ![Resize example](https://github.com/frgfm/Holocron/releases/download/v0.2.1/resize_example.png)
 
     >>> from holocron.transforms import Resize
     >>> pil_img = ...
@@ -53,28 +52,26 @@ class Resize(T.Resize):
         size: the desired height and width of the image in pixels
         mode: the resizing scheme ("squish" is similar to PyTorch, "pad" will preserve the aspect ratio and pad)
         pad_mode: padding mode when `mode` is "pad"
-        kwargs: the keyword arguments of `torchvision.transforms.Resize`
-
-    Returns:
-        the resized image
+        kwargs: the keyword arguments of [`torchvision.transforms.v2.Resize`][torchvision.transforms.v2.Resize]
     """
 
     def __init__(
         self,
-        size: Tuple[int, int],
+        size: tuple[int, int],
         mode: ResizeMethod = ResizeMethod.SQUISH,
         pad_mode: str = "constant",
         **kwargs: Any,
     ) -> None:
         if not isinstance(mode, ResizeMethod):
-            raise ValueError("mode is expected to be a ResizeMethod")
+            raise TypeError("mode is expected to be a ResizeMethod")
         if not isinstance(size, (tuple, list)) or len(size) != 2 or any(s <= 0 for s in size):
             raise ValueError("size is expected to be a sequence of 2 positive integers")
         super().__init__(size, **kwargs)
-        self.mode = mode
-        self.pad_mode = pad_mode
+        self.mode: ResizeMethod = mode
+        self.pad_mode: str = pad_mode
+        self.size: tuple[int, int]
 
-    def get_params(self, image: Union[Image.Image, torch.Tensor]) -> Tuple[int, int]:
+    def get_params(self, image: Image.Image | torch.Tensor) -> tuple[int, int]:  # noqa: D102
         h, w = _get_image_shape(image)
         o_ratio = h / w
         if self.size[0] / self.size[1] > o_ratio:
@@ -84,23 +81,22 @@ class Resize(T.Resize):
 
         return h_, w_
 
-    def forward(self, image: Union[Image.Image, torch.Tensor]) -> Union[Image.Image, torch.Tensor]:
+    def forward(self, image: Image.Image | torch.Tensor) -> Image.Image | torch.Tensor:  # noqa: D102
         if self.mode == ResizeMethod.SQUISH:
             return super().forward(image)
         h, w = self.get_params(image)
-        img = resize(image, (h, w), self.interpolation)
+        img = resize(image, (h, w), self.interpolation)  # ty: ignore[invalid-argument-type]
         # get the padding
         h_pad, w_pad = self.size[0] - h, self.size[1] - w
         padding = w_pad // 2, h_pad // 2, w_pad - w_pad // 2, h_pad - h_pad // 2
         # Fill the rest up to target_size
-        return pad(img, padding, padding_mode=self.pad_mode)
+        return pad(img, padding, padding_mode=self.pad_mode)  # ty: ignore[invalid-argument-type]
 
 
 class RandomZoomOut(nn.Module):
     """Implements a size reduction of the orignal image to provide a zoom out effect.
 
-    .. image:: https://github.com/frgfm/Holocron/releases/download/v0.2.1/randomzoomout_example.png
-        :align: center
+    ![RandomZoomOut example](https://github.com/frgfm/Holocron/releases/download/v0.2.1/randomzoomout_example.png)
 
     >>> from holocron.transforms import RandomZoomOut
     >>> pil_img = ...
@@ -110,23 +106,20 @@ class RandomZoomOut(nn.Module):
     Args:
         size: the desired height and width of the image in pixels
         scale: the range of relative area of the projected image to the desired size
-        kwargs: the keyword arguments of `torchvision.transforms.functional.resize`
-
-    Returns:
-        the resized image
+        kwargs: the keyword arguments of [`torchvision.transforms.functional.resize`][torchvision.transforms.functional.resize]
     """
 
-    def __init__(self, size: Tuple[int, int], scale: Tuple[float, float] = (0.5, 1.0), **kwargs: Any) -> None:
+    def __init__(self, size: tuple[int, int], scale: tuple[float, float] = (0.5, 1.0), **kwargs: Any) -> None:
         if not isinstance(size, (tuple, list)) or len(size) != 2 or any(s <= 0 for s in size):
             raise ValueError("size is expected to be a sequence of 2 positive integers")
         if len(scale) != 2 or scale[0] > scale[1]:
             raise ValueError("scale is expected to be a couple of floats, the first one being small than the second")
         super().__init__()
-        self.size = size
-        self.scale = scale
-        self._kwargs = kwargs
+        self.size: tuple[int, int] = size
+        self.scale: tuple[float, float] = scale
+        self._kwargs: dict[str, Any] = kwargs
 
-    def get_params(self, image: Union[Image.Image, torch.Tensor]) -> Tuple[int, int]:
+    def get_params(self, image: Image.Image | torch.Tensor) -> tuple[int, int]:  # noqa: D102
         h, w = _get_image_shape(image)
 
         scale = (self.scale[1] - self.scale[0]) * torch.rand(1).item() + self.scale[0]
@@ -141,16 +134,16 @@ class RandomZoomOut(nn.Module):
 
         return h_, w_
 
-    def forward(self, image: Union[Image.Image, torch.Tensor]) -> Union[Image.Image, torch.Tensor]:
+    def forward(self, image: Image.Image | torch.Tensor) -> Image.Image | torch.Tensor:  # noqa: D102
         # Skip dummy cases
         if self.scale[0] == 1:
             return image
         # Get the size of the small image
         h, w = self.get_params(image)
         # Resize the image to this
-        img = resize(image, (h, w), **self._kwargs)
+        img = resize(image, (h, w), **self._kwargs)  # ty: ignore[invalid-argument-type]
         # get the padding
         h_delta, w_delta = self.size[0] - h, self.size[1] - w
         padding = w_delta // 2, h_delta // 2, w_delta - w_delta // 2, h_delta - h_delta // 2
         # Fill the rest up to size
-        return pad(img, padding)
+        return pad(img, padding)  # ty: ignore[invalid-argument-type]

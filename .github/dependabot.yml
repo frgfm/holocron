@@ -15,10 +15,11 @@ updates:
       interval: "daily"
     allow:
       - dependency-name: "ruff"
-      - dependency-name: "mypy"
+      - dependency-name: "ty"
       - dependency-name: "pre-commit"
       - dependency-name: "torch"
       - dependency-name: "torchvision"
+      - dependency-name: "pytest"
   - package-ecosystem: "pip"
     directory: "api/"
     schedule:

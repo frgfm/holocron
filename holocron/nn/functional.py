@@ -1,10 +1,11 @@
-# Copyright (C) 2019-2024, François-Guillaume Fernandez.
+# Copyright (C) 2019-2025, François-Guillaume Fernandez.
 
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
+from collections.abc import Callable
 from math import ceil, floor
-from typing import Callable, Optional, Tuple, Union, cast
+from typing import cast
 
 import torch
 import torch.nn.functional as F
@@ -33,6 +34,7 @@ def hard_mish(x: Tensor, inplace: bool = False) -> Tensor:
     Args:
         x: input tensor
         inplace: whether the operation should be conducted inplace
+
     Returns:
         output tensor
     """
@@ -48,6 +50,7 @@ def nl_relu(x: Tensor, beta: float = 1.0, inplace: bool = False) -> Tensor:
         x: input tensor
         beta: beta used for NReLU
         inplace: whether the operation should be performed inplace
+
     Returns:
         output tensor
     """
@@ -59,24 +62,24 @@ def nl_relu(x: Tensor, beta: float = 1.0, inplace: bool = False) -> Tensor:
 def focal_loss(
     x: Tensor,
     target: Tensor,
-    weight: Optional[Tensor] = None,
+    weight: Tensor | None = None,
     ignore_index: int = -100,
     reduction: str = "mean",
     gamma: float = 2.0,
 ) -> Tensor:
     """Implements the focal loss from
-    `"Focal Loss for Dense Object Detection" <https://arxiv.org/pdf/1708.02002.pdf>`_
+    ["Focal Loss for Dense Object Detection"](https://arxiv.org/pdf/1708.02002.pdf)
 
     Args:
-        x (torch.Tensor[N, K, ...]): input tensor
-        target (torch.Tensor[N, ...]): hard target tensor
-        weight (torch.Tensor[K], optional): manual rescaling of each class
-        ignore_index (int, optional): specifies target value that is ignored and do not contribute to gradient
-        reduction (str, optional): reduction method
-        gamma (float, optional): gamma parameter of focal loss
+        x: input tensor of shape [N, K, ...]
+        target: hard target tensor of shape [N, ...]
+        weight: manual rescaling of each class of shape [K]
+        ignore_index: specifies target value that is ignored and do not contribute to gradient
+        reduction: reduction method
+        gamma: gamma parameter of focal loss
 
     Returns:
-        torch.Tensor: loss reduced with `reduction` method
+        loss reduced with `reduction` method
     """
     # log(P[class]) = log_softmax(score)[class]
     logpt = F.log_softmax(x, dim=1)
@@ -115,15 +118,18 @@ def focal_loss(
 
 def concat_downsample2d(x: Tensor, scale_factor: int) -> Tensor:
     """Implements a loss-less downsampling operation described in
-    `"YOLO9000: Better, Faster, Stronger" <https://pjreddie.com/media/files/papers/YOLO9000.pdf>`_
+    ["YOLO9000: Better, Faster, Stronger"](https://pjreddie.com/media/files/papers/YOLO9000.pdf)
     by stacking adjacent information on the channel dimension.
 
     Args:
-        x (torch.Tensor[N, C, H, W]): input tensor
-        scale_factor (int): spatial scaling factor
+        x: input tensor of shape [N, C, H, W]
+        scale_factor: spatial scaling factor
 
     Returns:
-        torch.Tensor[N, scale_factor ** 2 * C, H / scale_factor, W / scale_factor]: downsampled tensor
+        downsampled tensor of shape [N, scale_factor ** 2 * C, H / scale_factor, W / scale_factor]
+
+    Raises:
+        AssertionError: if the spatial size of the input tensor is not multiples of `scale_factor`
     """
     b, c, h, w = x.shape
 
@@ -137,30 +143,32 @@ def concat_downsample2d(x: Tensor, scale_factor: int) -> Tensor:
 
 
 def z_pool(x: Tensor, dim: int) -> Tensor:
-    """Z-pool layer from `"Rotate to Attend: Convolutional Triplet Attention Module"
-    <https://arxiv.org/pdf/2010.03045.pdf>`_.
+    """Z-pool layer from ["Rotate to Attend: Convolutional Triplet Attention Module"](https://arxiv.org/pdf/2010.03045.pdf).
 
     Args:
         x: input tensor
         dim: dimension to pool
+
+    Returns:
+        z-pooled tensor
     """
     return torch.cat([x.max(dim, keepdim=True).values, x.mean(dim, keepdim=True)], dim=dim)
 
 
 def multilabel_cross_entropy(
-    x: Tensor, target: Tensor, weight: Optional[Tensor] = None, ignore_index: int = -100, reduction: str = "mean"
+    x: Tensor, target: Tensor, weight: Tensor | None = None, ignore_index: int = -100, reduction: str = "mean"
 ) -> Tensor:
     """Implements the cross entropy loss for multi-label targets
 
     Args:
-        x (torch.Tensor[N, K, ...]): input tensor
-        target (torch.Tensor[N, K, ...]): target tensor
-        weight (torch.Tensor[K], optional): manual rescaling of each class
-        ignore_index (int, optional): specifies target value that is ignored and do not contribute to gradient
-        reduction (str, optional): reduction method
+        x: input tensor of shape [N, K, ...]
+        target: target tensor of shape [N, K, ...]
+        weight: manual rescaling of each class of shape [K]
+        ignore_index: specifies target value that is ignored and do not contribute to gradient
+        reduction: reduction method
 
     Returns:
-        torch.Tensor: loss reduced with `reduction` method
+        loss reduced with `reduction` method
     """
     # log(P[class]) = log_softmax(score)[class]
     logpt = F.log_softmax(x, dim=1)
@@ -194,24 +202,24 @@ def multilabel_cross_entropy(
 def complement_cross_entropy(
     x: Tensor,
     target: Tensor,
-    weight: Optional[Tensor] = None,
+    weight: Tensor | None = None,
     ignore_index: int = -100,
     reduction: str = "mean",
     gamma: float = -1,
 ) -> Tensor:
     """Implements the complement cross entropy loss from
-    `"Imbalanced Image Classification with Complement Cross Entropy" <https://arxiv.org/pdf/2009.02189.pdf>`_
+    ["Imbalanced Image Classification with Complement Cross Entropy"](https://arxiv.org/pdf/2009.02189.pdf)
 
     Args:
-        x (torch.Tensor[N, K, ...]): input tensor
-        target (torch.Tensor[N, ...]): target tensor
-        weight (torch.Tensor[K], optional): manual rescaling of each class
-        ignore_index (int, optional): specifies target value that is ignored and do not contribute to gradient
-        reduction (str, optional): reduction method
-        gamma (float, optional): complement factor
+        x: input tensor of shape [N, K, ...]
+        target: target tensor of shape [N, ...]
+        weight: manual rescaling of each class of shape [K]
+        ignore_index: specifies target value that is ignored and do not contribute to gradient
+        reduction: reduction method
+        gamma: complement factor
 
     Returns:
-        torch.Tensor: loss reduced with `reduction` method
+        loss reduced with `reduction` method
     """
     ce_loss = F.cross_entropy(x, target, weight, ignore_index=ignore_index, reduction=reduction)
 
@@ -258,27 +266,26 @@ def complement_cross_entropy(
 def mutual_channel_loss(
     x: Tensor,
     target: Tensor,
-    weight: Optional[Tensor] = None,
+    weight: Tensor | None = None,
     ignore_index: int = -100,
     reduction: str = "mean",
     xi: int = 2,
     alpha: float = 1.0,
 ) -> Tensor:
     """Implements the mutual channel loss from
-    `"The Devil is in the Channels: Mutual-Channel Loss for Fine-Grained Image Classification"
-    <https://arxiv.org/pdf/2002.04264.pdf>`_.
+    ["The Devil is in the Channels: Mutual-Channel Loss for Fine-Grained Image Classification"](https://arxiv.org/pdf/2002.04264.pdf).
 
     Args:
-        x (torch.Tensor[N, K, ...]): input tensor
-        target (torch.Tensor[N, ...]): target tensor
-        weight (torch.Tensor[K], optional): manual rescaling of each class
-        ignore_index (int, optional): specifies target value that is ignored and do not contribute to gradient
-        reduction (str, optional): reduction method
-        xi (int, optional): num of features per class
-        alpha (float, optional): diversity factor
+        x: input tensor of shape [N, K, ...]
+        target: target tensor of shape [N, ...]
+        weight: manual rescaling of each class of shape [K]
+        ignore_index: specifies target value that is ignored and do not contribute to gradient
+        reduction: reduction method
+        xi: num of features per class
+        alpha: diversity factor
 
     Returns:
-        torch.Tensor: loss reduced with `reduction` method
+        loss reduced with `reduction` method
     """
     # Flatten spatial dimension
     b, c = x.shape[:2]
@@ -323,15 +330,15 @@ def _xcorr2d(
     fn: Callable[[Tensor, Tensor], Tensor],
     x: Tensor,
     weight: Tensor,
-    bias: Optional[Tensor] = None,
-    stride: Union[int, Tuple[int, int]] = 1,
-    padding: Union[int, Tuple[int, int]] = 0,
-    dilation: Union[int, Tuple[int, int]] = 1,
+    bias: Tensor | None = None,
+    stride: int | tuple[int, int] = 1,
+    padding: int | tuple[int, int] = 0,
+    dilation: int | tuple[int, int] = 1,
     groups: int = 1,
     normalize_slices: bool = False,
     eps: float = 1e-14,
 ) -> Tensor:
-    """Implements cross-correlation operation"""
+    """Implements cross-correlation operation"""  # noqa: DOC201
     # Reshape input Tensor into properly sized slices
     h, w = x.shape[-2:]
     if isinstance(dilation, int):
@@ -369,8 +376,11 @@ def _convNd(x: Tensor, weight: Tensor) -> Tensor:
     """Implements inner cross-correlation operation over slices
 
     Args:
-        x (torch.Tensor[N, num_slices, Cin * K1 * ...]): input Tensor
-        weight (torch.Tensor[Cout, Cin, K1, ...]): filters
+        x: input tensor of shape [N, num_slices, Cin * K1 * ...]
+        weight: filters of shape [Cout, Cin, K1, ...]
+
+    Returns:
+        output tensor
     """
     return x @ weight.view(weight.size(0), -1).t()
 
@@ -378,33 +388,31 @@ def _convNd(x: Tensor, weight: Tensor) -> Tensor:
 def norm_conv2d(
     x: Tensor,
     weight: Tensor,
-    bias: Optional[Tensor] = None,
-    stride: Union[int, Tuple[int, int]] = 1,
-    padding: Union[int, Tuple[int, int]] = 0,
-    dilation: Union[int, Tuple[int, int]] = 1,
+    bias: Tensor | None = None,
+    stride: int | tuple[int, int] = 1,
+    padding: int | tuple[int, int] = 0,
+    dilation: int | tuple[int, int] = 1,
     groups: int = 1,
     eps: float = 1e-14,
 ) -> Tensor:
-    """Implements a normalized convolution operations in 2D. Based on the `implementation
-    <https://github.com/kimdongsuk1/NormalizedCNN>`_ by the paper's author.
-    See :class:`~holocron.nn.NormConv2d` for details and output shape.
+    """Implements a normalized convolution operations in 2D. Based on the [implementation](https://github.com/kimdongsuk1/NormalizedCNN)
+    by the paper's author.
+    See [`holocron.nn.NormConv2d`][holocron.nn.NormConv2d] for details and output shape.
 
     Args:
-        x (torch.Tensor[N, in_channels, H, W]): input tensor
-        weight (torch.Tensor[out_channels, in_channels, Kh, Kw]): filters
-        bias (torch.Tensor[out_channels], optional): optional bias tensor of shape (out_channels).
-          Default: ``None``
-        stride (int, optional): the stride of the convolving kernel. Can be a single number or a
-          tuple `(sH, sW)`. Default: 1
-        padding (int, optional): implicit paddings on both sides of the input. Can be a
-          single number or a tuple `(padH, padW)`. Default: 0
-        dilation (int, optional): the spacing between kernel elements. Can be a single number or
-          a tuple `(dH, dW)`. Default: 1
-        groups (int, optional): split input into groups, in_channels should be divisible by the
-          number of groups. Default: 1
-        eps (float, optional): a value added to the denominator for numerical stability.
-            Default: 1e-14
-    Examples::
+        x: input tensor of shape [N, in_channels, H, W]
+        weight: filters of shape [out_channels, in_channels, Kh, Kw]
+        bias: optional bias tensor of shape [out_channels]
+        stride: the stride of the convolving kernel. Can be a single number or a tuple `(sH, sW)`.
+        padding: implicit paddings on both sides of the input. Can be a single number or a tuple `(padH, padW)`.
+        dilation: the spacing between kernel elements. Can be a single number or a tuple `(dH, dW)`.
+        groups: split input into groups, in_channels should be divisible by the number of groups.
+        eps: a value added to the denominator for numerical stability.
+
+    Returns:
+        output tensor
+
+    Examples:
         >>> # With square kernels and equal stride
         >>> filters = torch.randn(8,4,3,3)
         >>> inputs = torch.randn(1,4,5,5)
@@ -417,8 +425,11 @@ def _addNd(x: Tensor, weight: Tensor) -> Tensor:
     """Implements inner adder operation over slices
 
     Args:
-        x (torch.Tensor[N, num_slices, Cin * K1 * ...]): input Tensor
-        weight (torch.Tensor[Cout, Cin, K1, ...]): filters
+        x: input tensor of shape [N, num_slices, Cin * K1 * ...]
+        weight: filters of shape [Cout, Cin, K1, ...]
+
+    Returns:
+        output tensor
     """
     return -(x.unsqueeze(2) - weight.view(weight.size(0), -1)).abs().sum(-1)
 
@@ -426,35 +437,32 @@ def _addNd(x: Tensor, weight: Tensor) -> Tensor:
 def add2d(
     x: Tensor,
     weight: Tensor,
-    bias: Optional[Tensor] = None,
-    stride: Union[int, Tuple[int, int]] = 1,
-    padding: Union[int, Tuple[int, int]] = 0,
-    dilation: Union[int, Tuple[int, int]] = 1,
+    bias: Tensor | None = None,
+    stride: int | tuple[int, int] = 1,
+    padding: int | tuple[int, int] = 0,
+    dilation: int | tuple[int, int] = 1,
     groups: int = 1,
     normalize_slices: bool = False,
     eps: float = 1e-14,
 ) -> Tensor:
-    """Implements an adder operation in 2D from `"AdderNet: Do We Really Need Multiplications in Deep Learning?"
-    <https://arxiv.org/pdf/1912.13200.pdf>`_. See :class:`~holocron.nn.Add2d` for details and output shape.
+    """Implements an adder operation in 2D from ["AdderNet: Do We Really Need Multiplications in Deep Learning?"](https://arxiv.org/pdf/1912.13200.pdf).
+    See [`holocron.nn.Add2d`][holocron.nn.Add2d] for details and output shape.
 
     Args:
-        x (torch.Tensor[N, in_channels, H, W]): input tensor
-        weight (torch.Tensor[out_channels, in_channels, Kh, Kw]): filters
-        bias (torch.Tensor[out_channels], optional): optional bias tensor of shape (out_channels).
-          Default: ``None``
-        stride (int, optional): the stride of the convolving kernel. Can be a single number or a
-          tuple `(sH, sW)`. Default: 1
-        padding (int, optional): implicit paddings on both sides of the input. Can be a
-          single number or a tuple `(padH, padW)`. Default: 0
-        dilation (int, optional): the spacing between kernel elements. Can be a single number or
-          a tuple `(dH, dW)`. Default: 1
-        groups (int, optional): split input into groups, in_channels should be divisible by the
-          number of groups. Default: 1
-        normalize_slices (bool, optional): whether input slices should be normalized
-        eps (float, optional): a value added to the denominator for numerical stability.
-            Default: 1e-14
-    Examples::
-        >>> # With square kernels and equal stride
+        x: input tensor of shape [N, in_channels, H, W]
+        weight: filters of shape [out_channels, in_channels, Kh, Kw]
+        bias: optional bias tensor of shape [out_channels]
+        stride: the stride of the convolving kernel. Can be a single number or a tuple `(sH, sW)`.
+        padding: implicit paddings on both sides of the input. Can be a single number or a tuple `(padH, padW)`.
+        dilation: the spacing between kernel elements. Can be a single number or a tuple `(dH, dW)`.
+        groups: split input into groups, in_channels should be divisible by the number of groups.
+        normalize_slices: whether input slices should be normalized
+        eps: a value added to the denominator for numerical stability.
+
+    Returns:
+        output tensor
+
+    Examples:
         >>> filters = torch.randn(8,4,3,3)
         >>> inputs = torch.randn(1,4,5,5)
         >>> F.norm_conv2d(inputs, filters, padding=1)
@@ -463,15 +471,17 @@ def add2d(
 
 
 def dropblock2d(x: Tensor, drop_prob: float, block_size: int, inplace: bool = False, training: bool = True) -> Tensor:
-    """Implements the dropblock operation from `"DropBlock: A regularization method for convolutional networks"
-    <https://arxiv.org/pdf/1810.12890.pdf>`_
+    """Implements the dropblock operation from ["DropBlock: A regularization method for convolutional networks"](https://arxiv.org/pdf/1810.12890.pdf).
 
     Args:
-        x (torch.Tensor): input tensor of shape (N, C, H, W)
-        drop_prob (float): probability of dropping activation value
-        block_size (int): size of each block that is expended from the sampled mask
-        inplace (bool, optional): whether the operation should be done inplace
-        training (bool, optional): whether the input should be processed in training mode
+        x: input tensor of shape [N, C, H, W]
+        drop_prob: probability of dropping activation value
+        block_size: size of each block that is expended from the sampled mask
+        inplace: whether the operation should be done inplace
+        training: whether the input should be processed in training mode
+
+    Returns:
+        output tensor
     """
     if not training or drop_prob == 0:
         return x
@@ -503,22 +513,21 @@ def dropblock2d(x: Tensor, drop_prob: float, block_size: int, inplace: bool = Fa
 def dice_loss(
     x: Tensor,
     target: Tensor,
-    weight: Optional[Tensor] = None,
+    weight: Tensor | None = None,
     gamma: float = 1.0,
     eps: float = 1e-8,
 ) -> Tensor:
-    """Implements the dice loss from `"V-Net: Fully Convolutional Neural Networks for Volumetric Medical Image
-    Segmentation" <https://arxiv.org/pdf/1606.04797.pdf>`_
+    """Implements the dice loss from ["V-Net: Fully Convolutional Neural Networks for Volumetric Medical Image Segmentation"](https://arxiv.org/pdf/1606.04797.pdf)
 
     Args:
-        x (torch.Tensor[N, K, ...]): predicted probability
-        target (torch.Tensor[N, K, ...]): target probability
-        weight (torch.Tensor[K], optional): manual rescaling of each class
-        gamma (float, optional): controls the balance between recall (gamma > 1) and precision (gamma < 1)
-        eps (float, optional): epsilon to balance the loss and avoids division by zero
+        x: predicted probability of shape [N, K, ...]
+        target: target probability of shape [N, K, ...]
+        weight: manual rescaling of each class of shape [K]
+        gamma: controls the balance between recall (gamma > 1) and precision (gamma < 1)
+        eps: epsilon to balance the loss and avoids division by zero
 
     Returns:
-        torch.Tensor: loss reduced with `reduction` method
+        loss reduced with `reduction` method
     """
     inter = gamma * (x * target).flatten(2).sum((0, 2))
     cardinality = (x + gamma * target).flatten(2).sum((0, 2))
@@ -527,7 +536,7 @@ def dice_loss(
 
     # Weight
     if weight is None:
-        loss = cast(Tensor, 1 - (1 + 1 / gamma) * dice_coeff.mean())
+        loss = 1 - (1 + 1 / gamma) * dice_coeff.mean()
     else:
         # Tensor type
         if weight.type() != x.data.type():
@@ -541,23 +550,26 @@ def poly_loss(
     x: Tensor,
     target: Tensor,
     eps: float = 2.0,
-    weight: Optional[Tensor] = None,
+    weight: Tensor | None = None,
     ignore_index: int = -100,
     reduction: str = "mean",
 ) -> Tensor:
-    """Implements the Poly1 loss from `"PolyLoss: A Polynomial Expansion Perspective of Classification Loss
-    Functions" <https://arxiv.org/pdf/2204.12511.pdf>`_.
+    """Implements the Poly1 loss from ["PolyLoss: A Polynomial Expansion Perspective of Classification Loss Functions"](https://arxiv.org/pdf/2204.12511.pdf).
 
     Args:
-        x (torch.Tensor[N, K, ...]): predicted probability
-        target (torch.Tensor[N, K, ...]): target probability
-        eps (float, optional): epsilon 1 from the paper
-        weight (torch.Tensor[K], optional): manual rescaling of each class
-        ignore_index (int, optional): specifies target value that is ignored and do not contribute to gradient
-        reduction (str, optional): reduction method
+        x: predicted probability of shape [N, K, ...]
+        target: target probability of shape [N, K, ...]
+        eps: epsilon 1 from the paper
+        weight: manual rescaling of each class of shape [K]
+        ignore_index: specifies target value that is ignored and do not contribute to gradient
+        reduction: reduction method
 
     Returns:
-        torch.Tensor: loss reduced with `reduction` method
+        loss reduced with `reduction` method
+
+    Raises:
+        TypeError: if the target dtype is not torch.int64
+        ValueError: if the target shape is invalid
     """
     # log(P[class]) = log_softmax(score)[class]
     # Shape (N, K, ...)
@@ -574,10 +586,10 @@ def poly_loss(
         if target.ndim != x.ndim or target.shape[0] != x.shape[0] or target.shape[1] != x.shape[1]:
             raise ValueError("invalid target shape")
         # Shape (N, K, ...)
-        logpt = logpt * target
+        logpt = target * logpt
 
     # Get P(class)
-    loss = cast(Tensor, -1 * logpt + eps * (1 - logpt.exp()))
+    loss = -1 * logpt + eps * (1 - logpt.exp())
 
     # Weight
     if isinstance(weight, Tensor):
@@ -604,10 +616,9 @@ def poly_loss(
         loss = loss[valid_idxs].sum() if target.ndim == x.ndim - 1 else loss[:, valid_idxs].sum()
     elif reduction == "mean":
         loss = loss[valid_idxs].mean() if target.ndim == x.ndim - 1 else loss[:, valid_idxs].sum(1).mean()
-    else:
-        # if no reduction, reshape tensor like target
-        # (N, ...)
-        if target.ndim == x.ndim:
-            loss = loss[:, valid_idxs].sum(1)
+    # if no reduction, reshape tensor like target
+    # (N, ...)
+    elif target.ndim == x.ndim:
+        loss = loss[:, valid_idxs].sum(1)
 
     return loss

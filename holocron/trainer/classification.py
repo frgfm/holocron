@@ -1,10 +1,11 @@
-# Copyright (C) 2019-2024, François-Guillaume Fernandez.
+# Copyright (C) 2019-2025, François-Guillaume Fernandez.
 
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
 import math
-from typing import Any, Dict, Sequence, Tuple, Union, cast
+from collections.abc import Sequence
+from typing import Any, cast
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -40,11 +41,11 @@ class ClassificationTrainer(Trainer):
     is_binary: bool = False
 
     @torch.inference_mode()
-    def evaluate(self) -> Dict[str, float]:
+    def evaluate(self) -> dict[str, float]:
         """Evaluate the model on the validation set
 
         Returns:
-            dict: evaluation metrics
+            evaluation metrics
         """
         self.model.eval()
 
@@ -52,7 +53,7 @@ class ClassificationTrainer(Trainer):
         for x, target in self.val_loader:
             x, target = self.to_cuda(x, target)
 
-            loss, out = self._get_loss(x, target, return_logits=True)
+            loss, out = self._get_loss(x, target, return_logits=True)  # ty: ignore[invalid-argument-type]
 
             # Safeguard for NaN loss
             if not torch.isnan(loss) and not torch.isinf(loss):
@@ -60,7 +61,7 @@ class ClassificationTrainer(Trainer):
                 num_valid_batches += 1
 
             pred = out.topk(5, dim=1)[1] if out.shape[1] >= 5 else out.argmax(dim=1, keepdim=True)
-            correct = pred.eq(target.view(-1, 1).expand_as(pred))
+            correct = pred.eq(target.view(-1, 1).expand_as(pred))  # ty: ignore[possibly-missing-attribute]
             top1 += cast(int, correct[:, 0].sum().item())
             if out.shape[1] >= 5:
                 top5 += cast(int, correct.any(dim=1).sum().item())
@@ -72,7 +73,7 @@ class ClassificationTrainer(Trainer):
         return {"val_loss": val_loss, "acc1": top1 / num_samples, "acc5": top5 / num_samples}
 
     @staticmethod
-    def _eval_metrics_str(eval_metrics: Dict[str, float]) -> str:
+    def _eval_metrics_str(eval_metrics: dict[str, float]) -> str:
         return (
             f"Validation loss: {eval_metrics['val_loss']:.4} "
             f"(Acc@1: {eval_metrics['acc1']:.2%}, Acc@5: {eval_metrics['acc5']:.2%})"
@@ -81,12 +82,24 @@ class ClassificationTrainer(Trainer):
     @torch.inference_mode()
     def plot_top_losses(
         self,
-        mean: Tuple[float, float, float],
-        std: Tuple[float, float, float],
-        classes: Union[Sequence[str], None] = None,
+        mean: tuple[float, float, float],
+        std: tuple[float, float, float],
+        classes: Sequence[str] | None = None,
         num_samples: int = 12,
         **kwargs: Any,
     ) -> None:
+        """Plot the top losses
+
+        Args:
+            mean: mean of the dataset
+            std: standard deviation of the dataset
+            classes: list of classes
+            num_samples: number of samples to plot
+            **kwargs: keyword args of [`matplotlib.pyplot.show`][matplotlib.pyplot.show]
+
+        Raises:
+            AssertionError: if the argument 'classes' is not specified for multi-class classification
+        """
         # Record loss, prob, target, image
         losses = np.zeros(num_samples, dtype=np.float32)
         preds = np.zeros(num_samples, dtype=int)
@@ -105,7 +118,7 @@ class ClassificationTrainer(Trainer):
             x, target = self.to_cuda(x, target)
 
             # Forward
-            batch_loss, logits = self._get_loss(x, target, return_logits=True)
+            batch_loss, logits = self._get_loss(x, target, return_logits=True)  # ty: ignore[invalid-argument-type]
 
             # Binary
             if self.is_binary:
@@ -123,7 +136,7 @@ class ClassificationTrainer(Trainer):
                 probs = np.concatenate((probs[kept_idcs], probs_.cpu().numpy()))
                 if not self.is_binary:
                     preds = np.concatenate((preds[kept_idcs], logits[added_idcs].argmax(dim=1).cpu().numpy()))
-                targets = np.concatenate((targets[kept_idcs], target[added_idcs].cpu().numpy()))
+                targets = np.concatenate((targets[kept_idcs], target[added_idcs].cpu().numpy()))  # ty: ignore[invalid-argument-type]
                 imgs = x[added_idcs].cpu() * torch.tensor(std).view(-1, 1, 1)
                 imgs += torch.tensor(mean).view(-1, 1, 1)
                 images = [images[idx] for idx in kept_idcs] + [to_pil_image(img) for img in imgs]
@@ -142,7 +155,7 @@ class ClassificationTrainer(Trainer):
         num_cols = 4
         num_rows = math.ceil(num_samples / num_cols)
         _, axes = plt.subplots(num_rows, num_cols, figsize=(20, 5))
-        for idx, (img, pred, prob, target, loss) in enumerate(zip(images, preds, probs, targets, losses)):
+        for idx, (img, pred, prob, target, loss) in enumerate(zip(images, preds, probs, targets, losses, strict=True)):
             row = int(idx / num_cols)
             col = idx - num_cols * row
             axes[row][col].imshow(img)
@@ -163,27 +176,27 @@ class BinaryClassificationTrainer(ClassificationTrainer):
     """Image binary classification trainer class.
 
     Args:
-        model (torch.nn.Module): model to train
-        train_loader (torch.utils.data.DataLoader): training loader
-        val_loader (torch.utils.data.DataLoader): validation loader
-        criterion (torch.nn.Module): loss criterion
-        optimizer (torch.optim.Optimizer): parameter optimizer
-        gpu (int, optional): index of the GPU to use
-        output_file (str, optional): path where checkpoints will be saved
-        amp (bool, optional): whether to use automatic mixed precision
+        model: model to train
+        train_loader: training loader
+        val_loader: validation loader
+        criterion: loss criterion
+        optimizer: parameter optimizer
+        gpu: index of the GPU to use
+        output_file: path where checkpoints will be saved
+        amp: whether to use automatic mixed precision
     """
 
     is_binary: bool = True
 
     def _get_loss(
         self, x: torch.Tensor, target: torch.Tensor, return_logits: bool = False
-    ) -> Union[Tensor, Tuple[Tensor, Tensor]]:
+    ) -> Tensor | tuple[Tensor, Tensor]:
         # In case target are stored as long
         target = target.to(dtype=x.dtype)
 
         # AMP
         if self.amp:
-            with torch.cuda.amp.autocast():
+            with torch.amp.autocast("cuda"):
                 # Forward
                 out = self.model(x)
                 # Loss computation
@@ -200,11 +213,11 @@ class BinaryClassificationTrainer(ClassificationTrainer):
         return loss
 
     @torch.inference_mode()
-    def evaluate(self) -> Dict[str, float]:
+    def evaluate(self) -> dict[str, float]:
         """Evaluate the model on the validation set
 
         Returns:
-            dict: evaluation metrics
+            evaluation metrics
         """
         self.model.eval()
 
@@ -212,14 +225,14 @@ class BinaryClassificationTrainer(ClassificationTrainer):
         for x, target in self.val_loader:
             x, target = self.to_cuda(x, target)
 
-            loss, out = self._get_loss(x, target, return_logits=True)
+            loss, out = self._get_loss(x, target, return_logits=True)  # ty: ignore[invalid-argument-type]
 
             # Safeguard for NaN loss
             if not torch.isnan(loss) and not torch.isinf(loss):
                 val_loss += loss.item()
                 num_valid_batches += 1
 
-            top1 += torch.sum((target.view_as(out) >= 0.5) == (torch.sigmoid(out) >= 0.5)).item() / out[0].numel()
+            top1 += torch.sum((target.view_as(out) >= 0.5) == (torch.sigmoid(out) >= 0.5)).item() / out[0].numel()  # ty: ignore[possibly-missing-attribute]
 
             num_samples += x.shape[0]
 
@@ -228,5 +241,5 @@ class BinaryClassificationTrainer(ClassificationTrainer):
         return {"val_loss": val_loss, "acc": top1 / num_samples}
 
     @staticmethod
-    def _eval_metrics_str(eval_metrics: Dict[str, float]) -> str:
+    def _eval_metrics_str(eval_metrics: dict[str, float]) -> str:
         return f"Validation loss: {eval_metrics['val_loss']:.4} (Acc: {eval_metrics['acc']:.2%})"

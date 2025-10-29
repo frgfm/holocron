@@ -1,14 +1,14 @@
-# Copyright (C) 2020-2024, François-Guillaume Fernandez.
+# Copyright (C) 2020-2025, François-Guillaume Fernandez.
 
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
 from collections import OrderedDict
+from collections.abc import Callable
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Type, Union
+from typing import Any
 
-import torch.nn as nn
-from torch import Tensor
+from torch import Tensor, nn
 
 from holocron.nn import GlobalAvgPool2d, init
 
@@ -36,7 +36,7 @@ __all__ = [
 ]
 
 
-default_cfgs: Dict[str, Dict[str, Any]] = {
+default_cfgs: dict[str, dict[str, Any]] = {
     "resnet18": {**IMAGENET.__dict__, "input_shape": (3, 224, 224), "url": None},
     "resnet34": {**IMAGENET.__dict__, "input_shape": (3, 224, 224), "url": None},
     "resnet50": {
@@ -60,14 +60,14 @@ class _ResBlock(nn.Module):
     expansion: int = 1
 
     def __init__(
-        self, convs: List[nn.Module], downsample: Optional[nn.Module] = None, act_layer: Optional[nn.Module] = None
+        self, convs: list[nn.Module], downsample: nn.Module | None = None, act_layer: nn.Module | None = None
     ) -> None:
         super().__init__()
 
         # Main branch
         self.conv = nn.Sequential(*convs)
         # Shortcut connection
-        self.downsample = downsample
+        self.downsample: nn.Module | None = downsample
 
         if isinstance(act_layer, nn.Module):
             self.activation = act_layer
@@ -95,14 +95,14 @@ class BasicBlock(_ResBlock):
         inplanes: int,
         planes: int,
         stride: int = 1,
-        downsample: Optional[nn.Module] = None,
+        downsample: nn.Module | None = None,
         groups: int = 1,
         base_width: int = 64,
         dilation: int = 1,
-        act_layer: Optional[nn.Module] = None,
-        norm_layer: Optional[Callable[[int], nn.Module]] = None,
-        drop_layer: Optional[Callable[..., nn.Module]] = None,
-        conv_layer: Optional[Callable[..., nn.Module]] = None,
+        act_layer: nn.Module | None = None,
+        norm_layer: Callable[[int], nn.Module] | None = None,
+        drop_layer: Callable[..., nn.Module] | None = None,
+        conv_layer: Callable[..., nn.Module] | None = None,
         **kwargs: Any,
     ) -> None:
         super().__init__(
@@ -151,14 +151,14 @@ class Bottleneck(_ResBlock):
         inplanes: int,
         planes: int,
         stride: int = 1,
-        downsample: Optional[nn.Module] = None,
+        downsample: nn.Module | None = None,
         groups: int = 1,
         base_width: int = 64,
         dilation: int = 1,
-        act_layer: Optional[nn.Module] = None,
-        norm_layer: Optional[Callable[[int], nn.Module]] = None,
-        drop_layer: Optional[Callable[..., nn.Module]] = None,
-        conv_layer: Optional[Callable[..., nn.Module]] = None,
+        act_layer: nn.Module | None = None,
+        norm_layer: Callable[[int], nn.Module] | None = None,
+        drop_layer: Callable[..., nn.Module] | None = None,
+        conv_layer: Callable[..., nn.Module] | None = None,
         **kwargs: Any,
     ) -> None:
         width = int(planes * (base_width / 64.0)) * groups
@@ -212,7 +212,7 @@ class Bottleneck(_ResBlock):
 class ChannelRepeat(nn.Module):
     def __init__(self, chan_repeats: int = 1) -> None:
         super().__init__()
-        self.chan_repeats = chan_repeats
+        self.chan_repeats: int = chan_repeats
 
     def forward(self, x: Tensor) -> Tensor:
         repeats = [1] * x.ndim
@@ -222,24 +222,24 @@ class ChannelRepeat(nn.Module):
 
 
 class ResNet(nn.Sequential):
-    def __init__(
+    def __init__(  # noqa: PLR0912
         self,
-        block: Type[Union[BasicBlock, Bottleneck]],
-        num_blocks: List[int],
-        planes: List[int],
+        block: type[BasicBlock | Bottleneck],
+        num_blocks: list[int],
+        planes: list[int],
         num_classes: int = 10,
         in_channels: int = 3,
         zero_init_residual: bool = False,
         width_per_group: int = 64,
-        conv_layer: Optional[Callable[..., nn.Module]] = None,
-        act_layer: Optional[nn.Module] = None,
-        norm_layer: Optional[Callable[[int], nn.Module]] = None,
-        drop_layer: Optional[Callable[..., nn.Module]] = None,
+        conv_layer: Callable[..., nn.Module] | None = None,
+        act_layer: nn.Module | None = None,
+        norm_layer: Callable[[int], nn.Module] | None = None,
+        drop_layer: Callable[..., nn.Module] | None = None,
         deep_stem: bool = False,
         stem_pool: bool = True,
         avg_downsample: bool = False,
         num_repeats: int = 1,
-        block_args: Optional[Union[Dict[str, Any], List[Dict[str, Any]]]] = None,
+        block_args: dict[str, Any] | list[dict[str, Any]] | None = None,
     ) -> None:
         if conv_layer is None:
             conv_layer = nn.Conv2d
@@ -247,7 +247,7 @@ class ResNet(nn.Sequential):
             norm_layer = nn.BatchNorm2d
         if act_layer is None:
             act_layer = nn.ReLU(inplace=True)
-        self.dilation = 1
+        self.dilation: int = 1
 
         in_planes = 64
         # Deep stem from ResNet-C
@@ -317,7 +317,7 @@ class ResNet(nn.Sequential):
             block_args = {"groups": 1}
         if not isinstance(block_args, list):
             block_args = [block_args] * len(num_blocks)
-        for _num_blocks, _planes, _block_args in zip(num_blocks, planes, block_args):
+        for _num_blocks, _planes, _block_args in zip(num_blocks, planes, block_args, strict=True):
             layers.append(
                 self._make_layer(
                     block,
@@ -352,25 +352,25 @@ class ResNet(nn.Sequential):
         if zero_init_residual:
             for m in self.modules():
                 if isinstance(m, Bottleneck):
-                    m.convs[2][1].weight.data.zero_()
+                    m.convs[2][1].weight.data.zero_()  # ty: ignore[non-subscriptable,possibly-missing-attribute]
                 elif isinstance(m, BasicBlock):
-                    m.convs[1][1].weight.data.zero_()
+                    m.convs[1][1].weight.data.zero_()  # ty: ignore[non-subscriptable,possibly-missing-attribute]
 
     @staticmethod
     def _make_layer(
-        block: Type[Union[BasicBlock, Bottleneck]],
+        block: type[BasicBlock | Bottleneck],
         num_blocks: int,
         in_planes: int,
         planes: int,
         stride: int = 1,
         width_per_group: int = 64,
-        act_layer: Optional[nn.Module] = None,
-        norm_layer: Optional[Callable[[int], nn.Module]] = None,
-        drop_layer: Optional[Callable[..., nn.Module]] = None,
-        conv_layer: Optional[Callable[..., nn.Module]] = None,
+        act_layer: nn.Module | None = None,
+        norm_layer: Callable[[int], nn.Module] | None = None,
+        drop_layer: Callable[..., nn.Module] | None = None,
+        conv_layer: Callable[..., nn.Module] | None = None,
         avg_downsample: bool = False,
         num_repeats: int = 1,
-        block_args: Optional[Dict[str, Any]] = None,
+        block_args: dict[str, Any] | None = None,
     ) -> nn.Sequential:
         downsample = None
         if stride != 1 or in_planes != planes * block.expansion:
@@ -438,11 +438,11 @@ class ResNet(nn.Sequential):
 
 
 def _resnet(
-    checkpoint: Union[Checkpoint, None],
+    checkpoint: Checkpoint | None,
     progress: bool,
-    block: Type[Union[BasicBlock, Bottleneck]],
-    num_blocks: List[int],
-    out_chans: List[int],
+    block: type[BasicBlock | Bottleneck],
+    num_blocks: list[int],
+    out_chans: list[int],
     **kwargs: Any,
 ) -> ResNet:
     # Build the model
@@ -471,24 +471,26 @@ class ResNet18_Checkpoint(Enum):
 
 def resnet18(
     pretrained: bool = False,
-    checkpoint: Union[Checkpoint, None] = None,
+    checkpoint: Checkpoint | None = None,
     progress: bool = True,
     **kwargs: Any,
 ) -> ResNet:
     """ResNet-18 from
-    `"Deep Residual Learning for Image Recognition" <https://arxiv.org/pdf/1512.03385.pdf>`_
+    ["Deep Residual Learning for Image Recognition"](https://arxiv.org/pdf/1512.03385.pdf)
 
     Args:
         pretrained: If True, returns a model pre-trained on ImageNet
         checkpoint: If specified, loads that checkpoint
         progress: If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _resnet
+        kwargs: keyword args of [`ResNet`][holocron.models.ResNet]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
 
-    .. autoclass:: holocron.models.ResNet18_Checkpoint
-        :members:
+    ::: holocron.models.ResNet18_Checkpoint
+        options:
+            heading_level: 4
+            show_if_no_docstring: true
     """
     checkpoint = _handle_legacy_pretrained(
         pretrained,
@@ -519,24 +521,26 @@ class ResNet34_Checkpoint(Enum):
 
 def resnet34(
     pretrained: bool = False,
-    checkpoint: Union[Checkpoint, None] = None,
+    checkpoint: Checkpoint | None = None,
     progress: bool = True,
     **kwargs: Any,
 ) -> ResNet:
     """ResNet-34 from
-    `"Deep Residual Learning for Image Recognition" <https://arxiv.org/pdf/1512.03385.pdf>`_
+    ["Deep Residual Learning for Image Recognition"](https://arxiv.org/pdf/1512.03385.pdf)
 
     Args:
         pretrained: If True, returns a model pre-trained on ImageNet
         checkpoint: If specified, load that checkpoint on the model
         progress: If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _resnet
+        kwargs: keyword args of [`ResNet`][holocron.models.ResNet]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
 
-    .. autoclass:: holocron.models.ResNet34_Checkpoint
-        :members:
+    ::: holocron.models.ResNet34_Checkpoint
+        options:
+            heading_level: 4
+            show_if_no_docstring: true
     """
     return _resnet(checkpoint, progress, BasicBlock, [3, 4, 6, 3], [64, 128, 256, 512], **kwargs)
 
@@ -562,24 +566,26 @@ class ResNet50_Checkpoint(Enum):
 
 def resnet50(
     pretrained: bool = False,
-    checkpoint: Union[Checkpoint, None] = None,
+    checkpoint: Checkpoint | None = None,
     progress: bool = True,
     **kwargs: Any,
 ) -> ResNet:
     """ResNet-50 from
-    `"Deep Residual Learning for Image Recognition" <https://arxiv.org/pdf/1512.03385.pdf>`_
+    ["Deep Residual Learning for Image Recognition"](https://arxiv.org/pdf/1512.03385.pdf)
 
     Args:
         pretrained: If True, returns a model pre-trained on ImageNet
         checkpoint: If specified, load that checkpoint on the model
         progress: If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _resnet
+        kwargs: keyword args of [`ResNet`][holocron.models.ResNet]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
 
-    .. autoclass:: holocron.models.ResNet50_Checkpoint
-        :members:
+    ::: holocron.models.ResNet50_Checkpoint
+        options:
+            heading_level: 4
+            show_if_no_docstring: true
     """
     checkpoint = _handle_legacy_pretrained(
         pretrained,
@@ -610,25 +616,27 @@ class ResNet50D_Checkpoint(Enum):
 
 def resnet50d(
     pretrained: bool = False,
-    checkpoint: Union[Checkpoint, None] = None,
+    checkpoint: Checkpoint | None = None,
     progress: bool = True,
     **kwargs: Any,
 ) -> ResNet:
     """ResNet-50-D from
-    `"Bag of Tricks for Image Classification with Convolutional Neural Networks"
+    ["Bag of Tricks for Image Classification with Convolutional Neural Networks"](https://arxiv.org/pdf/1812.01187.pdf)
     <https://arxiv.org/pdf/1812.01187.pdf>`_
 
     Args:
         pretrained: If True, returns a model pre-trained on ImageNet
         checkpoint: If specified, load that checkpoint on the model
         progress: If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _resnet
+        kwargs: keyword args of [`ResNet`][holocron.models.classification.resnet.ResNet]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
 
-    .. autoclass:: holocron.models.ResNet50D_Checkpoint
-        :members:
+    ::: holocron.models.ResNet50D_Checkpoint
+        options:
+            heading_level: 4
+            show_if_no_docstring: true
     """
     return _resnet(
         checkpoint,
@@ -644,12 +652,12 @@ def resnet50d(
 
 def resnet101(
     pretrained: bool = False,
-    checkpoint: Union[Checkpoint, None] = None,
+    checkpoint: Checkpoint | None = None,
     progress: bool = True,
     **kwargs: Any,
 ) -> ResNet:
     """ResNet-101 from
-    `"Deep Residual Learning for Image Recognition" <https://arxiv.org/pdf/1512.03385.pdf>`_
+    ["Deep Residual Learning for Image Recognition"](https://arxiv.org/pdf/1512.03385.pdf)
 
     Args:
         pretrained: If True, returns a model pre-trained on ImageNet
@@ -665,21 +673,21 @@ def resnet101(
 
 def resnet152(
     pretrained: bool = False,
-    checkpoint: Union[Checkpoint, None] = None,
+    checkpoint: Checkpoint | None = None,
     progress: bool = True,
     **kwargs: Any,
 ) -> ResNet:
     """ResNet-152 from
-    `"Deep Residual Learning for Image Recognition" <https://arxiv.org/pdf/1512.03385.pdf>`_
+    ["Deep Residual Learning for Image Recognition"](https://arxiv.org/pdf/1512.03385.pdf)
 
     Args:
         pretrained: If True, returns a model pre-trained on ImageNet
         checkpoint: If specified, load that checkpoint on the model
         progress: If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _resnet
+        kwargs: keyword args of [`ResNet`][holocron.models.classification.resnet.ResNet]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
     """
     return _resnet(checkpoint, progress, Bottleneck, [3, 8, 86, 3], [64, 128, 256, 512], **kwargs)
 
@@ -705,24 +713,26 @@ class ResNeXt50_32x4d_Checkpoint(Enum):
 
 def resnext50_32x4d(
     pretrained: bool = False,
-    checkpoint: Union[Checkpoint, None] = None,
+    checkpoint: Checkpoint | None = None,
     progress: bool = True,
     **kwargs: Any,
 ) -> ResNet:
     """ResNeXt-50 from
-    `"Aggregated Residual Transformations for Deep Neural Networks" <https://arxiv.org/pdf/1611.05431.pdf>`_
+    ["Aggregated Residual Transformations for Deep Neural Networks"](https://arxiv.org/pdf/1611.05431.pdf)
 
     Args:
         pretrained: If True, returns a model pre-trained on ImageNet
         checkpoint: If specified, load that checkpoint on the model
         progress: If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _resnet
+        kwargs: keyword args of [`ResNet`][holocron.models.ResNet]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
 
-    .. autoclass:: holocron.models.ResNeXt50_32x4d_Checkpoint
-        :members:
+    ::: holocron.models.ResNeXt50_32x4d_Checkpoint
+        options:
+            heading_level: 4
+            show_if_no_docstring: true
     """
     kwargs["width_per_group"] = 4
     block_args = {"groups": 32}
@@ -739,21 +749,21 @@ def resnext50_32x4d(
 
 def resnext101_32x8d(
     pretrained: bool = False,
-    checkpoint: Union[Checkpoint, None] = None,
+    checkpoint: Checkpoint | None = None,
     progress: bool = True,
     **kwargs: Any,
 ) -> ResNet:
     """ResNeXt-101 from
-    `"Aggregated Residual Transformations for Deep Neural Networks" <https://arxiv.org/pdf/1611.05431.pdf>`_
+    ["Aggregated Residual Transformations for Deep Neural Networks"](https://arxiv.org/pdf/1611.05431.pdf)
 
     Args:
         pretrained: If True, returns a model pre-trained on ImageNet
         checkpoint: If specified, load that checkpoint on the model
         progress: If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _resnet
+        kwargs: keyword args of [`ResNet`][holocron.models.classification.resnet.ResNet]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
     """
     kwargs["width_per_group"] = 8
     block_args = {"groups": 32}

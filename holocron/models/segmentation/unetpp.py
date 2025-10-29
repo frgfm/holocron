@@ -1,13 +1,14 @@
-# Copyright (C) 2020-2024, François-Guillaume Fernandez.
+# Copyright (C) 2020-2025, François-Guillaume Fernandez.
 
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
 import sys
-from typing import Any, Callable, Dict, List, Optional, cast
+from collections.abc import Callable
+from itertools import pairwise
+from typing import Any, cast
 
-import torch.nn as nn
-from torch import Tensor
+from torch import Tensor, nn
 
 from ...nn.init import init_module
 from ..utils import conv_sequence, load_pretrained_params
@@ -16,7 +17,7 @@ from .unet import UpPath, down_path
 __all__ = ["UNetp", "UNetpp", "unetp", "unetpp"]
 
 
-default_cfgs: Dict[str, Dict[str, Any]] = {
+default_cfgs: dict[str, dict[str, Any]] = {
     "unetp": {"arch": "UNetp", "layout": [64, 128, 256, 512], "url": None},
     "unetpp": {"arch": "UNetpp", "layout": [64, 128, 256, 512], "url": None},
 }
@@ -37,13 +38,13 @@ class UNetp(nn.Module):
 
     def __init__(
         self,
-        layout: List[int],
+        layout: list[int],
         in_channels: int = 3,
         num_classes: int = 10,
-        act_layer: Optional[nn.Module] = None,
-        norm_layer: Optional[Callable[[int], nn.Module]] = None,
-        drop_layer: Optional[Callable[..., nn.Module]] = None,
-        conv_layer: Optional[Callable[..., nn.Module]] = None,
+        act_layer: nn.Module | None = None,
+        norm_layer: Callable[[int], nn.Module] | None = None,
+        drop_layer: Callable[..., nn.Module] | None = None,
+        conv_layer: Callable[..., nn.Module] | None = None,
     ) -> None:
         super().__init__()
 
@@ -54,7 +55,7 @@ class UNetp(nn.Module):
         self.encoder = nn.ModuleList([])
         layout_ = [in_channels, *layout]
         pool = False
-        for in_chan, out_chan in zip(layout_[:-1], layout_[1:]):
+        for in_chan, out_chan in pairwise(layout_):
             self.encoder.append(down_path(in_chan, out_chan, pool, 1, act_layer, norm_layer, drop_layer, conv_layer))
             pool = True
 
@@ -70,8 +71,8 @@ class UNetp(nn.Module):
 
         # Expansive path
         self.decoder = nn.ModuleList([])
-        layout_ = [layout[-1]] + layout[1:][::-1]
-        for left_chan, up_chan, num_cells in zip(layout[::-1], layout_, range(1, len(layout) + 1)):
+        layout_ = [layout[-1], *layout[1:][::-1]]
+        for left_chan, up_chan, num_cells in zip(layout[::-1], layout_, range(1, len(layout) + 1), strict=True):
             self.decoder.append(
                 nn.ModuleList([
                     UpPath(left_chan + up_chan, left_chan, True, 1, act_layer, norm_layer, drop_layer, conv_layer)
@@ -85,7 +86,7 @@ class UNetp(nn.Module):
         init_module(self, "relu")
 
     def forward(self, x: Tensor) -> Tensor:
-        xs: List[Tensor] = []
+        xs: list[Tensor] = []
         # Contracting path
         for encoder in self.encoder:
             xs.append(encoder(xs[-1] if len(xs) > 0 else x))
@@ -116,13 +117,13 @@ class UNetpp(nn.Module):
 
     def __init__(
         self,
-        layout: List[int],
+        layout: list[int],
         in_channels: int = 3,
         num_classes: int = 10,
-        act_layer: Optional[nn.Module] = None,
-        norm_layer: Optional[Callable[[int], nn.Module]] = None,
-        drop_layer: Optional[Callable[..., nn.Module]] = None,
-        conv_layer: Optional[Callable[..., nn.Module]] = None,
+        act_layer: nn.Module | None = None,
+        norm_layer: Callable[[int], nn.Module] | None = None,
+        drop_layer: Callable[..., nn.Module] | None = None,
+        conv_layer: Callable[..., nn.Module] | None = None,
     ) -> None:
         super().__init__()
 
@@ -133,7 +134,7 @@ class UNetpp(nn.Module):
         self.encoder = nn.ModuleList([])
         layout_ = [in_channels, *layout]
         pool = False
-        for in_chan, out_chan in zip(layout_[:-1], layout_[1:]):
+        for in_chan, out_chan in pairwise(layout_):
             self.encoder.append(down_path(in_chan, out_chan, pool, 1, act_layer, norm_layer, drop_layer, conv_layer))
             pool = True
 
@@ -149,8 +150,8 @@ class UNetpp(nn.Module):
 
         # Expansive path
         self.decoder = nn.ModuleList([])
-        layout_ = [layout[-1]] + layout[1:][::-1]
-        for left_chan, up_chan, num_cells in zip(layout[::-1], layout_, range(1, len(layout) + 1)):
+        layout_ = [layout[-1], *layout[1:][::-1]]
+        for left_chan, up_chan, num_cells in zip(layout[::-1], layout_, range(1, len(layout) + 1), strict=True):
             self.decoder.append(
                 nn.ModuleList([
                     UpPath(
@@ -173,7 +174,7 @@ class UNetpp(nn.Module):
         init_module(self, "relu")
 
     def forward(self, x: Tensor) -> Tensor:
-        xs: List[List[Tensor]] = []
+        xs: list[list[Tensor]] = []
         # Contracting path
         for encoder in self.encoder:
             xs.append([encoder(xs[-1][0] if len(xs) > 0 else x)])
@@ -203,16 +204,14 @@ def _unet(arch: str, pretrained: bool, progress: bool, **kwargs: Any) -> nn.Modu
 
 
 def unetp(pretrained: bool = False, progress: bool = True, **kwargs: Any) -> UNetp:
-    """UNet+ from `"UNet++: Redesigning Skip Connections to Exploit Multiscale Features in Image Segmentation"
-    <https://arxiv.org/pdf/1912.05074.pdf>`_
+    """UNet+ from ["UNet++: Redesigning Skip Connections to Exploit Multiscale Features in Image Segmentation"](https://arxiv.org/pdf/1912.05074.pdf)
 
-    .. image:: https://github.com/frgfm/Holocron/releases/download/v0.1.3/unetp.png
-        :align: center
+    ![UNet+ architecture](https://github.com/frgfm/Holocron/releases/download/v0.1.3/unetp.png)
 
     Args:
         pretrained: If True, returns a model pre-trained on PASCAL VOC2012
         progress: If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _unet
+        kwargs: keyword args of [`UNetp`][holocron.models.segmentation.unetpp.UNetp]
 
     Returns:
         semantic segmentation model
@@ -221,16 +220,14 @@ def unetp(pretrained: bool = False, progress: bool = True, **kwargs: Any) -> UNe
 
 
 def unetpp(pretrained: bool = False, progress: bool = True, **kwargs: Any) -> UNetpp:
-    """UNet++ from `"UNet++: Redesigning Skip Connections to Exploit Multiscale Features in Image Segmentation"
-    <https://arxiv.org/pdf/1912.05074.pdf>`_
+    """UNet++ from ["UNet++: Redesigning Skip Connections to Exploit Multiscale Features in Image Segmentation"](https://arxiv.org/pdf/1912.05074.pdf)
 
-    .. image:: https://github.com/frgfm/Holocron/releases/download/v0.1.3/unetpp.png
-        :align: center
+    ![UNet++ architecture](https://github.com/frgfm/Holocron/releases/download/v0.1.3/unetpp.png)
 
     Args:
         pretrained: If True, returns a model pre-trained on PASCAL VOC2012
         progress: If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _unet
+        kwargs: keyword args of [`UNetpp`][holocron.models.segmentation.unetpp.UNetpp]
 
     Returns:
         semantic segmentation model

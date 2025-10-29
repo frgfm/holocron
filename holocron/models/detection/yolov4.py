@@ -1,14 +1,14 @@
-# Copyright (C) 2020-2024, François-Guillaume Fernandez.
+# Copyright (C) 2020-2025, François-Guillaume Fernandez.
 
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from collections.abc import Callable
+from typing import Any
 
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
-from torch import Tensor
+from torch import Tensor, nn
 from torchvision.ops.boxes import box_iou, nms
 from torchvision.ops.misc import FrozenBatchNorm2d
 
@@ -32,20 +32,20 @@ class PAN(nn.Module):
     """PAN layer from `"Path Aggregation Network for Instance Segmentation" <https://arxiv.org/pdf/1803.01534.pdf>`_.
 
     Args:
-        in_channels (int): input channels
-        act_layer (torch.nn.Module, optional): activation layer to be used
-        norm_layer (callable, optional): normalization layer
-        drop_layer (callable, optional): regularization layer
-        conv_layer (callable, optional): convolutional layer
+        in_channels: input channels
+        act_layer: activation layer to be used
+        norm_layer: normalization layer
+        drop_layer: regularization layer
+        conv_layer: convolutional layer
     """
 
     def __init__(
         self,
         in_channels: int,
-        act_layer: Optional[nn.Module] = None,
-        norm_layer: Optional[Callable[[int], nn.Module]] = None,
-        drop_layer: Optional[Callable[..., nn.Module]] = None,
-        conv_layer: Optional[Callable[..., nn.Module]] = None,
+        act_layer: nn.Module | None = None,
+        norm_layer: Callable[[int], nn.Module] | None = None,
+        drop_layer: Callable[..., nn.Module] | None = None,
+        conv_layer: Callable[..., nn.Module] | None = None,
     ) -> None:
         super().__init__()
 
@@ -142,11 +142,11 @@ class PAN(nn.Module):
 class Neck(nn.Module):
     def __init__(
         self,
-        in_planes: List[int],
-        act_layer: Optional[nn.Module] = None,
-        norm_layer: Optional[Callable[[int], nn.Module]] = None,
-        drop_layer: Optional[Callable[..., nn.Module]] = None,
-        conv_layer: Optional[Callable[..., nn.Module]] = None,
+        in_planes: list[int],
+        act_layer: nn.Module | None = None,
+        norm_layer: Callable[[int], nn.Module] | None = None,
+        drop_layer: Callable[..., nn.Module] | None = None,
+        conv_layer: Callable[..., nn.Module] | None = None,
     ) -> None:
         super().__init__()
 
@@ -220,7 +220,7 @@ class Neck(nn.Module):
         self.pan2 = PAN(in_planes[2], act_layer, norm_layer, drop_layer, conv_layer)
         init_module(self, "leaky_relu")
 
-    def forward(self, feats: List[Tensor]) -> Tuple[Tensor, Tensor, Tensor]:
+    def forward(self, feats: list[Tensor]) -> tuple[Tensor, Tensor, Tensor]:
         out = self.fpn(feats[2])
 
         aux1 = self.pan1(out, feats[1])
@@ -247,26 +247,26 @@ class YoloLayer(nn.Module):
         ignore_thresh: float = 0.5,
     ) -> None:
         super().__init__()
-        self.num_classes = num_classes
+        self.num_classes: int = num_classes
         self.register_buffer("anchors", anchors)
 
-        self.rpn_nms_thresh = rpn_nms_thresh
-        self.box_score_thresh = box_score_thresh
-        self.ignore_thresh = ignore_thresh
-        self.lambda_obj = lambda_obj
-        self.lambda_noobj = lambda_noobj
-        self.lambda_class = lambda_class
-        self.lambda_coords = lambda_coords
+        self.rpn_nms_thresh: float = rpn_nms_thresh
+        self.box_score_thresh: float = box_score_thresh
+        self.ignore_thresh: float = ignore_thresh
+        self.lambda_obj: float = lambda_obj
+        self.lambda_noobj: float = lambda_noobj
+        self.lambda_class: float = lambda_class
+        self.lambda_coords: float = lambda_coords
 
         # cf. https://github.com/AlexeyAB/darknet/blob/master/cfg/yolov4.cfg#L1150
-        self.scale_xy = scale_xy
+        self.scale_xy: float = scale_xy
         # cf. https://github.com/AlexeyAB/darknet/blob/master/cfg/yolov4.cfg#L1151
-        self.iou_thresh = iou_thresh
+        self.iou_thresh: float = iou_thresh
 
     def extra_repr(self) -> str:
         return f"num_classes={self.num_classes}, scale_xy={self.scale_xy}"
 
-    def _format_outputs(self, output: Tensor) -> Tuple[Tensor, Tensor, Tensor]:
+    def _format_outputs(self, output: Tensor) -> tuple[Tensor, Tensor, Tensor]:
         b, _, h, w = output.shape
 
         self.anchors: Tensor
@@ -302,7 +302,7 @@ class YoloLayer(nn.Module):
     @staticmethod
     def post_process(
         boxes: Tensor, b_o: Tensor, b_scores: Tensor, rpn_nms_thresh: float = 0.7, box_score_thresh: float = 0.05
-    ) -> List[Dict[str, Tensor]]:
+    ) -> list[dict[str, Tensor]]:
         b_o = torch.sigmoid(b_o)
         b_scores = torch.sigmoid(b_scores)
 
@@ -336,8 +336,8 @@ class YoloLayer(nn.Module):
         return detections
 
     def _build_targets(
-        self, pred_boxes: Tensor, b_o: Tensor, b_scores: Tensor, target: List[Dict[str, Tensor]]
-    ) -> Tuple[Tensor, Tensor, Tensor, Tensor]:
+        self, pred_boxes: Tensor, b_o: Tensor, b_scores: Tensor, target: list[dict[str, Tensor]]
+    ) -> tuple[Tensor, Tensor, Tensor, Tensor]:
         b, h, w, num_anchors = b_o.shape
 
         # Target formatting
@@ -392,8 +392,8 @@ class YoloLayer(nn.Module):
         pred_boxes: Tensor,
         b_o: Tensor,
         b_scores: Tensor,
-        target: List[Dict[str, Tensor]],
-    ) -> Dict[str, Tensor]:
+        target: list[dict[str, Tensor]],
+    ) -> dict[str, Tensor]:
         target_o, target_scores, obj_mask, noobj_mask = self._build_targets(pred_boxes, b_o, b_scores, target)
 
         # Bbox regression
@@ -420,8 +420,8 @@ class YoloLayer(nn.Module):
         }
 
     def forward(
-        self, x: Tensor, target: Optional[List[Dict[str, Tensor]]] = None
-    ) -> Union[Dict[str, Tensor], List[Dict[str, Tensor]]]:
+        self, x: Tensor, target: list[dict[str, Tensor]] | None = None
+    ) -> dict[str, Tensor] | list[dict[str, Tensor]]:
         """Perform detection on an image tensor and returns either the loss dictionary in training mode
         or the list of detections in eval mode.
 
@@ -429,6 +429,12 @@ class YoloLayer(nn.Module):
             x (torch.Tensor[N, 3, H, W]): input image tensor
             target (list<dict>, optional): each dict must have two keys `boxes` of type torch.Tensor[*, 4]
                 and `labels` of type torch.Tensor[*]
+
+        Returns:
+            loss dictionary in training mode or list of detections in eval mode
+
+        Raises:
+            ValueError: if `target` is not specified in training mode
         """
         if self.training and target is None:
             raise ValueError("`target` needs to be specified in training mode")
@@ -446,11 +452,11 @@ class Yolov4Head(nn.Module):
     def __init__(
         self,
         num_classes: int = 80,
-        anchors: Optional[Tensor] = None,
-        act_layer: Optional[nn.Module] = None,
-        norm_layer: Optional[Callable[[int], nn.Module]] = None,
-        drop_layer: Optional[Callable[..., nn.Module]] = None,
-        conv_layer: Optional[Callable[..., nn.Module]] = None,
+        anchors: Tensor | None = None,
+        act_layer: nn.Module | None = None,
+        norm_layer: Callable[[int], nn.Module] | None = None,
+        drop_layer: Callable[..., nn.Module] | None = None,
+        conv_layer: Callable[..., nn.Module] | None = None,
     ) -> None:
         # cf. https://github.com/AlexeyAB/darknet/blob/master/cfg/yolov4.cfg#L1143
         if anchors is None:
@@ -609,8 +615,8 @@ class Yolov4Head(nn.Module):
         self.head3[-1].bias.data.zero_()
 
     def forward(
-        self, feats: List[Tensor], target: Optional[List[Dict[str, Tensor]]] = None
-    ) -> Union[List[Dict[str, Tensor]], Dict[str, Tensor]]:
+        self, feats: list[Tensor], target: list[dict[str, Tensor]] | None = None
+    ) -> list[dict[str, Tensor]] | dict[str, Tensor]:
         o1 = self.head1(feats[0])
 
         h2 = self.pre_head2(feats[0])
@@ -634,7 +640,7 @@ class Yolov4Head(nn.Module):
                     "scores": torch.cat((det1["scores"], det2["scores"], det3["scores"]), dim=0),
                     "labels": torch.cat((det1["labels"], det2["labels"], det3["labels"]), dim=0),
                 }
-                for det1, det2, det3 in zip(y1, y2, y3)
+                for det1, det2, det3 in zip(y1, y2, y3, strict=True)
             ]
 
         return {k: y1[k] + y2[k] + y3[k] for k in y1}
@@ -643,16 +649,16 @@ class Yolov4Head(nn.Module):
 class YOLOv4(nn.Module):
     def __init__(
         self,
-        layout: List[Tuple[int, int]],
+        layout: list[tuple[int, int]],
         num_classes: int = 80,
         in_channels: int = 3,
         stem_channels: int = 32,
-        anchors: Optional[Tensor] = None,
-        act_layer: Optional[nn.Module] = None,
-        norm_layer: Optional[Callable[[int], nn.Module]] = None,
-        drop_layer: Optional[Callable[..., nn.Module]] = None,
-        conv_layer: Optional[Callable[..., nn.Module]] = None,
-        backbone_norm_layer: Optional[Callable[[int], nn.Module]] = None,
+        anchors: Tensor | None = None,
+        act_layer: nn.Module | None = None,
+        norm_layer: Callable[[int], nn.Module] | None = None,
+        drop_layer: Callable[..., nn.Module] | None = None,
+        conv_layer: Callable[..., nn.Module] | None = None,
+        backbone_norm_layer: Callable[[int], nn.Module] | None = None,
     ) -> None:
         super().__init__()
 
@@ -678,8 +684,8 @@ class YOLOv4(nn.Module):
         init_module(self.head, "leaky_relu")
 
     def forward(
-        self, x: Tensor, target: Optional[List[Dict[str, Tensor]]] = None
-    ) -> Union[List[Dict[str, Tensor]], Dict[str, Tensor]]:
+        self, x: Tensor, target: list[dict[str, Tensor]] | None = None
+    ) -> list[dict[str, Tensor]] | dict[str, Tensor]:
         if not isinstance(x, torch.Tensor):
             x = torch.stack(x, dim=0)
 
@@ -695,7 +701,7 @@ def _yolo(
     pretrained: bool,
     progress: bool,
     pretrained_backbone: bool,
-    layout: List[Tuple[int, int]],
+    layout: list[tuple[int, int]],
     **kwargs: Any,
 ) -> YOLOv4:
     if pretrained:
@@ -721,35 +727,35 @@ def _yolo(
 
 def yolov4(pretrained: bool = False, progress: bool = True, pretrained_backbone: bool = True, **kwargs: Any) -> YOLOv4:
     r"""YOLOv4 model from
-    `"YOLOv4: Optimal Speed and Accuracy of Object Detection" <https://arxiv.org/pdf/2004.10934.pdf>`_.
+    ["YOLOv4: Optimal Speed and Accuracy of Object Detection"](https://arxiv.org/pdf/2004.10934.pdf).
 
-    The architecture improves upon YOLOv3 by including: the usage of `DropBlock
-    <https://arxiv.org/pdf/1810.12890.pdf>`_ regularization, `Mish <https://arxiv.org/pdf/1908.08681.pdf>`_ activation,
-    `CSP <https://arxiv.org/pdf/2004.10934.pdf>`_ and `SAM <https://arxiv.org/pdf/1807.06521.pdf>`_ in the
-    backbone, `SPP <https://arxiv.org/pdf/1406.4729.pdf>`_ and `PAN <https://arxiv.org/pdf/1803.01534.pdf>`_ in the
+    The architecture improves upon YOLOv3 by including: the usage of [DropBlock](https://arxiv.org/pdf/1810.12890.pdf) regularization, [Mish](https://arxiv.org/pdf/1908.08681.pdf) activation, [CSP](https://arxiv.org/pdf/2004.10934.pdf) and [SAM](https://arxiv.org/pdf/1807.06521.pdf) in the
+    backbone, [SPP](https://arxiv.org/pdf/1406.4729.pdf) and [PAN](https://arxiv.org/pdf/1803.01534.pdf) in the
     neck.
 
     For training, YOLOv4 uses the same multi-part loss as YOLOv3 apart from its box coordinate loss:
 
-    .. math::
+    $$
         \mathcal{L}_{coords} = \sum\limits_{i=0}^{S^2}  \sum\limits_{j=0}^{B}
         \min\limits_{k \in [1, M]} C_{IoU}(\hat{loc}_{ij}, loc^{GT}_k)
+    $$
 
-    where :math:`S` is size of the output feature map (13 for an input size :math:`(416, 416)`),
-    :math:`B` is the number of anchor boxes per grid cell (default: 3),
-    :math:`M` is the number of ground truth boxes,
-    :math:`C_{IoU}` is the complete IoU loss,
-    :math:`\hat{loc}_{ij}` is the predicted bounding box for grid cell :math:`i` at anchor :math:`j`,
-    and :math:`loc^{GT}_k` is the k-th ground truth bounding box.
+    where:
+    - $S$ is size of the output feature map (13 for an input size $(416, 416)$),
+    - $B$ is the number of anchor boxes per grid cell (default: 3),
+    - $M$ is the number of ground truth boxes,
+    - $C_{IoU}$ is the complete IoU loss,
+    - $\hat{loc}_{ij}$ is the predicted bounding box for grid cell $i$ at anchor $j$,
+    and $loc^{GT}_k$ is the k-th ground truth bounding box.
 
     Args:
-        pretrained (bool, optional): If True, returns a model pre-trained on ImageNet
-        progress (bool, optional): If True, displays a progress bar of the download to stderr
-        pretrained_backbone (bool, optional): If True, backbone parameters will have been pretrained on Imagenette
-        kwargs: keyword args of _yolo
+        pretrained: If True, returns a model pre-trained on ImageNet
+        progress: If True, displays a progress bar of the download to stderr
+        pretrained_backbone: If True, backbone parameters will have been pretrained on Imagenette
+        kwargs: keyword args of [`YOLOv4`][holocron.models.detection.yolov4.YOLOv4]
 
     Returns:
-        torch.nn.Module: detection module
+        detection module
     """
     if pretrained_backbone:
         kwargs["backbone_norm_layer"] = FrozenBatchNorm2d

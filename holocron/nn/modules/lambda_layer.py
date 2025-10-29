@@ -1,9 +1,8 @@
-# Copyright (C) 2019-2024, François-Guillaume Fernandez.
+# Copyright (C) 2019-2025, François-Guillaume Fernandez.
 
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
-from typing import Optional
 
 import torch
 import torch.nn.functional as F
@@ -13,21 +12,18 @@ __all__ = ["LambdaLayer"]
 
 
 class LambdaLayer(nn.Module):
-    """Lambda layer from `"LambdaNetworks: Modeling long-range interactions without attention"
-    <https://openreview.net/pdf?id=xTJEN-ggl1b>`_. The implementation was adapted from `lucidrains'
-    <https://github.com/lucidrains/lambda-networks/blob/main/lambda_networks/lambda_networks.py>`_.
+    """Lambda layer from ["LambdaNetworks: Modeling long-range interactions without attention"](https://openreview.net/pdf?id=xTJEN-ggl1b). The implementation was adapted from [lucidrains](https://github.com/lucidrains/lambda-networks/blob/main/lambda_networks/lambda_networks.py).
 
-    .. image:: https://github.com/frgfm/Holocron/releases/download/v0.1.3/lambdalayer.png
-        :align: center
+    ![Lambda Layer](https://github.com/frgfm/Holocron/releases/download/v0.1.3/lambdalayer.png)
 
     Args:
-        in_channels (int): input channels
-        out_channels (int, optional): output channels
-        dim_k (int): key dimension
-        n (int, optional): number of input pixels
-        r (int, optional): receptive field for relative positional encoding
-        num_heads (int, optional): number of attention heads
-        dim_u (int, optional): intra-depth dimension
+        in_channels: input channels
+        out_channels: output channels
+        dim_k: key dimension
+        n: number of input pixels
+        r: receptive field for relative positional encoding
+        num_heads: number of attention heads
+        dim_u: intra-depth dimension
     """
 
     def __init__(
@@ -35,14 +31,14 @@ class LambdaLayer(nn.Module):
         in_channels: int,
         out_channels: int,
         dim_k: int,
-        n: Optional[int] = None,
-        r: Optional[int] = None,
+        n: int | None = None,
+        r: int | None = None,
         num_heads: int = 4,
         dim_u: int = 1,
     ) -> None:
         super().__init__()
-        self.u = dim_u
-        self.num_heads = num_heads
+        self.u: int = dim_u
+        self.num_heads: int = num_heads
 
         if out_channels % num_heads != 0:
             raise AssertionError("values dimension must be divisible by number of heads for multi-head query")
@@ -56,11 +52,11 @@ class LambdaLayer(nn.Module):
         self.norm_q = nn.BatchNorm2d(dim_k * num_heads)
         self.norm_v = nn.BatchNorm2d(dim_v * dim_u)
 
-        self.local_contexts = r is not None
+        self.local_contexts: bool = r is not None
         if r is not None:
             if r % 2 != 1:
                 raise AssertionError("Receptive kernel size should be odd")
-            self.padding = r // 2
+            self.padding: int = r // 2
             self.R = nn.Parameter(torch.randn(dim_k, dim_u, 1, r, r))
         else:
             if n is None:
@@ -90,18 +86,18 @@ class LambdaLayer(nn.Module):
         k = k.softmax(dim=-1)
 
         # Content function
-        λc = einsum("b u k m, b u v m -> b k v", k, v)
-        Yc = einsum("b h k n, b k v -> b n h v", q, λc)
+        lambda_c = einsum("b u k m, b u v m -> b k v", k, v)
+        Yc = einsum("b h k n, b k v -> b n h v", q, lambda_c)
 
         # Position function
         if self.local_contexts:
             # B x dim_u x dim_v x (H * W) -> B x dim_u x dim_v x H x W
             v = v.reshape(b, self.u, v.shape[2], h, w)
-            λp = F.conv3d(v, self.R, padding=(0, self.padding, self.padding))
-            Yp = einsum("b h k n, b k v n -> b n h v", q, λp.flatten(3))
+            lambda_p = F.conv3d(v, self.R, padding=(0, self.padding, self.padding))
+            Yp = einsum("b h k n, b k v n -> b n h v", q, lambda_p.flatten(3))
         else:
-            λp = einsum("n m k u, b u v m -> b n k v", self.pos_emb, v)
-            Yp = einsum("b h k n, b n k v -> b n h v", q, λp)
+            lambda_p = einsum("n m k u, b u v m -> b n k v", self.pos_emb, v)
+            Yp = einsum("b h k n, b n k v -> b n h v", q, lambda_p)
 
         Y = Yc + Yp
         # B x (H * W) x num_heads x dim_v -> B x (num_heads * dim_v) x H x W

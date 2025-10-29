@@ -1,0 +1,66 @@
+name: quality
+
+on:
+  pull_request:
+    branches: main
+
+env:
+  UV_VERSION: "0.9.5"
+  PYTHON_VERSION: "3.11"
+
+
+jobs:
+  astral:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          architecture: x64
+      - uses: astral-sh/setup-uv@v7
+        with:
+          version: ${{ env.UV_VERSION }}
+          activate-environment: true
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/uv
+          key: uv-${{ runner.os }}-${{ hashFiles('pyproject.toml') }}
+      - name: Run ruff
+        env:
+          UV_TORCH_BACKEND: cpu
+        run: |
+          make install-quality
+          ruff --version
+          make lint-check
+      - name: Run ty
+        run: make typing-check
+
+  deps-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          architecture: x64
+      - uses: astral-sh/setup-uv@v7
+        with:
+          version: ${{ env.UV_VERSION }}
+      - name: Run dependency sync checker
+        run: make deps-check
+
+  headers:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - name: Check the headers
+        uses: frgfm/validate-python-headers@main
+        with:
+          license: 'Apache-2.0'
+          owner: 'François-Guillaume Fernandez'
+          starting-year: 2019
+          folders: 'holocron,scripts,references,api/app,demo,docs,.github'
+          ignore-files: '__init__.py'

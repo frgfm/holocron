@@ -1,9 +1,8 @@
-# Copyright (C) 2019-2024, François-Guillaume Fernandez.
+# Copyright (C) 2019-2025, François-Guillaume Fernandez.
 
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
-from typing import Tuple
 
 import torch
 from torch import Tensor
@@ -15,7 +14,7 @@ __all__ = ["Mixup"]
 
 class Mixup(torch.nn.Module):
     """Implements a batch collate function with MixUp strategy from
-    `"mixup: Beyond Empirical Risk Minimization" <https://arxiv.org/pdf/1710.09412.pdf>`_.
+    ["mixup: Beyond Empirical Risk Minimization"](https://arxiv.org/pdf/1710.09412.pdf).
 
     >>> import torch
     >>> from torch.utils.data._utils.collate import default_collate
@@ -30,12 +29,12 @@ class Mixup(torch.nn.Module):
 
     def __init__(self, num_classes: int, alpha: float = 0.2) -> None:
         super().__init__()
-        self.num_classes = num_classes
+        self.num_classes: int = num_classes
         if alpha < 0:
             raise ValueError("`alpha` only takes positive values")
-        self.alpha = alpha
+        self.alpha: float = alpha
 
-    def forward(self, inputs: Tensor, targets: Tensor) -> Tuple[Tensor, Tensor]:
+    def forward(self, inputs: Tensor, targets: Tensor) -> tuple[Tensor, Tensor]:  # noqa: D102
         # Convert target to one-hot
         if targets.ndim == 1:
             # (N,) --> (N, C)

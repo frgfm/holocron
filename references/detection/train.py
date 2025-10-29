@@ -1,16 +1,15 @@
-# Copyright (C) 2019-2024, François-Guillaume Fernandez.
+# Copyright (C) 2019-2025, François-Guillaume Fernandez.
 
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
-"""
-Training script for object detection
-"""
+"""Training script for object detection"""
 
 import datetime
 import math
 import os
 import time
+from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -20,10 +19,10 @@ import wandb
 from codecarbon import track_emissions
 from matplotlib.patches import Rectangle
 from torch.utils.data import RandomSampler, SequentialSampler
-from torchvision import transforms as T
 from torchvision.datasets import VOCDetection
 from torchvision.models import detection as tv_detection
-from torchvision.transforms.functional import InterpolationMode, to_pil_image
+from torchvision.transforms import v2 as T
+from torchvision.transforms.v2.functional import InterpolationMode, to_pil_image
 from transforms import Compose, ImageTransform, RandomHorizontalFlip, Resize, VOCTargetTransform, convert_to_relative
 
 import holocron
@@ -242,7 +241,7 @@ def main(args):
         return
 
     # Training monitoring
-    current_time = datetime.datetime.now(tz=datetime.timezone.utc).strftime("%Y%m%d-%H%M%S")
+    current_time = datetime.datetime.now(tz=datetime.UTC).strftime("%Y%m%d-%H%M%S")
     exp_name = f"{args.arch}-{current_time}" if args.name is None else args.name
 
     # W&B
@@ -275,11 +274,7 @@ def main(args):
 
 
 def get_parser():
-    import argparse
-
-    parser = argparse.ArgumentParser(
-        description="Holocron Detection Training", formatter_class=argparse.ArgumentDefaultsHelpFormatter
-    )
+    parser = ArgumentParser(description="Holocron Detection Training", formatter_class=ArgumentDefaultsHelpFormatter)
 
     # Data & model
     group = parser.add_argument_group("Data & model")

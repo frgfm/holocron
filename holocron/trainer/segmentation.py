@@ -1,9 +1,9 @@
-# Copyright (C) 2019-2024, François-Guillaume Fernandez.
+# Copyright (C) 2019-2025, François-Guillaume Fernandez.
 
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
-from typing import Any, Dict
+from typing import Any
 
 import torch
 
@@ -16,19 +16,9 @@ class SegmentationTrainer(Trainer):
     """Semantic segmentation trainer class.
 
     Args:
-        model: model to train
-        train_loader: training loader
-        val_loader: validation loader
-        criterion: loss criterion
-        optimizer: parameter optimizer
-        gpu: index of the GPU to use
-        output_file: path where checkpoints will be saved
-        amp: whether to use automatic mixed precision
-        skip_nan_loss: whether the optimizer step should be skipped when the loss is NaN
-        nan_tolerance: number of consecutive batches with NaN loss before stopping the training
-        gradient_acc: number of batches to accumulate the gradient of before performing the update step
-        gradient_clip: the gradient clip value
-        on_epoch_end: callback triggered at the end of an epoch
+        *args: args of [`Trainer`][holocron.trainer.core.Trainer]
+        num_classes: number of output classes
+        **kwargs: keyword args of [`Trainer`][holocron.trainer.core.Trainer]
     """
 
     def __init__(self, *args: Any, num_classes: int = 10, **kwargs: Any) -> None:
@@ -36,14 +26,14 @@ class SegmentationTrainer(Trainer):
         self.num_classes = num_classes
 
     @torch.inference_mode()
-    def evaluate(self, ignore_index: int = 255) -> Dict[str, float]:
+    def evaluate(self, ignore_index: int = 255) -> dict[str, float]:
         """Evaluate the model on the validation set
 
         Args:
-            ignore_index (int, optional): index of the class to ignore in evaluation
+            ignore_index: index of the class to ignore in evaluation
 
         Returns:
-            dict: evaluation metrics
+            evaluation metrics
         """
         self.model.eval()
 
@@ -54,7 +44,7 @@ class SegmentationTrainer(Trainer):
         for x, target in self.val_loader:
             x, target = self.to_cuda(x, target)
 
-            loss, out = self._get_loss(x, target, return_logits=True)
+            loss, out = self._get_loss(x, target, return_logits=True)  # ty: ignore[invalid-argument-type]
 
             # Safeguard for NaN loss
             if not torch.isnan(loss) and not torch.isinf(loss):
@@ -63,7 +53,7 @@ class SegmentationTrainer(Trainer):
 
             # borrowed from https://github.com/pytorch/vision/blob/master/references/segmentation/train.py
             pred = out.argmax(dim=1).flatten()
-            target = target.flatten()
+            target = target.flatten()  # ty: ignore[possibly-missing-attribute]
             k = (target >= 0) & (target < self.num_classes)
             inds = self.num_classes * target[k].to(torch.int64) + pred[k]
             nc = self.num_classes
@@ -76,7 +66,7 @@ class SegmentationTrainer(Trainer):
         return {"val_loss": val_loss, "acc_global": acc_global, "mean_iou": mean_iou}
 
     @staticmethod
-    def _eval_metrics_str(eval_metrics: Dict[str, float]) -> str:
+    def _eval_metrics_str(eval_metrics: dict[str, float]) -> str:
         return (
             f"Validation loss: {eval_metrics['val_loss']:.4} "
             f"(Acc: {eval_metrics['acc_global']:.2%} | Mean IoU: {eval_metrics['mean_iou']:.2%})"

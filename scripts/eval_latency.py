@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2024, François-Guillaume Fernandez.
+# Copyright (C) 2019-2025, François-Guillaume Fernandez.
 
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
@@ -76,7 +76,9 @@ def main(args):
         img_tensor,
         "tmp.onnx",
         export_params=True,
-        opset_version=14,
+        opset_version=20,
+        dynamo=False,
+        verbose=False,
     )
     onnx_session = onnxruntime.InferenceSession("tmp.onnx")
     npy_tensor = img_tensor.numpy()

@@ -1,10 +1,10 @@
-# Copyright (C) 2019-2024, François-Guillaume Fernandez.
+# Copyright (C) 2019-2025, François-Guillaume Fernandez.
 
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
-import torch.nn as nn
-from torch.nn.modules.conv import _ConvNd
+from torch import nn
+from torch.nn.modules.conv import _ConvNd  # noqa: PLC2701
 
 
 def init_module(module: nn.Module, nonlinearity: str = "relu") -> None:

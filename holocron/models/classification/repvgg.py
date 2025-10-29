@@ -1,14 +1,15 @@
-# Copyright (C) 2021-2024, François-Guillaume Fernandez.
+# Copyright (C) 2021-2025, François-Guillaume Fernandez.
 
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
 from collections import OrderedDict
+from collections.abc import Callable
 from enum import Enum
-from typing import Any, Callable, List, Optional, Union, cast
+from typing import Any, cast
 
 import torch
-import torch.nn as nn
+from torch import nn
 
 from holocron.nn import GlobalAvgPool2d, init
 
@@ -42,8 +43,8 @@ class RepBlock(nn.Module):
         planes: int,
         stride: int = 1,
         identity: bool = True,
-        act_layer: Optional[nn.Module] = None,
-        norm_layer: Optional[Callable[[int], nn.Module]] = None,
+        act_layer: nn.Module | None = None,
+        norm_layer: Callable[[int], nn.Module] | None = None,
     ) -> None:
         super().__init__()
 
@@ -52,7 +53,7 @@ class RepBlock(nn.Module):
         if act_layer is None:
             act_layer = nn.ReLU(inplace=True)
 
-        self.branches: Union[nn.Conv2d, nn.ModuleList] = nn.ModuleList([
+        self.branches: nn.Conv2d | nn.ModuleList = nn.ModuleList([
             nn.Sequential(
                 *conv_sequence(inplanes, planes, None, norm_layer, kernel_size=3, padding=1, stride=stride),
             ),
@@ -73,9 +74,13 @@ class RepBlock(nn.Module):
         return self.activation(out)
 
     def reparametrize(self) -> None:
-        """Reparametrize the block by fusing convolutions and BN in each branch, then fusing all branches"""
+        """Reparametrize the block by fusing convolutions and BN in each branch, then fusing all branches
+
+        Raises:
+            TypeError: if `branches` is not a `nn.ModuleList`
+        """
         if not isinstance(self.branches, nn.ModuleList):
-            raise AssertionError
+            raise TypeError("`branches` is not a `nn.ModuleList`")
         inplanes = cast(nn.Sequential, self.branches[0])[0].weight.data.shape[1]
         planes = cast(nn.Sequential, self.branches[0])[0].weight.data.shape[0]
         # Instantiate the equivalent Conv 3x3
@@ -124,14 +129,14 @@ class RepVGG(nn.Sequential):
 
     def __init__(
         self,
-        num_blocks: List[int],
-        planes: List[int],
+        num_blocks: list[int],
+        planes: list[int],
         width_multiplier: float,
         final_width_multiplier: float,
         num_classes: int = 10,
         in_channels: int = 3,
-        act_layer: Optional[nn.Module] = None,
-        norm_layer: Optional[Callable[[int], nn.Module]] = None,
+        act_layer: nn.Module | None = None,
+        norm_layer: Callable[[int], nn.Module] | None = None,
     ) -> None:
         if norm_layer is None:
             norm_layer = nn.BatchNorm2d
@@ -141,14 +146,14 @@ class RepVGG(nn.Sequential):
         if len(num_blocks) != len(planes):
             raise AssertionError("the length of `num_blocks` and `planes` are expected to be the same")
 
-        stages: List[nn.Sequential] = []
+        stages: list[nn.Sequential] = []
         # Assign the width multipliers
         chans = [in_channels, int(min(1, width_multiplier) * planes[0])]
         chans.extend([int(width_multiplier * chan) for chan in planes[1:-1]])
         chans.append(int(final_width_multiplier * planes[-1]))
 
         # Build the layers
-        for nb_blocks, in_chan, out_chan in zip(num_blocks, chans[:-1], chans[1:]):
+        for nb_blocks, in_chan, out_chan in zip(num_blocks, chans[:-1], chans[1:], strict=True):
             layers = [RepBlock(in_chan, out_chan, 2, False, act_layer, norm_layer)]
             layers.extend([RepBlock(out_chan, out_chan, 1, True, act_layer, norm_layer) for _ in range(nb_blocks)])
             stages.append(nn.Sequential(*layers))
@@ -172,9 +177,9 @@ class RepVGG(nn.Sequential):
 
 
 def _repvgg(
-    checkpoint: Union[Checkpoint, None],
+    checkpoint: Checkpoint | None,
     progress: bool,
-    num_blocks: List[int],
+    num_blocks: list[int],
     a: float,
     b: float,
     **kwargs: Any,
@@ -205,24 +210,26 @@ class RepVGG_A0_Checkpoint(Enum):
 
 def repvgg_a0(
     pretrained: bool = False,
-    checkpoint: Union[Checkpoint, None] = None,
+    checkpoint: Checkpoint | None = None,
     progress: bool = True,
     **kwargs: Any,
 ) -> RepVGG:
     """RepVGG-A0 from
-    `"RepVGG: Making VGG-style ConvNets Great Again" <https://arxiv.org/pdf/2101.03697.pdf>`_
+    ["RepVGG: Making VGG-style ConvNets Great Again"](https://arxiv.org/pdf/2101.03697.pdf)
 
     Args:
         pretrained: If True, returns a model pre-trained on ImageNette
         checkpoint: If specified, the model's parameters will be set to the checkpoint's values
         progress: If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _repvgg
+        kwargs: keyword args of [`RepVGG`][holocron.models.classification.repvgg.RepVGG]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
 
-    .. autoclass:: holocron.models.RepVGG_A0_Checkpoint
-        :members:
+    ::: holocron.models.RepVGG_A0_Checkpoint
+        options:
+            heading_level: 4
+            show_if_no_docstring: true
     """
     checkpoint = _handle_legacy_pretrained(
         pretrained,
@@ -253,24 +260,26 @@ class RepVGG_A1_Checkpoint(Enum):
 
 def repvgg_a1(
     pretrained: bool = False,
-    checkpoint: Union[Checkpoint, None] = None,
+    checkpoint: Checkpoint | None = None,
     progress: bool = True,
     **kwargs: Any,
 ) -> RepVGG:
     """RepVGG-A1 from
-    `"RepVGG: Making VGG-style ConvNets Great Again" <https://arxiv.org/pdf/2101.03697.pdf>`_
+    ["RepVGG: Making VGG-style ConvNets Great Again"](https://arxiv.org/pdf/2101.03697.pdf)
 
     Args:
         pretrained: If True, returns a model pre-trained on ImageNette
         checkpoint: If specified, the model's parameters will be set to the checkpoint's values
         progress: If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _repvgg
+        kwargs: keyword args of [`RepVGG`][holocron.models.classification.repvgg.RepVGG]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
 
-    .. autoclass:: holocron.models.RepVGG_A1_Checkpoint
-        :members:
+    ::: holocron.models.RepVGG_A1_Checkpoint
+        options:
+            heading_level: 4
+            show_if_no_docstring: true
     """
     checkpoint = _handle_legacy_pretrained(
         pretrained,
@@ -301,24 +310,26 @@ class RepVGG_A2_Checkpoint(Enum):
 
 def repvgg_a2(
     pretrained: bool = False,
-    checkpoint: Union[Checkpoint, None] = None,
+    checkpoint: Checkpoint | None = None,
     progress: bool = True,
     **kwargs: Any,
 ) -> RepVGG:
     """RepVGG-A2 from
-    `"RepVGG: Making VGG-style ConvNets Great Again" <https://arxiv.org/pdf/2101.03697.pdf>`_
+    ["RepVGG: Making VGG-style ConvNets Great Again"](https://arxiv.org/pdf/2101.03697.pdf)
 
     Args:
         pretrained: If True, returns a model pre-trained on ImageNette
         checkpoint: If specified, the model's parameters will be set to the checkpoint's values
         progress: If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _repvgg
+        kwargs: keyword args of [`RepVGG`][holocron.models.classification.repvgg.RepVGG]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
 
-    .. autoclass:: holocron.models.RepVGG_A2_Checkpoint
-        :members:
+    ::: holocron.models.RepVGG_A2_Checkpoint
+        options:
+            heading_level: 4
+            show_if_no_docstring: true
     """
     checkpoint = _handle_legacy_pretrained(
         pretrained,
@@ -349,24 +360,26 @@ class RepVGG_B0_Checkpoint(Enum):
 
 def repvgg_b0(
     pretrained: bool = False,
-    checkpoint: Union[Checkpoint, None] = None,
+    checkpoint: Checkpoint | None = None,
     progress: bool = True,
     **kwargs: Any,
 ) -> RepVGG:
     """RepVGG-B0 from
-    `"RepVGG: Making VGG-style ConvNets Great Again" <https://arxiv.org/pdf/2101.03697.pdf>`_
+    ["RepVGG: Making VGG-style ConvNets Great Again"](https://arxiv.org/pdf/2101.03697.pdf)
 
     Args:
         pretrained: If True, returns a model pre-trained on ImageNette
         checkpoint: If specified, the model's parameters will be set to the checkpoint's values
         progress: If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _repvgg
+        kwargs: keyword args of [`RepVGG`][holocron.models.classification.repvgg.RepVGG]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
 
-    .. autoclass:: holocron.models.RepVGG_B0_Checkpoint
-        :members:
+    ::: holocron.models.RepVGG_B0_Checkpoint
+        options:
+            heading_level: 4
+            show_if_no_docstring: true
     """
     checkpoint = _handle_legacy_pretrained(
         pretrained,
@@ -397,24 +410,26 @@ class RepVGG_B1_Checkpoint(Enum):
 
 def repvgg_b1(
     pretrained: bool = False,
-    checkpoint: Union[Checkpoint, None] = None,
+    checkpoint: Checkpoint | None = None,
     progress: bool = True,
     **kwargs: Any,
 ) -> RepVGG:
     """RepVGG-B1 from
-    `"RepVGG: Making VGG-style ConvNets Great Again" <https://arxiv.org/pdf/2101.03697.pdf>`_
+    ["RepVGG: Making VGG-style ConvNets Great Again"](https://arxiv.org/pdf/2101.03697.pdf)
 
     Args:
         pretrained: If True, returns a model pre-trained on ImageNette
         checkpoint: If specified, the model's parameters will be set to the checkpoint's values
         progress: If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _repvgg
+        kwargs: keyword args of [`RepVGG`][holocron.models.RepVGG]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
 
-    .. autoclass:: holocron.models.RepVGG_B1_Checkpoint
-        :members:
+    ::: holocron.models.RepVGG_B1_Checkpoint
+        options:
+            heading_level: 4
+            show_if_no_docstring: true
     """
     checkpoint = _handle_legacy_pretrained(
         pretrained,
@@ -445,24 +460,26 @@ class RepVGG_B2_Checkpoint(Enum):
 
 def repvgg_b2(
     pretrained: bool = False,
-    checkpoint: Union[Checkpoint, None] = None,
+    checkpoint: Checkpoint | None = None,
     progress: bool = True,
     **kwargs: Any,
 ) -> RepVGG:
     """RepVGG-B2 from
-    `"RepVGG: Making VGG-style ConvNets Great Again" <https://arxiv.org/pdf/2101.03697.pdf>`_
+    ["RepVGG: Making VGG-style ConvNets Great Again"](https://arxiv.org/pdf/2101.03697.pdf)
 
     Args:
         pretrained: If True, returns a model pre-trained on ImageNette
         checkpoint: If specified, the model's parameters will be set to the checkpoint's values
         progress: If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _repvgg
+        kwargs: keyword args of [`RepVGG`][holocron.models.classification.repvgg.RepVGG]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
 
-    .. autoclass:: holocron.models.RepVGG_B2_Checkpoint
-        :members:
+    ::: holocron.models.RepVGG_B2_Checkpoint
+        options:
+            heading_level: 4
+            show_if_no_docstring: true
     """
     checkpoint = _handle_legacy_pretrained(
         pretrained,
@@ -474,21 +491,21 @@ def repvgg_b2(
 
 def repvgg_b3(
     pretrained: bool = False,
-    checkpoint: Union[Checkpoint, None] = None,
+    checkpoint: Checkpoint | None = None,
     progress: bool = True,
     **kwargs: Any,
 ) -> RepVGG:
     """RepVGG-B3 from
-    `"RepVGG: Making VGG-style ConvNets Great Again" <https://arxiv.org/pdf/2101.03697.pdf>`_
+    ["RepVGG: Making VGG-style ConvNets Great Again"](https://arxiv.org/pdf/2101.03697.pdf)
 
     Args:
         pretrained: If True, returns a model pre-trained on ImageNette
         checkpoint: If specified, the model's parameters will be set to the checkpoint's values
         progress: If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _repvgg
+        kwargs: keyword args of [`RepVGG`][holocron.models.classification.repvgg.RepVGG]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
     """
     checkpoint = _handle_legacy_pretrained(
         pretrained,

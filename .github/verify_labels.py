@@ -13,8 +13,9 @@ with no labeling responsibility, so we don't want to bother them.
 """
 
 import os
+from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 from pathlib import Path
-from typing import Any, Set, Tuple
+from typing import Any
 
 import requests
 import yaml
@@ -30,7 +31,7 @@ def query_repo(cmd: str, *, accept) -> Any:
     return response.json()
 
 
-def get_pr_merger_and_labels(repo: str, pr_number: int) -> Tuple[str, Set[str]]:
+def get_pr_merger_and_labels(repo: str, pr_number: int) -> tuple[str, set[str]]:
     # See https://docs.github.com/en/rest/reference/pulls#get-a-pull-request
     data = query_repo(f"{repo}/pulls/{pr_number}", accept="application/vnd.github.v3+json")
     merger = data.get("merged_by", {}).get("login")
@@ -55,11 +56,7 @@ def main(args):
 
 
 def parse_args():
-    import argparse
-
-    parser = argparse.ArgumentParser(
-        description="PR label checker", formatter_class=argparse.ArgumentDefaultsHelpFormatter
-    )
+    parser = ArgumentParser(description="PR label checker", formatter_class=ArgumentDefaultsHelpFormatter)
 
     parser.add_argument("repo", type=str, help="Repo full name")
     parser.add_argument("pr", type=int, help="PR number")

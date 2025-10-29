@@ -1,9 +1,8 @@
-# Copyright (C) 2019-2024, François-Guillaume Fernandez.
+# Copyright (C) 2019-2025, François-Guillaume Fernandez.
 
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
-from typing import Dict, List, Optional, Tuple
 
 import torch
 from torch import Tensor
@@ -14,8 +13,17 @@ from .core import Trainer
 __all__ = ["DetectionTrainer"]
 
 
-def assign_iou(gt_boxes: Tensor, pred_boxes: Tensor, iou_threshold: float = 0.5) -> Tuple[List[int], List[int]]:
-    """Assigns boxes by IoU"""
+def assign_iou(gt_boxes: Tensor, pred_boxes: Tensor, iou_threshold: float = 0.5) -> tuple[list[int], list[int]]:
+    """Assigns boxes by IoU
+
+    Args:
+        gt_boxes: ground truth boxes
+        pred_boxes: predicted boxes
+        iou_threshold: IoU threshold for assignment
+
+    Returns:
+        tuple of ground truth indices and predicted indices
+    """
     iou = box_iou(gt_boxes, pred_boxes)
     iou = iou.max(dim=1)
     gt_kept = iou.values >= iou_threshold
@@ -53,17 +61,16 @@ class DetectionTrainer(Trainer):
 
     @staticmethod
     def _to_cuda(  # type: ignore[override]
-        x: List[Tensor], target: List[Dict[str, Tensor]]
-    ) -> Tuple[List[Tensor], List[Dict[str, Tensor]]]:
-        """Move input and target to GPU"""
+        x: list[Tensor], target: list[dict[str, Tensor]]
+    ) -> tuple[list[Tensor], list[dict[str, Tensor]]]:
         x = [_x.cuda(non_blocking=True) for _x in x]
         target = [{k: v.cuda(non_blocking=True) for k, v in t.items()} for t in target]
         return x, target
 
-    def _get_loss(self, x: List[Tensor], target: List[Dict[str, Tensor]]) -> Tensor:  # type: ignore[override]
+    def _get_loss(self, x: list[Tensor], target: list[dict[str, Tensor]]) -> Tensor:  # type: ignore[override]
         # AMP
         if self.amp:
-            with torch.cuda.amp.autocast():
+            with torch.amp.autocast("cuda"):
                 # Forward & loss computation
                 loss_dict = self.model(x, target)
                 return sum(loss_dict.values())
@@ -72,21 +79,21 @@ class DetectionTrainer(Trainer):
         return sum(loss_dict.values())
 
     @staticmethod
-    def _eval_metrics_str(eval_metrics: Dict[str, Optional[float]]) -> str:
+    def _eval_metrics_str(eval_metrics: dict[str, float | None]) -> str:
         loc_str = f"{eval_metrics['loc_err']:.2%}" if isinstance(eval_metrics["loc_err"], float) else "N/A"
         clf_str = f"{eval_metrics['clf_err']:.2%}" if isinstance(eval_metrics["clf_err"], float) else "N/A"
         det_str = f"{eval_metrics['det_err']:.2%}" if isinstance(eval_metrics["det_err"], float) else "N/A"
         return f"Loc error: {loc_str} | Clf error: {clf_str} | Det error: {det_str}"
 
     @torch.inference_mode()
-    def evaluate(self, iou_threshold: float = 0.5) -> Dict[str, Optional[float]]:
+    def evaluate(self, iou_threshold: float = 0.5) -> dict[str, float | None]:
         """Evaluate the model on the validation set.
 
         Args:
-            iou_threshold (float, optional): IoU threshold for pair assignment
+            iou_threshold: IoU threshold for pair assignment
 
         Returns:
-            dict: evaluation metrics
+            evaluation metrics
         """
         self.model.eval()
 
@@ -97,12 +104,12 @@ class DetectionTrainer(Trainer):
             x, target = self.to_cuda(x, target)
 
             if self.amp:
-                with torch.cuda.amp.autocast():
+                with torch.amp.autocast("cuda"):
                     detections = self.model(x)
             else:
                 detections = self.model(x)
 
-            for dets, t in zip(detections, target):
+            for dets, t in zip(detections, target, strict=True):
                 if t["boxes"].shape[0] > 0 and dets["boxes"].shape[0] > 0:
                     gt_indices, pred_indices = assign_iou(t["boxes"], dets["boxes"], iou_threshold)
                     loc_assigns += len(gt_indices)

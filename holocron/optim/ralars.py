@@ -1,39 +1,38 @@
-# Copyright (C) 2019-2024, François-Guillaume Fernandez.
+# Copyright (C) 2019-2025, François-Guillaume Fernandez.
 
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
 import math
-from typing import Callable, Iterable, Optional, Tuple
+from collections.abc import Callable, Iterable
 
 import torch
 from torch.optim.optimizer import Optimizer
 
 
 class RaLars(Optimizer):
-    """Implements the RAdam optimizer from `"On the variance of the Adaptive Learning Rate and Beyond"
-    <https://arxiv.org/pdf/1908.03265.pdf>`_ with optional Layer-wise adaptive Scaling from
-    `"Large Batch Training of Convolutional Networks" <https://arxiv.org/pdf/1708.03888.pdf>`_
+    """Implements the RAdam optimizer from ["On the variance of the Adaptive Learning Rate and Beyond"](https://arxiv.org/pdf/1908.03265.pdf)
+    with optional Layer-wise adaptive Scaling from ["Large Batch Training of Convolutional Networks"](https://arxiv.org/pdf/1708.03888.pdf)
 
     Args:
-        params (iterable): iterable of parameters to optimize or dicts defining parameter groups
-        lr (float, optional): learning rate
-        betas (Tuple[float, float], optional): coefficients used for running averages  (default: (0.9, 0.999))
-        eps (float, optional): term added to the denominator to improve numerical stability (default: 1e-8)
-        weight_decay (float, optional): weight decay (L2 penalty) (default: 0)
-        force_adaptive_momentum (float, optional): use adaptive momentum if variance is not tractable (default: False)
-        scale_clip (float, optional): the maximal upper bound for the scale factor of LARS
+        params: iterable of parameters to optimize or dicts defining parameter groups
+        lr: learning rate
+        betas: coefficients used for running averages
+        eps: term added to the denominator to improve numerical stability
+        weight_decay: weight decay (L2 penalty)
+        force_adaptive_momentum: use adaptive momentum if variance is not tractable
+        scale_clip: the maximal upper bound for the scale factor of LARS
     """
 
     def __init__(
         self,
         params: Iterable[torch.nn.Parameter],
         lr: float = 1e-3,
-        betas: Tuple[float, float] = (0.9, 0.999),
+        betas: tuple[float, float] = (0.9, 0.999),
         eps: float = 1e-8,
         weight_decay: float = 0.0,
         force_adaptive_momentum: bool = False,
-        scale_clip: Optional[Tuple[float, float]] = None,
+        scale_clip: tuple[float, float] | None = None,
     ) -> None:
         if lr < 0.0:
             raise ValueError(f"Invalid learning rate: {lr}")
@@ -44,7 +43,7 @@ class RaLars(Optimizer):
         if not 0.0 <= betas[1] < 1.0:
             raise ValueError(f"Invalid beta parameter at index 1: {betas[1]}")
         defaults = {"lr": lr, "betas": betas, "eps": eps, "weight_decay": weight_decay}
-        super(RaLars, self).__init__(params, defaults)
+        super().__init__(params, defaults)
         # RAdam tweaks
         self.force_adaptive_momentum = force_adaptive_momentum
         # LARS arguments
@@ -53,11 +52,17 @@ class RaLars(Optimizer):
             self.scale_clip = (0, 10)
 
     @torch.no_grad()
-    def step(self, closure: Optional[Callable[[], float]] = None) -> Optional[float]:  # type: ignore[override]
+    def step(self, closure: Callable[[], float] | None = None) -> float | None:  # type: ignore[override]
         """Performs a single optimization step.
 
         Arguments:
-            closure (callable, optional): A closure that reevaluates the model and returns the loss.
+            closure: A closure that reevaluates the model and returns the loss.
+
+        Returns:
+            loss value
+
+        Raises:
+            RuntimeError: if the optimizer does not support sparse gradients
         """
         loss = None
         if closure is not None:
@@ -112,15 +117,14 @@ class RaLars(Optimizer):
                     update.addcdiv_(
                         exp_avg / bias_correction1, (exp_avg_sq / bias_correction2).sqrt().add_(group["eps"]), value=r_t
                     )
+                elif self.force_adaptive_momentum:
+                    # Adaptive momentum without variance rectification (Adam)
+                    update.addcdiv_(
+                        exp_avg / bias_correction1, (exp_avg_sq / bias_correction2).sqrt().add_(group["eps"])
+                    )
                 else:
-                    if self.force_adaptive_momentum:
-                        # Adaptive momentum without variance rectification (Adam)
-                        update.addcdiv_(
-                            exp_avg / bias_correction1, (exp_avg_sq / bias_correction2).sqrt().add_(group["eps"])
-                        )
-                    else:
-                        # Unadapted momentum
-                        update.add_(exp_avg / bias_correction1)
+                    # Unadapted momentum
+                    update.add_(exp_avg / bias_correction1)
 
                 # Weight decay
                 if group["weight_decay"] != 0:

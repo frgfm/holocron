@@ -1,9 +1,9 @@
-# Copyright (C) 2019-2024, François-Guillaume Fernandez.
+# Copyright (C) 2019-2025, François-Guillaume Fernandez.
 
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
-from typing import Callable, Iterable, Optional, Tuple
+from collections.abc import Callable, Iterable
 
 import torch
 from torch.optim.optimizer import Optimizer
@@ -12,53 +12,55 @@ __all__ = ["LAMB"]
 
 
 class LAMB(Optimizer):
-    r"""Implements the Lamb optimizer from `"Large batch optimization for deep learning: training BERT in 76 minutes"
-    <https://arxiv.org/pdf/1904.00962v3.pdf>`_.
+    r"""Implements the Lamb optimizer from ["Large batch optimization for deep learning: training BERT in 76 minutes"](https://arxiv.org/pdf/1904.00962v3.pdf).
 
-    The estimation of momentums is described as follows, :math:`\forall t \geq 1`:
+    The estimation of momentums is described as follows, $\forall t \geq 1$:
 
-    .. math::
-        m_t \leftarrow \beta_1 m_{t-1} + (1 - \beta_1) g_t \\
-        v_t \leftarrow \beta_2 v_{t-1} + (1 - \beta_2) g_t^2
+    $$
+    m_t \leftarrow \beta_1 m_{t-1} + (1 - \beta_1) g_t \\
+    v_t \leftarrow \beta_2 v_{t-1} + (1 - \beta_2) g_t^2
+    $$
 
-    where :math:`g_t` is the gradient of :math:`\theta_t`,
-    :math:`\beta_1, \beta_2 \in [0, 1]^2` are the exponential average smoothing coefficients,
-    :math:`m_0 = 0,\ v_0 = 0`.
+    where $g_t$ is the gradient of $\theta_t$,
+    $\beta_1, \beta_2 \in [0, 1]^2$ are the exponential average smoothing coefficients,
+    $m_0 = 0,\ v_0 = 0$.
 
     Then we correct their biases using:
 
-    .. math::
-        \hat{m_t} \leftarrow \frac{m_t}{1 - \beta_1^t} \\
-        \hat{v_t} \leftarrow \frac{v_t}{1 - \beta_2^t}
+    $$
+    \hat{m_t} \leftarrow \frac{m_t}{1 - \beta_1^t} \\
+    \hat{v_t} \leftarrow \frac{v_t}{1 - \beta_2^t}
+    $$
 
     And finally the update step is performed using the following rule:
 
-    .. math::
-        r_t \leftarrow \frac{\hat{m_t}}{\sqrt{\hat{v_t}} + \epsilon} \\
-        \theta_t \leftarrow \theta_{t-1} - \alpha \phi(\lVert \theta_t \rVert)
-        \frac{r_t + \lambda \theta_t}{\lVert r_t + \theta_t \rVert}
+    $$
+    r_t \leftarrow \frac{\hat{m_t}}{\sqrt{\hat{v_t}} + \epsilon} \\
+    \theta_t \leftarrow \theta_{t-1} - \alpha \phi(\lVert \theta_t \rVert)
+    \frac{r_t + \lambda \theta_t}{\lVert r_t + \theta_t \rVert}
+    $$
 
-    where :math:`\theta_t` is the parameter value at step :math:`t` (:math:`\theta_0` being the initialization value),
-    :math:`\phi` is a clipping function,
-    :math:`\alpha` is the learning rate, :math:`\lambda \geq 0` is the weight decay, :math:`\epsilon > 0`.
+    where $\theta_t$ is the parameter value at step $t$ ($\theta_0$ being the initialization value),
+    $\phi$ is a clipping function,
+    $\alpha$ is the learning rate, $\lambda \geq 0$ is the weight decay, $\epsilon > 0$.
 
     Args:
-        params (iterable): iterable of parameters to optimize or dicts defining parameter groups
-        lr (float, optional): learning rate
-        betas (Tuple[float, float], optional): beta coefficients used for running averages (default: (0.9, 0.999))
-        eps (float, optional): term added to the denominator to improve numerical stability (default: 1e-8)
-        weight_decay (float, optional): weight decay (L2 penalty) (default: 0)
-        scale_clip (tuple, optional): the lower and upper bounds for the weight norm in local LR of LARS
+        params: iterable of parameters to optimize or dicts defining parameter groups
+        lr: learning rate
+        betas: beta coefficients used for running averages
+        eps: term added to the denominator to improve numerical stability
+        weight_decay: weight decay (L2 penalty)
+        scale_clip: the lower and upper bounds for the weight norm in local LR of LARS
     """
 
     def __init__(
         self,
         params: Iterable[torch.nn.Parameter],
         lr: float = 1e-3,
-        betas: Tuple[float, float] = (0.9, 0.999),
+        betas: tuple[float, float] = (0.9, 0.999),
         eps: float = 1e-8,
         weight_decay: float = 0.0,
-        scale_clip: Optional[Tuple[float, float]] = None,
+        scale_clip: tuple[float, float] | None = None,
     ) -> None:
         if lr < 0.0:
             raise ValueError(f"Invalid learning rate: {lr}")
@@ -76,11 +78,17 @@ class LAMB(Optimizer):
             self.scale_clip = (0.0, 10.0)
 
     @torch.no_grad()
-    def step(self, closure: Optional[Callable[[], float]] = None) -> Optional[float]:  # type: ignore[override]
+    def step(self, closure: Callable[[], float] | None = None) -> float | None:  # type: ignore[override]
         """Performs a single optimization step.
 
         Arguments:
-            closure (callable, optional): A closure that reevaluates the model and returns the loss.
+            closure: A closure that reevaluates the model and returns the loss.
+
+        Returns:
+            loss value
+
+        Raises:
+            RuntimeError: if the optimizer does not support sparse gradients
         """
         loss = None
         if closure is not None:

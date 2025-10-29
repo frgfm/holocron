@@ -1,10 +1,10 @@
-# Copyright (C) 2019-2024, François-Guillaume Fernandez.
+# Copyright (C) 2019-2025, François-Guillaume Fernandez.
 
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
 import math
-from typing import Callable, Dict, Iterable, List, Optional, Tuple
+from collections.abc import Callable, Iterable
 
 import torch
 from torch import Tensor
@@ -14,54 +14,56 @@ __all__ = ["TAdam", "tadam"]
 
 
 class TAdam(Optimizer):
-    r"""Implements the TAdam optimizer from `"TAdam: A Robust Stochastic Gradient Optimizer"
-    <https://arxiv.org/pdf/2003.00179.pdf>`_.
+    r"""Implements the TAdam optimizer from ["TAdam: A Robust Stochastic Gradient Optimizer"](https://arxiv.org/pdf/2003.00179.pdf).
 
-    The estimation of momentums is described as follows, :math:`\forall t \geq 1`:
+    The estimation of momentums is described as follows, $\forall t \geq 1$:
 
-    .. math::
-        w_t \leftarrow (\nu + d) \Big(\nu + \sum\limits_{j}
-        \frac{(g_t^j - m_{t-1}^j)^2}{v_{t-1} + \epsilon} \Big)^{-1} \\
-        m_t \leftarrow \frac{W_{t-1}}{W_{t-1} + w_t} m_{t-1} + \frac{w_t}{W_{t-1} + w_t} g_t \\
-        v_t \leftarrow \beta_2 v_{t-1} + (1 - \beta_2) (g_t - g_{t-1})
+    $$
+    w_t \leftarrow (\nu + d) \Big(\nu + \sum\limits_{j}
+    \frac{(g_t^j - m_{t-1}^j)^2}{v_{t-1} + \epsilon} \Big)^{-1} \\
+    m_t \leftarrow \frac{W_{t-1}}{W_{t-1} + w_t} m_{t-1} + \frac{w_t}{W_{t-1} + w_t} g_t \\
+    v_t \leftarrow \beta_2 v_{t-1} + (1 - \beta_2) (g_t - g_{t-1})
+    $$
 
-    where :math:`g_t` is the gradient of :math:`\theta_t`,
-    :math:`\beta_1, \beta_2 \in [0, 1]^2` are the exponential average smoothing coefficients,
-    :math:`m_0 = 0,\ v_0 = 0,\ W_0 = \frac{\beta_1}{1 - \beta_1}`;
-    :math:`\nu` is the degrees of freedom and :math:`d` if the number of dimensions of the parameter gradient.
+    where $g_t$ is the gradient of $\theta_t$,
+    $\beta_1, \beta_2 \in [0, 1]^2$ are the exponential average smoothing coefficients,
+    $m_0 = 0,\ v_0 = 0,\ W_0 = \frac{\beta_1}{1 - \beta_1}$;
+    $\nu$ is the degrees of freedom and $d$ if the number of dimensions of the parameter gradient.
 
     Then we correct their biases using:
 
-    .. math::
-        \hat{m_t} \leftarrow \frac{m_t}{1 - \beta_1^t} \\
-        \hat{v_t} \leftarrow \frac{v_t}{1 - \beta_2^t}
+    $$
+    \hat{m_t} \leftarrow \frac{m_t}{1 - \beta_1^t} \\
+    \hat{v_t} \leftarrow \frac{v_t}{1 - \beta_2^t}
+    $$
 
     And finally the update step is performed using the following rule:
 
-    .. math::
-        \theta_t \leftarrow \theta_{t-1} - \alpha \frac{\hat{m_t}}{\sqrt{\hat{v_t}} + \epsilon}
+    $$
+    \theta_t \leftarrow \theta_{t-1} - \alpha \frac{\hat{m_t}}{\sqrt{\hat{v_t}} + \epsilon}
+    $$
 
-    where :math:`\theta_t` is the parameter value at step :math:`t` (:math:`\theta_0` being the initialization value),
-    :math:`\alpha` is the learning rate, :math:`\epsilon > 0`.
+    where $\theta_t$ is the parameter value at step $t$ ($\theta_0$ being the initialization value),
+    $\alpha$ is the learning rate, $\epsilon > 0$.
 
     Args:
-        params (iterable): iterable of parameters to optimize or dicts defining parameter groups
-        lr (float, optional): learning rate
-        betas (Tuple[float, float], optional): coefficients used for running averages (default: (0.9, 0.999))
-        eps (float, optional): term added to the denominator to improve numerical stability (default: 1e-8)
-        weight_decay (float, optional): weight decay (L2 penalty) (default: 0)
-        dof (int, optional): degrees of freedom
+        params: iterable of parameters to optimize or dicts defining parameter groups
+        lr: learning rate
+        betas: coefficients used for running averages
+        eps: term added to the denominator to improve numerical stability
+        weight_decay: weight decay (L2 penalty)
+        dof: degrees of freedom
     """
 
     def __init__(
         self,
         params: Iterable[torch.nn.Parameter],
         lr: float = 1e-3,
-        betas: Tuple[float, float] = (0.9, 0.999),
+        betas: tuple[float, float] = (0.9, 0.999),
         eps: float = 1e-8,
         weight_decay: float = 0.0,
         amsgrad: bool = False,
-        dof: Optional[float] = None,
+        dof: float | None = None,
     ) -> None:
         if lr < 0.0:
             raise ValueError(f"Invalid learning rate: {lr}")
@@ -72,21 +74,27 @@ class TAdam(Optimizer):
         if not 0.0 <= betas[1] < 1.0:
             raise ValueError(f"Invalid beta parameter at index 1: {betas[1]}")
         if not weight_decay >= 0.0:
-            raise ValueError("Invalid weight_decay value: {}".format(weight_decay))
+            raise ValueError(f"Invalid weight_decay value: {weight_decay}")
         defaults = {"lr": lr, "betas": betas, "eps": eps, "weight_decay": weight_decay, "amsgrad": amsgrad, "dof": dof}
         super().__init__(params, defaults)
 
-    def __setstate__(self, state: Dict[str, torch.Tensor]) -> None:
+    def __setstate__(self, state: dict[str, torch.Tensor]) -> None:
         super().__setstate__(state)
         for group in self.param_groups:
             group.setdefault("amsgrad", False)
 
     @torch.no_grad()
-    def step(self, closure: Optional[Callable[[], float]] = None) -> Optional[float]:  # type: ignore[override]
+    def step(self, closure: Callable[[], float] | None = None) -> float | None:  # type: ignore[override]
         """Performs a single optimization step.
 
         Arguments:
-            closure (callable, optional): A closure that reevaluates the model and returns the loss.
+            closure: A closure that reevaluates the model and returns the loss.
+
+        Returns:
+            loss value
+
+        Raises:
+            RuntimeError: if the optimizer does not support sparse gradients
         """
         loss = None
         if closure is not None:
@@ -158,13 +166,13 @@ class TAdam(Optimizer):
 
 
 def tadam(
-    params: List[Tensor],
-    grads: List[Tensor],
-    exp_avgs: List[Tensor],
-    exp_avg_sqs: List[Tensor],
-    max_exp_avg_sqs: List[Tensor],
-    W_ts: List[Tensor],  # noqa: N803
-    state_steps: List[int],
+    params: list[Tensor],
+    grads: list[Tensor],
+    exp_avgs: list[Tensor],
+    exp_avg_sqs: list[Tensor],
+    max_exp_avg_sqs: list[Tensor],
+    W_ts: list[Tensor],  # noqa: N803
+    state_steps: list[int],
     amsgrad: bool,
     beta1: float,
     beta2: float,

@@ -4,13 +4,13 @@
 
 <p align="center">
   <a href="https://github.com/frgfm/Holocron/actions/workflows/build.yml">
-    <img alt="CI Status" src="https://img.shields.io/github/actions/workflow/status/frgfm/holocron/build.yml?branch=main&label=CI&logo=github&style=flat-square">
+    <img alt="CI Status" src="https://img.shields.io/github/actions/workflow/status/frgfm/holocron/package.yml?branch=main&label=CI&logo=github&style=flat-square">
   </a>
   <a href="https://github.com/astral-sh/ruff">
     <img src="https://img.shields.io/badge/Linter-Ruff-FCC21B?style=flat-square&logo=ruff&logoColor=white" alt="ruff">
   </a>
-  <a href="https://github.com/astral-sh/ruff">
-    <img src="https://img.shields.io/badge/Formatter-Ruff-FCC21B?style=flat-square&logo=Python&logoColor=white" alt="ruff">
+  <a href="https://github.com/astral-sh/ty">
+    <img src="https://img.shields.io/badge/Typecheck-Ty-261230?style=flat-square&logo=astral&logoColor=white" alt="ty">
   </a>
   <a href="https://www.codacy.com/gh/frgfm/Holocron/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=frgfm/Holocron&amp;utm_campaign=Badge_Grade"><img src="https://app.codacy.com/project/badge/Grade/49fc8908c44b45d3b64131e49558f1e9"/></a>
   <a href="https://codecov.io/gh/frgfm/holocron">
@@ -21,9 +21,7 @@
   <a href="https://pypi.org/project/pylocron/">
     <img src="https://img.shields.io/pypi/v/pylocron.svg?logo=python&logoColor=fff&style=flat-square&label=PyPI" alt="PyPi Status">
   </a>
-  <a href="https://anaconda.org/frgfm/pylocron">
-    <img src="https://img.shields.io/conda/v/frgfm/pylocron.svg?logo=anaconda&label=Conda&logoColor=fff&style=flat-square" alt="Conda Version">
-  </a>
+  <img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/frgfm/holocron?label=Release&logo=github">
   <img src="https://img.shields.io/pypi/pyversions/pylocron.svg?logo=Python&label=Python&logoColor=fff&style=flat-square" alt="pyversions">
   <a href="https://github.com/frgfm/Holocron/blob/main/LICENSE">
     <img src="https://img.shields.io/github/license/frgfm/Holocron.svg?label=License&logoColor=fff&style=flat-square" alt="License">
@@ -56,8 +54,8 @@ This project was created for quality implementations, increased developer flexib
 
 ```python
 from PIL import Image
-from torchvision.transforms import Compose, ConvertImageDtype, Normalize, PILToTensor, Resize
-from torchvision.transforms.functional import InterpolationMode
+from torchvision.transforms.v2 import Compose, ConvertImageDtype, Normalize, PILToTensor, Resize
+from torchvision.transforms.v2.functional import InterpolationMode
 from holocron.models.classification import repvgg_a0
 
 # Load your model
@@ -88,7 +86,7 @@ print(config['classes'][output.squeeze(0).argmax().item()], output.squeeze(0).so
 
 ### Prerequisites
 
-Python 3.9 (or higher) and [pip](https://pip.pypa.io/en/stable/)/[conda](https://docs.conda.io/en/latest/miniconda.html) are required to install Holocron.
+Python 3.11 (or higher) and [uv](https://docs.astral.sh/uv/)/[pip](https://pip.pypa.io/en/stable/) are required to install Holocron.
 
 ### Latest stable release
 
@@ -96,12 +94,6 @@ You can install the last stable release of the package using [pypi](https://pypi
 
 ```shell
 pip install pylocron
-```
-
-or using [conda](https://anaconda.org/frgfm/pylocron):
-
-```shell
-conda install -c frgfm pylocron
 ```
 
 ### Developer mode

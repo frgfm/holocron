@@ -1,9 +1,9 @@
-# Copyright (C) 2019-2024, François-Guillaume Fernandez.
+# Copyright (C) 2019-2025, François-Guillaume Fernandez.
 
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
-from typing import Callable, Dict, Iterable, Optional, Tuple
+from collections.abc import Callable, Iterable
 
 import torch
 from torch.optim.optimizer import Optimizer
@@ -12,42 +12,43 @@ __all__ = ["LARS"]
 
 
 class LARS(Optimizer):
-    r"""Implements the LARS optimizer from `"Large batch training of convolutional networks"
-    <https://arxiv.org/pdf/1708.03888.pdf>`_.
+    r"""Implements the LARS optimizer from ["Large batch training of convolutional networks"](https://arxiv.org/pdf/1708.03888.pdf).
 
-    The estimation of global and local learning rates is described as follows, :math:`\forall t \geq 1`:
+    The estimation of global and local learning rates is described as follows, $\forall t \geq 1$:
 
-    .. math::
-        \alpha_t \leftarrow \alpha (1 - t / T)^2 \\
-        \gamma_t \leftarrow \frac{\lVert \theta_t \rVert}{\lVert g_t \rVert  + \lambda \lVert \theta_t \rVert}
+    $$
+    \alpha_t \leftarrow \alpha (1 - t / T)^2 \\
+    \gamma_t \leftarrow \frac{\lVert \theta_t \rVert}{\lVert g_t \rVert  + \lambda \lVert \theta_t \rVert}
+    $$
 
-    where :math:`\theta_t` is the parameter value at step :math:`t` (:math:`\theta_0` being the initialization value),
-    :math:`g_t` is the gradient of :math:`\theta_t`,
-    :math:`T` is the total number of steps,
-    :math:`\alpha` is the learning rate
-    :math:`\lambda \geq 0` is the weight decay.
+    where $\theta_t$ is the parameter value at step $t$ ($\theta_0$ being the initialization value),
+    $g_t$ is the gradient of $\theta_t$,
+    $T$ is the total number of steps,
+    $\alpha$ is the learning rate
+    $\lambda \geq 0$ is the weight decay.
 
     Then we estimate the momentum using:
 
-    .. math::
-        v_t \leftarrow m v_{t-1} + \alpha_t \gamma_t (g_t + \lambda \theta_t)
+    $$
+    v_t \leftarrow m v_{t-1} + \alpha_t \gamma_t (g_t + \lambda \theta_t)
+    $$
 
-    where :math:`m` is the momentum and :math:`v_0 = 0`.
+    where $m$ is the momentum and $v_0 = 0$.
 
     And finally the update step is performed using the following rule:
 
-    .. math::
-        \theta_t \leftarrow \theta_{t-1} - v_t
+    $$
+    \theta_t \leftarrow \theta_{t-1} - v_t
+    $$
 
     Args:
-        params (iterable): iterable of parameters to optimize or dicts defining
-            parameter groups
-        lr (float, optional): learning rate
-        momentum (float, optional): momentum factor (default: 0)
-        weight_decay (float, optional): weight decay (L2 penalty) (default: 0)
-        dampening (float, optional): dampening for momentum (default: 0)
-        nesterov (bool, optional): enables Nesterov momentum (default: False)
-        scale_clip (tuple, optional): the lower and upper bounds for the weight norm in local LR of LARS
+        params: iterable of parameters to optimize or dicts defining parameter groups
+        lr: learning rate
+        momentum: momentum factor
+        weight_decay: weight decay (L2 penalty)
+        dampening: dampening for momentum
+        nesterov: enables Nesterov momentum
+        scale_clip: the lower and upper bounds for the weight norm in local LR of LARS
     """
 
     def __init__(
@@ -58,7 +59,7 @@ class LARS(Optimizer):
         dampening: float = 0.0,
         weight_decay: float = 0.0,
         nesterov: bool = False,
-        scale_clip: Optional[Tuple[float, float]] = None,
+        scale_clip: tuple[float, float] | None = None,
     ) -> None:
         if not isinstance(lr, float) or lr < 0.0:
             raise ValueError(f"Invalid learning rate: {lr}")
@@ -82,17 +83,20 @@ class LARS(Optimizer):
         if self.scale_clip is None:
             self.scale_clip = (0.0, 10.0)
 
-    def __setstate__(self, state: Dict[str, torch.Tensor]) -> None:
+    def __setstate__(self, state: dict[str, torch.Tensor]) -> None:
         super().__setstate__(state)
         for group in self.param_groups:
             group.setdefault("nesterov", False)
 
     @torch.no_grad()
-    def step(self, closure: Optional[Callable[[], float]] = None) -> Optional[float]:  # type: ignore[override]
+    def step(self, closure: Callable[[], float] | None = None) -> float | None:  # type: ignore[override]
         """Performs a single optimization step.
 
         Arguments:
-            closure (callable, optional): A closure that reevaluates the model and returns the loss.
+            closure: A closure that reevaluates the model and returns the loss.
+
+        Returns:
+            loss value
         """
         loss = None
         if closure is not None:

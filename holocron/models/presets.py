@@ -1,4 +1,4 @@
-# Copyright (C) 2022-2024, François-Guillaume Fernandez.
+# Copyright (C) 2022-2025, François-Guillaume Fernandez.
 
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
@@ -6,14 +6,13 @@
 __all__ = ["CIFAR10", "IMAGENET", "IMAGENETTE"]
 
 from dataclasses import dataclass
-from typing import List, Tuple
 
 
 @dataclass
 class _Dataset:
-    mean: Tuple[float, ...]
-    std: Tuple[float, ...]
-    classes: List[str]
+    mean: tuple[float, ...]
+    std: tuple[float, ...]
+    classes: list[str]
 
 
 IMAGENET = _Dataset(

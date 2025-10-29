@@ -1,13 +1,14 @@
-# Copyright (C) 2020-2024, François-Guillaume Fernandez.
+# Copyright (C) 2020-2025, François-Guillaume Fernandez.
 
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
-from typing import Any, Callable, Dict, List, Optional
+from collections.abc import Callable
+from itertools import pairwise
+from typing import Any
 
 import torch
-import torch.nn as nn
-from torch import Tensor
+from torch import Tensor, nn
 
 from ...nn.init import init_module
 from ..utils import conv_sequence, load_pretrained_params
@@ -16,7 +17,7 @@ from .unet import down_path
 __all__ = ["UNet3p", "unet3p"]
 
 
-default_cfgs: Dict[str, Dict[str, Any]] = {
+default_cfgs: dict[str, dict[str, Any]] = {
     "unet3p": {"arch": "UNet3p", "layout": [64, 128, 256, 512, 1024], "url": None}
 }
 
@@ -24,13 +25,13 @@ default_cfgs: Dict[str, Dict[str, Any]] = {
 class FSAggreg(nn.Module):
     def __init__(
         self,
-        e_chans: List[int],
+        e_chans: list[int],
         skip_chan: int,
-        d_chans: List[int],
-        act_layer: Optional[nn.Module] = None,
-        norm_layer: Optional[Callable[[int], nn.Module]] = None,
-        drop_layer: Optional[Callable[..., nn.Module]] = None,
-        conv_layer: Optional[Callable[..., nn.Module]] = None,
+        d_chans: list[int],
+        act_layer: nn.Module | None = None,
+        norm_layer: Callable[[int], nn.Module] | None = None,
+        drop_layer: Callable[..., nn.Module] | None = None,
+        conv_layer: Callable[..., nn.Module] | None = None,
     ) -> None:
         super().__init__()
 
@@ -66,7 +67,7 @@ class FSAggreg(nn.Module):
             )
         )
 
-    def forward(self, downfeats: List[Tensor], feat: Tensor, upfeats: List[Tensor]) -> Tensor:
+    def forward(self, downfeats: list[Tensor], feat: Tensor, upfeats: list[Tensor]) -> Tensor:
         if len(downfeats) != len(self.downsamples) or len(upfeats) != len(self.upsamples):
             raise ValueError(
                 f"Expected {len(self.downsamples)} encoding & {len(self.upsamples)} decoding features, "
@@ -76,9 +77,9 @@ class FSAggreg(nn.Module):
         # Concatenate full-scale features
         x = torch.cat(
             (
-                *[downsample(downfeat) for downsample, downfeat in zip(self.downsamples, downfeats)],
+                *[downsample(downfeat) for downsample, downfeat in zip(self.downsamples, downfeats, strict=True)],
                 self.skip(feat),
-                *[upsample(upfeat) for upsample, upfeat in zip(self.upsamples, upfeats)],
+                *[upsample(upfeat) for upsample, upfeat in zip(self.upsamples, upfeats, strict=True)],
             ),
             dim=1,
         )
@@ -101,13 +102,13 @@ class UNet3p(nn.Module):
 
     def __init__(
         self,
-        layout: List[int],
+        layout: list[int],
         in_channels: int = 3,
         num_classes: int = 10,
-        act_layer: Optional[nn.Module] = None,
-        norm_layer: Optional[Callable[[int], nn.Module]] = None,
-        drop_layer: Optional[Callable[..., nn.Module]] = None,
-        conv_layer: Optional[Callable[..., nn.Module]] = None,
+        act_layer: nn.Module | None = None,
+        norm_layer: Callable[[int], nn.Module] | None = None,
+        drop_layer: Callable[..., nn.Module] | None = None,
+        conv_layer: Callable[..., nn.Module] | None = None,
     ) -> None:
         super().__init__()
 
@@ -120,7 +121,7 @@ class UNet3p(nn.Module):
         self.encoder = nn.ModuleList([])
         layout_ = [in_channels, *layout]
         pool = False
-        for in_chan, out_chan in zip(layout_[:-1], layout_[1:]):
+        for in_chan, out_chan in pairwise(layout_):
             self.encoder.append(down_path(in_chan, out_chan, pool, 1, act_layer, norm_layer, drop_layer, conv_layer))
             pool = True
 
@@ -145,7 +146,7 @@ class UNet3p(nn.Module):
         init_module(self, "relu")
 
     def forward(self, x: Tensor) -> Tensor:
-        xs: List[Tensor] = []
+        xs: list[Tensor] = []
         # Contracting path
         for encoder in self.encoder:
             xs.append(encoder(xs[-1] if len(xs) > 0 else x))
@@ -170,15 +171,14 @@ def _unet(arch: str, pretrained: bool, progress: bool, **kwargs: Any) -> nn.Modu
 
 def unet3p(pretrained: bool = False, progress: bool = True, **kwargs: Any) -> UNet3p:
     """UNet3+ from
-    `"UNet 3+: A Full-Scale Connected UNet For Medical Image Segmentation" <https://arxiv.org/pdf/2004.08790.pdf>`_
+    ["UNet 3+: A Full-Scale Connected UNet For Medical Image Segmentation"](https://arxiv.org/pdf/2004.08790.pdf)
 
-    .. image:: https://github.com/frgfm/Holocron/releases/download/v0.1.3/unet3p.png
-        :align: center
+    ![UNet 3+ architecture](https://github.com/frgfm/Holocron/releases/download/v0.1.3/unet3p.png)
 
     Args:
         pretrained: If True, returns a model pre-trained on PASCAL VOC2012
         progress: If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _unet
+        kwargs: keyword args of [`UNet3p`][holocron.models.segmentation.unet3p.UNet3p]
 
     Returns:
         semantic segmentation model

@@ -1,14 +1,14 @@
-# Copyright (C) 2020-2024, François-Guillaume Fernandez.
+# Copyright (C) 2020-2025, François-Guillaume Fernandez.
 
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from collections.abc import Callable
+from typing import Any
 
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
-from torch import Tensor
+from torch import Tensor, nn
 from torchvision.ops.boxes import box_iou, nms
 
 from holocron.nn.init import init_module
@@ -20,7 +20,7 @@ from ..utils import conv_sequence, load_pretrained_params
 __all__ = ["YOLOv1", "yolov1"]
 
 
-default_cfgs: Dict[str, Dict[str, Any]] = {
+default_cfgs: dict[str, dict[str, Any]] = {
     "yolov1": {"arch": "YOLOv1", "backbone": dark_cfgs["darknet24"], "url": None},
 }
 
@@ -37,22 +37,23 @@ class _YOLO(nn.Module):
         lambda_coords: float = 5,
     ) -> None:
         super().__init__()
-        self.num_classes = num_classes
-        self.rpn_nms_thresh = rpn_nms_thresh
-        self.box_score_thresh = box_score_thresh
-        self.lambda_obj = lambda_obj
-        self.lambda_noobj = lambda_noobj
-        self.lambda_class = lambda_class
-        self.lambda_coords = lambda_coords
+        self.num_classes: int = num_classes
+        self.rpn_nms_thresh: float = rpn_nms_thresh
+        self.box_score_thresh: float = box_score_thresh
+        self.lambda_obj: float = lambda_obj
+        self.lambda_noobj: float = lambda_noobj
+        self.lambda_class: float = lambda_class
+        self.lambda_coords: float = lambda_coords
+        self.num_anchors: int
 
     def _compute_losses(
         self,
         pred_boxes: Tensor,
         pred_o: Tensor,
         pred_scores: Tensor,
-        target: List[Dict[str, Tensor]],
+        target: list[dict[str, Tensor]],
         ignore_high_iou: bool = False,
-    ) -> Dict[str, Tensor]:
+    ) -> dict[str, Tensor]:
         """Computes the detector losses as described in `"You Only Look Once: Unified, Real-Time Object Detection"
         <https://pjreddie.com/media/files/papers/yolo_1.pdf>`_
 
@@ -64,7 +65,10 @@ class _YOLO(nn.Module):
             ignore_high_iou (bool): ignore the intersections with high IoUs in the noobj penalty term
 
         Returns:
-            dict: dictionary of losses
+            dict[str, Tensor]: dictionary of losses
+
+        Raises:
+            ValueError: if `target` is not specified in training mode
         """
         gt_boxes = [t["boxes"] for t in target]
         gt_labels = [t["labels"] for t in target]
@@ -132,13 +136,14 @@ class _YOLO(nn.Module):
         }
 
     @staticmethod
-    def to_isoboxes(b_coords: Tensor, grid_shape: Tuple[int, int], clamp: bool = False) -> Tensor:
+    def to_isoboxes(b_coords: Tensor, grid_shape: tuple[int, int], clamp: bool = False) -> Tensor:
         """Converts xywh boxes to xyxy format.
 
         Args:
             b_coords: tensor of shape (..., 4) where the last dimension is xcenter,ycenter,w,h
             grid_shape: the size of the grid
             clamp: whether the coords should be clamped to the extreme values
+
         Returns:
             tensor with the boxes using relative coords
         """
@@ -161,10 +166,10 @@ class _YOLO(nn.Module):
         b_coords: Tensor,
         b_o: Tensor,
         b_scores: Tensor,
-        grid_shape: Tuple[int, int],
+        grid_shape: tuple[int, int],
         rpn_nms_thresh: float = 0.7,
         box_score_thresh: float = 0.05,
-    ) -> List[Dict[str, Tensor]]:
+    ) -> list[dict[str, Tensor]]:
         """Perform final filtering to produce detections
 
         Args:
@@ -218,7 +223,7 @@ class _YOLO(nn.Module):
 class YOLOv1(_YOLO):
     def __init__(
         self,
-        layout: List[List[int]],
+        layout: list[list[int]],
         num_classes: int = 20,
         in_channels: int = 3,
         stem_channels: int = 64,
@@ -230,11 +235,11 @@ class YOLOv1(_YOLO):
         rpn_nms_thresh: float = 0.7,
         box_score_thresh: float = 0.05,
         head_hidden_nodes: int = 512,  # In the original paper, 4096
-        act_layer: Optional[nn.Module] = None,
-        norm_layer: Optional[Callable[[int], nn.Module]] = None,
-        drop_layer: Optional[Callable[..., nn.Module]] = None,
-        conv_layer: Optional[Callable[..., nn.Module]] = None,
-        backbone_norm_layer: Optional[Callable[[int], nn.Module]] = None,
+        act_layer: nn.Module | None = None,
+        norm_layer: Callable[[int], nn.Module] | None = None,
+        drop_layer: Callable[..., nn.Module] | None = None,
+        conv_layer: Callable[..., nn.Module] | None = None,
+        backbone_norm_layer: Callable[[int], nn.Module] | None = None,
     ) -> None:
         super().__init__(
             num_classes, rpn_nms_thresh, box_score_thresh, lambda_obj, lambda_noobj, lambda_class, lambda_coords
@@ -303,12 +308,12 @@ class YOLOv1(_YOLO):
             nn.Dropout(0.5),
             nn.Linear(head_hidden_nodes, 7**2 * (num_anchors * 5 + num_classes)),
         )
-        self.num_anchors = num_anchors
+        self.num_anchors: int = num_anchors
 
         init_module(self.block4, "leaky_relu")
         init_module(self.classifier, "leaky_relu")
 
-    def _format_outputs(self, x: Tensor) -> Tuple[Tensor, Tensor, Tensor]:
+    def _format_outputs(self, x: Tensor) -> tuple[Tensor, Tensor, Tensor]:
         """Formats convolutional layer output
 
         Args:
@@ -342,21 +347,26 @@ class YOLOv1(_YOLO):
         return self.classifier(out)
 
     def forward(
-        self, x: Tensor, target: Optional[List[Dict[str, Tensor]]] = None
-    ) -> Union[Dict[str, Tensor], List[Dict[str, Tensor]]]:
+        self, x: Tensor, target: list[dict[str, Tensor]] | None = None
+    ) -> dict[str, Tensor] | list[dict[str, Tensor]]:
         """Perform detection on an image tensor and returns either the loss dictionary in training mode
         or the list of detections in eval mode.
 
         Args:
-            x (torch.Tensor[N, 3, H, W]): input image tensor
-            target (list<dict>, optional): each dict must have two keys `boxes` of type torch.Tensor[-1, 4]
-            and `labels` of type torch.Tensor[-1]
+            x: input image tensor of shape (N, 3, H, W)
+            target: each dict must have two keys `boxes` of type torch.Tensor[-1, 4] and `labels` of type torch.Tensor[-1]
+
+        Returns:
+            loss dictionary in training mode or list of detections in eval mode
+
+        Raises:
+            ValueError: if `target` is not specified in training mode
         """
         if self.training and target is None:
             raise ValueError("`target` needs to be specified in training mode")
 
         if isinstance(x, (list, tuple)):
-            x = torch.stack(x, dim=0)
+            x = torch.stack(x, dim=0)  # ty: ignore[invalid-argument-type]
 
         out = self._forward(x)
 
@@ -379,7 +389,7 @@ class YOLOv1(_YOLO):
 
 
 def _yolo(
-    arch: str, pretrained: bool, progress: bool, pretrained_backbone: bool, layout: List[List[int]], **kwargs: Any
+    arch: str, pretrained: bool, progress: bool, pretrained_backbone: bool, layout: list[list[int]], **kwargs: Any
 ) -> YOLOv1:
     if pretrained:
         pretrained_backbone = False
@@ -404,7 +414,7 @@ def _yolo(
 
 def yolov1(pretrained: bool = False, progress: bool = True, pretrained_backbone: bool = True, **kwargs: Any) -> YOLOv1:
     r"""YOLO model from
-    `"You Only Look Once: Unified, Real-Time Object Detection" <https://pjreddie.com/media/files/papers/yolo_1.pdf>`_.
+    ["You Only Look Once: Unified, Real-Time Object Detection"](https://pjreddie.com/media/files/papers/yolo_1.pdf).
 
     YOLO's particularity is to make predictions in a grid (same size as last feature map). For each grid cell,
     the model predicts classification scores and a fixed number of boxes (default: 2). Each box in the cell gets
@@ -414,59 +424,64 @@ def yolov1(pretrained: bool = False, progress: bool = True, pretrained_backbone:
 
     For training, YOLO uses a multi-part loss whose components are computed by:
 
-    .. math::
-        \mathcal{L}_{coords} = \sum\limits_{i=0}^{S^2} \sum\limits_{j=0}^{B}
-        \mathbb{1}_{ij}^{obj} \Big[
-        (x_{ij} - \hat{x}_{ij})² + (y_{ij} - \hat{y}_{ij})² +
-        (\sqrt{w_{ij}} - \sqrt{\hat{w}_{ij}})² + (\sqrt{h_{ij}} - \sqrt{\hat{h}_{ij}})²
-        \Big]
+    $$
+    \mathcal{L}_{coords} = \sum\limits_{i=0}^{S^2} \sum\limits_{j=0}^{B}
+    \mathbb{1}_{ij}^{obj} \Big[
+    (x_{ij} - \hat{x}_{ij})² + (y_{ij} - \hat{y}_{ij})² +
+    (\sqrt{w_{ij}} - \sqrt{\hat{w}_{ij}})² + (\sqrt{h_{ij}} - \sqrt{\hat{h}_{ij}})²
+    \Big]
+    $$
 
-    where :math:`S` is size of the output feature map (7 for an input size :math:`(448, 448)`),
-    :math:`B` is the number of anchor boxes per grid cell (default: 2),
-    :math:`\mathbb{1}_{ij}^{obj}` equals to 1 if a GT center falls inside the i-th grid cell and among the
+    where:
+    $S$ is size of the output feature map (7 for an input size $(448, 448)$),
+    $B$ is the number of anchor boxes per grid cell (default: 2),
+    $\mathbb{1}_{ij}^{obj}$ equals to 1 if a GT center falls inside the i-th grid cell and among the
     anchor boxes of that cell, has the highest IoU with the j-th box else 0,
-    :math:`(x_{ij}, y_{ij}, w_{ij}, h_{ij})` are the coordinates of the ground truth assigned to
+    $(x_{ij}, y_{ij}, w_{ij}, h_{ij})$ are the coordinates of the ground truth assigned to
     the j-th anchor box of the i-th grid cell,
-    and :math:`(\hat{x}_{ij}, \hat{y}_{ij}, \hat{w}_{ij}, \hat{h}_{ij})` are the coordinate predictions
+    $(\hat{x}_{ij}, \hat{y}_{ij}, \hat{w}_{ij}, \hat{h}_{ij})$ are the coordinate predictions
     for the j-th anchor box of the i-th grid cell.
 
-    .. math::
-        \mathcal{L}_{objectness} = \sum\limits_{i=0}^{S^2} \sum\limits_{j=0}^{B}
-        \Big[ \mathbb{1}_{ij}^{obj} \Big(C_{ij} - \hat{C}_{ij} \Big)^2
-        + \lambda_{noobj} \mathbb{1}_{ij}^{noobj} \Big(C_{ij} - \hat{C}_{ij} \Big)^2
-        \Big]
+    $$
+    \mathcal{L}_{objectness} = \sum\limits_{i=0}^{S^2} \sum\limits_{j=0}^{B}
+    \Big[ \mathbb{1}_{ij}^{obj} \Big(C_{ij} - \hat{C}_{ij} \Big)^2
+    + \lambda_{noobj} \mathbb{1}_{ij}^{noobj} \Big(C_{ij} - \hat{C}_{ij} \Big)^2
+    \Big]
+    $$
 
-    where :math:`\lambda_{noobj}` is a positive coefficient (default: 0.5),
-    :math:`\mathbb{1}_{ij}^{noobj} = 1 - \mathbb{1}_{ij}^{obj}`,
-    :math:`C_{ij}` equals the Intersection Over Union between the j-th anchor box in the i-th grid cell and its
+    where $\lambda_{noobj}$ is a positive coefficient (default: 0.5),
+    $\mathbb{1}_{ij}^{noobj} = 1 - \mathbb{1}_{ij}^{obj}$,
+    $C_{ij}$ equals the Intersection Over Union between the j-th anchor box in the i-th grid cell and its
     matched ground truth box if that box is matched with a ground truth else 0,
-    and :math:`\hat{C}_{ij}` is the objectness score of the j-th anchor box in the i-th grid cell..
+    and $\hat{C}_{ij}$ is the objectness score of the j-th anchor box in the i-th grid cell..
 
-    .. math::
-        \mathcal{L}_{classification} = \sum\limits_{i=0}^{S^2}
-        \mathbb{1}_{i}^{obj} \sum\limits_{c \in classes}
-        (p_i(c) - \hat{p}_i(c))^2
+    $$
+    \mathcal{L}_{classification} = \sum\limits_{i=0}^{S^2}
+    \mathbb{1}_{i}^{obj} \sum\limits_{c \in classes}
+    (p_i(c) - \hat{p}_i(c))^2
+    $$
 
-    where :math:`\mathbb{1}_{i}^{obj}` equals to 1 if a GT center falls inside the i-th grid cell else 0,
-    :math:`p_i(c)` equals 1 if the assigned ground truth to the i-th cell is classified as class :math:`c`,
-    and :math:`\hat{p}_i(c)` is the predicted probability of class :math:`c` in the i-th cell.
+    where $\mathbb{1}_{i}^{obj}$ equals to 1 if a GT center falls inside the i-th grid cell else 0,
+    $p_i(c)$ equals 1 if the assigned ground truth to the i-th cell is classified as class $c$,
+    and $\hat{p}_i(c)$ is the predicted probability of class $c$ in the i-th cell.
 
     And the full loss is given by:
 
-    .. math::
-        \mathcal{L}_{YOLOv1} = \lambda_{coords} \cdot \mathcal{L}_{coords} +
-        \mathcal{L}_{objectness} + \mathcal{L}_{classification}
+    $$
+    \mathcal{L}_{YOLOv1} = \lambda_{coords} \cdot \mathcal{L}_{coords} +
+    \mathcal{L}_{objectness} + \mathcal{L}_{classification}
+    $$
 
-    where :math:`\lambda_{coords}` is a positive coefficient (default: 5).
+    where $\lambda_{coords}$ is a positive coefficient (default: 5).
 
     Args:
-        pretrained (bool, optional): If True, returns a model pre-trained on ImageNet
-        progress (bool, optional): If True, displays a progress bar of the download to stderr
-        pretrained_backbone (bool, optional): If True, backbone parameters will have been pretrained on Imagenette
-        kwargs: keyword args of _yolo
+        pretrained: If True, returns a model pre-trained on ImageNet
+        progress: If True, displays a progress bar of the download to stderr
+        pretrained_backbone: If True, backbone parameters will have been pretrained on Imagenette
+        kwargs: keyword args of [`YOLOv1`][holocron.models.detection.yolo.YOLOv1]
 
     Returns:
-        torch.nn.Module: detection module
+        detection module
     """
     return _yolo(
         "yolov1",

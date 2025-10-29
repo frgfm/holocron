@@ -23,7 +23,7 @@ def _test_activation_function(fn, input_shape):
             kwargs["inplace"] = inplace
         out = fn(x, **kwargs)
         assert out.shape == x.shape
-        if kwargs.get("inplace", False):
+        if kwargs.get("inplace"):
             assert x.data_ptr() == out.data_ptr()
 
 
