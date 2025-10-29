@@ -12,26 +12,28 @@
         <meta name="author" content="François-Guillaume Fernandez">
       
       
-        <link rel="canonical" href="https://frgfm.github.io/holocron/">
+        <link rel="canonical" href="https://frgfm.github.io/holocron/reference/models/classification/tridentnet/">
       
       
+        <link rel="prev" href="../res2net/">
       
-        <link rel="next" href="getting-started/installation/">
+      
+        <link rel="next" href="../convnext/">
       
       
-      <link rel="icon" href="img/favicon.ico">
+      <link rel="icon" href="../../../../img/favicon.ico">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.22">
     
     
       
-        <title>Holocron</title>
+        <title>TridentNet - Holocron</title>
       
     
     
-      <link rel="stylesheet" href="assets/stylesheets/main.84d31ad4.min.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.84d31ad4.min.css">
       
         
-        <link rel="stylesheet" href="assets/stylesheets/palette.06af60db.min.css">
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.06af60db.min.css">
       
       
 
@@ -50,11 +52,11 @@
       
     
     
-      <link rel="stylesheet" href="assets/_mkdocstrings.css">
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
     
       <link rel="stylesheet" href="https://unpkg.com/katex@0/dist/katex.min.css">
     
-    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
   
@@ -90,7 +92,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#holocron-a-deep-learning-toolbox-for-pytorch" class="md-skip">
+        <a href="#tridentnet" class="md-skip">
           Skip to content
         </a>
       
@@ -106,9 +108,9 @@
 
 <header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="." title="Holocron" class="md-header__button md-logo" aria-label="Holocron" data-md-component="logo">
+    <a href="../../../.." title="Holocron" class="md-header__button md-logo" aria-label="Holocron" data-md-component="logo">
       
-  <img src="img/logo.png" alt="logo">
+  <img src="../../../../img/logo.png" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -125,7 +127,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Home
+              TridentNet
             
           </span>
         </div>
@@ -245,11 +247,9 @@
   
   
   
-    
   
-  
-    <li class="md-tabs__item md-tabs__item--active">
-      <a href="." class="md-tabs__link">
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
         
   
   
@@ -270,7 +270,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="getting-started/installation/" class="md-tabs__link">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
           
   
   
@@ -288,6 +288,8 @@
   
   
   
+    
+  
   
     
     
@@ -295,11 +297,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="reference/models/models/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../models/" class="md-tabs__link">
           
   
   
@@ -324,7 +328,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="notes/changelog/" class="md-tabs__link">
+        <a href="../../../../notes/changelog/" class="md-tabs__link">
           
   
   
@@ -366,9 +370,9 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="." title="Holocron" class="md-nav__button md-logo" aria-label="Holocron" data-md-component="logo">
+    <a href="../../../.." title="Holocron" class="md-nav__button md-logo" aria-label="Holocron" data-md-component="logo">
       
-  <img src="img/logo.png" alt="logo">
+  <img src="../../../../img/logo.png" alt="logo">
 
     </a>
     Holocron
@@ -392,32 +396,10 @@
       
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Home
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="." class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
         
   
   
@@ -428,68 +410,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#model-zoo" class="md-nav__link">
-    <span class="md-ellipsis">
-      Model zoo
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Model zoo">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#image-classification" class="md-nav__link">
-    <span class="md-ellipsis">
-      Image classification
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#semantic-segmentation" class="md-nav__link">
-    <span class="md-ellipsis">
-      Semantic segmentation
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#object-detection" class="md-nav__link">
-    <span class="md-ellipsis">
-      Object detection
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -548,7 +468,7 @@
   
   
     <li class="md-nav__item">
-      <a href="getting-started/installation/" class="md-nav__link">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
         
   
   
@@ -571,7 +491,7 @@
   
   
     <li class="md-nav__item">
-      <a href="getting-started/notebooks/" class="md-nav__link">
+      <a href="../../../../getting-started/notebooks/" class="md-nav__link">
         
   
   
@@ -598,8 +518,10 @@
       
   
   
+    
   
   
+  
     
     
       
@@ -621,17 +543,20 @@
     
     
       
+        
+        
+      
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
             
   
   
@@ -644,7 +569,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             Package Reference
@@ -655,8 +580,10 @@
                 
   
   
+    
   
   
+  
     
     
       
@@ -671,11 +598,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" checked>
         
           
           <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
@@ -691,7 +618,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3_1">
             <span class="md-nav__icon md-icon"></span>
             Models
@@ -705,7 +632,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/models/models/" class="md-nav__link">
+      <a href="../../models/" class="md-nav__link">
         
   
   
@@ -725,8 +652,10 @@
                 
   
   
+    
   
   
+  
     
     
       
@@ -765,11 +694,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1_2" checked>
         
           
           <label class="md-nav__link" for="__nav_3_1_2" id="__nav_3_1_2_label" tabindex="0">
@@ -785,7 +714,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_1_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_1_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3_1_2">
             <span class="md-nav__icon md-icon"></span>
             Classification
@@ -799,7 +728,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/models/classification/resnet/" class="md-nav__link">
+      <a href="../resnet/" class="md-nav__link">
         
   
   
@@ -822,7 +751,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/models/classification/resnext/" class="md-nav__link">
+      <a href="../resnext/" class="md-nav__link">
         
   
   
@@ -845,7 +774,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/models/classification/res2net/" class="md-nav__link">
+      <a href="../res2net/" class="md-nav__link">
         
   
   
@@ -865,10 +794,32 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="reference/models/classification/tridentnet/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    TridentNet
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -879,6 +830,59 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#architecture-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Architecture overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#model-builders" class="md-nav__link">
+    <span class="md-ellipsis">
+      Model builders
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Model builders">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#holocron.models.classification.tridentnet50" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;tridentnet50
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -891,7 +895,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/models/classification/convnext/" class="md-nav__link">
+      <a href="../convnext/" class="md-nav__link">
         
   
   
@@ -914,7 +918,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/models/classification/pyconv_resnet/" class="md-nav__link">
+      <a href="../pyconv_resnet/" class="md-nav__link">
         
   
   
@@ -937,7 +941,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/models/classification/rexnet/" class="md-nav__link">
+      <a href="../rexnet/" class="md-nav__link">
         
   
   
@@ -960,7 +964,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/models/classification/sknet/" class="md-nav__link">
+      <a href="../sknet/" class="md-nav__link">
         
   
   
@@ -983,7 +987,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/models/classification/darknet/" class="md-nav__link">
+      <a href="../darknet/" class="md-nav__link">
         
   
   
@@ -1006,7 +1010,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/models/classification/darknetv2/" class="md-nav__link">
+      <a href="../darknetv2/" class="md-nav__link">
         
   
   
@@ -1029,7 +1033,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/models/classification/darknetv3/" class="md-nav__link">
+      <a href="../darknetv3/" class="md-nav__link">
         
   
   
@@ -1052,7 +1056,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/models/classification/darknetv4/" class="md-nav__link">
+      <a href="../darknetv4/" class="md-nav__link">
         
   
   
@@ -1075,7 +1079,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/models/classification/repvgg/" class="md-nav__link">
+      <a href="../repvgg/" class="md-nav__link">
         
   
   
@@ -1098,7 +1102,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/models/classification/mobileone/" class="md-nav__link">
+      <a href="../mobileone/" class="md-nav__link">
         
   
   
@@ -1137,7 +1141,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/nn/" class="md-nav__link">
+      <a href="../../../nn/" class="md-nav__link">
         
   
   
@@ -1160,7 +1164,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/ops/" class="md-nav__link">
+      <a href="../../../ops/" class="md-nav__link">
         
   
   
@@ -1183,7 +1187,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/optim/" class="md-nav__link">
+      <a href="../../../optim/" class="md-nav__link">
         
   
   
@@ -1206,7 +1210,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/trainer/" class="md-nav__link">
+      <a href="../../../trainer/" class="md-nav__link">
         
   
   
@@ -1229,7 +1233,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/transforms/" class="md-nav__link">
+      <a href="../../../transforms/" class="md-nav__link">
         
   
   
@@ -1299,7 +1303,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/utils/" class="md-nav__link">
+      <a href="../../../utils/" class="md-nav__link">
         
   
   
@@ -1322,7 +1326,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/utils.data/" class="md-nav__link">
+      <a href="../../../utils.data/" class="md-nav__link">
         
   
   
@@ -1405,7 +1409,7 @@
   
   
     <li class="md-nav__item">
-      <a href="notes/changelog/" class="md-nav__link">
+      <a href="../../../../notes/changelog/" class="md-nav__link">
         
   
   
@@ -1455,37 +1459,28 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#model-zoo" class="md-nav__link">
+  <a href="#architecture-overview" class="md-nav__link">
     <span class="md-ellipsis">
-      Model zoo
+      Architecture overview
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Model zoo">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#model-builders" class="md-nav__link">
+    <span class="md-ellipsis">
+      Model builders
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Model builders">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#image-classification" class="md-nav__link">
+  <a href="#holocron.models.classification.tridentnet50" class="md-nav__link">
     <span class="md-ellipsis">
-      Image classification
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#semantic-segmentation" class="md-nav__link">
-    <span class="md-ellipsis">
-      Semantic segmentation
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#object-detection" class="md-nav__link">
-    <span class="md-ellipsis">
-      Object detection
+      <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;tridentnet50
     </span>
   </a>
   
@@ -1515,38 +1510,202 @@
   
 
 
-<h1 id="holocron-a-deep-learning-toolbox-for-pytorch">Holocron: a Deep Learning toolbox for PyTorch<a class="headerlink" href="#holocron-a-deep-learning-toolbox-for-pytorch" title="Permanent link">&para;</a></h1>
-<p align="center">
-    <img src="img/logo_text.png" alt="Holocron logo">
-</p>
+<h1 id="tridentnet">TridentNet<a class="headerlink" href="#tridentnet" title="Permanent link">&para;</a></h1>
+<p>The ResNeXt model is based on the <a href="https://arxiv.org/pdf/1901.01892.pdf">"Scale-Aware Trident Networks for Object Detection"</a> paper.</p>
+<h2 id="architecture-overview">Architecture overview<a class="headerlink" href="#architecture-overview" title="Permanent link">&para;</a></h2>
+<p>This paper replaces the bottleneck block of ResNet architectures by a multi-scale version.</p>
+<p><img alt="TridentNet architecture" src="https://github.com/frgfm/Holocron/releases/download/v0.2.1/tridentnet.png" /></p>
+<p>The key takeaways from the paper are the following:</p>
+<ul>
+<li>switch bottleneck to a 3 branch system</li>
+<li>all parallel branches share the same parameters but using different dilation values</li>
+</ul>
+<h2 id="model-builders">Model builders<a class="headerlink" href="#model-builders" title="Permanent link">&para;</a></h2>
+<p>The following model builders can be used to instantiate a TridentNet model, with or
+without pre-trained weights. All the model builders internally rely on the
+<a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-class&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-class-name&quot;&gt;ResNet&lt;/span&gt;" href="../resnet/#holocron.models.classification.ResNet"><code>ResNet</code></a> base class.</p>
 
-<p>Holocron is meant to bridge the gap between <a href="https://pytorch.org/">PyTorch</a> and latest research papers. It brings training components that are not available yet in PyTorch with a similar interface.</p>
-<p>This project is meant for:</p>
-<ul>
-<li><img alt="⚡" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/svg/26a1.svg" title=":zap:" /> <strong>speed</strong>: architectures in this repo are picked for both pure performances and minimal latency</li>
-<li><img alt="👩‍🔬" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/svg/1f469-200d-1f52c.svg" title=":woman_scientist:" /> <strong>research</strong>: train your models easily to SOTA standards</li>
-</ul>
-<h2 id="model-zoo">Model zoo<a class="headerlink" href="#model-zoo" title="Permanent link">&para;</a></h2>
-<h3 id="image-classification">Image classification<a class="headerlink" href="#image-classification" title="Permanent link">&para;</a></h3>
-<ul>
-<li>TridentNet from <a href="https://arxiv.org/pdf/1901.01892.pdf">"Scale-Aware Trident Networks for Object Detection"</a></li>
-<li>SKNet from <a href="https://arxiv.org/pdf/1903.06586.pdf">"Selective Kernel Networks"</a></li>
-<li>PyConvResNet from <a href="https://arxiv.org/pdf/2006.11538.pdf">"Pyramidal Convolution: Rethinking Convolutional Neural Networks for Visual Recognition"</a></li>
-<li>ReXNet from <a href="https://arxiv.org/pdf/2007.00992.pdf">"ReXNet: Diminishing Representational Bottleneck on Convolutional Neural Network"</a></li>
-<li>RepVGG from <a href="https://arxiv.org/pdf/2101.03697.pdf">"RepVGG: Making VGG-style ConvNets Great Again"</a></li>
-</ul>
-<h3 id="semantic-segmentation">Semantic segmentation<a class="headerlink" href="#semantic-segmentation" title="Permanent link">&para;</a></h3>
-<ul>
-<li>U-Net from <a href="https://arxiv.org/pdf/1505.04597.pdf">"U-Net: Convolutional Networks for Biomedical Image Segmentation"</a></li>
-<li>U-Net++ from <a href="https://arxiv.org/pdf/1912.05074.pdf">"UNet++: Redesigning Skip Connections to Exploit Multiscale Features in Image Segmentation"</a></li>
-<li>UNet3+ from <a href="https://arxiv.org/pdf/2004.08790.pdf">"UNet 3+: A Full-Scale Connected UNet For Medical Image Segmentation"</a></li>
-</ul>
-<h3 id="object-detection">Object detection<a class="headerlink" href="#object-detection" title="Permanent link">&para;</a></h3>
-<ul>
-<li>YOLO from <a href="https://pjreddie.com/media/files/papers/yolo_1.pdf">"You Only Look Once: Unified, Real-Time Object Detection"</a></li>
-<li>YOLOv2 from <a href="https://pjreddie.com/media/files/papers/YOLO9000.pdf">"YOLO9000: Better, Faster, Stronger"</a></li>
-<li>YOLOv4 from <a href="https://arxiv.org/pdf/2004.10934.pdf">"YOLOv4: Optimal Speed and Accuracy of Object Detection"</a></li>
-</ul>
+
+<div class="doc doc-object doc-module">
+
+
+
+
+    <div class="doc doc-contents first">
+
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="holocron.models.classification.tridentnet50" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <span class="doc doc-object-name doc-function-name">tridentnet50</span>
+
+
+<a href="#holocron.models.classification.tridentnet50" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">tridentnet50</span><span class="p">(</span><span class="n">pretrained</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">progress</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="&lt;code&gt;typing.Any&lt;/code&gt;" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-class&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-class-name&quot;&gt;ResNet&lt;/span&gt; (&lt;code&gt;holocron.models.classification.resnet.ResNet&lt;/code&gt;)" href="../resnet/#holocron.models.classification.ResNet">ResNet</a></span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>TridentNet-50 from
+<a href="https://arxiv.org/pdf/1901.01892.pdf">"Scale-Aware Trident Networks for Object Detection"</a></p>
+
+
+<table>
+      <thead>
+        <tr>
+          <th><span class="doc-section-title">PARAMETER</span></th>
+          <th><span>DESCRIPTION</span></th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>pretrained</code>
+            </td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>If True, returns a model pre-trained on ImageNet</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></code>
+                  </span>
+                  <span class="doc-param-default">
+                    <b>DEFAULT:</b>
+                      <code>False</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>progress</code>
+            </td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>If True, displays a progress bar of the download to stderr</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></code>
+                  </span>
+                  <span class="doc-param-default">
+                    <b>DEFAULT:</b>
+                      <code>True</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>kwargs</code>
+            </td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>keyword args of <a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-class&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-class-name&quot;&gt;ResNet&lt;/span&gt;" href="../resnet/#holocron.models.classification.ResNet"><code>ResNet</code></a></p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" title="&lt;code&gt;typing.Any&lt;/code&gt;" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a></code>
+                  </span>
+                  <span class="doc-param-default">
+                    <b>DEFAULT:</b>
+                      <code>{}</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<table>
+      <thead>
+        <tr>
+          <th><span class="doc-section-title">RETURNS</span></th>
+          <th><span>DESCRIPTION</span></th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <span class="doc-returns-annotation">
+                    <code><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-class&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-class-name&quot;&gt;ResNet&lt;/span&gt; (&lt;code&gt;holocron.models.classification.resnet.ResNet&lt;/code&gt;)" href="../resnet/#holocron.models.classification.ResNet">ResNet</a></code>
+                </span>
+            </td>
+            <td class="doc-returns-details">
+              <div class="doc-md-description">
+                <p>classification model</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="quote">
+              <summary>Source code in <code>holocron/models/classification/tridentnet.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-156">156</a></span>
+<span class="normal"><a href="#__codelineno-0-157">157</a></span>
+<span class="normal"><a href="#__codelineno-0-158">158</a></span>
+<span class="normal"><a href="#__codelineno-0-159">159</a></span>
+<span class="normal"><a href="#__codelineno-0-160">160</a></span>
+<span class="normal"><a href="#__codelineno-0-161">161</a></span>
+<span class="normal"><a href="#__codelineno-0-162">162</a></span>
+<span class="normal"><a href="#__codelineno-0-163">163</a></span>
+<span class="normal"><a href="#__codelineno-0-164">164</a></span>
+<span class="normal"><a href="#__codelineno-0-165">165</a></span>
+<span class="normal"><a href="#__codelineno-0-166">166</a></span>
+<span class="normal"><a href="#__codelineno-0-167">167</a></span>
+<span class="normal"><a href="#__codelineno-0-168">168</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-156"><a id="__codelineno-0-156" name="__codelineno-0-156"></a><span class="k">def</span><span class="w"> </span><span class="nf">tridentnet50</span><span class="p">(</span><span class="n">pretrained</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">progress</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ResNet</span><span class="p">:</span>
+</span><span id="__span-0-157"><a id="__codelineno-0-157" name="__codelineno-0-157"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;TridentNet-50 from</span>
+</span><span id="__span-0-158"><a id="__codelineno-0-158" name="__codelineno-0-158"></a><span class="sd">    [&quot;Scale-Aware Trident Networks for Object Detection&quot;](https://arxiv.org/pdf/1901.01892.pdf)</span>
+</span><span id="__span-0-159"><a id="__codelineno-0-159" name="__codelineno-0-159"></a>
+</span><span id="__span-0-160"><a id="__codelineno-0-160" name="__codelineno-0-160"></a><span class="sd">    Args:</span>
+</span><span id="__span-0-161"><a id="__codelineno-0-161" name="__codelineno-0-161"></a><span class="sd">        pretrained: If True, returns a model pre-trained on ImageNet</span>
+</span><span id="__span-0-162"><a id="__codelineno-0-162" name="__codelineno-0-162"></a><span class="sd">        progress: If True, displays a progress bar of the download to stderr</span>
+</span><span id="__span-0-163"><a id="__codelineno-0-163" name="__codelineno-0-163"></a><span class="sd">        kwargs: keyword args of [`ResNet`][holocron.models.classification.resnet.ResNet]</span>
+</span><span id="__span-0-164"><a id="__codelineno-0-164" name="__codelineno-0-164"></a>
+</span><span id="__span-0-165"><a id="__codelineno-0-165" name="__codelineno-0-165"></a><span class="sd">    Returns:</span>
+</span><span id="__span-0-166"><a id="__codelineno-0-166" name="__codelineno-0-166"></a><span class="sd">        classification model</span>
+</span><span id="__span-0-167"><a id="__codelineno-0-167" name="__codelineno-0-167"></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="__span-0-168"><a id="__codelineno-0-168" name="__codelineno-0-168"></a>    <span class="k">return</span> <span class="n">_tridentnet</span><span class="p">(</span><span class="s2">&quot;tridentnet50&quot;</span><span class="p">,</span> <span class="n">pretrained</span><span class="p">,</span> <span class="n">progress</span><span class="p">,</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">64</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">512</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span></code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
 
 
 
@@ -1585,15 +1744,31 @@
       
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
+          
+          <a href="../res2net/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Res2Net">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Res2Net
+              </div>
+            </div>
+          </a>
+        
         
           
-          <a href="getting-started/installation/" class="md-footer__link md-footer__link--next" aria-label="Next: Installation">
+          <a href="../convnext/" class="md-footer__link md-footer__link--next" aria-label="Next: ConvNeXt">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Installation
+                ConvNeXt
               </div>
             </div>
             <div class="md-footer__button md-icon">
@@ -1695,12 +1870,12 @@
     
     
       
-      <script id="__config" type="application/json">{"base": ".", "features": ["content.code.annotate", "content.code.copy", "content.footnote.tooltips", "content.tabs.link", "content.tooltips", "navigation.footer", "navigation.indexes", "navigation.instant", "navigation.instant.prefetch", "navigation.instant.progress", "navigation.path", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "navigation.tracking", "search.highlight", "search.share", "search.suggest", "toc.follow"], "search": "assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"base": "../../../..", "features": ["content.code.annotate", "content.code.copy", "content.footnote.tooltips", "content.tabs.link", "content.tooltips", "navigation.footer", "navigation.indexes", "navigation.instant", "navigation.instant.prefetch", "navigation.instant.progress", "navigation.path", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "navigation.tracking", "search.highlight", "search.share", "search.suggest", "toc.follow"], "search": "../../../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="assets/javascripts/bundle.f55a23d4.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.f55a23d4.min.js"></script>
       
-        <script src="js/katex.js"></script>
+        <script src="../../../../js/katex.js"></script>
       
         <script src="https://unpkg.com/katex@0/dist/katex.min.js"></script>
       

@@ -12,26 +12,28 @@
         <meta name="author" content="François-Guillaume Fernandez">
       
       
-        <link rel="canonical" href="https://frgfm.github.io/holocron/">
+        <link rel="canonical" href="https://frgfm.github.io/holocron/reference/models/classification/res2net/">
       
       
+        <link rel="prev" href="../resnext/">
       
-        <link rel="next" href="getting-started/installation/">
+      
+        <link rel="next" href="../tridentnet/">
       
       
-      <link rel="icon" href="img/favicon.ico">
+      <link rel="icon" href="../../../../img/favicon.ico">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.22">
     
     
       
-        <title>Holocron</title>
+        <title>Res2Net - Holocron</title>
       
     
     
-      <link rel="stylesheet" href="assets/stylesheets/main.84d31ad4.min.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.84d31ad4.min.css">
       
         
-        <link rel="stylesheet" href="assets/stylesheets/palette.06af60db.min.css">
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.06af60db.min.css">
       
       
 
@@ -50,11 +52,11 @@
       
     
     
-      <link rel="stylesheet" href="assets/_mkdocstrings.css">
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
     
       <link rel="stylesheet" href="https://unpkg.com/katex@0/dist/katex.min.css">
     
-    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
   
@@ -90,7 +92,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#holocron-a-deep-learning-toolbox-for-pytorch" class="md-skip">
+        <a href="#res2net" class="md-skip">
           Skip to content
         </a>
       
@@ -106,9 +108,9 @@
 
 <header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="." title="Holocron" class="md-header__button md-logo" aria-label="Holocron" data-md-component="logo">
+    <a href="../../../.." title="Holocron" class="md-header__button md-logo" aria-label="Holocron" data-md-component="logo">
       
-  <img src="img/logo.png" alt="logo">
+  <img src="../../../../img/logo.png" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -125,7 +127,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Home
+              Res2Net
             
           </span>
         </div>
@@ -245,11 +247,9 @@
   
   
   
-    
   
-  
-    <li class="md-tabs__item md-tabs__item--active">
-      <a href="." class="md-tabs__link">
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
         
   
   
@@ -270,7 +270,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="getting-started/installation/" class="md-tabs__link">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
           
   
   
@@ -288,6 +288,8 @@
   
   
   
+    
+  
   
     
     
@@ -295,11 +297,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="reference/models/models/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../models/" class="md-tabs__link">
           
   
   
@@ -324,7 +328,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="notes/changelog/" class="md-tabs__link">
+        <a href="../../../../notes/changelog/" class="md-tabs__link">
           
   
   
@@ -366,9 +370,9 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="." title="Holocron" class="md-nav__button md-logo" aria-label="Holocron" data-md-component="logo">
+    <a href="../../../.." title="Holocron" class="md-nav__button md-logo" aria-label="Holocron" data-md-component="logo">
       
-  <img src="img/logo.png" alt="logo">
+  <img src="../../../../img/logo.png" alt="logo">
 
     </a>
     Holocron
@@ -392,32 +396,10 @@
       
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Home
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="." class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
         
   
   
@@ -428,68 +410,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#model-zoo" class="md-nav__link">
-    <span class="md-ellipsis">
-      Model zoo
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Model zoo">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#image-classification" class="md-nav__link">
-    <span class="md-ellipsis">
-      Image classification
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#semantic-segmentation" class="md-nav__link">
-    <span class="md-ellipsis">
-      Semantic segmentation
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#object-detection" class="md-nav__link">
-    <span class="md-ellipsis">
-      Object detection
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -548,7 +468,7 @@
   
   
     <li class="md-nav__item">
-      <a href="getting-started/installation/" class="md-nav__link">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
         
   
   
@@ -571,7 +491,7 @@
   
   
     <li class="md-nav__item">
-      <a href="getting-started/notebooks/" class="md-nav__link">
+      <a href="../../../../getting-started/notebooks/" class="md-nav__link">
         
   
   
@@ -598,8 +518,10 @@
       
   
   
+    
   
   
+  
     
     
       
@@ -621,17 +543,20 @@
     
     
       
+        
+        
+      
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
             
   
   
@@ -644,7 +569,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             Package Reference
@@ -655,8 +580,10 @@
                 
   
   
+    
   
   
+  
     
     
       
@@ -671,11 +598,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" checked>
         
           
           <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
@@ -691,7 +618,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3_1">
             <span class="md-nav__icon md-icon"></span>
             Models
@@ -705,7 +632,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/models/models/" class="md-nav__link">
+      <a href="../../models/" class="md-nav__link">
         
   
   
@@ -725,8 +652,10 @@
                 
   
   
+    
   
   
+  
     
     
       
@@ -765,11 +694,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1_2" checked>
         
           
           <label class="md-nav__link" for="__nav_3_1_2" id="__nav_3_1_2_label" tabindex="0">
@@ -785,7 +714,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_1_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_1_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3_1_2">
             <span class="md-nav__icon md-icon"></span>
             Classification
@@ -799,7 +728,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/models/classification/resnet/" class="md-nav__link">
+      <a href="../resnet/" class="md-nav__link">
         
   
   
@@ -822,7 +751,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/models/classification/resnext/" class="md-nav__link">
+      <a href="../resnext/" class="md-nav__link">
         
   
   
@@ -842,10 +771,32 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="reference/models/classification/res2net/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Res2Net
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -856,6 +807,98 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#architecture-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Architecture overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#model-builders" class="md-nav__link">
+    <span class="md-ellipsis">
+      Model builders
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Model builders">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#holocron.models.classification.res2net50_26w_4s" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;res2net50_26w_4s
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" res2net50_26w_4s">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#holocron.models.Res2Net50_26w_4s_Checkpoint" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;Res2Net50_26w_4s_Checkpoint
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" Res2Net50_26w_4s_Checkpoint">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#holocron.models.Res2Net50_26w_4s_Checkpoint.IMAGENETTE" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;IMAGENETTE
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#holocron.models.Res2Net50_26w_4s_Checkpoint.DEFAULT" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;DEFAULT
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -868,7 +911,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/models/classification/tridentnet/" class="md-nav__link">
+      <a href="../tridentnet/" class="md-nav__link">
         
   
   
@@ -891,7 +934,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/models/classification/convnext/" class="md-nav__link">
+      <a href="../convnext/" class="md-nav__link">
         
   
   
@@ -914,7 +957,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/models/classification/pyconv_resnet/" class="md-nav__link">
+      <a href="../pyconv_resnet/" class="md-nav__link">
         
   
   
@@ -937,7 +980,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/models/classification/rexnet/" class="md-nav__link">
+      <a href="../rexnet/" class="md-nav__link">
         
   
   
@@ -960,7 +1003,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/models/classification/sknet/" class="md-nav__link">
+      <a href="../sknet/" class="md-nav__link">
         
   
   
@@ -983,7 +1026,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/models/classification/darknet/" class="md-nav__link">
+      <a href="../darknet/" class="md-nav__link">
         
   
   
@@ -1006,7 +1049,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/models/classification/darknetv2/" class="md-nav__link">
+      <a href="../darknetv2/" class="md-nav__link">
         
   
   
@@ -1029,7 +1072,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/models/classification/darknetv3/" class="md-nav__link">
+      <a href="../darknetv3/" class="md-nav__link">
         
   
   
@@ -1052,7 +1095,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/models/classification/darknetv4/" class="md-nav__link">
+      <a href="../darknetv4/" class="md-nav__link">
         
   
   
@@ -1075,7 +1118,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/models/classification/repvgg/" class="md-nav__link">
+      <a href="../repvgg/" class="md-nav__link">
         
   
   
@@ -1098,7 +1141,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/models/classification/mobileone/" class="md-nav__link">
+      <a href="../mobileone/" class="md-nav__link">
         
   
   
@@ -1137,7 +1180,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/nn/" class="md-nav__link">
+      <a href="../../../nn/" class="md-nav__link">
         
   
   
@@ -1160,7 +1203,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/ops/" class="md-nav__link">
+      <a href="../../../ops/" class="md-nav__link">
         
   
   
@@ -1183,7 +1226,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/optim/" class="md-nav__link">
+      <a href="../../../optim/" class="md-nav__link">
         
   
   
@@ -1206,7 +1249,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/trainer/" class="md-nav__link">
+      <a href="../../../trainer/" class="md-nav__link">
         
   
   
@@ -1229,7 +1272,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/transforms/" class="md-nav__link">
+      <a href="../../../transforms/" class="md-nav__link">
         
   
   
@@ -1299,7 +1342,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/utils/" class="md-nav__link">
+      <a href="../../../utils/" class="md-nav__link">
         
   
   
@@ -1322,7 +1365,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/utils.data/" class="md-nav__link">
+      <a href="../../../utils.data/" class="md-nav__link">
         
   
   
@@ -1405,7 +1448,7 @@
   
   
     <li class="md-nav__item">
-      <a href="notes/changelog/" class="md-nav__link">
+      <a href="../../../../notes/changelog/" class="md-nav__link">
         
   
   
@@ -1455,39 +1498,69 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#model-zoo" class="md-nav__link">
+  <a href="#architecture-overview" class="md-nav__link">
     <span class="md-ellipsis">
-      Model zoo
+      Architecture overview
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Model zoo">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#model-builders" class="md-nav__link">
+    <span class="md-ellipsis">
+      Model builders
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Model builders">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#image-classification" class="md-nav__link">
+  <a href="#holocron.models.classification.res2net50_26w_4s" class="md-nav__link">
     <span class="md-ellipsis">
-      Image classification
+      <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;res2net50_26w_4s
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" res2net50_26w_4s">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#holocron.models.Res2Net50_26w_4s_Checkpoint" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;Res2Net50_26w_4s_Checkpoint
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" Res2Net50_26w_4s_Checkpoint">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#holocron.models.Res2Net50_26w_4s_Checkpoint.IMAGENETTE" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;IMAGENETTE
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#semantic-segmentation" class="md-nav__link">
+  <a href="#holocron.models.Res2Net50_26w_4s_Checkpoint.DEFAULT" class="md-nav__link">
     <span class="md-ellipsis">
-      Semantic segmentation
+      <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;DEFAULT
     </span>
   </a>
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#object-detection" class="md-nav__link">
-    <span class="md-ellipsis">
-      Object detection
-    </span>
-  </a>
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -1515,38 +1588,350 @@
   
 
 
-<h1 id="holocron-a-deep-learning-toolbox-for-pytorch">Holocron: a Deep Learning toolbox for PyTorch<a class="headerlink" href="#holocron-a-deep-learning-toolbox-for-pytorch" title="Permanent link">&para;</a></h1>
-<p align="center">
-    <img src="img/logo_text.png" alt="Holocron logo">
-</p>
+<h1 id="res2net">Res2Net<a class="headerlink" href="#res2net" title="Permanent link">&para;</a></h1>
+<p>The Res2Net model is based on the <a href="https://arxiv.org/pdf/1904.01169.pdf">"Res2Net: A New Multi-scale Backbone Architecture"</a> paper.</p>
+<h2 id="architecture-overview">Architecture overview<a class="headerlink" href="#architecture-overview" title="Permanent link">&para;</a></h2>
+<p>This paper replaces the bottleneck block of ResNet architectures by a multi-scale version.</p>
+<p><img alt="Res2Net architecture" src="https://github.com/frgfm/Holocron/releases/download/v0.2.1/res2net.png" /></p>
+<p>The key takeaways from the paper are the following:</p>
+<ul>
+<li>switch to efficient multi-scale convolutions using a cascade of conv 3x3</li>
+<li>adapt the block for cardinality &amp; SE blocks</li>
+</ul>
+<h2 id="model-builders">Model builders<a class="headerlink" href="#model-builders" title="Permanent link">&para;</a></h2>
+<p>The following model builders can be used to instantiate a Res2Net model, with or
+without pre-trained weights. All the model builders internally rely on the
+<a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-class&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-class-name&quot;&gt;ResNet&lt;/span&gt;" href="../resnet/#holocron.models.classification.ResNet"><code>ResNet</code></a> base class.</p>
 
-<p>Holocron is meant to bridge the gap between <a href="https://pytorch.org/">PyTorch</a> and latest research papers. It brings training components that are not available yet in PyTorch with a similar interface.</p>
-<p>This project is meant for:</p>
-<ul>
-<li><img alt="⚡" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/svg/26a1.svg" title=":zap:" /> <strong>speed</strong>: architectures in this repo are picked for both pure performances and minimal latency</li>
-<li><img alt="👩‍🔬" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/svg/1f469-200d-1f52c.svg" title=":woman_scientist:" /> <strong>research</strong>: train your models easily to SOTA standards</li>
-</ul>
-<h2 id="model-zoo">Model zoo<a class="headerlink" href="#model-zoo" title="Permanent link">&para;</a></h2>
-<h3 id="image-classification">Image classification<a class="headerlink" href="#image-classification" title="Permanent link">&para;</a></h3>
-<ul>
-<li>TridentNet from <a href="https://arxiv.org/pdf/1901.01892.pdf">"Scale-Aware Trident Networks for Object Detection"</a></li>
-<li>SKNet from <a href="https://arxiv.org/pdf/1903.06586.pdf">"Selective Kernel Networks"</a></li>
-<li>PyConvResNet from <a href="https://arxiv.org/pdf/2006.11538.pdf">"Pyramidal Convolution: Rethinking Convolutional Neural Networks for Visual Recognition"</a></li>
-<li>ReXNet from <a href="https://arxiv.org/pdf/2007.00992.pdf">"ReXNet: Diminishing Representational Bottleneck on Convolutional Neural Network"</a></li>
-<li>RepVGG from <a href="https://arxiv.org/pdf/2101.03697.pdf">"RepVGG: Making VGG-style ConvNets Great Again"</a></li>
-</ul>
-<h3 id="semantic-segmentation">Semantic segmentation<a class="headerlink" href="#semantic-segmentation" title="Permanent link">&para;</a></h3>
-<ul>
-<li>U-Net from <a href="https://arxiv.org/pdf/1505.04597.pdf">"U-Net: Convolutional Networks for Biomedical Image Segmentation"</a></li>
-<li>U-Net++ from <a href="https://arxiv.org/pdf/1912.05074.pdf">"UNet++: Redesigning Skip Connections to Exploit Multiscale Features in Image Segmentation"</a></li>
-<li>UNet3+ from <a href="https://arxiv.org/pdf/2004.08790.pdf">"UNet 3+: A Full-Scale Connected UNet For Medical Image Segmentation"</a></li>
-</ul>
-<h3 id="object-detection">Object detection<a class="headerlink" href="#object-detection" title="Permanent link">&para;</a></h3>
-<ul>
-<li>YOLO from <a href="https://pjreddie.com/media/files/papers/yolo_1.pdf">"You Only Look Once: Unified, Real-Time Object Detection"</a></li>
-<li>YOLOv2 from <a href="https://pjreddie.com/media/files/papers/YOLO9000.pdf">"YOLO9000: Better, Faster, Stronger"</a></li>
-<li>YOLOv4 from <a href="https://arxiv.org/pdf/2004.10934.pdf">"YOLOv4: Optimal Speed and Accuracy of Object Detection"</a></li>
-</ul>
+
+<div class="doc doc-object doc-module">
+
+
+
+
+    <div class="doc doc-contents first">
+
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="holocron.models.classification.res2net50_26w_4s" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <span class="doc doc-object-name doc-function-name">res2net50_26w_4s</span>
+
+
+<a href="#holocron.models.classification.res2net50_26w_4s" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">res2net50_26w_4s</span><span class="p">(</span><span class="n">pretrained</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">checkpoint</span><span class="p">:</span> <span class="n"><span title="holocron.models.checkpoints.Checkpoint">Checkpoint</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">progress</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="&lt;code&gt;typing.Any&lt;/code&gt;" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-class&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-class-name&quot;&gt;ResNet&lt;/span&gt; (&lt;code&gt;holocron.models.classification.resnet.ResNet&lt;/code&gt;)" href="../resnet/#holocron.models.classification.ResNet">ResNet</a></span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Res2Net-50 26wx4s from
+<a href="https://arxiv.org/pdf/1904.01169.pdf">"Res2Net: A New Multi-scale Backbone Architecture"</a></p>
+
+
+<table>
+      <thead>
+        <tr>
+          <th><span class="doc-section-title">PARAMETER</span></th>
+          <th><span>DESCRIPTION</span></th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>pretrained</code>
+            </td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>If True, returns a model pre-trained on ImageNet</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></code>
+                  </span>
+                  <span class="doc-param-default">
+                    <b>DEFAULT:</b>
+                      <code>False</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>checkpoint</code>
+            </td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>If specified, the model's parameters will be set to the checkpoint's values</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="holocron.models.checkpoints.Checkpoint">Checkpoint</span> | None</code>
+                  </span>
+                  <span class="doc-param-default">
+                    <b>DEFAULT:</b>
+                      <code>None</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>progress</code>
+            </td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>If True, displays a progress bar of the download to stderr</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></code>
+                  </span>
+                  <span class="doc-param-default">
+                    <b>DEFAULT:</b>
+                      <code>True</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>kwargs</code>
+            </td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>keyword args of <a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-class&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-class-name&quot;&gt;ResNet&lt;/span&gt;" href="../resnet/#holocron.models.classification.ResNet"><code>ResNet</code></a></p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" title="&lt;code&gt;typing.Any&lt;/code&gt;" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a></code>
+                  </span>
+                  <span class="doc-param-default">
+                    <b>DEFAULT:</b>
+                      <code>{}</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<table>
+      <thead>
+        <tr>
+          <th><span class="doc-section-title">RETURNS</span></th>
+          <th><span>DESCRIPTION</span></th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <span class="doc-returns-annotation">
+                    <code><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-class&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-class-name&quot;&gt;ResNet&lt;/span&gt; (&lt;code&gt;holocron.models.classification.resnet.ResNet&lt;/code&gt;)" href="../resnet/#holocron.models.classification.ResNet">ResNet</a></code>
+                </span>
+            </td>
+            <td class="doc-returns-details">
+              <div class="doc-md-description">
+                <p>classification model</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+        <div class="doc doc-object doc-class">
+
+
+
+<h4 id="holocron.models.Res2Net50_26w_4s_Checkpoint" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">Res2Net50_26w_4s_Checkpoint</span>
+
+
+<a href="#holocron.models.Res2Net50_26w_4s_Checkpoint" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents first">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-external" title="&lt;code&gt;enum.Enum&lt;/code&gt;" href="https://docs.python.org/3/library/enum.html#enum.Enum">Enum</a></code></p>
+
+
+
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h5 id="holocron.models.Res2Net50_26w_4s_Checkpoint.IMAGENETTE" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <span class="doc doc-object-name doc-attribute-name">IMAGENETTE</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#holocron.models.Res2Net50_26w_4s_Checkpoint.IMAGENETTE" class="headerlink" title="Permanent link">&para;</a></h5>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">IMAGENETTE</span> <span class="o">=</span> <span class="n"><span title="holocron.models.utils._checkpoint">_checkpoint</span></span><span class="p">(</span><span class="n"><span title="holocron.models.utils._checkpoint(arch)">arch</span></span><span class="o">=</span><span class="s1">&#39;res2net50_26w_4s&#39;</span><span class="p">,</span> <span class="n"><span title="holocron.models.utils._checkpoint(url)">url</span></span><span class="o">=</span><span class="s1">&#39;https://github.com/frgfm/Holocron/releases/download/v0.2.1/res2net50_26w_4s_224-345170e8.pth&#39;</span><span class="p">,</span> <span class="n"><span title="holocron.models.utils._checkpoint(acc1)">acc1</span></span><span class="o">=</span><span class="mf">0.9394</span><span class="p">,</span> <span class="n"><span title="holocron.models.utils._checkpoint(acc5)">acc5</span></span><span class="o">=</span><span class="mf">0.9941</span><span class="p">,</span> <span class="n"><span title="holocron.models.utils._checkpoint(sha256)">sha256</span></span><span class="o">=</span><span class="s1">&#39;345170e8ff75d10330af55674090b0d9aa751e14b6f3b4a95bb8ea6cdd65be4b&#39;</span><span class="p">,</span> <span class="n"><span title="holocron.models.utils._checkpoint(size)">size</span></span><span class="o">=</span><span class="mi">95020747</span><span class="p">,</span> <span class="n"><span title="holocron.models.utils._checkpoint(num_params)">num_params</span></span><span class="o">=</span><span class="mi">23670610</span><span class="p">,</span> <span class="n"><span title="holocron.models.utils._checkpoint(commit)">commit</span></span><span class="o">=</span><span class="s1">&#39;6e32c5b578711a2ef3731a8f8c61760ed9f03e58&#39;</span><span class="p">,</span> <span class="n"><span title="holocron.models.utils._checkpoint(train_args)">train_args</span></span><span class="o">=</span><span class="s1">&#39;./imagenette2-320/ --arch res2net50_26w_4s --batch-size 64 --mixup-alpha 0.2 --amp --device 0 --epochs 100 --lr 1e-3 --label-smoothing 0.1 --random-erase 0.1 --train-crop-size 176 --val-resize-size 232 --opt adamw --weight-decay 5e-2&#39;</span><span class="p">)</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h5 id="holocron.models.Res2Net50_26w_4s_Checkpoint.DEFAULT" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <span class="doc doc-object-name doc-attribute-name">DEFAULT</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#holocron.models.Res2Net50_26w_4s_Checkpoint.DEFAULT" class="headerlink" title="Permanent link">&para;</a></h5>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">DEFAULT</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-attribute&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-attribute-name&quot;&gt;IMAGENETTE&lt;/span&gt;
+
+
+  &lt;span class=&quot;doc doc-labels&quot;&gt;
+      &lt;small class=&quot;doc doc-label doc-label-class-attribute&quot;&gt;&lt;code&gt;class-attribute&lt;/code&gt;&lt;/small&gt;
+      &lt;small class=&quot;doc doc-label doc-label-instance-attribute&quot;&gt;&lt;code&gt;instance-attribute&lt;/code&gt;&lt;/small&gt;
+  &lt;/span&gt; (&lt;code&gt;holocron.models.classification.res2net.Res2Net50_26w_4s_Checkpoint.IMAGENETTE&lt;/code&gt;)" href="#holocron.models.Res2Net50_26w_4s_Checkpoint.IMAGENETTE">IMAGENETTE</a></span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+            <details class="quote">
+              <summary>Source code in <code>holocron/models/classification/res2net.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-179">179</a></span>
+<span class="normal"><a href="#__codelineno-0-180">180</a></span>
+<span class="normal"><a href="#__codelineno-0-181">181</a></span>
+<span class="normal"><a href="#__codelineno-0-182">182</a></span>
+<span class="normal"><a href="#__codelineno-0-183">183</a></span>
+<span class="normal"><a href="#__codelineno-0-184">184</a></span>
+<span class="normal"><a href="#__codelineno-0-185">185</a></span>
+<span class="normal"><a href="#__codelineno-0-186">186</a></span>
+<span class="normal"><a href="#__codelineno-0-187">187</a></span>
+<span class="normal"><a href="#__codelineno-0-188">188</a></span>
+<span class="normal"><a href="#__codelineno-0-189">189</a></span>
+<span class="normal"><a href="#__codelineno-0-190">190</a></span>
+<span class="normal"><a href="#__codelineno-0-191">191</a></span>
+<span class="normal"><a href="#__codelineno-0-192">192</a></span>
+<span class="normal"><a href="#__codelineno-0-193">193</a></span>
+<span class="normal"><a href="#__codelineno-0-194">194</a></span>
+<span class="normal"><a href="#__codelineno-0-195">195</a></span>
+<span class="normal"><a href="#__codelineno-0-196">196</a></span>
+<span class="normal"><a href="#__codelineno-0-197">197</a></span>
+<span class="normal"><a href="#__codelineno-0-198">198</a></span>
+<span class="normal"><a href="#__codelineno-0-199">199</a></span>
+<span class="normal"><a href="#__codelineno-0-200">200</a></span>
+<span class="normal"><a href="#__codelineno-0-201">201</a></span>
+<span class="normal"><a href="#__codelineno-0-202">202</a></span>
+<span class="normal"><a href="#__codelineno-0-203">203</a></span>
+<span class="normal"><a href="#__codelineno-0-204">204</a></span>
+<span class="normal"><a href="#__codelineno-0-205">205</a></span>
+<span class="normal"><a href="#__codelineno-0-206">206</a></span>
+<span class="normal"><a href="#__codelineno-0-207">207</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-179"><a id="__codelineno-0-179" name="__codelineno-0-179"></a><span class="k">def</span><span class="w"> </span><span class="nf">res2net50_26w_4s</span><span class="p">(</span>
+</span><span id="__span-0-180"><a id="__codelineno-0-180" name="__codelineno-0-180"></a>    <span class="n">pretrained</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+</span><span id="__span-0-181"><a id="__codelineno-0-181" name="__codelineno-0-181"></a>    <span class="n">checkpoint</span><span class="p">:</span> <span class="n">Checkpoint</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-182"><a id="__codelineno-0-182" name="__codelineno-0-182"></a>    <span class="n">progress</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-0-183"><a id="__codelineno-0-183" name="__codelineno-0-183"></a>    <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+</span><span id="__span-0-184"><a id="__codelineno-0-184" name="__codelineno-0-184"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ResNet</span><span class="p">:</span>
+</span><span id="__span-0-185"><a id="__codelineno-0-185" name="__codelineno-0-185"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Res2Net-50 26wx4s from</span>
+</span><span id="__span-0-186"><a id="__codelineno-0-186" name="__codelineno-0-186"></a><span class="sd">    [&quot;Res2Net: A New Multi-scale Backbone Architecture&quot;](https://arxiv.org/pdf/1904.01169.pdf)</span>
+</span><span id="__span-0-187"><a id="__codelineno-0-187" name="__codelineno-0-187"></a>
+</span><span id="__span-0-188"><a id="__codelineno-0-188" name="__codelineno-0-188"></a><span class="sd">    Args:</span>
+</span><span id="__span-0-189"><a id="__codelineno-0-189" name="__codelineno-0-189"></a><span class="sd">        pretrained: If True, returns a model pre-trained on ImageNet</span>
+</span><span id="__span-0-190"><a id="__codelineno-0-190" name="__codelineno-0-190"></a><span class="sd">        checkpoint: If specified, the model&#39;s parameters will be set to the checkpoint&#39;s values</span>
+</span><span id="__span-0-191"><a id="__codelineno-0-191" name="__codelineno-0-191"></a><span class="sd">        progress: If True, displays a progress bar of the download to stderr</span>
+</span><span id="__span-0-192"><a id="__codelineno-0-192" name="__codelineno-0-192"></a><span class="sd">        kwargs: keyword args of [`ResNet`][holocron.models.classification.resnet.ResNet]</span>
+</span><span id="__span-0-193"><a id="__codelineno-0-193" name="__codelineno-0-193"></a>
+</span><span id="__span-0-194"><a id="__codelineno-0-194" name="__codelineno-0-194"></a><span class="sd">    Returns:</span>
+</span><span id="__span-0-195"><a id="__codelineno-0-195" name="__codelineno-0-195"></a><span class="sd">        classification model</span>
+</span><span id="__span-0-196"><a id="__codelineno-0-196" name="__codelineno-0-196"></a>
+</span><span id="__span-0-197"><a id="__codelineno-0-197" name="__codelineno-0-197"></a><span class="sd">    ::: holocron.models.Res2Net50_26w_4s_Checkpoint</span>
+</span><span id="__span-0-198"><a id="__codelineno-0-198" name="__codelineno-0-198"></a><span class="sd">        options:</span>
+</span><span id="__span-0-199"><a id="__codelineno-0-199" name="__codelineno-0-199"></a><span class="sd">            heading_level: 4</span>
+</span><span id="__span-0-200"><a id="__codelineno-0-200" name="__codelineno-0-200"></a><span class="sd">            show_if_no_docstring: true</span>
+</span><span id="__span-0-201"><a id="__codelineno-0-201" name="__codelineno-0-201"></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="__span-0-202"><a id="__codelineno-0-202" name="__codelineno-0-202"></a>    <span class="n">checkpoint</span> <span class="o">=</span> <span class="n">_handle_legacy_pretrained</span><span class="p">(</span>
+</span><span id="__span-0-203"><a id="__codelineno-0-203" name="__codelineno-0-203"></a>        <span class="n">pretrained</span><span class="p">,</span>
+</span><span id="__span-0-204"><a id="__codelineno-0-204" name="__codelineno-0-204"></a>        <span class="n">checkpoint</span><span class="p">,</span>
+</span><span id="__span-0-205"><a id="__codelineno-0-205" name="__codelineno-0-205"></a>        <span class="n">Res2Net50_26w_4s_Checkpoint</span><span class="o">.</span><span class="n">DEFAULT</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+</span><span id="__span-0-206"><a id="__codelineno-0-206" name="__codelineno-0-206"></a>    <span class="p">)</span>
+</span><span id="__span-0-207"><a id="__codelineno-0-207" name="__codelineno-0-207"></a>    <span class="k">return</span> <span class="n">_res2net</span><span class="p">(</span><span class="n">checkpoint</span><span class="p">,</span> <span class="n">progress</span><span class="p">,</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">64</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">512</span><span class="p">],</span> <span class="mi">26</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span></code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
 
 
 
@@ -1585,15 +1970,31 @@
       
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
+          
+          <a href="../resnext/" class="md-footer__link md-footer__link--prev" aria-label="Previous: ResNeXt">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                ResNeXt
+              </div>
+            </div>
+          </a>
+        
         
           
-          <a href="getting-started/installation/" class="md-footer__link md-footer__link--next" aria-label="Next: Installation">
+          <a href="../tridentnet/" class="md-footer__link md-footer__link--next" aria-label="Next: TridentNet">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Installation
+                TridentNet
               </div>
             </div>
             <div class="md-footer__button md-icon">
@@ -1695,12 +2096,12 @@
     
     
       
-      <script id="__config" type="application/json">{"base": ".", "features": ["content.code.annotate", "content.code.copy", "content.footnote.tooltips", "content.tabs.link", "content.tooltips", "navigation.footer", "navigation.indexes", "navigation.instant", "navigation.instant.prefetch", "navigation.instant.progress", "navigation.path", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "navigation.tracking", "search.highlight", "search.share", "search.suggest", "toc.follow"], "search": "assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"base": "../../../..", "features": ["content.code.annotate", "content.code.copy", "content.footnote.tooltips", "content.tabs.link", "content.tooltips", "navigation.footer", "navigation.indexes", "navigation.instant", "navigation.instant.prefetch", "navigation.instant.progress", "navigation.path", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "navigation.tracking", "search.highlight", "search.share", "search.suggest", "toc.follow"], "search": "../../../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="assets/javascripts/bundle.f55a23d4.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.f55a23d4.min.js"></script>
       
-        <script src="js/katex.js"></script>
+        <script src="../../../../js/katex.js"></script>
       
         <script src="https://unpkg.com/katex@0/dist/katex.min.js"></script>
       
