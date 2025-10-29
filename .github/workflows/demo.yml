@@ -37,4 +37,4 @@ jobs:
       - name: Run demo app
         run: |
           screen -dm make run-demo
-          sleep 10 && nc -vz localhost 3000
+          sleep 20 && nc -vz localhost 3000
