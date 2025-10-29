@@ -126,12 +126,12 @@ push-docs: ${DOCS_DIR}
 # Demo
 ########################################################
 
-install-demo: ${DEMO_REQ_FILE}
-	uv pip install -r ${DEMO_REQ_FILE}
+install-demo: ${DEMO_FILE}
+	uv sync --script ${DEMO_FILE}
 
 # Run the Gradio demo
 run-demo: ${DEMO_FILE}
-	uv run python ${DEMO_FILE} --port 3000
+	uv run --script ${DEMO_FILE} --port 3000
 
 ########################################################
 # Backend

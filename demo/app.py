@@ -3,6 +3,17 @@
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
+# /// script
+# requires-python = ">=3.11"
+# dependencies = [
+#     "gradio>=5.0.0,<6.0.0",
+#     "huggingface-hub>=1.0.0,<2.0.0",
+#     "numpy>=1.19.5,<3.0.0",
+#     "onnxruntime>=1.22.0,<2.0.0",
+#     "Pillow>=8.4.0,!=9.2.0",
+# ]
+# ///
+
 import json
 from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 from pathlib import Path
