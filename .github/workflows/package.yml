@@ -8,7 +8,6 @@ on:
       - 'holocron/**'
       - 'tests/**'
       - 'pyproject.toml'
-      - 'Makefile'
   pull_request:
     branches: main
     paths:
@@ -16,7 +15,6 @@ on:
       - 'holocron/**'
       - 'tests/**'
       - 'pyproject.toml'
-      - 'Makefile'
   release:
     types: [published]
 
