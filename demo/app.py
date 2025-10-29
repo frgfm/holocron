@@ -59,9 +59,9 @@ def main(args):
         outputs=gr.Label(num_top_classes=3),
         title="Holocron: image classification demo",
         article=(
-            "<p style='text-align: center'><a href='https://github.com/frgfm/Holocron'>"
+            "<p style='text-align: center'><a href='https://github.com/frgfm/holocron'>"
             "Github Repo</a> | "
-            "<a href='https://frgfm.github.io/Holocron/'>Documentation</a></p>"
+            "<a href='https://frgfm.github.io/holocron/'>Documentation</a></p>"
         ),
         live=True,
     )
