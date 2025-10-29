@@ -10,8 +10,8 @@ from typing import Any
 import torch
 from PIL import Image
 from torch import nn
-from torchvision.transforms import transforms as T
-from torchvision.transforms.functional import pad, resize
+from torchvision.transforms import v2 as T
+from torchvision.transforms.v2.functional import pad, resize
 
 __all__ = ["RandomZoomOut", "Resize"]
 
@@ -41,8 +41,7 @@ def _get_image_shape(image: Image.Image | torch.Tensor) -> tuple[int, int]:
 class Resize(T.Resize):
     """Implements a more flexible resizing scheme.
 
-    .. image:: https://github.com/frgfm/Holocron/releases/download/v0.2.1/resize_example.png
-        :align: center
+    ![Resize example](https://github.com/frgfm/Holocron/releases/download/v0.2.1/resize_example.png)
 
     >>> from holocron.transforms import Resize
     >>> pil_img = ...
@@ -53,10 +52,7 @@ class Resize(T.Resize):
         size: the desired height and width of the image in pixels
         mode: the resizing scheme ("squish" is similar to PyTorch, "pad" will preserve the aspect ratio and pad)
         pad_mode: padding mode when `mode` is "pad"
-        kwargs: the keyword arguments of `torchvision.transforms.Resize`
-
-    Returns:
-        the resized image
+        kwargs: the keyword arguments of [`torchvision.transforms.v2.Resize`][torchvision.transforms.v2.Resize]
     """
 
     def __init__(
@@ -73,6 +69,7 @@ class Resize(T.Resize):
         super().__init__(size, **kwargs)
         self.mode: ResizeMethod = mode
         self.pad_mode: str = pad_mode
+        self.size: tuple[int, int]
 
     def get_params(self, image: Image.Image | torch.Tensor) -> tuple[int, int]:  # noqa: D102
         h, w = _get_image_shape(image)
@@ -99,8 +96,7 @@ class Resize(T.Resize):
 class RandomZoomOut(nn.Module):
     """Implements a size reduction of the orignal image to provide a zoom out effect.
 
-    .. image:: https://github.com/frgfm/Holocron/releases/download/v0.2.1/randomzoomout_example.png
-        :align: center
+    ![RandomZoomOut example](https://github.com/frgfm/Holocron/releases/download/v0.2.1/randomzoomout_example.png)
 
     >>> from holocron.transforms import RandomZoomOut
     >>> pil_img = ...
@@ -110,10 +106,7 @@ class RandomZoomOut(nn.Module):
     Args:
         size: the desired height and width of the image in pixels
         scale: the range of relative area of the projected image to the desired size
-        kwargs: the keyword arguments of `torchvision.transforms.functional.resize`
-
-    Returns:
-        the resized image
+        kwargs: the keyword arguments of [`torchvision.transforms.functional.resize`][torchvision.transforms.functional.resize]
     """
 
     def __init__(self, size: tuple[int, int], scale: tuple[float, float] = (0.5, 1.0), **kwargs: Any) -> None:

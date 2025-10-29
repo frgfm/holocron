@@ -8,6 +8,7 @@ An addition to the `torch.nn` module of Pytorch to extend the range of neural ne
     options:
         heading_level: 3
         show_root_heading: false
+        show_root_toc_entry: false
         members:
             - HardMish
             - NLReLU
@@ -19,7 +20,9 @@ An addition to the `torch.nn` module of Pytorch to extend the range of neural ne
     options:
         heading_level: 3
         show_root_heading: false
+        show_root_toc_entry: false
         members:
+            - Loss
             - FocalLoss
             - MultiLabelCrossEntropy
             - ComplementCrossEntropy
@@ -33,6 +36,7 @@ An addition to the `torch.nn` module of Pytorch to extend the range of neural ne
     options:
         heading_level: 3
         show_root_heading: false
+        show_root_toc_entry: false
         members:
             - ClassBalancedWrapper
 
@@ -42,6 +46,7 @@ An addition to the `torch.nn` module of Pytorch to extend the range of neural ne
     options:
         heading_level: 3
         show_root_heading: false
+        show_root_toc_entry: false
         members:
             - NormConv2d
             - Add2d
@@ -55,6 +60,7 @@ An addition to the `torch.nn` module of Pytorch to extend the range of neural ne
     options:
         heading_level: 3
         show_root_heading: false
+        show_root_toc_entry: false
         members:
             - DropBlock2d
 
@@ -64,6 +70,7 @@ An addition to the `torch.nn` module of Pytorch to extend the range of neural ne
     options:
         heading_level: 3
         show_root_heading: false
+        show_root_toc_entry: false
         members:
             - ConcatDownsample2d
             - GlobalAvgPool2d
@@ -78,6 +85,7 @@ An addition to the `torch.nn` module of Pytorch to extend the range of neural ne
     options:
         heading_level: 3
         show_root_heading: false
+        show_root_toc_entry: false
         members:
             - SAM
             - LambdaLayer

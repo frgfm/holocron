@@ -11,18 +11,17 @@ from torch.optim.optimizer import Optimizer
 
 
 class RaLars(Optimizer):
-    """Implements the RAdam optimizer from `"On the variance of the Adaptive Learning Rate and Beyond"
-    <https://arxiv.org/pdf/1908.03265.pdf>`_ with optional Layer-wise adaptive Scaling from
-    `"Large Batch Training of Convolutional Networks" <https://arxiv.org/pdf/1708.03888.pdf>`_
+    """Implements the RAdam optimizer from ["On the variance of the Adaptive Learning Rate and Beyond"](https://arxiv.org/pdf/1908.03265.pdf)
+    with optional Layer-wise adaptive Scaling from ["Large Batch Training of Convolutional Networks"](https://arxiv.org/pdf/1708.03888.pdf)
 
     Args:
-        params (iterable): iterable of parameters to optimize or dicts defining parameter groups
-        lr (float, optional): learning rate
-        betas (Tuple[float, float], optional): coefficients used for running averages  (default: (0.9, 0.999))
-        eps (float, optional): term added to the denominator to improve numerical stability (default: 1e-8)
-        weight_decay (float, optional): weight decay (L2 penalty) (default: 0)
-        force_adaptive_momentum (float, optional): use adaptive momentum if variance is not tractable (default: False)
-        scale_clip (float, optional): the maximal upper bound for the scale factor of LARS
+        params: iterable of parameters to optimize or dicts defining parameter groups
+        lr: learning rate
+        betas: coefficients used for running averages
+        eps: term added to the denominator to improve numerical stability
+        weight_decay: weight decay (L2 penalty)
+        force_adaptive_momentum: use adaptive momentum if variance is not tractable
+        scale_clip: the maximal upper bound for the scale factor of LARS
     """
 
     def __init__(
@@ -57,10 +56,10 @@ class RaLars(Optimizer):
         """Performs a single optimization step.
 
         Arguments:
-            closure (callable, optional): A closure that reevaluates the model and returns the loss.
+            closure: A closure that reevaluates the model and returns the loss.
 
         Returns:
-            float | None: loss value
+            loss value
 
         Raises:
             RuntimeError: if the optimizer does not support sparse gradients

@@ -17,6 +17,7 @@ from ..checkpoints import Checkpoint, _handle_legacy_pretrained
 from ..utils import _checkpoint, _configure_model, conv_sequence, fuse_conv_bn
 
 __all__ = [
+    "MobileOne",
     "MobileOne_S0_Checkpoint",
     "MobileOne_S1_Checkpoint",
     "MobileOne_S2_Checkpoint",
@@ -284,17 +285,18 @@ def mobileone_s0(
     ["An Improved One millisecond Mobile Backbone"](https://arxiv.org/pdf/2206.04040.pdf)
 
     Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNet
+        pretrained: If True, returns a model pre-trained on ImageNet
         checkpoint: If specified, the model's parameters will be set to the checkpoint's values
-        progress (bool): If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _mobileone
+        progress: If True, displays a progress bar of the download to stderr
+        kwargs: keyword args of [`MobileOne`][holocron.models.MobileOne]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
 
     ::: holocron.models.MobileOne_S0_Checkpoint
         options:
             heading_level: 4
+            show_if_no_docstring: true
     """
     checkpoint = _handle_legacy_pretrained(
         pretrained,
@@ -333,17 +335,18 @@ def mobileone_s1(
     ["An Improved One millisecond Mobile Backbone"](https://arxiv.org/pdf/2206.04040.pdf)
 
     Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNet
+        pretrained: If True, returns a model pre-trained on ImageNet
         checkpoint: If specified, the model's parameters will be set to the checkpoint's values
-        progress (bool): If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _mobileone
+        progress: If True, displays a progress bar of the download to stderr
+        kwargs: keyword args of [`MobileOne`][holocron.models.MobileOne]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
 
     ::: holocron.models.MobileOne_S1_Checkpoint
         options:
             heading_level: 4
+            show_if_no_docstring: true
     """
     checkpoint = _handle_legacy_pretrained(
         pretrained,
@@ -382,17 +385,18 @@ def mobileone_s2(
     ["An Improved One millisecond Mobile Backbone"](https://arxiv.org/pdf/2206.04040.pdf)
 
     Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNet
+        pretrained: If True, returns a model pre-trained on ImageNet
         checkpoint: If specified, the model's parameters will be set to the checkpoint's values
-        progress (bool): If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _mobileone
+        progress: If True, displays a progress bar of the download to stderr
+        kwargs: keyword args of [`MobileOne`][holocron.models.classification.mobileone.MobileOne]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
 
     ::: holocron.models.MobileOne_S2_Checkpoint
         options:
             heading_level: 4
+            show_if_no_docstring: true
     """
     checkpoint = _handle_legacy_pretrained(
         pretrained,
@@ -431,17 +435,18 @@ def mobileone_s3(
     ["An Improved One millisecond Mobile Backbone"](https://arxiv.org/pdf/2206.04040.pdf)
 
     Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNet
+        pretrained: If True, returns a model pre-trained on ImageNet
         checkpoint: If specified, the model's parameters will be set to the checkpoint's values
-        progress (bool): If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _mobileone
+        progress: If True, displays a progress bar of the download to stderr
+        kwargs: keyword args of [`MobileOne`][holocron.models.classification.mobileone.MobileOne]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
 
     ::: holocron.models.MobileOne_S3_Checkpoint
         options:
             heading_level: 4
+            show_if_no_docstring: true
     """
     checkpoint = _handle_legacy_pretrained(
         pretrained,

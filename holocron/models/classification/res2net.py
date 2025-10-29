@@ -188,17 +188,18 @@ def res2net50_26w_4s(
     ["Res2Net: A New Multi-scale Backbone Architecture"](https://arxiv.org/pdf/1904.01169.pdf)
 
     Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNet
+        pretrained: If True, returns a model pre-trained on ImageNet
         checkpoint: If specified, the model's parameters will be set to the checkpoint's values
-        progress (bool): If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _res2net
+        progress: If True, displays a progress bar of the download to stderr
+        kwargs: keyword args of [`ResNet`][holocron.models.classification.resnet.ResNet]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
 
     ::: holocron.models.Res2Net50_26w_4s_Checkpoint
         options:
             heading_level: 4
+            show_if_no_docstring: true
     """
     checkpoint = _handle_legacy_pretrained(
         pretrained,

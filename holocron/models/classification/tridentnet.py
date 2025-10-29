@@ -158,11 +158,11 @@ def tridentnet50(pretrained: bool = False, progress: bool = True, **kwargs: Any)
     ["Scale-Aware Trident Networks for Object Detection"](https://arxiv.org/pdf/1901.01892.pdf)
 
     Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNet
-        progress (bool): If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _tridentnet
+        pretrained: If True, returns a model pre-trained on ImageNet
+        progress: If True, displays a progress bar of the download to stderr
+        kwargs: keyword args of [`ResNet`][holocron.models.classification.resnet.ResNet]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
     """
     return _tridentnet("tridentnet50", pretrained, progress, [3, 4, 6, 3], [64, 128, 256, 512], **kwargs)

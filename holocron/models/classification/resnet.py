@@ -480,20 +480,21 @@ def resnet18(
     **kwargs: Any,
 ) -> ResNet:
     """ResNet-18 from
-    `"Deep Residual Learning for Image Recognition" <https://arxiv.org/pdf/1512.03385.pdf>`_
+    ["Deep Residual Learning for Image Recognition"](https://arxiv.org/pdf/1512.03385.pdf)
 
     Args:
         pretrained: If True, returns a model pre-trained on ImageNet
         checkpoint: If specified, loads that checkpoint
         progress: If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _resnet
+        kwargs: keyword args of [`ResNet`][holocron.models.ResNet]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
 
     ::: holocron.models.ResNet18_Checkpoint
         options:
             heading_level: 4
+            show_if_no_docstring: true
     """
     checkpoint = _handle_legacy_pretrained(
         pretrained,
@@ -529,20 +530,21 @@ def resnet34(
     **kwargs: Any,
 ) -> ResNet:
     """ResNet-34 from
-    `"Deep Residual Learning for Image Recognition" <https://arxiv.org/pdf/1512.03385.pdf>`_
+    ["Deep Residual Learning for Image Recognition"](https://arxiv.org/pdf/1512.03385.pdf)
 
     Args:
         pretrained: If True, returns a model pre-trained on ImageNet
         checkpoint: If specified, load that checkpoint on the model
         progress: If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _resnet
+        kwargs: keyword args of [`ResNet`][holocron.models.ResNet]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
 
     ::: holocron.models.ResNet34_Checkpoint
         options:
             heading_level: 4
+            show_if_no_docstring: true
     """
     return _resnet(checkpoint, progress, BasicBlock, [3, 4, 6, 3], [64, 128, 256, 512], **kwargs)
 
@@ -573,20 +575,21 @@ def resnet50(
     **kwargs: Any,
 ) -> ResNet:
     """ResNet-50 from
-    `"Deep Residual Learning for Image Recognition" <https://arxiv.org/pdf/1512.03385.pdf>`_
+    ["Deep Residual Learning for Image Recognition"](https://arxiv.org/pdf/1512.03385.pdf)
 
     Args:
         pretrained: If True, returns a model pre-trained on ImageNet
         checkpoint: If specified, load that checkpoint on the model
         progress: If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _resnet
+        kwargs: keyword args of [`ResNet`][holocron.models.ResNet]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
 
     ::: holocron.models.ResNet50_Checkpoint
         options:
             heading_level: 4
+            show_if_no_docstring: true
     """
     checkpoint = _handle_legacy_pretrained(
         pretrained,
@@ -622,21 +625,22 @@ def resnet50d(
     **kwargs: Any,
 ) -> ResNet:
     """ResNet-50-D from
-    `"Bag of Tricks for Image Classification with Convolutional Neural Networks"
+    ["Bag of Tricks for Image Classification with Convolutional Neural Networks"](https://arxiv.org/pdf/1812.01187.pdf)
     <https://arxiv.org/pdf/1812.01187.pdf>`_
 
     Args:
         pretrained: If True, returns a model pre-trained on ImageNet
         checkpoint: If specified, load that checkpoint on the model
         progress: If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _resnet
+        kwargs: keyword args of [`ResNet`][holocron.models.classification.resnet.ResNet]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
 
     ::: holocron.models.ResNet50D_Checkpoint
         options:
             heading_level: 4
+            show_if_no_docstring: true
     """
     return _resnet(
         checkpoint,
@@ -657,7 +661,7 @@ def resnet101(
     **kwargs: Any,
 ) -> ResNet:
     """ResNet-101 from
-    `"Deep Residual Learning for Image Recognition" <https://arxiv.org/pdf/1512.03385.pdf>`_
+    ["Deep Residual Learning for Image Recognition"](https://arxiv.org/pdf/1512.03385.pdf)
 
     Args:
         pretrained: If True, returns a model pre-trained on ImageNet
@@ -678,16 +682,16 @@ def resnet152(
     **kwargs: Any,
 ) -> ResNet:
     """ResNet-152 from
-    `"Deep Residual Learning for Image Recognition" <https://arxiv.org/pdf/1512.03385.pdf>`_
+    ["Deep Residual Learning for Image Recognition"](https://arxiv.org/pdf/1512.03385.pdf)
 
     Args:
         pretrained: If True, returns a model pre-trained on ImageNet
         checkpoint: If specified, load that checkpoint on the model
         progress: If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _resnet
+        kwargs: keyword args of [`ResNet`][holocron.models.classification.resnet.ResNet]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
     """
     return _resnet(checkpoint, progress, Bottleneck, [3, 8, 86, 3], [64, 128, 256, 512], **kwargs)
 
@@ -718,19 +722,21 @@ def resnext50_32x4d(
     **kwargs: Any,
 ) -> ResNet:
     """ResNeXt-50 from
-    `"Aggregated Residual Transformations for Deep Neural Networks" <https://arxiv.org/pdf/1611.05431.pdf>`_
+    ["Aggregated Residual Transformations for Deep Neural Networks"](https://arxiv.org/pdf/1611.05431.pdf)
 
     Args:
         pretrained: If True, returns a model pre-trained on ImageNet
         checkpoint: If specified, load that checkpoint on the model
         progress: If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _resnet
+        kwargs: keyword args of [`ResNet`][holocron.models.ResNet]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
 
-    .. autoclass:: holocron.models.ResNeXt50_32x4d_Checkpoint
-        :members:
+    ::: holocron.models.ResNeXt50_32x4d_Checkpoint
+        options:
+            heading_level: 4
+            show_if_no_docstring: true
     """
     kwargs["width_per_group"] = 4
     block_args = {"groups": 32}
@@ -752,16 +758,16 @@ def resnext101_32x8d(
     **kwargs: Any,
 ) -> ResNet:
     """ResNeXt-101 from
-    `"Aggregated Residual Transformations for Deep Neural Networks" <https://arxiv.org/pdf/1611.05431.pdf>`_
+    ["Aggregated Residual Transformations for Deep Neural Networks"](https://arxiv.org/pdf/1611.05431.pdf)
 
     Args:
         pretrained: If True, returns a model pre-trained on ImageNet
         checkpoint: If specified, load that checkpoint on the model
         progress: If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _resnet
+        kwargs: keyword args of [`ResNet`][holocron.models.classification.resnet.ResNet]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
     """
     kwargs["width_per_group"] = 8
     block_args = {"groups": 32}

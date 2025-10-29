@@ -14,40 +14,43 @@ __all__ = ["AdaBelief", "adabelief"]
 
 
 class AdaBelief(Adam):
-    r"""Implements the AdaBelief optimizer from `"AdaBelief Optimizer: Adapting Stepsizes by the Belief in
-    Observed Gradients" <https://arxiv.org/pdf/2010.07468.pdf>`_.
+    r"""Implements the AdaBelief optimizer from ["AdaBelief Optimizer: Adapting Stepsizes by the Belief in
+    Observed Gradients"](https://arxiv.org/pdf/2010.07468.pdf).
 
-    The estimation of momentums is described as follows, :math:`\forall t \geq 1`:
+    The estimation of momentums is described as follows, $\forall t \geq 1$:
 
-    .. math::
-        m_t \leftarrow \beta_1 m_{t-1} + (1 - \beta_1) g_t \\
-        s_t \leftarrow \beta_2 s_{t-1} + (1 - \beta_2) (g_t - m_t)^2 + \epsilon
+    $$
+    m_t \leftarrow \beta_1 m_{t-1} + (1 - \beta_1) g_t \\
+    s_t \leftarrow \beta_2 s_{t-1} + (1 - \beta_2) (g_t - m_t)^2 + \epsilon
+    $$
 
-    where :math:`g_t` is the gradient of :math:`\theta_t`,
-    :math:`\beta_1, \beta_2 \in [0, 1]^2` are the exponential average smoothing coefficients,
-    :math:`m_0 = 0,\ s_0 = 0`, :math:`\epsilon > 0`.
+    where $g_t$ is the gradient of $\theta_t$,
+    $\beta_1, \beta_2 \in [0, 1]^2$ are the exponential average smoothing coefficients,
+    $m_0 = 0,\ s_0 = 0$, $\epsilon > 0$.
 
     Then we correct their biases using:
 
-    .. math::
-        \hat{m_t} \leftarrow \frac{m_t}{1 - \beta_1^t} \\
-        \hat{s_t} \leftarrow \frac{s_t}{1 - \beta_2^t}
+    $$
+    \hat{m_t} \leftarrow \frac{m_t}{1 - \beta_1^t} \\
+    \hat{s_t} \leftarrow \frac{s_t}{1 - \beta_2^t}
+    $$
 
     And finally the update step is performed using the following rule:
 
-    .. math::
-        \theta_t \leftarrow \theta_{t-1} - \alpha \frac{\hat{m_t}}{\sqrt{\hat{s_t}} + \epsilon}
+    $$
+    \theta_t \leftarrow \theta_{t-1} - \alpha \frac{\hat{m_t}}{\sqrt{\hat{s_t}} + \epsilon}
+    $$
 
-    where :math:`\theta_t` is the parameter value at step :math:`t` (:math:`\theta_0` being the initialization value),
-    :math:`\alpha` is the learning rate, :math:`\epsilon > 0`.
+    where $\theta_t$ is the parameter value at step $t$ ($\theta_0$ being the initialization value),
+    $\alpha$ is the learning rate, $\epsilon > 0$.
 
     Args:
-        params (iterable): iterable of parameters to optimize or dicts defining parameter groups
-        lr (float, optional): learning rate
-        betas (Tuple[float, float], optional): coefficients used for running averages (default: (0.9, 0.999))
-        eps (float, optional): term added to the denominator to improve numerical stability (default: 1e-8)
-        weight_decay (float, optional): weight decay (L2 penalty) (default: 0)
-        amsgrad (bool, optional): whether to use the AMSGrad variant (default: False)
+        params: iterable of parameters to optimize or dicts defining parameter groups
+        lr: learning rate
+        betas: coefficients used for running averages
+        eps: term added to the denominator to improve numerical stability
+        weight_decay: weight decay (L2 penalty)
+        amsgrad: whether to use the AMSGrad variant
     """
 
     @torch.no_grad()
@@ -55,11 +58,11 @@ class AdaBelief(Adam):
         """Performs a single optimization step.
 
         Arguments:
-            closure (callable, optional): A closure that reevaluates the model
+            closure: A closure that reevaluates the model
                 and returns the loss.
 
         Returns:
-            float | None: loss value
+            loss value
 
         Raises:
             RuntimeError: if the optimizer does not support sparse gradients
@@ -140,7 +143,7 @@ def adabelief(
     eps: float,
 ) -> None:
     r"""Functional API that performs AdaBelief algorithm computation.
-    See :class:`~holocron.optim.AdaBelief` for details.
+    See [`AdaBelief`][holocron.optim.AdaBelief] for details.
     """
     for i, param in enumerate(params):
         grad = grads[i]

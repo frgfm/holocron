@@ -209,17 +209,18 @@ def sknet50(
     ["Selective Kernel Networks"](https://arxiv.org/pdf/1903.06586.pdf)
 
     Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNet
+        pretrained: If True, returns a model pre-trained on ImageNet
         checkpoint: If specified, the model's parameters will be set to the checkpoint's values
-        progress (bool): If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _sknet
+        progress: If True, displays a progress bar of the download to stderr
+        kwargs: keyword args of [`ResNet`][holocron.models.classification.resnet.ResNet]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
 
     ::: holocron.models.SKNet50_Checkpoint
         options:
             heading_level: 4
+            show_if_no_docstring: true
     """
     checkpoint = _handle_legacy_pretrained(
         pretrained,
@@ -239,13 +240,13 @@ def sknet101(
     ["Selective Kernel Networks"](https://arxiv.org/pdf/1903.06586.pdf)
 
     Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNet
+        pretrained: If True, returns a model pre-trained on ImageNet
         checkpoint: If specified, the model's parameters will be set to the checkpoint's values
-        progress (bool): If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _sknet
+        progress: If True, displays a progress bar of the download to stderr
+        kwargs: keyword args of [`ResNet`][holocron.models.classification.resnet.ResNet]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
     """
     return _sknet(checkpoint if pretrained else None, progress, [3, 4, 23, 3], [64, 128, 256, 512], **kwargs)
 
@@ -260,12 +261,12 @@ def sknet152(
     ["Selective Kernel Networks"](https://arxiv.org/pdf/1903.06586.pdf)
 
     Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNet
+        pretrained: If True, returns a model pre-trained on ImageNet
         checkpoint: If specified, the model's parameters will be set to the checkpoint's values
-        progress (bool): If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _sknet
+        progress: If True, displays a progress bar of the download to stderr
+        kwargs: keyword args of [`ResNet`][holocron.models.classification.resnet.ResNet]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
     """
     return _sknet(checkpoint if pretrained else None, progress, [3, 8, 86, 3], [64, 128, 256, 512], **kwargs)

@@ -23,11 +23,10 @@ __all__ = [
 
 
 class ConcatDownsample2d(nn.Module):
-    """Implements a loss-less downsampling operation described in `"YOLO9000: Better, Faster, Stronger"
-    <https://pjreddie.com/media/files/papers/YOLO9000.pdf>`_ by stacking adjacent information on the channel dimension.
+    """Implements a loss-less downsampling operation described in ["YOLO9000: Better, Faster, Stronger"](https://pjreddie.com/media/files/papers/YOLO9000.pdf) by stacking adjacent information on the channel dimension.
 
     Args:
-        scale_factor (int): spatial scaling factor
+        scale_factor: spatial scaling factor
     """
 
     def __init__(self, scale_factor: int) -> None:
@@ -40,11 +39,10 @@ class ConcatDownsample2d(nn.Module):
 
 @torch.jit.script
 class ConcatDownsample2dJit:
-    """Implements a loss-less downsampling operation described in `"YOLO9000: Better, Faster, Stronger"
-    <https://pjreddie.com/media/files/papers/YOLO9000.pdf>`_ by stacking adjacent information on the channel dimension.
+    """Implements a loss-less downsampling operation described in ["YOLO9000: Better, Faster, Stronger"](https://pjreddie.com/media/files/papers/YOLO9000.pdf) by stacking adjacent information on the channel dimension.
 
     Args:
-        scale_factor (int): spatial scaling factor
+        scale_factor: spatial scaling factor
     """
 
     def __init__(self, scale_factor: int) -> None:
@@ -55,11 +53,10 @@ class ConcatDownsample2dJit:
 
 
 class GlobalAvgPool2d(nn.Module):
-    """Fast implementation of global average pooling from `"TResNet: High Performance GPU-Dedicated Architecture"
-    <https://arxiv.org/pdf/2003.13630.pdf>`_
+    """Fast implementation of global average pooling from ["TResNet: High Performance GPU-Dedicated Architecture"](https://arxiv.org/pdf/2003.13630.pdf)
 
     Args:
-        flatten (bool, optional): whether spatial dimensions should be squeezed
+        flatten: whether spatial dimensions should be squeezed
     """
 
     def __init__(self, flatten: bool = False) -> None:
@@ -77,11 +74,10 @@ class GlobalAvgPool2d(nn.Module):
 
 
 class GlobalMaxPool2d(nn.Module):
-    """Fast implementation of global max pooling from `"TResNet: High Performance GPU-Dedicated Architecture"
-    <https://arxiv.org/pdf/2003.13630.pdf>`_
+    """Fast implementation of global max pooling from ["TResNet: High Performance GPU-Dedicated Architecture"](https://arxiv.org/pdf/2003.13630.pdf)
 
     Args:
-        flatten (bool, optional): whether spatial dimensions should be squeezed
+        flatten: whether spatial dimensions should be squeezed
     """
 
     def __init__(self, flatten: bool = False) -> None:
@@ -103,20 +99,15 @@ def get_padding(kernel_size: int, stride: int = 1, dilation: int = 1) -> int:
 
 
 class BlurPool2d(nn.Module):
-    """Ross Wightman's `implementation
-    <https://github.com/rwightman/pytorch-image-models/blob/master/timm/models/layers/blur_pool.py>`_ of blur pooling
-    module as described in `"Making Convolutional Networks Shift-Invariant Again"
-    <https://arxiv.org/pdf/1904.11486.pdf>`_.
+    """Ross Wightman's [implementation](https://github.com/rwightman/pytorch-image-models/blob/master/timm/models/layers/blur_pool.py) of blur pooling
+    module as described in ["Making Convolutional Networks Shift-Invariant Again"](https://arxiv.org/pdf/1904.11486.pdf).
 
-    .. image:: https://github.com/frgfm/Holocron/releases/download/v0.1.3/blurpool.png
-        :align: center
+    ![BlurPool](https://github.com/frgfm/Holocron/releases/download/v0.1.3/blurpool.png)
 
     Args:
-        channels (int): Number of input channels
-        kernel_size (int, optional): binomial filter size for blurring. currently supports 3 (default) and 5.
-        stride (int, optional): downsampling filter stride
-    Returns:
-        torch.Tensor: the transformed tensor.
+        channels: Number of input channels
+        kernel_size: binomial filter size for blurring. currently supports 3 (default) and 5.
+        stride: downsampling filter stride
     """
 
     def __init__(self, channels: int, kernel_size: int = 3, stride: int = 2) -> None:
@@ -151,11 +142,10 @@ class BlurPool2d(nn.Module):
 
 
 class SPP(nn.ModuleList):
-    """SPP layer from `"Spatial Pyramid Pooling in Deep Convolutional Networks for Visual Recognition"
-    <https://arxiv.org/pdf/1406.4729.pdf>`_.
+    """SPP layer from ["Spatial Pyramid Pooling in Deep Convolutional Networks for Visual Recognition"](https://arxiv.org/pdf/1406.4729.pdf).
 
     Args:
-        kernel_sizes (list<int>): kernel sizes of each pooling
+        kernel_sizes: kernel sizes of each pooling
     """
 
     def __init__(self, kernel_sizes: list[int]) -> None:
@@ -167,11 +157,10 @@ class SPP(nn.ModuleList):
 
 
 class ZPool(nn.Module):
-    """Z-pool layer from `"Rotate to Attend: Convolutional Triplet Attention Module"
-    <https://arxiv.org/pdf/2010.03045.pdf>`_.
+    """Z-pool layer from ["Rotate to Attend: Convolutional Triplet Attention Module"](https://arxiv.org/pdf/2010.03045.pdf).
 
     Args:
-        dim: dimension to pool
+        dim: dimension to pool across
     """
 
     def __init__(self, dim: int = 1) -> None:

@@ -18,14 +18,13 @@ The key takeaways from the paper are the following:
 
 The following model builders can be used to instantiate a PyConvResNet model, with or
 without pre-trained weights. All the model builders internally rely on the
-`holocron.models.classification.resnet.ResNet` base class. Please refer to the [source
-code](https://github.com/frgfm/Holocron/blob/main/holocron/models/classification/pyconv_resnet.py) for
-more details about this class.
+[`ResNet`][holocron.models.ResNet] base class.
 
-::: holocron.models.classification.pyconv_resnet
+::: holocron.models.classification
     options:
         heading_level: 3
         show_root_heading: false
+        show_root_toc_entry: false
         members:
             - pyconv_resnet50
             - pyconvhg_resnet50

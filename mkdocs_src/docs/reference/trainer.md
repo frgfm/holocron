@@ -6,6 +6,7 @@
     options:
         heading_level: 3
         show_root_heading: false
+        show_root_toc_entry: false
         members:
             - Trainer
 
@@ -15,6 +16,7 @@
     options:
         heading_level: 3
         show_root_heading: false
+        show_root_toc_entry: false
         members:
             - ClassificationTrainer
             - BinaryClassificationTrainer
@@ -25,6 +27,7 @@
     options:
         heading_level: 3
         show_root_heading: false
+        show_root_toc_entry: false
         members:
             - SegmentationTrainer
 
@@ -34,6 +37,7 @@
     options:
         heading_level: 3
         show_root_heading: false
+        show_root_toc_entry: false
         members:
             - DetectionTrainer
 
@@ -43,6 +47,7 @@
     options:
         heading_level: 3
         show_root_heading: false
+        show_root_toc_entry: false
         members:
             - freeze_bn
             - freeze_model

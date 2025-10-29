@@ -225,14 +225,15 @@ def repvgg_a0(
         pretrained: If True, returns a model pre-trained on ImageNette
         checkpoint: If specified, the model's parameters will be set to the checkpoint's values
         progress: If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _repvgg
+        kwargs: keyword args of [`RepVGG`][holocron.models.classification.repvgg.RepVGG]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
 
     ::: holocron.models.RepVGG_A0_Checkpoint
         options:
             heading_level: 4
+            show_if_no_docstring: true
     """
     checkpoint = _handle_legacy_pretrained(
         pretrained,
@@ -274,14 +275,15 @@ def repvgg_a1(
         pretrained: If True, returns a model pre-trained on ImageNette
         checkpoint: If specified, the model's parameters will be set to the checkpoint's values
         progress: If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _repvgg
+        kwargs: keyword args of [`RepVGG`][holocron.models.classification.repvgg.RepVGG]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
 
     ::: holocron.models.RepVGG_A1_Checkpoint
         options:
             heading_level: 4
+            show_if_no_docstring: true
     """
     checkpoint = _handle_legacy_pretrained(
         pretrained,
@@ -323,14 +325,15 @@ def repvgg_a2(
         pretrained: If True, returns a model pre-trained on ImageNette
         checkpoint: If specified, the model's parameters will be set to the checkpoint's values
         progress: If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _repvgg
+        kwargs: keyword args of [`RepVGG`][holocron.models.classification.repvgg.RepVGG]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
 
     ::: holocron.models.RepVGG_A2_Checkpoint
         options:
             heading_level: 4
+            show_if_no_docstring: true
     """
     checkpoint = _handle_legacy_pretrained(
         pretrained,
@@ -372,14 +375,15 @@ def repvgg_b0(
         pretrained: If True, returns a model pre-trained on ImageNette
         checkpoint: If specified, the model's parameters will be set to the checkpoint's values
         progress: If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _repvgg
+        kwargs: keyword args of [`RepVGG`][holocron.models.classification.repvgg.RepVGG]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
 
     ::: holocron.models.RepVGG_B0_Checkpoint
         options:
             heading_level: 4
+            show_if_no_docstring: true
     """
     checkpoint = _handle_legacy_pretrained(
         pretrained,
@@ -421,14 +425,15 @@ def repvgg_b1(
         pretrained: If True, returns a model pre-trained on ImageNette
         checkpoint: If specified, the model's parameters will be set to the checkpoint's values
         progress: If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _repvgg
+        kwargs: keyword args of [`RepVGG`][holocron.models.RepVGG]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
 
     ::: holocron.models.RepVGG_B1_Checkpoint
         options:
             heading_level: 4
+            show_if_no_docstring: true
     """
     checkpoint = _handle_legacy_pretrained(
         pretrained,
@@ -470,14 +475,15 @@ def repvgg_b2(
         pretrained: If True, returns a model pre-trained on ImageNette
         checkpoint: If specified, the model's parameters will be set to the checkpoint's values
         progress: If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _repvgg
+        kwargs: keyword args of [`RepVGG`][holocron.models.classification.repvgg.RepVGG]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
 
     ::: holocron.models.RepVGG_B2_Checkpoint
         options:
             heading_level: 4
+            show_if_no_docstring: true
     """
     checkpoint = _handle_legacy_pretrained(
         pretrained,
@@ -500,10 +506,10 @@ def repvgg_b3(
         pretrained: If True, returns a model pre-trained on ImageNette
         checkpoint: If specified, the model's parameters will be set to the checkpoint's values
         progress: If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _repvgg
+        kwargs: keyword args of [`RepVGG`][holocron.models.classification.repvgg.RepVGG]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
     """
     checkpoint = _handle_legacy_pretrained(
         pretrained,

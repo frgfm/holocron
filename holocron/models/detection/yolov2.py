@@ -226,7 +226,7 @@ class YOLOv2(_YOLO):
             and `labels` of type torch.Tensor[-1]
 
         Returns:
-            dict[str, Tensor] | list[dict[str, Tensor]]: loss dictionary in training mode or list of detections in eval mode
+            loss dictionary in training mode or list of detections in eval mode
 
         Raises:
             ValueError: if `target` is not specified in training mode
@@ -312,13 +312,13 @@ def yolov2(pretrained: bool = False, progress: bool = True, pretrained_backbone:
     in the i-th cell.
 
     Args:
-        pretrained (bool, optional): If True, returns a model pre-trained on ImageNet
-        progress (bool, optional): If True, displays a progress bar of the download to stderr
-        pretrained_backbone (bool, optional): If True, backbone parameters will have been pretrained on Imagenette
-        kwargs: keyword args of _yolo
+        pretrained: If True, returns a model pre-trained on ImageNet
+        progress: If True, displays a progress bar of the download to stderr
+        pretrained_backbone: If True, backbone parameters will have been pretrained on Imagenette
+        kwargs: keyword args of [`YOLOv2`][holocron.models.detection.yolov2.YOLOv2]
 
     Returns:
-        torch.nn.Module: detection module
+        detection module
     """
     if pretrained_backbone:
         kwargs["backbone_norm_layer"] = FrozenBatchNorm2d

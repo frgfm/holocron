@@ -12,21 +12,18 @@ __all__ = ["LambdaLayer"]
 
 
 class LambdaLayer(nn.Module):
-    """Lambda layer from `"LambdaNetworks: Modeling long-range interactions without attention"
-    <https://openreview.net/pdf?id=xTJEN-ggl1b>`_. The implementation was adapted from `lucidrains'
-    <https://github.com/lucidrains/lambda-networks/blob/main/lambda_networks/lambda_networks.py>`_.
+    """Lambda layer from ["LambdaNetworks: Modeling long-range interactions without attention"](https://openreview.net/pdf?id=xTJEN-ggl1b). The implementation was adapted from [lucidrains](https://github.com/lucidrains/lambda-networks/blob/main/lambda_networks/lambda_networks.py).
 
-    .. image:: https://github.com/frgfm/Holocron/releases/download/v0.1.3/lambdalayer.png
-        :align: center
+    ![Lambda Layer](https://github.com/frgfm/Holocron/releases/download/v0.1.3/lambdalayer.png)
 
     Args:
-        in_channels (int): input channels
-        out_channels (int, optional): output channels
-        dim_k (int): key dimension
-        n (int, optional): number of input pixels
-        r (int, optional): receptive field for relative positional encoding
-        num_heads (int, optional): number of attention heads
-        dim_u (int, optional): intra-depth dimension
+        in_channels: input channels
+        out_channels: output channels
+        dim_k: key dimension
+        n: number of input pixels
+        r: receptive field for relative positional encoding
+        num_heads: number of attention heads
+        dim_u: intra-depth dimension
     """
 
     def __init__(

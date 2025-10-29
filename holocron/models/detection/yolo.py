@@ -353,12 +353,11 @@ class YOLOv1(_YOLO):
         or the list of detections in eval mode.
 
         Args:
-            x (torch.Tensor[N, 3, H, W]): input image tensor
-            target (list<dict>, optional): each dict must have two keys `boxes` of type torch.Tensor[-1, 4]
-            and `labels` of type torch.Tensor[-1]
+            x: input image tensor of shape (N, 3, H, W)
+            target: each dict must have two keys `boxes` of type torch.Tensor[-1, 4] and `labels` of type torch.Tensor[-1]
 
         Returns:
-            dict[str, Tensor] | list[dict[str, Tensor]]: loss dictionary in training mode or list of detections in eval mode
+            loss dictionary in training mode or list of detections in eval mode
 
         Raises:
             ValueError: if `target` is not specified in training mode
@@ -476,13 +475,13 @@ def yolov1(pretrained: bool = False, progress: bool = True, pretrained_backbone:
     where $\lambda_{coords}$ is a positive coefficient (default: 5).
 
     Args:
-        pretrained (bool, optional): If True, returns a model pre-trained on ImageNet
-        progress (bool, optional): If True, displays a progress bar of the download to stderr
-        pretrained_backbone (bool, optional): If True, backbone parameters will have been pretrained on Imagenette
-        kwargs: keyword args of _yolo
+        pretrained: If True, returns a model pre-trained on ImageNet
+        progress: If True, displays a progress bar of the download to stderr
+        pretrained_backbone: If True, backbone parameters will have been pretrained on Imagenette
+        kwargs: keyword args of [`YOLOv1`][holocron.models.detection.yolo.YOLOv1]
 
     Returns:
-        torch.nn.Module: detection module
+        detection module
     """
     return _yolo(
         "yolov1",

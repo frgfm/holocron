@@ -11,6 +11,7 @@ Implementations of recent parameter optimizer for Pytorch modules.
     options:
         heading_level: 3
         show_root_heading: false
+        show_root_toc_entry: false
         members:
             - LARS
             - LAMB
@@ -33,10 +34,11 @@ should write your code this way:
 >>> optimizer = wrapper(optimizer)
 ```
 
-::: holocron.optim.wrapper
+::: holocron.optim
     options:
         heading_level: 3
         show_root_heading: false
+        show_root_toc_entry: false
         members:
             - Lookahead
             - Scout

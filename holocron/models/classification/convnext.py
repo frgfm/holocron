@@ -235,14 +235,15 @@ def convnext_atto(
         pretrained: If True, returns a model pre-trained on ImageNette
         checkpoint: If specified, the model's parameters will be set to the checkpoint's values
         progress: If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _convnext
+        kwargs: keyword args of [`ConvNeXt`][holocron.models.classification.convnext.ConvNeXt]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
 
     ::: holocron.models.ConvNeXt_Atto_Checkpoint
         options:
             heading_level: 4
+            show_if_no_docstring: true
     """
     checkpoint = _handle_legacy_pretrained(
         pretrained,
@@ -259,13 +260,13 @@ def convnext_femto(
     ["A ConvNet for the 2020s"](https://arxiv.org/pdf/2201.03545.pdf)
 
     Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNette
+        pretrained: If True, returns a model pre-trained on ImageNette
         checkpoint: If specified, the model's parameters will be set to the checkpoint's values
-        progress (bool): If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _convnext
+        progress: If True, displays a progress bar of the download to stderr
+        kwargs: keyword args of [`ConvNeXt`][holocron.models.classification.convnext.ConvNeXt]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
     """
     checkpoint = _handle_legacy_pretrained(pretrained, checkpoint, None)
     return _convnext(checkpoint, progress, [2, 2, 6, 2], [48, 96, 192, 384], **kwargs)
@@ -278,13 +279,13 @@ def convnext_pico(
     ["A ConvNet for the 2020s"](https://arxiv.org/pdf/2201.03545.pdf)
 
     Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNette
+        pretrained: If True, returns a model pre-trained on ImageNette
         checkpoint: If specified, the model's parameters will be set to the checkpoint's values
-        progress (bool): If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _convnext
+        progress: If True, displays a progress bar of the download to stderr
+        kwargs: keyword args of [`ConvNeXt`][holocron.models.classification.convnext.ConvNeXt]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
     """
     checkpoint = _handle_legacy_pretrained(pretrained, checkpoint, None)
     return _convnext(checkpoint, progress, [2, 2, 6, 2], [64, 128, 256, 512], **kwargs)
@@ -297,13 +298,13 @@ def convnext_nano(
     ["A ConvNet for the 2020s"](https://arxiv.org/pdf/2201.03545.pdf)
 
     Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNette
+        pretrained: If True, returns a model pre-trained on ImageNette
         checkpoint: If specified, the model's parameters will be set to the checkpoint's values
-        progress (bool): If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _convnext
+        progress: If True, displays a progress bar of the download to stderr
+        kwargs: keyword args of [`ConvNeXt`][holocron.models.classification.convnext.ConvNeXt]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
     """
     checkpoint = _handle_legacy_pretrained(pretrained, checkpoint, None)
     return _convnext(checkpoint, progress, [2, 2, 8, 2], [80, 160, 320, 640], **kwargs)
@@ -316,13 +317,13 @@ def convnext_tiny(
     ["A ConvNet for the 2020s"](https://arxiv.org/pdf/2201.03545.pdf)
 
     Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNette
+        pretrained: If True, returns a model pre-trained on ImageNette
         checkpoint: If specified, the model's parameters will be set to the checkpoint's values
-        progress (bool): If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _convnext
+        progress: If True, displays a progress bar of the download to stderr
+        kwargs: keyword args of [`ConvNeXt`][holocron.models.classification.convnext.ConvNeXt]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
     """
     checkpoint = _handle_legacy_pretrained(pretrained, checkpoint, None)
     return _convnext(checkpoint, progress, [3, 3, 9, 3], [96, 192, 384, 768], **kwargs)
@@ -335,13 +336,13 @@ def convnext_small(
     ["A ConvNet for the 2020s"](https://arxiv.org/pdf/2201.03545.pdf)
 
     Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNette
+        pretrained: If True, returns a model pre-trained on ImageNette
         checkpoint: If specified, the model's parameters will be set to the checkpoint's values
-        progress (bool): If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _convnext
+        progress: If True, displays a progress bar of the download to stderr
+        kwargs: keyword args of [`ConvNeXt`][holocron.models.classification.convnext.ConvNeXt]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
     """
     checkpoint = _handle_legacy_pretrained(pretrained, checkpoint, None)
     return _convnext(checkpoint, progress, [3, 3, 27, 3], [96, 192, 384, 768], **kwargs)
@@ -354,13 +355,13 @@ def convnext_base(
     ["A ConvNet for the 2020s"](https://arxiv.org/pdf/2201.03545.pdf)
 
     Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNette
+        pretrained: If True, returns a model pre-trained on ImageNette
         checkpoint: If specified, the model's parameters will be set to the checkpoint's values
-        progress (bool): If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _convnext
+        progress: If True, displays a progress bar of the download to stderr
+        kwargs: keyword args of [`ConvNeXt`][holocron.models.classification.convnext.ConvNeXt]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
     """
     checkpoint = _handle_legacy_pretrained(pretrained, checkpoint, None)
     return _convnext(checkpoint, progress, [3, 3, 27, 3], [128, 256, 512, 1024], **kwargs)
@@ -373,13 +374,13 @@ def convnext_large(
     ["A ConvNet for the 2020s"](https://arxiv.org/pdf/2201.03545.pdf)
 
     Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNette
+        pretrained: If True, returns a model pre-trained on ImageNette
         checkpoint: If specified, the model's parameters will be set to the checkpoint's values
-        progress (bool): If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _convnext
+        progress: If True, displays a progress bar of the download to stderr
+        kwargs: keyword args of [`ConvNeXt`][holocron.models.classification.convnext.ConvNeXt]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
     """
     checkpoint = _handle_legacy_pretrained(pretrained, checkpoint, None)
     return _convnext(checkpoint, progress, [3, 3, 27, 3], [192, 384, 768, 1536], **kwargs)
@@ -392,13 +393,13 @@ def convnext_xl(
     ["A ConvNet for the 2020s"](https://arxiv.org/pdf/2201.03545.pdf)
 
     Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNette
+        pretrained: If True, returns a model pre-trained on ImageNette
         checkpoint: If specified, the model's parameters will be set to the checkpoint's values
-        progress (bool): If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _convnext
+        progress: If True, displays a progress bar of the download to stderr
+        kwargs: keyword args of [`ConvNeXt`][holocron.models.classification.convnext.ConvNeXt]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
     """
     checkpoint = _handle_legacy_pretrained(pretrained, checkpoint, None)
     return _convnext(checkpoint, progress, [3, 3, 27, 3], [256, 512, 1024, 2048], **kwargs)

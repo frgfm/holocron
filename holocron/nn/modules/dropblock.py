@@ -11,16 +11,14 @@ __all__ = ["DropBlock2d"]
 
 
 class DropBlock2d(nn.Module):
-    """Implements the DropBlock module from `"DropBlock: A regularization method for convolutional networks"
-    <https://arxiv.org/pdf/1810.12890.pdf>`_
+    """Implements the DropBlock module from ["DropBlock: A regularization method for convolutional networks"](https://arxiv.org/pdf/1810.12890.pdf)
 
-    .. image:: https://github.com/frgfm/Holocron/releases/download/v0.1.3/dropblock.png
-        :align: center
+    ![DropBlock](https://github.com/frgfm/Holocron/releases/download/v0.1.3/dropblock.png)
 
     Args:
-        p (float, optional): probability of dropping activation value
-        block_size (int, optional): size of each block that is expended from the sampled mask
-        inplace (bool, optional): whether the operation should be done inplace
+        p: probability of dropping activation value
+        block_size: size of each block that is expended from the sampled mask
+        inplace: whether the operation should be done inplace
     """
 
     def __init__(self, p: float = 0.1, block_size: int = 7, inplace: bool = False) -> None:

@@ -284,17 +284,18 @@ def rexnet1_0x(
     ["ReXNet: Diminishing Representational Bottleneck on Convolutional Neural Network"](https://arxiv.org/pdf/2007.00992.pdf)
 
     Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNette
+        pretrained: If True, returns a model pre-trained on ImageNette
         checkpoint: If specified, the model's parameters will be set to the checkpoint's values
-        progress (bool): If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _rexnet
+        progress: If True, displays a progress bar of the download to stderr
+        kwargs: keyword args of [`ReXNet`][holocron.models.classification.rexnet.ReXNet]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
 
     ::: holocron.models.ReXNet1_0x_Checkpoint
         options:
             heading_level: 4
+            show_if_no_docstring: true
     """
     checkpoint = _handle_legacy_pretrained(
         pretrained,
@@ -345,17 +346,18 @@ def rexnet1_3x(
     ["ReXNet: Diminishing Representational Bottleneck on Convolutional Neural Network"](https://arxiv.org/pdf/2007.00992.pdf)
 
     Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNet
+        pretrained: If True, returns a model pre-trained on ImageNet
         checkpoint: If specified, the model's parameters will be set to the checkpoint's values
-        progress (bool): If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _rexnet
+        progress: If True, displays a progress bar of the download to stderr
+        kwargs: keyword args of [`ReXNet`][holocron.models.classification.rexnet.ReXNet]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
 
     ::: holocron.models.ReXNet1_3x_Checkpoint
         options:
             heading_level: 4
+            show_if_no_docstring: true
     """
     checkpoint = _handle_legacy_pretrained(
         pretrained,
@@ -406,17 +408,18 @@ def rexnet1_5x(
     ["ReXNet: Diminishing Representational Bottleneck on Convolutional Neural Network"](https://arxiv.org/pdf/2007.00992.pdf)
 
     Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNet
+        pretrained: If True, returns a model pre-trained on ImageNet
         checkpoint: If specified, the model's parameters will be set to the checkpoint's values
-        progress (bool): If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _rexnet
+        progress: If True, displays a progress bar of the download to stderr
+        kwargs: keyword args of [`ReXNet`][holocron.models.classification.rexnet.ReXNet]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
 
     ::: holocron.models.ReXNet1_5x_Checkpoint
         options:
             heading_level: 4
+            show_if_no_docstring: true
     """
     checkpoint = _handle_legacy_pretrained(
         pretrained,
@@ -467,17 +470,18 @@ def rexnet2_0x(
     ["ReXNet: Diminishing Representational Bottleneck on Convolutional Neural Network"](https://arxiv.org/pdf/2007.00992.pdf)
 
     Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNet
+        pretrained: If True, returns a model pre-trained on ImageNet
         checkpoint: If specified, the model's parameters will be set to the checkpoint's values
-        progress (bool): If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _rexnet
+        progress: If True, displays a progress bar of the download to stderr
+        kwargs: keyword args of [`ReXNet`][holocron.models.ReXNet]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
 
     ::: holocron.models.ReXNet2_0x_Checkpoint
         options:
             heading_level: 4
+            show_if_no_docstring: true
     """
     checkpoint = _handle_legacy_pretrained(
         pretrained,
@@ -516,13 +520,13 @@ def rexnet2_2x(
     ["ReXNet: Diminishing Representational Bottleneck on Convolutional Neural Network"](https://arxiv.org/pdf/2007.00992.pdf)
 
     Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNet
+        pretrained: If True, returns a model pre-trained on ImageNet
         checkpoint: If specified, the model's parameters will be set to the checkpoint's values
-        progress (bool): If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _rexnet
+        progress: If True, displays a progress bar of the download to stderr
+        kwargs: keyword args of [`ReXNet`][holocron.models.classification.rexnet.ReXNet]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
 
     ::: holocron.models.ReXNet2_2x_Checkpoint
         options:

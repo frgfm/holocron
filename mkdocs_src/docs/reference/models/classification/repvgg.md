@@ -19,15 +19,15 @@ The key takeaways from the paper are the following:
 
 The following model builders can be used to instantiate a RepVGG model, with or
 without pre-trained weights. All the model builders internally rely on the
-`holocron.models.classification.revpgg.RepVGG` base class. Please refer to the [source
-code](https://github.com/frgfm/Holocron/blob/main/holocron/models/classification/repvgg.py) for
-more details about this class.
+[`RepVGG`][holocron.models.RepVGG] base class.
 
-::: holocron.models.classification.repvgg
+::: holocron.models.classification
     options:
         heading_level: 3
         show_root_heading: false
+        show_root_toc_entry: false
         members:
+            - RepVGG
             - repvgg_a0
             - repvgg_a1
             - repvgg_a2

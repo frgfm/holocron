@@ -15,13 +15,13 @@ The key takeaways from the paper are the following:
 
 The following model builders can be used to instantiate a DarknetV2 model, with or
 without pre-trained weights. All the model builders internally rely on the
-`holocron.models.classification.darknetv2.DarknetV2` base class. Please refer to the [source
-code](https://github.com/frgfm/Holocron/blob/main/holocron/models/classification/darknetv2.py) for
-more details about this class.
+[`DarknetV2`][holocron.models.DarknetV2] base class.
 
-::: holocron.models.classification.darknetv2
+::: holocron.models.classification
     options:
         heading_level: 3
         show_root_heading: false
+        show_root_toc_entry: false
         members:
+            - DarknetV2
             - darknet19

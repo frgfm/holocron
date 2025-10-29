@@ -14,41 +14,43 @@ __all__ = ["AdEMAMix", "ademamix"]
 
 
 class AdEMAMix(Optimizer):
-    r"""Implements the AdEMAMix optimizer from `"The AdEMAMix Optimizer: Better, Faster, Older" <https://arxiv.org/pdf/2409.03137>`_.
+    r"""Implements the AdEMAMix optimizer from ["The AdEMAMix Optimizer: Better, Faster, Older"](https://arxiv.org/pdf/2409.03137).
 
-    The estimation of momentums is described as follows, :math:`\forall t \geq 1`:
+    The estimation of momentums is described as follows, $\forall t \geq 1$:
 
-    .. math::
-        m_{1,t} \leftarrow \beta_1 m_{1, t-1} + (1 - \beta_1) g_t \\
-        m_{2,t} \leftarrow \beta_3 m_{2, t-1} + (1 - \beta_3) g_t \\
-        s_t \leftarrow \beta_2 s_{t-1} + (1 - \beta_2) (g_t - m_t)^2 + \epsilon
+    $$
+    m_{1,t} \leftarrow \beta_1 m_{1, t-1} + (1 - \beta_1) g_t \\
+    m_{2,t} \leftarrow \beta_3 m_{2, t-1} + (1 - \beta_3) g_t \\
+    s_t \leftarrow \beta_2 s_{t-1} + (1 - \beta_2) (g_t - m_t)^2 + \epsilon
+    $$
 
-    where :math:`g_t` is the gradient of :math:`\theta_t`,
-    :math:`\beta_1, \beta_2, \beta_3 \in [0, 1]^3` are the exponential average smoothing coefficients,
-    :math:`m_{1,0} = 0,\ m_{2,0} = 0,\ s_0 = 0`, :math:`\epsilon > 0`.
+    where $g_t$ is the gradient of $\theta_t$,
+    $\beta_1, \beta_2, \beta_3 \in [0, 1]^3$ are the exponential average smoothing coefficients,
+    $m_{1,0} = 0,\ m_{2,0} = 0,\ s_0 = 0$, $\epsilon > 0$.
 
     Then we correct their biases using:
 
-    .. math::
-        \hat{m_{1,t}} \leftarrow \frac{m_{1,t}}{1 - \beta_1^t} \\
-        \hat{s_t} \leftarrow \frac{s_t}{1 - \beta_2^t}
+    $$
+    \hat{m_{1,t}} \leftarrow \frac{m_{1,t}}{1 - \beta_1^t} \\
+    \hat{s_t} \leftarrow \frac{s_t}{1 - \beta_2^t}
+    $$
 
     And finally the update step is performed using the following rule:
 
-    .. math::
-        \theta_t \leftarrow \theta_{t-1} - \eta \frac{\hat{m_{1,t}} + \alpha m_{2,t}}{\sqrt{\hat{s_t}} + \epsilon}
+    $$
+    \theta_t \leftarrow \theta_{t-1} - \eta \frac{\hat{m_{1,t}} + \alpha m_{2,t}}{\sqrt{\hat{s_t}} + \epsilon}
+    $$
 
-    where :math:`\theta_t` is the parameter value at step :math:`t` (:math:`\theta_0` being the initialization value),
-    :math:`\eta` is the learning rate, :math:`\alpha > 0` :math:`\epsilon > 0`.
+    where $\theta_t$ is the parameter value at step $t$ ($\theta_0$ being the initialization value),
+    $\eta$ is the learning rate, $\alpha > 0$ $\epsilon > 0$.
 
     Args:
-        params (iterable): iterable of parameters to optimize or dicts defining parameter groups
-        lr (float, optional): learning rate
-        betas (Tuple[float, float, float], optional): coefficients used for running averages (default: (0.9, 0.999, 0.9999))
-        alpha (float, optional): the exponential decay rate of the second moment estimates (default: 5.0)
-        eps (float, optional): term added to the denominator to improve numerical stability (default: 1e-8)
-        weight_decay (float, optional): weight decay (L2 penalty) (default: 0)
-        amsgrad (bool, optional): whether to use the AMSGrad variant (default: False)
+        params: iterable of parameters to optimize or dicts defining parameter groups
+        lr: learning rate
+        betas: coefficients used for running averages
+        alpha: the exponential decay rate of the second moment estimates
+        eps: term added to the denominator to improve numerical stability
+        weight_decay: weight decay (L2 penalty)
     """
 
     def __init__(

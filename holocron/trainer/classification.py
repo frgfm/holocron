@@ -45,7 +45,7 @@ class ClassificationTrainer(Trainer):
         """Evaluate the model on the validation set
 
         Returns:
-            dict: evaluation metrics
+            evaluation metrics
         """
         self.model.eval()
 
@@ -91,11 +91,11 @@ class ClassificationTrainer(Trainer):
         """Plot the top losses
 
         Args:
-            mean (tuple[float, float, float]): mean of the dataset
-            std (tuple[float, float, float]): standard deviation of the dataset
-            classes (Sequence[str], optional): list of classes
-            num_samples (int, optional): number of samples to plot
-            kwargs: keyword args of matplotlib.pyplot.show
+            mean: mean of the dataset
+            std: standard deviation of the dataset
+            classes: list of classes
+            num_samples: number of samples to plot
+            **kwargs: keyword args of [`matplotlib.pyplot.show`][matplotlib.pyplot.show]
 
         Raises:
             AssertionError: if the argument 'classes' is not specified for multi-class classification
@@ -176,14 +176,14 @@ class BinaryClassificationTrainer(ClassificationTrainer):
     """Image binary classification trainer class.
 
     Args:
-        model (torch.nn.Module): model to train
-        train_loader (torch.utils.data.DataLoader): training loader
-        val_loader (torch.utils.data.DataLoader): validation loader
-        criterion (torch.nn.Module): loss criterion
-        optimizer (torch.optim.Optimizer): parameter optimizer
-        gpu (int, optional): index of the GPU to use
-        output_file (str, optional): path where checkpoints will be saved
-        amp (bool, optional): whether to use automatic mixed precision
+        model: model to train
+        train_loader: training loader
+        val_loader: validation loader
+        criterion: loss criterion
+        optimizer: parameter optimizer
+        gpu: index of the GPU to use
+        output_file: path where checkpoints will be saved
+        amp: whether to use automatic mixed precision
     """
 
     is_binary: bool = True
@@ -217,7 +217,7 @@ class BinaryClassificationTrainer(ClassificationTrainer):
         """Evaluate the model on the validation set
 
         Returns:
-            dict: evaluation metrics
+            evaluation metrics
         """
         self.model.eval()
 

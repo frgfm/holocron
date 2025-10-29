@@ -153,12 +153,12 @@ def darknet24(pretrained: bool = False, progress: bool = True, **kwargs: Any) ->
     ["You Only Look Once: Unified, Real-Time Object Detection"](https://pjreddie.com/media/files/papers/yolo_1.pdf)
 
     Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNet
-        progress (bool): If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _darknet
+        pretrained: If True, returns a model pre-trained on ImageNet
+        progress: If True, displays a progress bar of the download to stderr
+        kwargs: keyword args of [`DarknetV1`][holocron.models.classification.darknet.DarknetV1]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
     """
     return _darknet(
         "darknet24",

@@ -3,7 +3,7 @@
 ![Holocron logo](https://github.com/frgfm/Holocron/releases/download/v0.1.3/holocron_logo_text.png)
 
 
-Holocron is meant to bridge the gap between PyTorch and latest research papers. It brings training components that are not available yet in PyTorch with a similar interface.
+Holocron is meant to bridge the gap between [PyTorch](https://pytorch.org/) and latest research papers. It brings training components that are not available yet in PyTorch with a similar interface.
 
 This project is meant for:
 

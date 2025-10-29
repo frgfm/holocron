@@ -13,13 +13,14 @@ __all__ = ["freeze_bn", "freeze_model", "split_normalization_params"]
 def freeze_bn(mod: nn.Module) -> None:
     """Prevents parameter and stats from updating in Batchnorm layers that are frozen
 
-    >>> from holocron.models import rexnet1_0x
-    >>> from holocron.trainer.utils import freeze_bn
-    >>> model = rexnet1_0x()
-    >>> freeze_bn(model)
+    Examples:
+        >>> from holocron.models import rexnet1_0x
+        >>> from holocron.trainer.utils import freeze_bn
+        >>> model = rexnet1_0x()
+        >>> freeze_bn(model)
 
     Args:
-        mod (torch.nn.Module): model to train
+        mod: model to train
     """
     # Loop on modules
     for m in mod.modules():
@@ -36,15 +37,16 @@ def freeze_model(
 ) -> None:
     """Freeze a specific range of model layers.
 
-    >>> from holocron.models import rexnet1_0x
-    >>> from holocron.trainer.utils import freeze_model
-    >>> model = rexnet1_0x()
-    >>> freeze_model(model)
+    Examples:
+        >>> from holocron.models import rexnet1_0x
+        >>> from holocron.trainer.utils import freeze_model
+        >>> model = rexnet1_0x()
+        >>> freeze_model(model)
 
     Args:
-        model (torch.nn.Module): model to train
-        last_frozen_layer (str, optional): last layer to freeze. Assumes layers have been registered in forward order
-        frozen_bn_stat_update (bool, optional): force stats update in BN layers that are frozen
+        model: model to train
+        last_frozen_layer: last layer to freeze. Assumes layers have been registered in forward order
+        frozen_bn_stat_update: force stats update in BN layers that are frozen
 
     Raises:
         ValueError: if the last frozen layer is not found
@@ -79,14 +81,14 @@ def split_normalization_params(
     """Split the param groups by normalization schemes.
 
     Args:
-        model (torch.nn.Module): model to split
-        norm_classes (list[type], optional): list of normalization classes to split by
+        model: model to split
+        norm_classes: list of normalization classes to split by
 
     Returns:
-        tuple[list[nn.Parameter], list[nn.Parameter]]: tuple of lists of parameters for normalization and other layers
+        tuple of lists of parameters for normalization and other layers
 
     Raises:
-        TypeError: if a class is not a subclass of nn.Module
+        TypeError: if a class is not a subclass of [`nn.Module`][torch.nn.Module]
     """
     # Borrowed from https://github.com/pytorch/vision/blob/main/torchvision/ops/_utils.py
     # Adapted from https://github.com/facebookresearch/ClassyVision/blob/659d7f78/classy_vision/generic/util.py#L501

@@ -267,17 +267,18 @@ def cspdarknet53(
     ["CSPNet: A New Backbone that can Enhance Learning Capability of CNN"](https://arxiv.org/pdf/1911.11929.pdf)
 
     Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNet
+        pretrained: If True, returns a model pre-trained on ImageNet
         checkpoint: If specified, the model's parameters will be set to the checkpoint's values
-        progress (bool): If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _darknet
+        progress: If True, displays a progress bar of the download to stderr
+        kwargs: keyword args of [`DarknetV4`][holocron.models.classification.darknetv4.DarknetV4]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
 
     ::: holocron.models.CSPDarknet53_Checkpoint
         options:
             heading_level: 4
+            show_if_no_docstring: true
     """
     checkpoint = _handle_legacy_pretrained(
         pretrained,
@@ -317,17 +318,18 @@ def cspdarknet53_mish(
     with Mish as activation layer and DropBlock as regularization layer.
 
     Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNet
+        pretrained: If True, returns a model pre-trained on ImageNet
         checkpoint: If specified, the model's parameters will be set to the checkpoint's values
-        progress (bool): If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _darknet
+        progress: If True, displays a progress bar of the download to stderr
+        kwargs: keyword args of [`DarknetV4`][holocron.models.classification.darknetv4.DarknetV4]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
 
     ::: holocron.models.CSPDarknet53_Mish_Checkpoint
         options:
             heading_level: 4
+            show_if_no_docstring: true
     """
     kwargs["act_layer"] = nn.Mish(inplace=True)
     kwargs["drop_layer"] = DropBlock2d

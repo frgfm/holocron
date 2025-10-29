@@ -242,17 +242,18 @@ def darknet53(
     ["YOLOv3: An Incremental Improvement"](https://pjreddie.com/media/files/papers/YOLOv3.pdf)
 
     Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNet
+        pretrained: If True, returns a model pre-trained on ImageNet
         checkpoint: If specified, the model's parameters will be set to the checkpoint's values
-        progress (bool): If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _darknet
+        progress: If True, displays a progress bar of the download to stderr
+        kwargs: keyword args of [`DarknetV3`][holocron.models.classification.darknetv3.DarknetV3]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
 
     ::: holocron.models.Darknet53_Checkpoint
         options:
             heading_level: 4
+            show_if_no_docstring: true
     """
     checkpoint = _handle_legacy_pretrained(
         pretrained,

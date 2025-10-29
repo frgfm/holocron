@@ -19,16 +19,15 @@ The key takeaways from the paper are the following:
 ## Model builders
 
 The following model builders can be used to instantiate a ConvNeXt model, with or
-without pre-trained weights. All the model builders internally rely on the
-`holocron.models.classification.convnext.ConvNeXt` base class. Please refer to the [source
-code](https://github.com/frgfm/Holocron/blob/main/holocron/models/classification/convnext.py) for
-more details about this class.
+without pre-trained weights. All the model builders internally rely on the [`ConvNeXt`][holocron.models.ConvNeXt] base class.
 
-::: holocron.models.classification.convnext
+::: holocron.models.classification
     options:
         heading_level: 3
         show_root_heading: false
+        show_root_toc_entry: false
         members:
+            - ConvNeXt
             - convnext_atto
             - convnext_femto
             - convnext_pico

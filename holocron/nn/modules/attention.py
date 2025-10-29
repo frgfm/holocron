@@ -14,11 +14,11 @@ __all__ = ["SAM", "TripletAttention"]
 
 
 class SAM(nn.Module):
-    """SAM layer from `"CBAM: Convolutional Block Attention Module" <https://arxiv.org/pdf/1807.06521.pdf>`_
-    modified in `"YOLOv4: Optimal Speed and Accuracy of Object Detection" <https://arxiv.org/pdf/2004.10934.pdf>`_.
+    """SAM layer from ["CBAM: Convolutional Block Attention Module"](https://arxiv.org/pdf/1807.06521.pdf)
+    modified in ["YOLOv4: Optimal Speed and Accuracy of Object Detection"](https://arxiv.org/pdf/2004.10934.pdf).
 
     Args:
-        in_channels (int): input channels
+        in_channels: input channels
     """
 
     def __init__(self, in_channels: int) -> None:
@@ -33,7 +33,7 @@ class DimAttention(nn.Module):
     """Attention layer across a specific dimension
 
     Args:
-        dim: dimension to compute attention on
+        dim: dimension to compute attention across
     """
 
     def __init__(self, dim: int) -> None:
@@ -56,9 +56,8 @@ class DimAttention(nn.Module):
 
 
 class TripletAttention(nn.Module):
-    """Triplet attention layer from `"Rotate to Attend: Convolutional Triplet Attention Module"
-    <https://arxiv.org/pdf/2010.03045.pdf>`_. This implementation is based on the
-    `one <https://github.com/LandskapeAI/triplet-attention/blob/master/MODELS/triplet_attention.py>`_
+    """Triplet attention layer from ["Rotate to Attend: Convolutional Triplet Attention Module"](https://arxiv.org/pdf/2010.03045.pdf).
+    This implementation is based on the [one](https://github.com/LandskapeAI/triplet-attention/blob/master/MODELS/triplet_attention.py)
     from the paper's authors.
     """
 

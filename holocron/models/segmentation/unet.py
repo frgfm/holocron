@@ -295,7 +295,8 @@ class DynamicUNet(nn.Module):
         drop_layer: dropout layer
         conv_layer: convolutional layer
         same_padding: enforces same padding in convolutions
-        bilinear_upsampling: replaces transposed conv by bilinear interpolation for upsampling
+        input_shape: shape of the input tensor
+        final_upsampling: if True, replaces transposed conv by bilinear interpolation for upsampling
     """
 
     def __init__(
@@ -394,7 +395,7 @@ def unet(pretrained: bool = False, progress: bool = True, **kwargs: Any) -> UNet
     Args:
         pretrained: If True, returns a model pre-trained on PASCAL VOC2012
         progress: If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _unet
+        kwargs: keyword args of [`UNet`][holocron.models.segmentation.unet.UNet]
 
     Returns:
         semantic segmentation model
@@ -429,7 +430,7 @@ def unet2(pretrained: bool = False, progress: bool = True, in_channels: int = 3,
         pretrained: If True, returns a model pre-trained on PASCAL VOC2012
         progress: If True, displays a progress bar of the download to stderr
         in_channels: number of input channels
-        kwargs: keyword args of _dynamic_unet
+        kwargs: keyword args of [`DynamicUNet`][holocron.models.segmentation.unet.DynamicUNet]
 
     Returns:
         semantic segmentation model
@@ -450,7 +451,7 @@ def unet_tvvgg11(
         pretrained: If True, returns a model pre-trained on PASCAL VOC2012
         pretrained_backbone: If True, the encoder will load pretrained parameters from ImageNet
         progress: If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _dynamic_unet
+        kwargs: keyword args of [`DynamicUNet`][holocron.models.segmentation.unet.DynamicUNet]
 
     Returns:
         semantic segmentation model
@@ -472,7 +473,7 @@ def unet_tvresnet34(
         pretrained: If True, returns a model pre-trained on PASCAL VOC2012
         pretrained_backbone: If True, the encoder will load pretrained parameters from ImageNet
         progress: If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _dynamic_unet
+        kwargs: keyword args of [`DynamicUNet`][holocron.models.segmentation.unet.DynamicUNet]
 
     Returns:
         semantic segmentation model
@@ -500,7 +501,7 @@ def unet_rexnet13(
         pretrained_backbone: If True, the encoder will load pretrained parameters from ImageNet
         progress: If True, displays a progress bar of the download to stderr
         in_channels: the number of input channels
-        kwargs: keyword args of _dynamic_unet
+        kwargs: keyword args of [`DynamicUNet`][holocron.models.segmentation.unet.DynamicUNet]
 
     Returns:
         semantic segmentation model

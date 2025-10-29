@@ -14,7 +14,7 @@ __all__ = ["Mixup"]
 
 class Mixup(torch.nn.Module):
     """Implements a batch collate function with MixUp strategy from
-    `"mixup: Beyond Empirical Risk Minimization" <https://arxiv.org/pdf/1710.09412.pdf>`_.
+    ["mixup: Beyond Empirical Risk Minimization"](https://arxiv.org/pdf/1710.09412.pdf).
 
     >>> import torch
     >>> from torch.utils.data._utils.collate import default_collate

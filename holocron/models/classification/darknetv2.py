@@ -225,17 +225,18 @@ def darknet19(
     ["YOLO9000: Better, Faster, Stronger"](https://pjreddie.com/media/files/papers/YOLO9000.pdf)
 
     Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNette
+        pretrained: If True, returns a model pre-trained on ImageNette
         checkpoint: If specified, the model's parameters will be set to the checkpoint's values
-        progress (bool): If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _darknet
+        progress: If True, displays a progress bar of the download to stderr
+        kwargs: keyword args of [`DarknetV2`][holocron.models.classification.darknetv2.DarknetV2]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
 
     ::: holocron.models.Darknet19_Checkpoint
         options:
             heading_level: 4
+            show_if_no_docstring: true
     """
     checkpoint = _handle_legacy_pretrained(
         pretrained,

@@ -32,11 +32,11 @@ class PAN(nn.Module):
     """PAN layer from `"Path Aggregation Network for Instance Segmentation" <https://arxiv.org/pdf/1803.01534.pdf>`_.
 
     Args:
-        in_channels (int): input channels
-        act_layer (torch.nn.Module, optional): activation layer to be used
-        norm_layer (callable, optional): normalization layer
-        drop_layer (callable, optional): regularization layer
-        conv_layer (callable, optional): convolutional layer
+        in_channels: input channels
+        act_layer: activation layer to be used
+        norm_layer: normalization layer
+        drop_layer: regularization layer
+        conv_layer: convolutional layer
     """
 
     def __init__(
@@ -431,7 +431,7 @@ class YoloLayer(nn.Module):
                 and `labels` of type torch.Tensor[*]
 
         Returns:
-            dict[str, Tensor] | list[dict[str, Tensor]]: loss dictionary in training mode or list of detections in eval mode
+            loss dictionary in training mode or list of detections in eval mode
 
         Raises:
             ValueError: if `target` is not specified in training mode
@@ -749,13 +749,13 @@ def yolov4(pretrained: bool = False, progress: bool = True, pretrained_backbone:
     and $loc^{GT}_k$ is the k-th ground truth bounding box.
 
     Args:
-        pretrained (bool, optional): If True, returns a model pre-trained on ImageNet
-        progress (bool, optional): If True, displays a progress bar of the download to stderr
-        pretrained_backbone (bool, optional): If True, backbone parameters will have been pretrained on Imagenette
-        kwargs: keyword args of _yolo
+        pretrained: If True, returns a model pre-trained on ImageNet
+        progress: If True, displays a progress bar of the download to stderr
+        pretrained_backbone: If True, backbone parameters will have been pretrained on Imagenette
+        kwargs: keyword args of [`YOLOv4`][holocron.models.detection.yolov4.YOLOv4]
 
     Returns:
-        torch.nn.Module: detection module
+        detection module
     """
     if pretrained_backbone:
         kwargs["backbone_norm_layer"] = FrozenBatchNorm2d

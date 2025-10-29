@@ -24,9 +24,9 @@ class Lookahead(Optimizer):
     >>> opt_wrapper = Lookahead(opt)
 
     Args:
-        base_optimizer (torch.optim.optimizer.Optimizer): base parameter optimizer
-        sync_rate (int, optional): rate of weight synchronization
-        sync_period (int, optional): number of step performed on fast weights before weight synchronization
+        base_optimizer: base parameter optimizer
+        sync_rate: rate of weight synchronization
+        sync_period: number of step performed on fast weights before weight synchronization
     """
 
     def __init__(
@@ -75,10 +75,10 @@ class Lookahead(Optimizer):
         """Performs a single optimization step.
 
         Arguments:
-            closure (callable, optional): A closure that reevaluates the model and returns the loss.
+            closure: A closure that reevaluates the model and returns the loss.
 
         Returns:
-            float | None: loss value
+            loss value
         """
         # Update fast params
         loss = self.base_optimizer.step(closure)
@@ -102,7 +102,7 @@ class Lookahead(Optimizer):
         """Adds a new slow parameter group
 
         Args:
-            param_group (dict): parameter group of base_optimizer
+            param_group: parameter group of base_optimizer
         """
         # Clone & detach params from base optimizer
         group = {"params": [p.clone().detach() for p in param_group["params"]], "lr": param_group["lr"]}
@@ -115,7 +115,7 @@ class Lookahead(Optimizer):
         """Adds a parameter group to base optimizer (fast weights) and its corresponding slow version
 
         Args:
-            param_group (dict): parameter group
+            param_group: parameter group
         """
         # Add param group to base optimizer
         self.base_optimizer.add_param_group(param_group)
@@ -128,7 +128,7 @@ class Lookahead(Optimizer):
         slow_param <- slow_param + sync_rate * (fast_param - slow_param)
 
         Args:
-            sync_rate (float): synchronization rate of parameters
+            sync_rate: synchronization rate of parameters
         """
         for fast_group, slow_group in zip(self.base_optimizer.param_groups, self.param_groups, strict=True):
             for fast_p, slow_p in zip(fast_group["params"], slow_group["params"], strict=True):
@@ -140,10 +140,9 @@ class Lookahead(Optimizer):
 
 
 class Scout(Optimizer):
-    """Implements a new optimizer wrapper based on `"Lookahead Optimizer: k steps forward, 1 step back"
-    <https://arxiv.org/pdf/1907.08610.pdf>`_.
+    """Implements a new optimizer wrapper based on ["Lookahead Optimizer: k steps forward, 1 step back"](https://arxiv.org/pdf/1907.08610.pdf).
 
-    Example::
+    Example:
         >>> from torch.optim import AdamW
         >>> from holocron.optim.wrapper import Scout
         >>> model = ...
@@ -151,9 +150,9 @@ class Scout(Optimizer):
         >>> opt_wrapper = Scout(opt)
 
     Args:
-        base_optimizer (torch.optim.optimizer.Optimizer): base parameter optimizer
-        sync_rate (float, optional): rate of weight synchronization
-        sync_period (int, optional): number of step performed on fast weights before weight synchronization
+        base_optimizer: base parameter optimizer
+        sync_rate: rate of weight synchronization
+        sync_period: number of step performed on fast weights before weight synchronization
     """
 
     def __init__(
@@ -204,10 +203,10 @@ class Scout(Optimizer):
         """Performs a single optimization step.
 
         Arguments:
-            closure (callable, optional): A closure that reevaluates the model and returns the loss.
+            closure: A closure that reevaluates the model and returns the loss.
 
         Returns:
-            float | None: loss value
+            loss value
         """
         # Update fast params
         loss = self.base_optimizer.step(closure)
@@ -253,7 +252,7 @@ class Scout(Optimizer):
         """Adds a new slow parameter group
 
         Args:
-            param_group (dict): parameter group of base_optimizer
+            param_group: parameter group of base_optimizer
         """
         # Clone & detach params from base optimizer
         group = {"params": [p.clone().detach() for p in param_group["params"]], "lr": param_group["lr"]}
@@ -266,7 +265,7 @@ class Scout(Optimizer):
         """Adds a parameter group to base optimizer (fast weights) and its corresponding slow version
 
         Args:
-            param_group (dict): parameter group
+            param_group: parameter group
         """
         # Add param group to base optimizer
         self.base_optimizer.add_param_group(param_group)
@@ -279,7 +278,7 @@ class Scout(Optimizer):
         slow_param <- slow_param + sync_rate * (fast_param - slow_param)
 
         Args:
-            sync_rate (float): synchronization rate of parameters
+            sync_rate: synchronization rate of parameters
         """
         for fast_group, slow_group in zip(self.base_optimizer.param_groups, self.param_groups, strict=True):
             for fast_p, slow_p in zip(fast_group["params"], slow_group["params"], strict=True):

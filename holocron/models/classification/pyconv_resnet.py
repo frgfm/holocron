@@ -137,12 +137,12 @@ def pyconv_resnet50(pretrained: bool = False, progress: bool = True, **kwargs: A
     for Visual Recognition"](https://arxiv.org/pdf/2006.11538.pdf)
 
     Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNet
-        progress (bool): If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _pyconvresnet
+        pretrained: If True, returns a model pre-trained on ImageNet
+        progress: If True, displays a progress bar of the download to stderr
+        kwargs: keyword args of [`ResNet`][holocron.models.classification.resnet.ResNet]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
     """
     return _pyconvresnet(
         "pyconv_resnet50",
@@ -162,12 +162,12 @@ def pyconvhg_resnet50(pretrained: bool = False, progress: bool = True, **kwargs:
     for Visual Recognition"](https://arxiv.org/pdf/2006.11538.pdf)
 
     Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNet
-        progress (bool): If True, displays a progress bar of the download to stderr
-        kwargs: keyword args of _pyconvresnet
+        pretrained: If True, returns a model pre-trained on ImageNet
+        progress: If True, displays a progress bar of the download to stderr
+        kwargs: keyword args of [`ResNet`][holocron.models.classification.resnet.ResNet]
 
     Returns:
-        torch.nn.Module: classification model
+        classification model
     """
     return _pyconvresnet(
         "pyconvhg_resnet50",

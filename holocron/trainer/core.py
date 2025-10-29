@@ -130,7 +130,7 @@ class Trainer:
         """Resume from a trainer state
 
         Args:
-            state (dict): checkpoint dictionary
+            state: checkpoint dictionary
         """
         self.start_epoch = state["epoch"]
         self.epoch = self.start_epoch
@@ -142,7 +142,7 @@ class Trainer:
         """Fit a single epoch
 
         Args:
-            mb (fastprogress.master_bar): primary progress bar
+            mb: primary progress bar
 
         Raises:
             ValueError: if the loss value is NaN or inf
@@ -179,11 +179,11 @@ class Trainer:
         """Move input and target to GPU
 
         Args:
-            x (Tensor): input tensor
-            target (Tensor | list[dict[str, Tensor]]): target tensor or list of target dictionaries
+            x: input tensor
+            target: target tensor or list of target dictionaries
 
         Returns:
-            tuple[Tensor, Tensor | list[dict[str, Tensor]]]: tuple of input and target tensors
+            tuple of input and target tensors
 
         Raises:
             ValueError: if the device index is invalid
@@ -299,12 +299,12 @@ class Trainer:
         """Train the model for a given number of epochs.
 
         Args:
-            num_epochs (int): number of epochs to train
-            lr (float): learning rate to be used by the scheduler
-            freeze_until (str, optional): last layer to freeze
-            sched_type (str, optional): type of scheduler to use
-            norm_weight_decay (float, optional): weight decay to apply to normalization parameters
-            **kwargs: keyword args passed to the schedulers
+            num_epochs: number of epochs to train
+            lr: learning rate to be used by the scheduler
+            freeze_until: last layer to freeze
+            sched_type: type of scheduler to use
+            norm_weight_decay: weight decay to apply to normalization parameters
+            **kwargs: keyword args passed to the [`LRScheduler`][torch.optim.lr_scheduler.LRScheduler]
         """
         freeze_model(self.model.train(), freeze_until)
         # Update param groups & LR
@@ -343,14 +343,14 @@ class Trainer:
         num_it: int = 100,
     ) -> None:
         """Gridsearch the optimal learning rate for the training as described in
-        `"Cyclical Learning Rates for Training Neural Networks" <https://arxiv.org/pdf/1506.01186.pdf>`_.
+        ["Cyclical Learning Rates for Training Neural Networks"](https://arxiv.org/pdf/1506.01186.pdf).
 
         Args:
-           freeze_until (str, optional): last layer to freeze
-           start_lr (float, optional): initial learning rate
-           end_lr (float, optional): final learning rate
-           norm_weight_decay (float, optional): weight decay to apply to normalization parameters
-           num_it (int, optional): number of iterations to perform
+           freeze_until: last layer to freeze
+           start_lr: initial learning rate
+           end_lr: final learning rate
+           norm_weight_decay: weight decay to apply to normalization parameters
+           num_it: number of iterations to perform
 
         Raises:
             ValueError: if the number of iterations is greater than the number of available batches
@@ -395,8 +395,8 @@ class Trainer:
         """Display the results of the LR grid search
 
         Args:
-            beta (float, optional): smoothing factor
-            kwargs: keyword args of matplotlib.pyplot.show
+            beta: smoothing factor
+            **kwargs: keyword args of [`matplotlib.pyplot.show`][matplotlib.pyplot.show]
 
         Raises:
             AssertionError: if the number of learning rate recorder and loss recorder are not the same or if the number of learning rate recorder is 0
@@ -440,11 +440,11 @@ class Trainer:
         """Check whether you can overfit one batch
 
         Args:
-            freeze_until (str, optional): last layer to freeze
-            lr (float, optional): learning rate to be used for training
-            norm_weight_decay (float, optional): weight decay to apply to normalization parameters
-            num_it (int, optional): number of iterations to perform
-            kwargs: keyword args of matplotlib.pyplot.show
+            freeze_until: last layer to freeze
+            lr: learning rate to be used for training
+            norm_weight_decay: weight decay to apply to normalization parameters
+            num_it: number of iterations to perform
+            **kwargs: keyword args of [`matplotlib.pyplot.show`][matplotlib.pyplot.show]
 
         Raises:
             ValueError: if the loss value is NaN or inf

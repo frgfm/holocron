@@ -6,17 +6,10 @@ segmentation, object detection, instance segmentation, person
 keypoint detection and video classification.
 
 
-.. currentmodule:: holocron.models
-
 ## Classification
 
 Classification models expect a 4D image tensor as an input (N x C x H x W) and returns a 2D output (N x K).
 The output represents the classification scores for each output classes.
-
-```python
-import holocron.models as models
-darknet19 = models.darknet19(num_classes=10)
-```
 
 ### Supported architectures
 * [ResNet](./classification/resnet.md)
@@ -51,22 +44,20 @@ import holocron.models as models
 yolov2 = models.yolov2(num_classes=10)
 ```
 
-.. currentmodule:: holocron.models.detection
-
 ### YOLO
 
-::: holocron.models.detection.yolo.yolov1
+::: holocron.models.detection
     options:
-        heading_level: 4
-
-::: holocron.models.detection.yolov2.yolov2
-    options:
-        heading_level: 4
-
-::: holocron.models.detection.yolov4.yolov4
-    options:
-        heading_level: 4
-
+        heading_level: 3
+        show_root_heading: false
+        show_root_toc_entry: false
+        members:
+            - YOLOv1
+            - yolov1
+            - YOLOv2
+            - yolov2
+            - YOLOv4
+            - yolov4
 
 ## Semantic Segmentation
 
@@ -80,34 +71,36 @@ unet = models.unet(num_classes=10)
 
 ### U-Net
 
-::: holocron.models.segmentation.unet.unet
+::: holocron.models.segmentation
     options:
-        heading_level: 4
+        heading_level: 3
+        show_root_heading: false
+        show_root_toc_entry: false
+        members:
+            - UNet
+            - DynamicUNet
+            - unet
+            - unet2
+            - unet_tvvgg11
+            - unet_tvresnet34
+            - unet_rexnet13
 
-::: holocron.models.segmentation.unetpp.unetp
+::: holocron.models.segmentation
     options:
-        heading_level: 4
+        heading_level: 3
+        show_root_heading: false
+        show_root_toc_entry: false
+        members:
+            - UNetp
+            - unetp
+            - UNetpp
+            - unetpp
 
-::: holocron.models.segmentation.unetpp.unetpp
+::: holocron.models.segmentation
     options:
-        heading_level: 4
-
-::: holocron.models.segmentation.unet3p.unet3p
-    options:
-        heading_level: 4
-
-::: holocron.models.segmentation.unet.unet2
-    options:
-        heading_level: 4
-
-::: holocron.models.segmentation.unet.unet_tvvgg11
-    options:
-        heading_level: 4
-
-::: holocron.models.segmentation.unet.unet_tvresnet34
-    options:
-        heading_level: 4
-
-::: holocron.models.segmentation.unet.unet_rexnet13
-    options:
-        heading_level: 4
+        heading_level: 3
+        show_root_heading: false
+        show_root_toc_entry: false
+        members:
+            - UNet3p
+            - unet3p

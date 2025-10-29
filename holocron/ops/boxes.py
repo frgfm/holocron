@@ -30,25 +30,26 @@ def _box_iou(boxes1: Tensor, boxes2: Tensor) -> tuple[Tensor, Tensor]:
 
 
 def box_giou(boxes1: Tensor, boxes2: Tensor) -> Tensor:
-    r"""Computes the Generalized-IoU as described in `"Generalized Intersection over Union: A Metric and A Loss
-    for Bounding Box Regression" <https://arxiv.org/pdf/1902.09630.pdf>`_. This implementation was adapted
+    r"""Computes the Generalized-IoU as described in ["Generalized Intersection over Union: A Metric and A Loss
+    for Bounding Box Regression"](https://arxiv.org/pdf/1902.09630.pdf). This implementation was adapted
     from https://github.com/facebookresearch/detr/blob/master/util/box_ops.py
 
     The generalized IoU is defined as follows:
 
-    .. math::
-        GIoU = IoU - \frac{|C - A \cup B|}{|C|}
+    $$
+    GIoU = IoU - \frac{|C - A \cup B|}{|C|}
+    $$
 
-    where :math:`IoU` is the Intersection over Union,
-    :math:`A \cup B` is the area of the boxes' union,
-    and :math:`C` is the area of the smallest enclosing box covering the two boxes.
+    where $\IoU$ is the Intersection over Union,
+    $A \cup B$ is the area of the boxes' union,
+    and $C$ is the area of the smallest enclosing box covering the two boxes.
 
     Args:
-        boxes1 (torch.Tensor[M, 4]): bounding boxes
-        boxes2 (torch.Tensor[N, 4]): bounding boxes
+        boxes1: bounding boxes of shape [M, 4]
+        boxes2: bounding boxes of shape [N, 4]
 
     Returns:
-        torch.Tensor[M, N]: Generalized-IoU
+        Generalized-IoU of shape [M, N]
 
     Raises:
         AssertionError: if the boxes are in incorrect coordinate format
@@ -72,11 +73,11 @@ def iou_penalty(boxes1: Tensor, boxes2: Tensor) -> Tensor:
     """Implements the penalty term for the Distance-IoU loss
 
     Args:
-        boxes1 (torch.Tensor[M, 4]): bounding boxes
-        boxes2 (torch.Tensor[N, 4]): bounding boxes
+        boxes1: bounding boxes of shape [M, 4]
+        boxes2: bounding boxes of shape [N, 4]
 
     Returns:
-        torch.Tensor[M, N]: penalty term
+        penalty term of shape [M, N]
     """
     # Diagonal length of the smallest enclosing box
     c2 = torch.zeros((boxes1.shape[0], boxes2.shape[0], 2), device=boxes1.device)
@@ -106,28 +107,28 @@ def iou_penalty(boxes1: Tensor, boxes2: Tensor) -> Tensor:
 
 
 def diou_loss(boxes1: Tensor, boxes2: Tensor) -> Tensor:
-    r"""Computes the Distance-IoU loss as described in `"Distance-IoU Loss: Faster and Better Learning for
-    Bounding Box Regression" <https://arxiv.org/pdf/1911.08287.pdf>`_.
+    r"""Computes the Distance-IoU loss as described in ["Distance-IoU Loss: Faster and Better Learning for
+    Bounding Box Regression"](https://arxiv.org/pdf/1911.08287.pdf).
 
     The loss is defined as follows:
 
-    .. math::
-        \mathcal{L}_{DIoU} = 1 - IoU + \frac{\rho^2(b, b^{GT})}{c^2}
+    $$
+    \mathcal{L}_{DIoU} = 1 - IoU + \frac{\rho^2(b, b^{GT})}{c^2}
+    $$
 
-    where :math:`IoU` is the Intersection over Union,
-    :math:`b` and :math:`b^{GT}` are the centers of the box and the ground truth box respectively,
-    :math:`c` c is the diagonal length of the smallest enclosing box covering the two boxes,
-    and :math:`\rho(.)` is the Euclidean distance.
+    where $\IoU$ is the Intersection over Union,
+    $b$ and $b^{GT}$ are the centers of the box and the ground truth box respectively,
+    $c$ c is the diagonal length of the smallest enclosing box covering the two boxes,
+    and $\rho(.)$ is the Euclidean distance.
 
-    .. image:: https://github.com/frgfm/Holocron/releases/download/v0.1.3/diou_loss.png
-        :align: center
+    ![Distance-IoU loss](https://github.com/frgfm/Holocron/releases/download/v0.1.3/diou_loss.png)
 
     Args:
-        boxes1 (torch.Tensor[M, 4]): bounding boxes
-        boxes2 (torch.Tensor[N, 4]): bounding boxes
+        boxes1: bounding boxes of shape [M, 4]
+        boxes2: bounding boxes of shape [N, 4]
 
     Returns:
-        torch.Tensor[M, N]: Distance-IoU loss
+        Distance-IoU loss of shape [M, N]
     """
     return 1 - box_iou(boxes1, boxes2) + iou_penalty(boxes1, boxes2)
 
@@ -136,10 +137,10 @@ def aspect_ratio(boxes: Tensor) -> Tensor:
     """Computes the aspect ratio of boxes
 
     Args:
-        boxes (torch.Tensor[N, 4]): bounding boxes
+        boxes: bounding boxes of shape [N, 4]
 
     Returns:
-        torch.Tensor[N]: aspect ratio
+        aspect ratio of shape [N]
     """
     return torch.atan((boxes[:, 2] - boxes[:, 0]) / (boxes[:, 3] - boxes[:, 1]))
 
@@ -148,11 +149,11 @@ def aspect_ratio_consistency(boxes1: Tensor, boxes2: Tensor) -> Tensor:
     """Computes the aspect ratio consistency from the complete IoU loss
 
     Args:
-        boxes1 (torch.Tensor[M, 4]): bounding boxes
-        boxes2 (torch.Tensor[N, 4]): bounding boxes
+        boxes1: bounding boxes of shape [M, 4]
+        boxes2: bounding boxes of shape [N, 4]
 
     Returns:
-        torch.Tensor[M, N]: aspect ratio consistency
+        aspect ratio consistency of shape [M, N]
     """
     v = aspect_ratio(boxes1).unsqueeze(-1) - aspect_ratio(boxes2).unsqueeze(-2)
     v.pow_(2)
@@ -162,37 +163,40 @@ def aspect_ratio_consistency(boxes1: Tensor, boxes2: Tensor) -> Tensor:
 
 
 def ciou_loss(boxes1: Tensor, boxes2: Tensor) -> Tensor:
-    r"""Computes the Complete IoU loss as described in `"Distance-IoU Loss: Faster and Better Learning for
-    Bounding Box Regression" <https://arxiv.org/pdf/1911.08287.pdf>`_.
+    r"""Computes the Complete IoU loss as described in ["Distance-IoU Loss: Faster and Better Learning for
+    Bounding Box Regression"](https://arxiv.org/pdf/1911.08287.pdf).
 
     The loss is defined as follows:
 
-    .. math::
-        \mathcal{L}_{CIoU} = 1 - IoU + \frac{\rho^2(b, b^{GT})}{c^2} + \alpha v
+    $$
+    \mathcal{L}_{CIoU} = 1 - IoU + \frac{\rho^2(b, b^{GT})}{c^2} + \alpha v
+    $$
 
-    where :math:`IoU` is the Intersection over Union,
-    :math:`b` and :math:`b^{GT}` are the centers of the box and the ground truth box respectively,
-    :math:`c` c is the diagonal length of the smallest enclosing box covering the two boxes,
-    :math:`\rho(.)` is the Euclidean distance,
-    :math:`\alpha` is a positive trade-off parameter,
-    and :math:`v` is the aspect ratio consistency.
+    where $\IoU$ is the Intersection over Union,
+    $b$ and $b^{GT}$ are the centers of the box and the ground truth box respectively,
+    $c$ c is the diagonal length of the smallest enclosing box covering the two boxes,
+    $\rho(.)$ is the Euclidean distance,
+    $\alpha$ is a positive trade-off parameter,
+    and $v$ is the aspect ratio consistency.
 
     More specifically:
 
-    .. math::
-        v = \frac{4}{\pi^2} \Big(\arctan{\frac{w^{GT}}{h^{GT}}} - \arctan{\frac{w}{h}}\Big)^2
+    $$
+    v = \frac{4}{\pi^2} \Big(\arctan{\frac{w^{GT}}{h^{GT}}} - \arctan{\frac{w}{h}}\Big)^2
+    $$
 
     and
 
-    .. math::
-        \alpha = \frac{v}{(1 - IoU) + v}
+    $$
+    \alpha = \frac{v}{(1 - IoU) + v}
+    $$
 
     Args:
-        boxes1 (torch.Tensor[M, 4]): bounding boxes
-        boxes2 (torch.Tensor[N, 4]): bounding boxes
+        boxes1: bounding boxes of shape [M, 4]
+        boxes2: bounding boxes of shape [N, 4]
 
     Returns:
-        torch.Tensor[M, N]: Complete IoU loss
+        Complete IoU loss of shape [M, N]
 
     Example:
         >>> import torch

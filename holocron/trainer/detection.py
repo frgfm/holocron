@@ -17,12 +17,12 @@ def assign_iou(gt_boxes: Tensor, pred_boxes: Tensor, iou_threshold: float = 0.5)
     """Assigns boxes by IoU
 
     Args:
-        gt_boxes (Tensor): ground truth boxes
-        pred_boxes (Tensor): predicted boxes
-        iou_threshold (float, optional): IoU threshold for assignment
+        gt_boxes: ground truth boxes
+        pred_boxes: predicted boxes
+        iou_threshold: IoU threshold for assignment
 
     Returns:
-        tuple[list[int], list[int]]: tuple of ground truth indices and predicted indices
+        tuple of ground truth indices and predicted indices
     """
     iou = box_iou(gt_boxes, pred_boxes)
     iou = iou.max(dim=1)
@@ -90,10 +90,10 @@ class DetectionTrainer(Trainer):
         """Evaluate the model on the validation set.
 
         Args:
-            iou_threshold (float, optional): IoU threshold for pair assignment
+            iou_threshold: IoU threshold for pair assignment
 
         Returns:
-            dict: evaluation metrics
+            evaluation metrics
         """
         self.model.eval()
 
