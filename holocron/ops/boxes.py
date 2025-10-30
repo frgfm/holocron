@@ -199,11 +199,13 @@ def ciou_loss(boxes1: Tensor, boxes2: Tensor) -> Tensor:
         Complete IoU loss of shape [M, N]
 
     Example:
-        >>> import torch
-        >>> from holocron.ops.boxes import box_ciou
-        >>> boxes1 = torch.tensor([[0, 0, 100, 100], [100, 100, 200, 200]], dtype=torch.float32)
-        >>> boxes2 = torch.tensor([[50, 50, 150, 150]], dtype=torch.float32)
-        >>> box_ciou(boxes1, boxes2)
+        ```python
+        import torch
+        from holocron.ops.boxes import box_ciou
+        boxes1 = torch.tensor([[0, 0, 100, 100], [100, 100, 200, 200]], dtype=torch.float32)
+        boxes2 = torch.tensor([[50, 50, 150, 150]], dtype=torch.float32)
+        box_ciou(boxes1, boxes2)
+        ```
     """
     iou = box_iou(boxes1, boxes2)
     v = aspect_ratio_consistency(boxes1, boxes2)

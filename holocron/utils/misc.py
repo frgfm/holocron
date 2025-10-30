@@ -30,8 +30,11 @@ def parallel(
 ) -> Iterable[Out]:
     """Performs parallel tasks by leveraging multi-threading.
 
-    >>> from holocron.utils.misc import parallel
-    >>> parallel(lambda x: x ** 2, list(range(10)))
+    Example:
+        ```python
+        from holocron.utils.misc import parallel
+        parallel(lambda x: x ** 2, list(range(10)))
+        ```
 
     Args:
         func: function to be executed on multiple workers
@@ -58,7 +61,7 @@ def find_image_size(dataset: Sequence[tuple[Image.Image, Any]], **kwargs: Any) -
 
     Args:
         dataset: an iterator yielding a [`PIL.Image.Image`][PIL.Image.Image] and a target object
-        kwargs: keyword args of [`matplotlib.pyplot.show`][matplotlib.pyplot.show]
+        **kwargs: keyword args of [`matplotlib.pyplot.show`][matplotlib.pyplot.show]
     """
     # Record height & width
     shapes_ = parallel(lambda x: x[0].size, dataset, progress=True)

@@ -2,13 +2,20 @@
 
 `holocron.trainer` provides some basic objects for training purposes.
 
-::: holocron.trainer
+::: holocron.trainer.Trainer
     options:
         heading_level: 3
-        show_root_heading: false
-        show_root_toc_entry: false
+        show_object_full_path: false
         members:
-            - Trainer
+            - set_device
+            - to_cuda
+            - save
+            - load
+            - fit_n_epochs
+            - find_lr
+            - plot_recorder
+            - check_setup
+
 
 ## Image classification
 

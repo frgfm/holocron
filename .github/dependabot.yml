@@ -20,6 +20,10 @@ updates:
       - dependency-name: "torch"
       - dependency-name: "torchvision"
       - dependency-name: "pytest"
+      - dependency-name: "mkdocs"
+      - dependency-name: "mkdocs-material"
+      - dependency-name: "mkdocstrings"
+      - dependency-name: "griffe-typingdoc"
   - package-ecosystem: "pip"
     directory: "api/"
     schedule:

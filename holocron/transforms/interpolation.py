@@ -13,7 +13,7 @@ from torch import nn
 from torchvision.transforms import v2 as T
 from torchvision.transforms.v2.functional import pad, resize
 
-__all__ = ["RandomZoomOut", "Resize"]
+__all__ = ["RandomZoomOut", "Resize", "ResizeMethod"]
 
 
 class ResizeMethod(StrEnum):
@@ -43,10 +43,13 @@ class Resize(T.Resize):
 
     ![Resize example](https://github.com/frgfm/Holocron/releases/download/v0.2.1/resize_example.png)
 
-    >>> from holocron.transforms import Resize
-    >>> pil_img = ...
-    >>> tf = Resize((224, 224), mode="pad")
-    >>> resized_img = tf(pil_img)
+    Example:
+        ```python
+        from holocron.transforms import Resize, ResizeMethod
+        pil_img = ...
+        tf = Resize((224, 224), mode=ResizeMethod.PAD)
+        resized_img = tf(pil_img)
+        ```
 
     Args:
         size: the desired height and width of the image in pixels
@@ -98,10 +101,13 @@ class RandomZoomOut(nn.Module):
 
     ![RandomZoomOut example](https://github.com/frgfm/Holocron/releases/download/v0.2.1/randomzoomout_example.png)
 
-    >>> from holocron.transforms import RandomZoomOut
-    >>> pil_img = ...
-    >>> tf = RandomZoomOut((224, 224), scale=(0.3, 1.))
-    >>> resized_img = tf(pil_img)
+    Example:
+        ```python
+        from holocron.transforms import RandomZoomOut
+        pil_img = ...
+        tf = RandomZoomOut((224, 224), scale=(0.3, 1.))
+        resized_img = tf(pil_img)
+        ```
 
     Args:
         size: the desired height and width of the image in pixels

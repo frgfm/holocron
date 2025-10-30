@@ -33,7 +33,7 @@ class SegmentationTrainer(Trainer):
             ignore_index: index of the class to ignore in evaluation
 
         Returns:
-            evaluation metrics
+            evaluation metrics (validation loss, global accuracy, mean IoU)
         """
         self.model.eval()
 

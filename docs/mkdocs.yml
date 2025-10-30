@@ -68,6 +68,24 @@ plugins:
   social:
     cards_layout_options:
       background_color: "#3e192b"
+  llmstxt:
+    full_output: llms-full.txt
+    autoclean: true
+    sections:
+      Getting started:
+        - getting-started/installation.md
+        - getting-started/notebooks.md
+      Package Reference:
+        - reference/models/models.md
+        - reference/nn.md
+        - reference/ops.md
+        - reference/optim.md
+        - reference/trainer.md
+        - reference/transforms.md
+        - reference/utils.md
+        - reference/utils.data.md
+      Notes:
+        - notes/changelog.md
   mkdocstrings:
     handlers:
       python:
@@ -78,6 +96,7 @@ plugins:
         - https://docs.pytorch.org/vision/stable/objects.inv
         - https://matplotlib.org/stable/objects.inv
         - https://pillow.readthedocs.io/en/stable/objects.inv
+        - https://numpy.org/doc/2.3/objects.inv
         options:
           allow_inspection: true
           extensions:
@@ -91,7 +110,7 @@ plugins:
           show_object_full_path: false
           show_symbol_type_heading: true
           show_symbol_type_toc: true
-          inherited_members: true
+          inherited_members: false
           members_order: source
           filters:
           - '!^_'
@@ -122,18 +141,9 @@ markdown_extensions:
   pymdownx.inlinehilite:
   pymdownx.snippets:
   pymdownx.superfences:
-  pymdownx.blocks.admonition:
-    types:
-    - note
-    - attention
-    - caution
-    - danger
-    - error
-    - tip
-    - hint
-    - warning
-    - info
-    - check
+  pymdownx.tabbed:
+    alternate_style: true
+  admonition:
   pymdownx.arithmatex:
     generic: true
 extra_javascript:

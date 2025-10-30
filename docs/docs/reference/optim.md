@@ -7,20 +7,46 @@ the current state and will update the parameters based on the computed gradients
 
 Implementations of recent parameter optimizer for Pytorch modules.
 
-::: holocron.optim
+::: holocron.optim.LARS
     options:
         heading_level: 3
-        show_root_heading: false
-        show_root_toc_entry: false
-        members:
-            - LARS
-            - LAMB
-            - RaLars
-            - TAdam
-            - AdaBelief
-            - AdamP
-            - Adan
-            - AdEMAMix
+        members: no
+
+::: holocron.optim.LAMB
+    options:
+        heading_level: 3
+        members: no
+
+::: holocron.optim.RaLars
+    options:
+        heading_level: 3
+        members: no
+
+::: holocron.optim.TAdam
+    options:
+        heading_level: 3
+        members: no
+
+::: holocron.optim.AdaBelief
+    options:
+        heading_level: 3
+        members: no
+
+::: holocron.optim.AdamP
+    options:
+        heading_level: 3
+        members: no
+
+::: holocron.optim.Adan
+    options:
+        heading_level: 3
+        members: no
+
+::: holocron.optim.AdEMAMix
+    options:
+        heading_level: 3
+        members: no
+
 
 ## Optimizer wrappers
 
@@ -30,15 +56,16 @@ A base optimizer should always be passed to the wrapper; e.g., you
 should write your code this way:
 
 ```python
->>> optimizer = ...
->>> optimizer = wrapper(optimizer)
+optimizer = ...
+optimizer = wrapper(optimizer)
 ```
 
-::: holocron.optim
+::: holocron.optim.Lookahead
     options:
         heading_level: 3
-        show_root_heading: false
-        show_root_toc_entry: false
-        members:
-            - Lookahead
-            - Scout
+        members: no
+
+::: holocron.optim.Scout
+    options:
+        heading_level: 3
+        members: no

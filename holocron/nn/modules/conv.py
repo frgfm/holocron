@@ -64,7 +64,8 @@ class NormConv2d(_NormConvNd):
     \frac{input(N_i, k) - \mu(N_i, k)}{\sqrt{\sigma^2(N_i, k) + \epsilon}}
     $$
 
-    where $\star$ is the valid 2D cross-correlation operator,
+    where:
+    $\star$ is the valid 2D cross-correlation operator,
     $\mu(N_i, k)$ and $\sigma²(N_i, k)$ are the mean and variance of $input(N_i, k)$ over all slices,
     $N$ is a batch size, $C$ denotes a number of channels,
     $H$ is a height of input planes in pixels, and $W$ is width in pixels.
@@ -78,7 +79,7 @@ class NormConv2d(_NormConvNd):
         dilation: Spacing between kernel elements.
         groups: Number of blocked connections from input channels to output channels.
         bias: If ``True``, adds a learnable bias to the output.
-        padding_mode: ``'zeros'``, ``'reflect'``, ``'replicate'`` or ``'circular'``.
+        padding_mode: padding mode for the convolution.
         eps: a value added to the denominator for numerical stability.
     """
 
@@ -164,7 +165,7 @@ class Add2d(_NormConvNd):
         dilation: Spacing between kernel elements.
         groups: Number of blocked connections from input channels to output channels.
         bias: If ``True``, adds a learnable bias to the output.
-        padding_mode: ``'zeros'``, ``'reflect'``, ``'replicate'`` or ``'circular'``.
+        padding_mode: padding mode for the convolution.
         normalize_slices: whether slices should be normalized before performing cross-correlation.
         eps: a value added to the denominator for numerical stability.
     """
@@ -289,7 +290,7 @@ class SlimConv2d(nn.Module):
         dilation: Spacing between kernel elements.
         groups: Number of blocked connections from input channels to output channels.
         bias: If ``True``, adds a learnable bias to the output.
-        padding_mode: ``'zeros'``, ``'reflect'``, ``'replicate'`` or ``'circular'``.
+        padding_mode: padding mode for the convolution.
         r: squeezing divider.
         L: minimum squeezed channels.
     """
@@ -367,16 +368,18 @@ class PyConv2d(nn.ModuleList):
         **kwargs: Any,
     ) -> None:
         if num_levels == 1:
-            super().__init__([
-                nn.Conv2d(
-                    in_channels,
-                    out_channels,
-                    kernel_size,
-                    padding=padding,
-                    groups=groups[0] if isinstance(groups, list) else 1,
-                    **kwargs,
-                )
-            ])
+            super().__init__(
+                [
+                    nn.Conv2d(
+                        in_channels,
+                        out_channels,
+                        kernel_size,
+                        padding=padding,
+                        groups=groups[0] if isinstance(groups, list) else 1,
+                        **kwargs,
+                    )
+                ]
+            )
         else:
             exp2 = int(math.log2(num_levels))
             reminder = num_levels - 2**exp2
@@ -394,10 +397,12 @@ class PyConv2d(nn.ModuleList):
                 raise ValueError("The argument `group` is expected to be a list of integer of size `num_levels`.")
             paddings = [padding + idx for idx in range(num_levels)]
 
-            super().__init__([
-                nn.Conv2d(in_channels, out_chan, k_size, padding=padding, groups=group, **kwargs)
-                for out_chan, k_size, padding, group in zip(out_chans, k_sizes, paddings, groups, strict=True)
-            ])
+            super().__init__(
+                [
+                    nn.Conv2d(in_channels, out_chan, k_size, padding=padding, groups=group, **kwargs)
+                    for out_chan, k_size, padding, group in zip(out_chans, k_sizes, paddings, groups, strict=True)
+                ]
+            )
         self.num_levels: int = num_levels
 
     def forward(self, x: Tensor) -> Tensor:
