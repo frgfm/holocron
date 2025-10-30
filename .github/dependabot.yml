@@ -16,7 +16,7 @@ updates:
     allow:
       - dependency-name: "ruff"
       - dependency-name: "ty"
-      - dependency-name: "pre-commit"
+      - dependency-name: "prek"
       - dependency-name: "torch"
       - dependency-name: "torchvision"
       - dependency-name: "pytest"

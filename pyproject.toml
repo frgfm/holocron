@@ -65,7 +65,7 @@ quality = [
     "ty==0.0.1a25",
     "types-tqdm",
     "types-Pillow",
-    "pre-commit==4.3.0",
+    "prek==0.2.12",
 ]
 scripts = [
     "onnxruntime>=1.22.0,<2.0.0",
