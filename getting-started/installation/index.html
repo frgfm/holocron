@@ -547,18 +547,18 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#via-python-package" class="md-nav__link">
+  <a href="#virtual-environment" class="md-nav__link">
     <span class="md-ellipsis">
-      Via Python Package
+      Virtual environment
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#via-git" class="md-nav__link">
+  <a href="#system-installation" class="md-nav__link">
     <span class="md-ellipsis">
-      Via Git
+      System installation
     </span>
   </a>
   
@@ -1464,18 +1464,18 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#via-python-package" class="md-nav__link">
+  <a href="#virtual-environment" class="md-nav__link">
     <span class="md-ellipsis">
-      Via Python Package
+      Virtual environment
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#via-git" class="md-nav__link">
+  <a href="#system-installation" class="md-nav__link">
     <span class="md-ellipsis">
-      Via Git
+      System installation
     </span>
   </a>
   
@@ -1501,16 +1501,52 @@
 
 
 <h1 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h1>
-<p>This library requires <a href="https://www.python.org/downloads/">Python</a> 3.11 or higher.</p>
-<h2 id="via-python-package">Via Python Package<a class="headerlink" href="#via-python-package" title="Permanent link">&para;</a></h2>
-<p>Install the last stable release of the package using <a href="https://docs.astral.sh/uv/">uv</a>:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>pylocron
+<h2 id="virtual-environment">Virtual environment<a class="headerlink" href="#virtual-environment" title="Permanent link">&para;</a></h2>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>You will need an environment manager, and I cannot recommend enough <a href="https://docs.astral.sh/uv/getting-started/installation/">uv</a>.</p>
+</div>
+<p>Create a virtual environment with your prefered Python version (3.11 or higher is required to use Holocron):
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>$<span class="w"> </span>uv<span class="w"> </span>venv<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.11
+</span></code></pre></div></p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Stable</label><label for="__tabbed_1_2">Latest</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>$<span class="w"> </span>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>pylocron
 </span></code></pre></div>
-<h2 id="via-git">Via Git<a class="headerlink" href="#via-git" title="Permanent link">&para;</a></h2>
-<p>Install the library in developer mode:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/frgfm/Holocron.git
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>Holocron/.
+</div>
+<div class="tabbed-block">
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>$<span class="w"> </span>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>pylocron<span class="w"> </span>@<span class="w"> </span>git+https://github.com/frgfm/holocron.git
 </span></code></pre></div>
+</div>
+</div>
+</div>
+<h2 id="system-installation">System installation<a class="headerlink" href="#system-installation" title="Permanent link">&para;</a></h2>
+<p>You'll need <a href="https://www.python.org/downloads/">Python</a> 3.11 or higher, and a package installer like <a href="https://docs.astral.sh/uv/getting-started/installation/">uv</a> or <a href="https://packaging.python.org/en/latest/tutorials/installing-packages/">pip</a>.</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:4"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><input id="__tabbed_2_3" name="__tabbed_2" type="radio" /><input id="__tabbed_2_4" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">Stable</label><label for="__tabbed_2_2">Latest</label><label for="__tabbed_2_3">Stable (pip)</label><label for="__tabbed_2_4">Latest (pip)</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>$<span class="w"> </span>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--system<span class="w"> </span>pylocron
+</span></code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>$<span class="w"> </span>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--system<span class="w"> </span>pylocron<span class="w"> </span>@<span class="w"> </span>git+https://github.com/frgfm/holocron.git
+</span></code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>$<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>pylocron
+</span></code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>$<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>pylocron<span class="w"> </span>@<span class="w"> </span>git+https://github.com/frgfm/holocron.git
+</span></code></pre></div>
+</div>
+</div>
+</div>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>Holocron is built on top of <a href="https://github.com/pytorch/pytorch">PyTorch</a> which is a complex dependency. Proper installation depends on your system and available hardware. You can refer to <a href="https://docs.astral.sh/uv/guides/integration/pytorch">installation guide of uv</a> which is quite detailed.</p>
+</div>
 
 
 

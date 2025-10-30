@@ -1,0 +1,24 @@
+# Holocron
+
+> PyTorch implementations of recent Computer Vision tricks (ReXNet, RepVGG, Unet3p, YOLOv4, CIoU loss, AdaBelief, PolyLoss, MobileOne).
+
+## Getting started
+
+- [Installation](https://frgfm.github.io/holocron/getting-started/installation/index.md)
+- [Holocron Notebooks](https://frgfm.github.io/holocron/getting-started/notebooks/index.md)
+
+## Package Reference
+
+- [holocron.models](https://frgfm.github.io/holocron/reference/models/models/index.md)
+- [Layers](https://frgfm.github.io/holocron/reference/nn/index.md)
+- [Operators](https://frgfm.github.io/holocron/reference/ops/index.md)
+- [Optimizers](https://frgfm.github.io/holocron/reference/optim/index.md)
+- [Trainer](https://frgfm.github.io/holocron/reference/trainer/index.md)
+- [Transforms](https://frgfm.github.io/holocron/reference/transforms/index.md)
+- [holocron.utils](https://frgfm.github.io/holocron/reference/utils/index.md)
+- [Data](https://frgfm.github.io/holocron/reference/utils.data/index.md)
+
+## Notes
+
+- [Changelog](https://frgfm.github.io/holocron/notes/changelog/index.md)
+
