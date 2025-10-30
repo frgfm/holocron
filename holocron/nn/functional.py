@@ -412,11 +412,13 @@ def norm_conv2d(
     Returns:
         output tensor
 
-    Examples:
-        >>> # With square kernels and equal stride
-        >>> filters = torch.randn(8,4,3,3)
-        >>> inputs = torch.randn(1,4,5,5)
-        >>> F.norm_conv2d(inputs, filters, padding=1)
+    Example:
+        ```python
+        # With square kernels and equal stride
+        filters = torch.randn(8,4,3,3)
+        inputs = torch.randn(1,4,5,5)
+        F.norm_conv2d(inputs, filters, padding=1)
+        ```
     """
     return _xcorr2d(_convNd, x, weight, bias, stride, padding, dilation, groups, True, eps)
 
@@ -462,10 +464,12 @@ def add2d(
     Returns:
         output tensor
 
-    Examples:
-        >>> filters = torch.randn(8,4,3,3)
-        >>> inputs = torch.randn(1,4,5,5)
-        >>> F.norm_conv2d(inputs, filters, padding=1)
+    Example:
+        ```python
+        filters = torch.randn(8,4,3,3)
+        inputs = torch.randn(1,4,5,5)
+        F.norm_conv2d(inputs, filters, padding=1)
+        ```
     """
     return _xcorr2d(_addNd, x, weight, bias, stride, padding, dilation, groups, normalize_slices, eps)
 

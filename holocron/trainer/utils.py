@@ -13,11 +13,13 @@ __all__ = ["freeze_bn", "freeze_model", "split_normalization_params"]
 def freeze_bn(mod: nn.Module) -> None:
     """Prevents parameter and stats from updating in Batchnorm layers that are frozen
 
-    Examples:
-        >>> from holocron.models import rexnet1_0x
-        >>> from holocron.trainer.utils import freeze_bn
-        >>> model = rexnet1_0x()
-        >>> freeze_bn(model)
+    Example:
+        ```python
+        from holocron.models import rexnet1_0x
+        from holocron.trainer.utils import freeze_bn
+        model = rexnet1_0x()
+        freeze_bn(model)
+        ```
 
     Args:
         mod: model to train
@@ -37,11 +39,13 @@ def freeze_model(
 ) -> None:
     """Freeze a specific range of model layers.
 
-    Examples:
-        >>> from holocron.models import rexnet1_0x
-        >>> from holocron.trainer.utils import freeze_model
-        >>> model = rexnet1_0x()
-        >>> freeze_model(model)
+    Example:
+        ```python
+        from holocron.models import rexnet1_0x
+        from holocron.trainer.utils import freeze_model
+        model = rexnet1_0x()
+        freeze_model(model)
+        ```
 
     Args:
         model: model to train

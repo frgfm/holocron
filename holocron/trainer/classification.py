@@ -45,7 +45,7 @@ class ClassificationTrainer(Trainer):
         """Evaluate the model on the validation set
 
         Returns:
-            evaluation metrics
+            evaluation metrics (validation loss, top1 accuracy, top5 accuracy)
         """
         self.model.eval()
 
@@ -217,7 +217,7 @@ class BinaryClassificationTrainer(ClassificationTrainer):
         """Evaluate the model on the validation set
 
         Returns:
-            evaluation metrics
+            evaluation metrics (validation loss, accuracy)
         """
         self.model.eval()
 

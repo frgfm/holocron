@@ -78,20 +78,38 @@ import holocron.models as models
 yolov2 = models.yolov2(num_classes=10)
 ```
 
-### YOLO
+### YOLO family
 
-::: holocron.models.detection
+::: holocron.models.detection.yolo.YOLOv1
     options:
-        heading_level: 3
-        show_root_heading: false
-        show_root_toc_entry: false
-        members:
-            - YOLOv1
-            - yolov1
-            - YOLOv2
-            - yolov2
-            - YOLOv4
-            - yolov4
+        heading_level: 4
+        members: no
+        show_bases: false
+
+::: holocron.models.detection.yolo.yolov1
+    options:
+        heading_level: 4
+
+::: holocron.models.detection.yolov2.YOLOv2
+    options:
+        heading_level: 4
+        members: no
+        show_bases: false
+
+::: holocron.models.detection.yolov2.yolov2
+    options:
+        heading_level: 4
+
+::: holocron.models.detection.yolov4.YOLOv4
+    options:
+        heading_level: 4
+        members: no
+        show_bases: false
+
+::: holocron.models.detection.yolov4.yolov4
+    options:
+        heading_level: 4
+
 
 ## Semantic Segmentation
 
@@ -103,38 +121,67 @@ import holocron.models as models
 unet = models.unet(num_classes=10)
 ```
 
-### U-Net
+### U-Net family
 
-::: holocron.models.segmentation
+::: holocron.models.segmentation.unet.UNet
     options:
-        heading_level: 3
-        show_root_heading: false
-        show_root_toc_entry: false
-        members:
-            - UNet
-            - DynamicUNet
-            - unet
-            - unet2
-            - unet_tvvgg11
-            - unet_tvresnet34
-            - unet_rexnet13
+        heading_level: 4
+        members: no
+        show_bases: false
 
-::: holocron.models.segmentation
+::: holocron.models.segmentation.unet.unet
     options:
-        heading_level: 3
-        show_root_heading: false
-        show_root_toc_entry: false
-        members:
-            - UNetp
-            - unetp
-            - UNetpp
-            - unetpp
+        heading_level: 4
 
-::: holocron.models.segmentation
+::: holocron.models.segmentation.unet.DynamicUNet
     options:
-        heading_level: 3
-        show_root_heading: false
-        show_root_toc_entry: false
-        members:
-            - UNet3p
-            - unet3p
+        heading_level: 4
+        members: no
+        show_bases: false
+
+::: holocron.models.segmentation.unet.unet2
+    options:
+        heading_level: 4
+
+::: holocron.models.segmentation.unet.unet_tvvgg11
+    options:
+        heading_level: 4
+
+::: holocron.models.segmentation.unet.unet_tvresnet34
+    options:
+        heading_level: 4
+
+::: holocron.models.segmentation.unet.unet_rexnet13
+    options:
+        heading_level: 4
+
+
+::: holocron.models.segmentation.unetpp.UNetp
+    options:
+        heading_level: 4
+        members: no
+        show_bases: false
+
+::: holocron.models.segmentation.unetpp.unetp
+    options:
+        heading_level: 4
+
+::: holocron.models.segmentation.unetpp.UNetpp
+    options:
+        heading_level: 4
+        members: no
+        show_bases: false
+
+::: holocron.models.segmentation.unetpp.unetpp
+    options:
+        heading_level: 4
+
+::: holocron.models.segmentation.unet3p.UNet3p
+    options:
+        heading_level: 4
+        members: no
+        show_bases: false
+
+::: holocron.models.segmentation.unet3p.unet3p
+    options:
+        heading_level: 4

@@ -93,7 +93,7 @@ class DetectionTrainer(Trainer):
             iou_threshold: IoU threshold for pair assignment
 
         Returns:
-            evaluation metrics
+            evaluation metrics (validation loss, localization error rate, classification error rate, detection error rate)
         """
         self.model.eval()
 

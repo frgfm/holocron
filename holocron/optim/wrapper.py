@@ -14,14 +14,17 @@ __all__ = ["Lookahead", "Scout"]
 
 
 class Lookahead(Optimizer):
-    """Implements the Lookahead optimizer wrapper from `"Lookahead Optimizer: k steps forward, 1 step back"
+    r"""Implements the Lookahead optimizer wrapper from ["Lookahead Optimizer: k steps forward, 1 step back"](https://arxiv.org/pdf/1907.08610.pdf).
     <https://arxiv.org/pdf/1907.08610.pdf>`_.
 
-    >>> from torch.optim import AdamW
-    >>> from holocron.optim.wrapper import Lookahead
-    >>> model = ...
-    >>> opt = AdamW(model.parameters(), lr=3e-4)
-    >>> opt_wrapper = Lookahead(opt)
+    Example:
+        ```python
+        from torch.optim import AdamW
+        from holocron.optim.wrapper import Lookahead
+        model = ...
+        opt = AdamW(model.parameters(), lr=3e-4)
+        opt_wrapper = Lookahead(opt)
+        ```
 
     Args:
         base_optimizer: base parameter optimizer
@@ -143,11 +146,13 @@ class Scout(Optimizer):
     """Implements a new optimizer wrapper based on ["Lookahead Optimizer: k steps forward, 1 step back"](https://arxiv.org/pdf/1907.08610.pdf).
 
     Example:
-        >>> from torch.optim import AdamW
-        >>> from holocron.optim.wrapper import Scout
-        >>> model = ...
-        >>> opt = AdamW(model.parameters(), lr=3e-4)
-        >>> opt_wrapper = Scout(opt)
+        ```python
+        from torch.optim import AdamW
+        from holocron.optim.wrapper import Scout
+        model = ...
+        opt = AdamW(model.parameters(), lr=3e-4)
+        opt_wrapper = Scout(opt)
+        ```
 
     Args:
         base_optimizer: base parameter optimizer

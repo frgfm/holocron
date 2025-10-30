@@ -64,7 +64,8 @@ class NormConv2d(_NormConvNd):
     \frac{input(N_i, k) - \mu(N_i, k)}{\sqrt{\sigma^2(N_i, k) + \epsilon}}
     $$
 
-    where $\star$ is the valid 2D cross-correlation operator,
+    where:
+    $\star$ is the valid 2D cross-correlation operator,
     $\mu(N_i, k)$ and $\sigma²(N_i, k)$ are the mean and variance of $input(N_i, k)$ over all slices,
     $N$ is a batch size, $C$ denotes a number of channels,
     $H$ is a height of input planes in pixels, and $W$ is width in pixels.
@@ -78,7 +79,7 @@ class NormConv2d(_NormConvNd):
         dilation: Spacing between kernel elements.
         groups: Number of blocked connections from input channels to output channels.
         bias: If ``True``, adds a learnable bias to the output.
-        padding_mode: ``'zeros'``, ``'reflect'``, ``'replicate'`` or ``'circular'``.
+        padding_mode: padding mode for the convolution.
         eps: a value added to the denominator for numerical stability.
     """
 
@@ -164,7 +165,7 @@ class Add2d(_NormConvNd):
         dilation: Spacing between kernel elements.
         groups: Number of blocked connections from input channels to output channels.
         bias: If ``True``, adds a learnable bias to the output.
-        padding_mode: ``'zeros'``, ``'reflect'``, ``'replicate'`` or ``'circular'``.
+        padding_mode: padding mode for the convolution.
         normalize_slices: whether slices should be normalized before performing cross-correlation.
         eps: a value added to the denominator for numerical stability.
     """
@@ -289,7 +290,7 @@ class SlimConv2d(nn.Module):
         dilation: Spacing between kernel elements.
         groups: Number of blocked connections from input channels to output channels.
         bias: If ``True``, adds a learnable bias to the output.
-        padding_mode: ``'zeros'``, ``'reflect'``, ``'replicate'`` or ``'circular'``.
+        padding_mode: padding mode for the convolution.
         r: squeezing divider.
         L: minimum squeezed channels.
     """

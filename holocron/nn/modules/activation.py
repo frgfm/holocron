@@ -25,7 +25,7 @@ class _Activation(nn.Module):
 
 
 class HardMish(_Activation):
-    r"""Implements the Had Mish activation module from ["H-Mish"](https://github.com/digantamisra98/H-Mish).
+    r"""Implements the Hard Mish activation module from ["H-Mish"](https://github.com/digantamisra98/H-Mish).
 
     This activation is computed as follows:
 

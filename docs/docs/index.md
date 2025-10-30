@@ -11,6 +11,49 @@ This project is meant for:
 * :zap: **speed**: architectures in this repo are picked for both pure performances and minimal latency
 * :woman_scientist: **research**: train your models easily to SOTA standards
 
+## Installation
+
+Create and activate a virtual environment and then install Holocron:
+
+```shell
+pip install pylocron
+```
+
+Check out the [installation guide](getting-started/installation.md) for more options
+
+## Quick start
+
+Load a model and use it just like any PyTorch model:
+
+```python hl_lines="4 7"
+from PIL import Image
+from torchvision.transforms.v2 import Compose, ConvertImageDtype, Normalize, PILToTensor, Resize
+from torchvision.transforms.v2.functional import InterpolationMode
+from holocron.models.classification import repvgg_a0
+
+# Load your model
+model = repvgg_a0(pretrained=True).eval()
+
+# Read your image
+img = Image.open(path_to_an_image).convert("RGB")
+
+# Preprocessing
+config = model.default_cfg
+transform = Compose([
+    Resize(config['input_shape'][1:], interpolation=InterpolationMode.BILINEAR),
+    PILToTensor(),
+    ConvertImageDtype(torch.float32),
+    Normalize(config['mean'], config['std'])
+])
+
+input_tensor = transform(img).unsqueeze(0)
+
+# Inference
+with torch.inference_mode():
+    output = model(input_tensor)
+print(config['classes'][output.squeeze(0).argmax().item()], output.squeeze(0).softmax(dim=0).max())
+```
+
 ## Model zoo
 
 ### Image classification
