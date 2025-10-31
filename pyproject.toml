@@ -61,7 +61,7 @@ training = [
     "codecarbon>=2.0.0,<3.0.0",
 ]
 quality = [
-    "ruff==0.14.2",
+    "ruff==0.14.3",
     "ty==0.0.1a25",
     "types-tqdm",
     "types-Pillow",
