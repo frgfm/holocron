@@ -62,7 +62,7 @@ training = [
 ]
 quality = [
     "ruff==0.14.2",
-    "ty==0.0.1a25",
+    "ty==0.0.1a26",
     "types-tqdm",
     "types-Pillow",
     "prek==0.2.12",
