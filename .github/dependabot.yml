@@ -7,27 +7,97 @@ version: 2
 updates:
   - package-ecosystem: "github-actions"
     directory: "/"
+    labels:
+      - "dependencies"
+      - "type: misc"
+    commit-message:
+      prefix: "ci(github)"
     schedule:
       interval: "weekly"
+      day: "monday"
+      time: "08:00"
+    groups:
+      actions:
+        patterns:
+          - "*"
   - package-ecosystem: "pip"
     directory: "/"
+    labels:
+      - "dependencies"
+      - "type: misc"
+    commit-message:
+      prefix: "build(deps-dev)"
     schedule:
       interval: "daily"
+      time: "08:00"
     allow:
+      # Safe updates
       - dependency-name: "ruff"
       - dependency-name: "ty"
       - dependency-name: "prek"
-      - dependency-name: "torch"
-      - dependency-name: "torchvision"
-      - dependency-name: "pytest"
+    groups:
+      quality:
+        patterns:
+          - "ruff"
+          - "ty"
+          - "prek"
+  - package-ecosystem: "pip"
+    directory: "/"
+    labels:
+      - "dependencies"
+      - "type: misc"
+    commit-message:
+      prefix: "build(deps-docs)"
+    schedule:
+      interval: "daily"
+      time: "08:00"
+    allow:
+      # Safe updates
       - dependency-name: "mkdocs"
       - dependency-name: "mkdocs-material"
       - dependency-name: "mkdocstrings"
       - dependency-name: "griffe-typingdoc"
+    groups:
+      quality:
+        patterns:
+          - "mkdocs"
+          - "mkdocs-material"
+          - "mkdocstrings"
+          - "griffe-typingdoc"
+  - package-ecosystem: "pip"
+    directory: "/"
+    labels:
+      - "dependencies"
+      - "type: misc"
+    commit-message:
+      prefix: "build(deps-test)"
+    schedule:
+      interval: "daily"
+      time: "08:00"
+    allow:
+      # Safe updates
+      - dependency-name: "pytest"
+      - dependency-name: "pytest-cov"
+      - dependency-name: "pytest-pretty"
+    groups:
+      quality:
+        patterns:
+          - "pytest"
+          - "pytest-cov"
+          - "pytest-pretty"
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "08:00"
+    allow:
+      - dependency-name: "torch"
+      - dependency-name: "torchvision"
   - package-ecosystem: "pip"
     directory: "api/"
     schedule:
       interval: "daily"
+      time: "08:00"
     allow:
       - dependency-name: "fastapi"
       - dependency-name: "onnxruntime"
@@ -35,5 +105,6 @@ updates:
     directory: "api/"
     schedule:
       interval: "daily"
+      time: "08:00"
     allow:
       - dependency-name: "ghcr.io/astral-sh/uv"
