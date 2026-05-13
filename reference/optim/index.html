@@ -1730,6 +1730,7 @@ the current state and will update the parameters based on the computed gradients
               Bases: <code><a class="autorefs autorefs-external" title="&lt;code&gt;torch.optim.optimizer.Optimizer&lt;/code&gt;" href="https://docs.pytorch.org/docs/stable/optim.html#torch.optim.Optimizer">Optimizer</a></code></p>
 
 
+
         <p>Implements the LARS optimizer from <a href="https://arxiv.org/pdf/1708.03888.pdf">"Large batch training of convolutional networks"</a>.</p>
 <p>The estimation of global and local learning rates is described as follows, <span class="arithmatex">\(\forall t \geq 1\)</span>:</p>
 <div class="arithmatex">\[
@@ -1906,7 +1907,7 @@ v_t \leftarrow m v_{t-1} + \alpha_t \gamma_t (g_t + \lambda \theta_t)
 
 
 
-                  <details class="quote">
+                  <details class="mkdocstrings-source">
                     <summary>Source code in <code>holocron/optim/lars.py</code></summary>
                     <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-54">54</a></span>
 <span class="normal"><a href="#__codelineno-0-55">55</a></span>
@@ -1974,7 +1975,7 @@ v_t \leftarrow m v_{t-1} + \alpha_t \gamma_t (g_t + \lambda \theta_t)
 
 
 
-  <div class="doc doc-children">
+<div class="doc doc-children">
 
 
 
@@ -2008,6 +2009,7 @@ v_t \leftarrow m v_{t-1} + \alpha_t \gamma_t (g_t + \lambda \theta_t)
     <div class="doc doc-contents first">
             <p class="doc doc-class-bases">
               Bases: <code><a class="autorefs autorefs-external" title="&lt;code&gt;torch.optim.optimizer.Optimizer&lt;/code&gt;" href="https://docs.pytorch.org/docs/stable/optim.html#torch.optim.Optimizer">Optimizer</a></code></p>
+
 
 
         <p>Implements the Lamb optimizer from <a href="https://arxiv.org/pdf/1904.00962v3.pdf">"Large batch optimization for deep learning: training BERT in 76 minutes"</a>.</p>
@@ -2169,7 +2171,7 @@ r_t \leftarrow \frac{\hat{m_t}}{\sqrt{\hat{v_t}} + \epsilon} \\
 
 
 
-                  <details class="quote">
+                  <details class="mkdocstrings-source">
                     <summary>Source code in <code>holocron/optim/lamb.py</code></summary>
                     <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-56">56</a></span>
 <span class="normal"><a href="#__codelineno-0-57">57</a></span>
@@ -2221,7 +2223,7 @@ r_t \leftarrow \frac{\hat{m_t}}{\sqrt{\hat{v_t}} + \epsilon} \\
 
 
 
-  <div class="doc doc-children">
+<div class="doc doc-children">
 
 
 
@@ -2255,6 +2257,7 @@ r_t \leftarrow \frac{\hat{m_t}}{\sqrt{\hat{v_t}} + \epsilon} \\
     <div class="doc doc-contents first">
             <p class="doc doc-class-bases">
               Bases: <code><a class="autorefs autorefs-external" title="&lt;code&gt;torch.optim.optimizer.Optimizer&lt;/code&gt;" href="https://docs.pytorch.org/docs/stable/optim.html#torch.optim.Optimizer">Optimizer</a></code></p>
+
 
 
         <p>Implements the RAdam optimizer from <a href="https://arxiv.org/pdf/1908.03265.pdf">"On the variance of the Adaptive Learning Rate and Beyond"</a>
@@ -2415,7 +2418,7 @@ with optional Layer-wise adaptive Scaling from <a href="https://arxiv.org/pdf/17
 
 
 
-                  <details class="quote">
+                  <details class="mkdocstrings-source">
                     <summary>Source code in <code>holocron/optim/ralars.py</code></summary>
                     <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-27">27</a></span>
 <span class="normal"><a href="#__codelineno-0-28">28</a></span>
@@ -2473,7 +2476,7 @@ with optional Layer-wise adaptive Scaling from <a href="https://arxiv.org/pdf/17
 
 
 
-  <div class="doc doc-children">
+<div class="doc doc-children">
 
 
 
@@ -2507,6 +2510,7 @@ with optional Layer-wise adaptive Scaling from <a href="https://arxiv.org/pdf/17
     <div class="doc doc-contents first">
             <p class="doc doc-class-bases">
               Bases: <code><a class="autorefs autorefs-external" title="&lt;code&gt;torch.optim.optimizer.Optimizer&lt;/code&gt;" href="https://docs.pytorch.org/docs/stable/optim.html#torch.optim.Optimizer">Optimizer</a></code></p>
+
 
 
         <p>Implements the TAdam optimizer from <a href="https://arxiv.org/pdf/2003.00179.pdf">"TAdam: A Robust Stochastic Gradient Optimizer"</a>.</p>
@@ -2668,7 +2672,7 @@ v_t \leftarrow \beta_2 v_{t-1} + (1 - \beta_2) (g_t - g_{t-1})
 
 
 
-                  <details class="quote">
+                  <details class="mkdocstrings-source">
                     <summary>Source code in <code>holocron/optim/tadam.py</code></summary>
                     <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-58">58</a></span>
 <span class="normal"><a href="#__codelineno-0-59">59</a></span>
@@ -2718,7 +2722,7 @@ v_t \leftarrow \beta_2 v_{t-1} + (1 - \beta_2) (g_t - g_{t-1})
 
 
 
-  <div class="doc doc-children">
+<div class="doc doc-children">
 
 
 
@@ -2751,6 +2755,7 @@ v_t \leftarrow \beta_2 v_{t-1} + (1 - \beta_2) (g_t - g_{t-1})
     <div class="doc doc-contents first">
             <p class="doc doc-class-bases">
               Bases: <code><a class="autorefs autorefs-external" title="&lt;code&gt;torch.optim.Adam&lt;/code&gt;" href="https://docs.pytorch.org/docs/stable/generated/torch.optim.Adam.html#torch.optim.Adam">Adam</a></code></p>
+
 
 
         <p>Implements the AdaBelief optimizer from <a href="https://arxiv.org/pdf/2010.07468.pdf">"AdaBelief Optimizer: Adapting Stepsizes by the Belief in
@@ -2869,7 +2874,7 @@ s_t \leftarrow \beta_2 s_{t-1} + (1 - \beta_2) (g_t - m_t)^2 + \epsilon
 
 
 
-  <div class="doc doc-children">
+<div class="doc doc-children">
 
 
 
@@ -2903,6 +2908,7 @@ s_t \leftarrow \beta_2 s_{t-1} + (1 - \beta_2) (g_t - m_t)^2 + \epsilon
     <div class="doc doc-contents first">
             <p class="doc doc-class-bases">
               Bases: <code><a class="autorefs autorefs-external" title="&lt;code&gt;torch.optim.Adam&lt;/code&gt;" href="https://docs.pytorch.org/docs/stable/generated/torch.optim.Adam.html#torch.optim.Adam">Adam</a></code></p>
+
 
 
         <p>Implements the AdamP optimizer from <a href="https://arxiv.org/pdf/2006.08217.pdf">"AdamP: Slowing Down the Slowdown for Momentum Optimizers on
@@ -3089,7 +3095,7 @@ q_t \leftarrow \begin{cases}
 
 
 
-                  <details class="quote">
+                  <details class="mkdocstrings-source">
                     <summary>Source code in <code>holocron/optim/adamp.py</code></summary>
                     <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-65">65</a></span>
 <span class="normal"><a href="#__codelineno-0-66">66</a></span>
@@ -3119,7 +3125,7 @@ q_t \leftarrow \begin{cases}
 
 
 
-  <div class="doc doc-children">
+<div class="doc doc-children">
 
 
 
@@ -3153,6 +3159,7 @@ q_t \leftarrow \begin{cases}
     <div class="doc doc-contents first">
             <p class="doc doc-class-bases">
               Bases: <code><a class="autorefs autorefs-external" title="&lt;code&gt;torch.optim.Adam&lt;/code&gt;" href="https://docs.pytorch.org/docs/stable/generated/torch.optim.Adam.html#torch.optim.Adam">Adam</a></code></p>
+
 
 
         <p>Implements the Adan optimizer from <a href="https://arxiv.org/pdf/2208.06677.pdf">"Adan: Adaptive Nesterov Momentum Algorithm for Faster Optimizing Deep
@@ -3315,7 +3322,7 @@ p_t \leftarrow \frac{\hat{m_t} + (1 - \beta_2) \hat{v_t}}{\sqrt{\hat{n_t} + \eps
 
 
 
-                  <details class="quote">
+                  <details class="mkdocstrings-source">
                     <summary>Source code in <code>holocron/optim/adan.py</code></summary>
                     <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-59">59</a></span>
 <span class="normal"><a href="#__codelineno-0-60">60</a></span>
@@ -3341,7 +3348,7 @@ p_t \leftarrow \frac{\hat{m_t} + (1 - \beta_2) \hat{v_t}}{\sqrt{\hat{n_t} + \eps
 
 
 
-  <div class="doc doc-children">
+<div class="doc doc-children">
 
 
 
@@ -3375,6 +3382,7 @@ p_t \leftarrow \frac{\hat{m_t} + (1 - \beta_2) \hat{v_t}}{\sqrt{\hat{n_t} + \eps
     <div class="doc doc-contents first">
             <p class="doc doc-class-bases">
               Bases: <code><a class="autorefs autorefs-external" title="&lt;code&gt;torch.optim.Optimizer&lt;/code&gt;" href="https://docs.pytorch.org/docs/stable/optim.html#torch.optim.Optimizer">Optimizer</a></code></p>
+
 
 
         <p>Implements the AdEMAMix optimizer from <a href="https://arxiv.org/pdf/2409.03137">"The AdEMAMix Optimizer: Better, Faster, Older"</a>.</p>
@@ -3534,7 +3542,7 @@ s_t \leftarrow \beta_2 s_{t-1} + (1 - \beta_2) (g_t - m_t)^2 + \epsilon
 
 
 
-                  <details class="quote">
+                  <details class="mkdocstrings-source">
                     <summary>Source code in <code>holocron/optim/ademamix.py</code></summary>
                     <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-56">56</a></span>
 <span class="normal"><a href="#__codelineno-0-57">57</a></span>
@@ -3576,7 +3584,7 @@ s_t \leftarrow \beta_2 s_{t-1} + (1 - \beta_2) (g_t - m_t)^2 + \epsilon
 
 
 
-  <div class="doc doc-children">
+<div class="doc doc-children">
 
 
 
@@ -3617,6 +3625,7 @@ should write your code this way:</p>
     <div class="doc doc-contents first">
             <p class="doc doc-class-bases">
               Bases: <code><a class="autorefs autorefs-external" title="&lt;code&gt;torch.optim.optimizer.Optimizer&lt;/code&gt;" href="https://docs.pytorch.org/docs/stable/optim.html#torch.optim.Optimizer">Optimizer</a></code></p>
+
 
 
         <p>Implements the Lookahead optimizer wrapper from <a href="https://arxiv.org/pdf/1907.08610.pdf">"Lookahead Optimizer: k steps forward, 1 step back"</a>.
@@ -3707,7 +3716,7 @@ should write your code this way:</p>
 
 
 
-                  <details class="quote">
+                  <details class="mkdocstrings-source">
                     <summary>Source code in <code>holocron/optim/wrapper.py</code></summary>
                     <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-35">35</a></span>
 <span class="normal"><a href="#__codelineno-0-36">36</a></span>
@@ -3753,7 +3762,7 @@ should write your code this way:</p>
 
 
 
-  <div class="doc doc-children">
+<div class="doc doc-children">
 
 
 
@@ -3787,6 +3796,7 @@ should write your code this way:</p>
     <div class="doc doc-contents first">
             <p class="doc doc-class-bases">
               Bases: <code><a class="autorefs autorefs-external" title="&lt;code&gt;torch.optim.optimizer.Optimizer&lt;/code&gt;" href="https://docs.pytorch.org/docs/stable/optim.html#torch.optim.Optimizer">Optimizer</a></code></p>
+
 
 
         <p>Implements a new optimizer wrapper based on <a href="https://arxiv.org/pdf/1907.08610.pdf">"Lookahead Optimizer: k steps forward, 1 step back"</a>.</p>
@@ -3876,7 +3886,7 @@ should write your code this way:</p>
 
 
 
-                  <details class="quote">
+                  <details class="mkdocstrings-source">
                     <summary>Source code in <code>holocron/optim/wrapper.py</code></summary>
                     <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-163">163</a></span>
 <span class="normal"><a href="#__codelineno-0-164">164</a></span>
@@ -3926,7 +3936,7 @@ should write your code this way:</p>
 
 
 
-  <div class="doc doc-children">
+<div class="doc doc-children">
 
 
 
