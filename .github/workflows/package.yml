@@ -75,7 +75,7 @@ jobs:
         run: |
           UV_TORCH_BACKEND='cpu' make install-test
           UV_TORCH_BACKEND='cpu' make test
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v6
         with:
           path: ./coverage.xml
           name: coverage-reports
