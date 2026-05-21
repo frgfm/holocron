@@ -16,6 +16,7 @@ updates:
       interval: "weekly"
       day: "monday"
       time: "08:00"
+      timezone: "Europe/Paris"
     groups:
       actions:
         patterns:
