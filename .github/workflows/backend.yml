@@ -160,7 +160,7 @@ jobs:
         run: |
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
-      - uses: actions/attest-build-provenance@v3
+      - uses: actions/attest-build-provenance@v4
         continue-on-error: true
         with:
           subject-name: ghcr.io/${{ github.repository }}-backend
