@@ -118,7 +118,7 @@ jobs:
           echo "version=$(grep -E '^version = ' api/pyproject.toml | sed 's/version = "\(.*\)"/\1/')" >> $GITHUB_OUTPUT
       - name: Docker meta
         id: labels
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         env:
           DOCKER_METADATA_ANNOTATIONS_LEVELS: index
         with:
