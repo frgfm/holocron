@@ -57,9 +57,11 @@ print(config["classes"][output.squeeze(0).argmax().item()], output.squeeze(0).so
 
 ## Model zoo
 
-Holocron implements architectures directly from their papers and trains its own weights: most classification models on [Imagenette](https://github.com/fastai/imagenette) (a 10-class subset of ImageNet), and the ReXNet family on full ImageNet-1k. These weights load through Holocron's own `pretrained=True` and are **not** interchangeable with torchvision/`timm` checkpoints. Top-1 accuracy is reported on each model's own training set, so Imagenette (10 classes) numbers are not comparable to ImageNet-1k (1000 classes) ones.
+Holocron implements architectures directly from their papers and trains its own weights: most classification models on [Imagenette](https://github.com/fastai/imagenette) (a 10-class subset of ImageNet), and the ReXNet family on full ImageNet-1k. These weights load through Holocron's own `pretrained=True` and are **not** interchangeable with torchvision/`timm` checkpoints. Top-1 accuracy is measured on the listed dataset's validation split, so Imagenette (10 classes) numbers are not comparable to ImageNet-1k (1000 classes) ones.
 
 ### Image classification
+
+<!-- AUTOGEN:MODEL_ZOO START - edit via .github/generate_model_zoo.py -->
 
 | Model | Input | Training dataset | Top-1 acc (%) | Params (M) |
 | --- | --- | --- | --- | --- |
@@ -67,7 +69,7 @@ Holocron implements architectures directly from their papers and trains its own 
 | `cspdarknet53` | 224×224 | Imagenette (10) | 94.5 | 26.6 |
 | `cspdarknet53_mish` | 224×224 | Imagenette (10) | 94.7 | 26.6 |
 | `darknet19` | 224×224 | Imagenette (10) | 93.9 | 19.8 |
-| `darknet24` | 224×224 | Imagenette (10) | — | 22.4 |
+| `darknet24` | 224×224 | Imagenette (10) | — | — |
 | `darknet53` | 224×224 | Imagenette (10) | 94.2 | 40.6 |
 | `mobileone_s0` | 224×224 | Imagenette (10) | 88.1 | 4.3 |
 | `mobileone_s1` | 224×224 | Imagenette (10) | 91.3 | 3.6 |
@@ -91,7 +93,11 @@ Holocron implements architectures directly from their papers and trains its own 
 | `rexnet2_0x` | 224×224 | ImageNet-1k (1000) | 80.3 | 16.4 |
 | `rexnet2_2x` | 224×224 | Imagenette (10) | 95.4 | 16.7 |
 | `sknet50` | 224×224 | Imagenette (10) | 94.4 | 35.2 |
-| `tridentnet50` | 224×224 | Imagenette (10) | — | 45.8 |
+| `tridentnet50` | 224×224 | Imagenette (10) | — | — |
+
+_Rows showing `—` are legacy checkpoints whose accuracy/params are not recorded in metadata._
+
+<!-- AUTOGEN:MODEL_ZOO END -->
 
 ### Semantic segmentation
 
