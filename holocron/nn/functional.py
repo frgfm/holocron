@@ -561,8 +561,8 @@ def poly_loss(
     """Implements the Poly1 loss from ["PolyLoss: A Polynomial Expansion Perspective of Classification Loss Functions"](https://arxiv.org/pdf/2204.12511.pdf).
 
     Args:
-        x: predicted probability of shape [N, K, ...]
-        target: target probability of shape [N, K, ...]
+        x: raw, unnormalized scores (logits) of shape [N, K, ...]; a log-softmax is applied internally
+        target: hard class indices of shape [N, ...] and dtype ``torch.int64``, or soft class probabilities of shape [N, K, ...]
         eps: epsilon 1 from the paper
         weight: manual rescaling of each class of shape [K]
         ignore_index: specifies target value that is ignored and do not contribute to gradient

@@ -25,14 +25,15 @@ Check out the [installation guide](getting-started/installation.md) for more opt
 
 Load a model and use it just like any PyTorch model:
 
-```python hl_lines="4 7"
+```python hl_lines="5 8"
+import torch
 from PIL import Image
 from torchvision.transforms.v2 import Compose, ConvertImageDtype, Normalize, PILToTensor, Resize
 from torchvision.transforms.v2.functional import InterpolationMode
-from holocron.models.classification import repvgg_a0
+from holocron.models.classification import darknet24
 
-# Load your model
-model = repvgg_a0(pretrained=True).eval()
+# Load your model (weights pretrained on Imagenette, a 10-class subset of ImageNet)
+model = darknet24(pretrained=True).eval()
 
 # Read your image
 img = Image.open(path_to_an_image).convert("RGB")
@@ -56,20 +57,48 @@ print(config["classes"][output.squeeze(0).argmax().item()], output.squeeze(0).so
 
 ## Model zoo
 
+Holocron implements architectures directly from their papers and trains its own weights: most classification models on [Imagenette](https://github.com/fastai/imagenette) (a 10-class subset of ImageNet), and the ReXNet family on full ImageNet-1k. These weights load through Holocron's own `pretrained=True` and are **not** interchangeable with torchvision/`timm` checkpoints. Top-1 accuracy is reported on each model's own training set, so Imagenette (10 classes) numbers are not comparable to ImageNet-1k (1000 classes) ones.
+
 ### Image classification
 
-* TridentNet from ["Scale-Aware Trident Networks for Object Detection"](https://arxiv.org/pdf/1901.01892.pdf)
-* SKNet from ["Selective Kernel Networks"](https://arxiv.org/pdf/1903.06586.pdf)
-* PyConvResNet from ["Pyramidal Convolution: Rethinking Convolutional Neural Networks for Visual Recognition"](https://arxiv.org/pdf/2006.11538.pdf)
-* ReXNet from ["ReXNet: Diminishing Representational Bottleneck on Convolutional Neural Network"](https://arxiv.org/pdf/2007.00992.pdf)
-* RepVGG from ["RepVGG: Making VGG-style ConvNets Great Again"](https://arxiv.org/pdf/2101.03697.pdf)
+| Model | Input | Training dataset | Top-1 acc (%) | Params (M) |
+| --- | --- | --- | --- | --- |
+| `convnext_atto` | 224×224 | Imagenette (10) | 87.6 | 3.4 |
+| `cspdarknet53` | 224×224 | Imagenette (10) | 94.5 | 26.6 |
+| `cspdarknet53_mish` | 224×224 | Imagenette (10) | 94.7 | 26.6 |
+| `darknet19` | 224×224 | Imagenette (10) | 93.9 | 19.8 |
+| `darknet24` | 224×224 | Imagenette (10) | — | 22.4 |
+| `darknet53` | 224×224 | Imagenette (10) | 94.2 | 40.6 |
+| `mobileone_s0` | 224×224 | Imagenette (10) | 88.1 | 4.3 |
+| `mobileone_s1` | 224×224 | Imagenette (10) | 91.3 | 3.6 |
+| `mobileone_s2` | 224×224 | Imagenette (10) | 91.3 | 5.9 |
+| `mobileone_s3` | 224×224 | Imagenette (10) | 91.1 | 8.1 |
+| `repvgg_a0` | 224×224 | Imagenette (10) | 92.9 | 24.7 |
+| `repvgg_a1` | 224×224 | Imagenette (10) | 93.8 | 30.1 |
+| `repvgg_a2` | 224×224 | Imagenette (10) | 93.6 | 48.6 |
+| `repvgg_b0` | 224×224 | Imagenette (10) | 92.7 | 31.8 |
+| `repvgg_b1` | 224×224 | Imagenette (10) | 94.0 | 100.8 |
+| `repvgg_b2` | 224×224 | Imagenette (10) | 94.1 | 157.5 |
+| `res2net50_26w_4s` | 224×224 | Imagenette (10) | 93.9 | 23.7 |
+| `resnet18` | 224×224 | Imagenette (10) | 93.6 | 11.2 |
+| `resnet34` | 224×224 | Imagenette (10) | 93.8 | 21.3 |
+| `resnet50` | 224×224 | Imagenette (10) | 93.8 | 23.5 |
+| `resnet50d` | 224×224 | Imagenette (10) | 94.7 | 23.5 |
+| `resnext50_32x4d` | 224×224 | Imagenette (10) | 94.5 | 23.0 |
+| `rexnet1_0x` | 224×224 | ImageNet-1k (1000) | 77.9 | 4.8 |
+| `rexnet1_3x` | 224×224 | ImageNet-1k (1000) | 79.5 | 7.6 |
+| `rexnet1_5x` | 224×224 | ImageNet-1k (1000) | 80.3 | 9.7 |
+| `rexnet2_0x` | 224×224 | ImageNet-1k (1000) | 80.3 | 16.4 |
+| `rexnet2_2x` | 224×224 | Imagenette (10) | 95.4 | 16.7 |
+| `sknet50` | 224×224 | Imagenette (10) | 94.4 | 35.2 |
+| `tridentnet50` | 224×224 | Imagenette (10) | — | 45.8 |
 
 ### Semantic segmentation
-* U-Net from ["U-Net: Convolutional Networks for Biomedical Image Segmentation"](https://arxiv.org/pdf/1505.04597.pdf)
-* U-Net++ from ["UNet++: Redesigning Skip Connections to Exploit Multiscale Features in Image Segmentation"](https://arxiv.org/pdf/1912.05074.pdf)
-* UNet3+ from ["UNet 3+: A Full-Scale Connected UNet For Medical Image Segmentation"](https://arxiv.org/pdf/2004.08790.pdf)
+
+Only `unet_rexnet13` (~9.3M params) currently ships pretrained weights.
 
 ### Object detection
-* YOLO from ["You Only Look Once: Unified, Real-Time Object Detection"](https://pjreddie.com/media/files/papers/yolo_1.pdf)
-* YOLOv2 from ["YOLO9000: Better, Faster, Stronger"](https://pjreddie.com/media/files/papers/YOLO9000.pdf)
-* YOLOv4 from ["YOLOv4: Optimal Speed and Accuracy of Object Detection"](https://arxiv.org/pdf/2004.10934.pdf)
+
+The detection models (`yolov1`, `yolov2`, `yolov4`) ship **no pretrained weights yet** — train them with the [reference scripts](https://github.com/frgfm/Holocron/tree/main/references/detection).
+
+Every other architecture is available **untrained** (randomly initialized); calling it with `pretrained=True` emits a warning and falls back to random initialization. See the [project README](https://github.com/frgfm/Holocron#paper-references) for the full catalogue of implemented architectures.

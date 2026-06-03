@@ -50,16 +50,17 @@ Implementations of recent Deep Learning tricks in Computer Vision, easily paired
 ## Quick Tour
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/frgfm/notebooks/blob/main/holocron/quicktour.ipynb)
 
-This project was created for quality implementations, increased developer flexibility and maximum compatibility with the PyTorch ecosystem. For instance, here is a short snippet to showcase how Holocron models are meant to be used:
+This project was created for quality implementations, increased developer flexibility and a clean integration with the PyTorch ecosystem. For instance, here is a short snippet to showcase how Holocron models are meant to be used:
 
 ```python
+import torch
 from PIL import Image
 from torchvision.transforms.v2 import Compose, ConvertImageDtype, Normalize, PILToTensor, Resize
 from torchvision.transforms.v2.functional import InterpolationMode
-from holocron.models.classification import repvgg_a0
+from holocron.models.classification import darknet24
 
-# Load your model
-model = repvgg_a0(pretrained=True).eval()
+# Load your model (weights are pretrained on Imagenette, a 10-class subset of ImageNet)
+model = darknet24(pretrained=True).eval()
 
 # Read your image
 img = Image.open(path_to_an_image).convert("RGB")
@@ -79,6 +80,73 @@ input_tensor = transform(img).unsqueeze(0)
 with torch.inference_mode():
     output = model(input_tensor)
 print(config["classes"][output.squeeze(0).argmax().item()], output.squeeze(0).softmax(dim=0).max())
+```
+
+
+## Pretrained models
+
+Holocron implements architectures directly from their papers and trains its own weights: most classification models on [Imagenette](https://github.com/fastai/imagenette) (a 10-class subset of ImageNet), and the ReXNet family on full ImageNet-1k. **These weights load through Holocron's own `pretrained=True` and are _not_ interchangeable with torchvision/`timm` checkpoints.**
+
+> [!NOTE]
+> Top-1 accuracy is reported on each model's own training set, so Imagenette (10 classes) numbers are **not** comparable to ImageNet-1k (1000 classes) ones.
+
+<details>
+<summary><b>Image classification</b> — 29 pretrained checkpoints</summary>
+
+| Model | Input | Training dataset | Top-1 acc (%) | Params (M) |
+| --- | --- | --- | --- | --- |
+| `convnext_atto` | 224×224 | Imagenette (10) | 87.6 | 3.4 |
+| `cspdarknet53` | 224×224 | Imagenette (10) | 94.5 | 26.6 |
+| `cspdarknet53_mish` | 224×224 | Imagenette (10) | 94.7 | 26.6 |
+| `darknet19` | 224×224 | Imagenette (10) | 93.9 | 19.8 |
+| `darknet24` | 224×224 | Imagenette (10) | — | 22.4 |
+| `darknet53` | 224×224 | Imagenette (10) | 94.2 | 40.6 |
+| `mobileone_s0` | 224×224 | Imagenette (10) | 88.1 | 4.3 |
+| `mobileone_s1` | 224×224 | Imagenette (10) | 91.3 | 3.6 |
+| `mobileone_s2` | 224×224 | Imagenette (10) | 91.3 | 5.9 |
+| `mobileone_s3` | 224×224 | Imagenette (10) | 91.1 | 8.1 |
+| `repvgg_a0` | 224×224 | Imagenette (10) | 92.9 | 24.7 |
+| `repvgg_a1` | 224×224 | Imagenette (10) | 93.8 | 30.1 |
+| `repvgg_a2` | 224×224 | Imagenette (10) | 93.6 | 48.6 |
+| `repvgg_b0` | 224×224 | Imagenette (10) | 92.7 | 31.8 |
+| `repvgg_b1` | 224×224 | Imagenette (10) | 94.0 | 100.8 |
+| `repvgg_b2` | 224×224 | Imagenette (10) | 94.1 | 157.5 |
+| `res2net50_26w_4s` | 224×224 | Imagenette (10) | 93.9 | 23.7 |
+| `resnet18` | 224×224 | Imagenette (10) | 93.6 | 11.2 |
+| `resnet34` | 224×224 | Imagenette (10) | 93.8 | 21.3 |
+| `resnet50` | 224×224 | Imagenette (10) | 93.8 | 23.5 |
+| `resnet50d` | 224×224 | Imagenette (10) | 94.7 | 23.5 |
+| `resnext50_32x4d` | 224×224 | Imagenette (10) | 94.5 | 23.0 |
+| `rexnet1_0x` | 224×224 | ImageNet-1k (1000) | 77.9 | 4.8 |
+| `rexnet1_3x` | 224×224 | ImageNet-1k (1000) | 79.5 | 7.6 |
+| `rexnet1_5x` | 224×224 | ImageNet-1k (1000) | 80.3 | 9.7 |
+| `rexnet2_0x` | 224×224 | ImageNet-1k (1000) | 80.3 | 16.4 |
+| `rexnet2_2x` | 224×224 | Imagenette (10) | 95.4 | 16.7 |
+| `sknet50` | 224×224 | Imagenette (10) | 94.4 | 35.2 |
+| `tridentnet50` | 224×224 | Imagenette (10) | — | 45.8 |
+
+</details>
+
+- **Semantic segmentation:** only `unet_rexnet13` (~9.3M params) currently ships pretrained weights.
+- **Object detection:** the detection models (`yolov1`, `yolov2`, `yolov4`) **ship no pretrained weights yet** — instantiate them and train with the [reference scripts](references/detection).
+
+Every other architecture is available **untrained** (randomly initialized): calling it with `pretrained=True` emits a warning and falls back to random initialization, so train it yourself with the [reference scripts](references/).
+
+## Loss functions
+
+Holocron's losses follow PyTorch conventions. Classification-style losses such as [`PolyLoss`](https://arxiv.org/abs/2204.12511) expect **raw logits** as input and **`torch.int64` class indices** as target (use `ignore_index` to mask samples):
+
+```python
+import torch
+from holocron.nn import PolyLoss
+
+criterion = PolyLoss(ignore_index=-100)
+
+logits = torch.rand(4, 10, requires_grad=True)  # (N, num_classes) unnormalized scores
+target = torch.tensor([0, 9, 3, 1])             # (N,) — dtype MUST be torch.int64
+
+loss = criterion(logits, target)
+loss.backward()
 ```
 
 

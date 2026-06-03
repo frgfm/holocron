@@ -228,8 +228,29 @@ class DiceLoss(Loss):
 
 
 class PolyLoss(Loss):
-    """Implements the Poly1 loss from ["PolyLoss: A Polynomial Expansion Perspective of Classification Loss
+    r"""Implements the Poly1 loss from ["PolyLoss: A Polynomial Expansion Perspective of Classification Loss
     Functions"](https://arxiv.org/pdf/2204.12511.pdf).
+
+    The loss expects **raw, unnormalized scores (logits)** as input (a log-softmax is applied internally),
+    of shape $(N, K)$ — or $(N, K, d_1, ..., d_n)$ for dense tasks. The ``target`` is either **hard class
+    indices** of shape $(N,)$ — or $(N, d_1, ..., d_n)$ — and dtype ``torch.int64``, or **soft class
+    probabilities** with the same shape as the input.
+
+    Example:
+        >>> import torch
+        >>> from holocron.nn import PolyLoss
+        >>> criterion = PolyLoss(ignore_index=-100)
+        >>> # logits for 4 samples over 10 classes
+        >>> logits = torch.rand(4, 10, requires_grad=True)
+        >>> # hard targets MUST be torch.int64 (class indices); use ignore_index to mask samples
+        >>> target = torch.tensor([0, 9, 3, 1])
+        >>> loss = criterion(logits, target)
+        >>> loss.backward()
+
+    Note:
+        A ``TypeError`` is raised if the hard ``target`` is not of dtype ``torch.int64``. To skip some
+        samples/pixels from the loss and its gradient, set their target value to ``ignore_index``
+        (``-100`` by default).
 
     Args:
         *args: args of [`Loss`][holocron.nn.modules.loss.Loss]
