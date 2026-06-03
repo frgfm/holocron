@@ -583,9 +583,14 @@ def poly_loss(
     if target.ndim == x.ndim - 1:
         if target.dtype != torch.long:
             raise TypeError("target dtype is expected to be torch.int64")
+        # Positions to ignore (their contribution to the loss & gradient is zeroed out below). This
+        # supports any `ignore_index`, including the default -100 which is out of the class range.
+        ignored_mask = target == ignore_index
+        # Replace ignored targets with a valid dummy class so `gather` stays in bounds
+        safe_target = target.masked_fill(ignored_mask, 0)
         # Compute pt and logpt only for target classes (the remaining will have a 0 coefficient)
         # Shape (N, ...)
-        logpt = logpt.transpose(1, 0).flatten(1).gather(0, target.view(1, -1)).squeeze(0)
+        logpt = logpt.transpose(1, 0).flatten(1).gather(0, safe_target.view(1, -1)).squeeze(0)
     else:
         if target.ndim != x.ndim or target.shape[0] != x.shape[0] or target.shape[1] != x.shape[1]:
             raise ValueError("invalid target shape")
@@ -601,18 +606,17 @@ def poly_loss(
         if weight.type() != x.data.type():
             weight = weight.type_as(x.data)
         if target.ndim == x.ndim - 1:
-            loss = weight.gather(0, target.data.view(-1)) * loss
+            loss = weight.gather(0, safe_target.data.view(-1)) * loss
         else:
             loss = weight.reshape(1, -1) * loss
 
     # Ignore index (set loss contribution to 0)
     if target.ndim == x.ndim - 1:
-        valid_idxs = torch.ones(target.view(-1).shape[0], dtype=torch.bool, device=x.device)
-        if ignore_index >= 0 and ignore_index < x.shape[1]:
-            valid_idxs[target.view(-1) == ignore_index] = False
+        # Drop the samples whose target equals `ignore_index` (any value, including the default -100)
+        valid_idxs = ~ignored_mask.view(-1)
     else:
         valid_idxs = torch.ones(target.shape[1], dtype=torch.bool, device=x.device)
-        if ignore_index >= 0 and ignore_index < x.shape[1]:
+        if 0 <= ignore_index < x.shape[1]:
             valid_idxs[ignore_index] = False
 
     # Loss reduction
@@ -620,8 +624,10 @@ def poly_loss(
         loss = loss[valid_idxs].sum() if target.ndim == x.ndim - 1 else loss[:, valid_idxs].sum()
     elif reduction == "mean":
         loss = loss[valid_idxs].mean() if target.ndim == x.ndim - 1 else loss[:, valid_idxs].sum(1).mean()
-    # if no reduction, reshape tensor like target
-    # (N, ...)
+    # if no reduction, keep a per-sample loss with ignored positions zeroed out
+    elif target.ndim == x.ndim - 1:
+        loss = loss.masked_fill(~valid_idxs, 0.0)
+    # reshape tensor like target -> (N, ...) for the soft-label case
     elif target.ndim == x.ndim:
         loss = loss[:, valid_idxs].sum(1)
 

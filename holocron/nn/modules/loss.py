@@ -240,22 +240,23 @@ class PolyLoss(Loss):
         >>> import torch
         >>> from holocron.nn import PolyLoss
         >>> criterion = PolyLoss(ignore_index=-100)
-        >>> # logits for 4 samples over 10 classes
-        >>> logits = torch.rand(4, 10, requires_grad=True)
-        >>> # hard targets MUST be torch.int64 (class indices); use ignore_index to mask samples
-        >>> target = torch.tensor([0, 9, 3, 1])
+        >>> logits = torch.rand(4, 10, requires_grad=True)  # (N, num_classes) raw scores
+        >>> target = torch.tensor([0, -100, 3, 1])  # int64 class indices; the 2nd sample is ignored
         >>> loss = criterion(logits, target)
         >>> loss.backward()
 
     Note:
-        A ``TypeError`` is raised if the hard ``target`` is not of dtype ``torch.int64``. To skip some
-        samples/pixels from the loss and its gradient, set their target value to ``ignore_index``
-        (``-100`` by default).
+        Hard ``target`` must be of dtype ``torch.int64``; otherwise a ``TypeError`` is raised. Set a
+        sample/pixel target to ``ignore_index`` (``-100`` by default) to exclude it from the loss and
+        its gradient.
 
     Args:
-        *args: args of [`Loss`][holocron.nn.modules.loss.Loss]
-        eps: epsilon 1 from the paper
-        **kwargs: keyword args of [`Loss`][holocron.nn.modules.loss.Loss]
+        weight: manual rescaling weight given to each class (default: None)
+        ignore_index: target value that is ignored and does not contribute to the loss or gradient
+            (default: -100)
+        reduction: reduction to apply to the output, one of ``"none"`` | ``"mean"`` | ``"sum"``
+            (default: ``"mean"``)
+        eps: epsilon 1 from the paper (default: 2.0)
     """
 
     def __init__(

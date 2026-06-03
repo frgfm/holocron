@@ -1,3 +1,4 @@
+import pytest
 import torch
 from torch.nn import CrossEntropyLoss, Linear
 from torch.nn.functional import cross_entropy
@@ -204,3 +205,28 @@ def test_poly_loss():
     out.backward()
 
     assert repr(nn.PolyLoss()) == "PolyLoss(eps=2.0, reduction='mean')"
+
+
+def test_poly_loss_ignore_index():
+    # Regression for #211: ignore_index (including the default -100) must not crash, and must
+    # zero out the loss and gradient contribution of ignored samples.
+    x = torch.rand(4, 5, requires_grad=True)
+    target = torch.tensor([0, -100, 3, 1])  # sample 1 is ignored
+
+    loss = nn.PolyLoss(ignore_index=-100)(x, target)
+    assert torch.isfinite(loss)
+    loss.backward()
+    assert torch.all(x.grad[1] == 0)  # ignored sample gets no gradient
+    assert torch.any(x.grad[0] != 0)  # valid samples do
+
+    # reduction="none" zeroes the ignored position and stays consistent with "mean"
+    per_sample = F.poly_loss(x.detach(), target, reduction="none")
+    assert per_sample[1].item() == 0.0
+    valid = target != -100
+    assert torch.allclose(F.poly_loss(x.detach(), target, reduction="mean"), per_sample[valid].mean())
+
+
+def test_poly_loss_target_dtype():
+    # Hard targets must be int64; a clear TypeError is raised otherwise.
+    with pytest.raises(TypeError):
+        F.poly_loss(torch.rand(2, 4), torch.zeros(2).float())
