@@ -5,7 +5,6 @@
 
 import json
 import logging
-import warnings
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any, TypeVar
@@ -18,7 +17,16 @@ from torch.hub import load_state_dict_from_url
 from holocron import models
 from holocron.nn import BlurPool2d
 
-from .checkpoints import Checkpoint, Dataset, Evaluation, LoadingMeta, Metric, PreProcessing, TrainingRecipe
+from .checkpoints import (
+    Checkpoint,
+    Dataset,
+    Evaluation,
+    LoadingMeta,
+    Metric,
+    PreProcessing,
+    TrainingRecipe,
+    _warn_pretrained_unavailable,
+)
 from .presets import IMAGENET, IMAGENETTE
 
 __all__ = ["conv_sequence", "fuse_conv_bn", "load_pretrained_params", "model_from_hf_hub"]
@@ -105,14 +113,7 @@ def load_pretrained_params(
         key_filter: prefix of the checkpoint keys to be loaded
     """
     if url is None:
-        msg = (
-            f"No pretrained weights are available for {model.__class__.__name__}; it will be randomly "
-            "initialized. Browse the models that ship pretrained weights in the model zoo "
-            "(https://frgfm.github.io/holocron/) or train your own with the reference scripts "
-            "(https://github.com/frgfm/Holocron/tree/main/references)."
-        )
-        logger.warning(msg)
-        warnings.warn(msg, UserWarning, stacklevel=2)
+        _warn_pretrained_unavailable(model.__class__.__name__, stacklevel=3)
     else:
         state_dict = load_state_dict_from_url(url, progress=progress, map_location="cpu")
         if isinstance(key_filter, str):

@@ -1,9 +1,12 @@
+import warnings
+
 import pytest
 import torch
 from torch import nn
 
 from holocron.models import utils
-from holocron.models.classification.repvgg import RepVGG
+from holocron.models.checkpoints import PretrainedWeightsUnavailableWarning, _handle_legacy_pretrained
+from holocron.models.classification.repvgg import RepVGG, RepVGG_A0_Checkpoint
 from holocron.nn import SAM, BlurPool2d, DropBlock2d
 
 
@@ -94,7 +97,22 @@ def test_model_from_hf_hub():
 
 def test_load_pretrained_params_warns_without_url():
     # When no checkpoint URL is available, the model must not *silently* keep its random
-    # initialization: an explicit UserWarning is raised so users notice (cf. issues #123, #253).
+    # initialization: an explicit warning is raised so users notice (cf. issues #123, #253).
     model = nn.Linear(4, 2)
-    with pytest.warns(UserWarning, match="No pretrained weights are available for Linear"):
+    with pytest.warns(PretrainedWeightsUnavailableWarning, match="No pretrained weights are available for Linear"):
         utils.load_pretrained_params(model, None)
+
+
+def test_handle_legacy_pretrained_warns_without_checkpoint():
+    # The model-factory path (e.g. ``convnext_tiny(pretrained=True)``) routes through this helper.
+    with pytest.warns(PretrainedWeightsUnavailableWarning, match="No pretrained weights"):
+        _handle_legacy_pretrained(True, None, None)
+
+
+def test_handle_legacy_pretrained_silent_when_weights_available():
+    # Guard against false positives: a model that *does* ship weights must stay silent.
+    ckpt = RepVGG_A0_Checkpoint.DEFAULT.value
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", PretrainedWeightsUnavailableWarning)
+        assert _handle_legacy_pretrained(True, None, ckpt) is ckpt
+        assert _handle_legacy_pretrained(False, None, ckpt) is None
