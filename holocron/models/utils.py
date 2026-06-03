@@ -5,6 +5,7 @@
 
 import json
 import logging
+import warnings
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any, TypeVar
@@ -104,7 +105,14 @@ def load_pretrained_params(
         key_filter: prefix of the checkpoint keys to be loaded
     """
     if url is None:
-        logger.warning("Invalid model URL, using default initialization.")
+        msg = (
+            f"No pretrained weights are available for {model.__class__.__name__}; it will be randomly "
+            "initialized. Browse the models that ship pretrained weights in the model zoo "
+            "(https://frgfm.github.io/holocron/) or train your own with the reference scripts "
+            "(https://github.com/frgfm/Holocron/tree/main/references)."
+        )
+        logger.warning(msg)
+        warnings.warn(msg, UserWarning, stacklevel=2)
     else:
         state_dict = load_state_dict_from_url(url, progress=progress, map_location="cpu")
         if isinstance(key_filter, str):

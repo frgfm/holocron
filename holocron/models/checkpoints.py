@@ -4,6 +4,7 @@
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
 import logging
+import warnings
 from dataclasses import dataclass
 from enum import StrEnum
 
@@ -103,6 +104,13 @@ def _handle_legacy_pretrained(
     checkpoint = checkpoint or (default_checkpoint if pretrained else None)
 
     if pretrained and checkpoint is None:
-        logger.warning("Invalid model URL, using default initialization.")
+        msg = (
+            "No pretrained weights are available for this model; it will be randomly initialized. "
+            "Browse the models that ship pretrained weights in the model zoo "
+            "(https://frgfm.github.io/holocron/) or train your own with the reference scripts "
+            "(https://github.com/frgfm/Holocron/tree/main/references)."
+        )
+        logger.warning(msg)
+        warnings.warn(msg, UserWarning, stacklevel=2)
 
     return checkpoint

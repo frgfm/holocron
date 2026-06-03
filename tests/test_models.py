@@ -90,3 +90,11 @@ def test_model_from_hf_hub():
 
     # Check num of params
     assert sum(p.data.numel() for p in model.parameters()) == 24741642
+
+
+def test_load_pretrained_params_warns_without_url():
+    # When no checkpoint URL is available, the model must not *silently* keep its random
+    # initialization: an explicit UserWarning is raised so users notice (cf. issues #123, #253).
+    model = nn.Linear(4, 2)
+    with pytest.warns(UserWarning, match="No pretrained weights are available for Linear"):
+        utils.load_pretrained_params(model, None)
