@@ -92,13 +92,29 @@ def _from_legacy_cfg(cfg_dict: ast.Dict) -> dict | None:
 
 
 def _checkpoint_entry(classdef: ast.ClassDef) -> tuple[str, dict] | None:
-    """Return ``(arch, row)`` for a ``*_Checkpoint`` enum, or ``None``."""
+    """Return ``(arch, row)`` for the enum's ``DEFAULT`` checkpoint, or ``None``.
+
+    Resolves the ``DEFAULT = <MEMBER>`` alias so the row reflects what ``pretrained=True`` actually
+    loads, rather than assuming the default is the first-declared member.
+    """
+    members: dict[str, ast.Call] = {}
+    default_name: str | None = None
     for stmt in classdef.body:
-        value = getattr(stmt, "value", None)
+        if not (isinstance(stmt, ast.Assign) and len(stmt.targets) == 1 and isinstance(stmt.targets[0], ast.Name)):
+            continue
+        name, value = stmt.targets[0].id, stmt.value
         if isinstance(value, ast.Call) and isinstance(value.func, ast.Name) and value.func.id == "_checkpoint":
-            entry = _from_checkpoint_call(value)
-            return (ast.literal_eval(value.keywords[0].value), entry) if entry else None
-    return None
+            members[name] = value
+        elif name == "DEFAULT" and isinstance(value, ast.Name):
+            default_name = value.id
+    call = members.get(default_name) if default_name else None
+    if call is None:  # no DEFAULT alias resolved -> fall back to the first-declared checkpoint
+        call = next(iter(members.values()), None)
+    if call is None:
+        return None
+    arch = _lit(next((kw.value for kw in call.keywords if kw.arg == "arch"), None))
+    entry = _from_checkpoint_call(call)
+    return (arch, entry) if (arch and entry) else None
 
 
 def _legacy_entries(dict_node: ast.Dict) -> Iterator[tuple[str, dict]]:
