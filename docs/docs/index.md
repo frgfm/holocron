@@ -30,21 +30,21 @@ import torch
 from PIL import Image
 from torchvision.transforms.v2 import Compose, ConvertImageDtype, Normalize, PILToTensor, Resize
 from torchvision.transforms.v2.functional import InterpolationMode
-from holocron.models.classification import darknet24
+from holocron.models.classification import repvgg_a0
 
 # Load your model (weights pretrained on Imagenette, a 10-class subset of ImageNet)
-model = darknet24(pretrained=True).eval()
+model = repvgg_a0(pretrained=True).eval()
 
 # Read your image
 img = Image.open(path_to_an_image).convert("RGB")
 
-# Preprocessing
+# Preprocessing (model.default_cfg is the Checkpoint the pretrained weights came from)
 config = model.default_cfg
 transform = Compose([
-    Resize(config["input_shape"][1:], interpolation=InterpolationMode.BILINEAR),
+    Resize(config.pre_processing.input_shape[1:], interpolation=InterpolationMode.BILINEAR),
     PILToTensor(),
     ConvertImageDtype(torch.float32),
-    Normalize(config["mean"], config["std"]),
+    Normalize(config.pre_processing.mean, config.pre_processing.std),
 ])
 
 input_tensor = transform(img).unsqueeze(0)
@@ -52,14 +52,14 @@ input_tensor = transform(img).unsqueeze(0)
 # Inference
 with torch.inference_mode():
     output = model(input_tensor)
-print(config["classes"][output.squeeze(0).argmax().item()], output.squeeze(0).softmax(dim=0).max())
+print(config.meta.categories[output.squeeze(0).argmax().item()], output.squeeze(0).softmax(dim=0).max())
 ```
 
 ## Model zoo
 
 Holocron implements architectures directly from their papers and trains its own weights: most classification models on [Imagenette](https://github.com/fastai/imagenette) (a 10-class subset of ImageNet), and the ReXNet family on full ImageNet-1k. These weights load through Holocron's own `pretrained=True` and are **not** interchangeable with torchvision/`timm` checkpoints. Top-1 accuracy is measured on the listed dataset's validation split, so Imagenette (10 classes) numbers are not comparable to ImageNet-1k (1000 classes) ones.
 
-### Image classification
+The classification architectures below ship pretrained weights:
 
 <!-- AUTOGEN:MODEL_ZOO START - edit via .github/generate_model_zoo.py -->
 
@@ -99,12 +99,23 @@ _Rows showing `—` are legacy checkpoints whose accuracy/params are not recorde
 
 <!-- AUTOGEN:MODEL_ZOO END -->
 
-### Semantic segmentation
+`unet_rexnet13` is the only segmentation model with pretrained weights, and the detection models (`yolov1`, `yolov2`, `yolov4`) ship none yet. Requesting `pretrained=True` for any architecture without a checkpoint emits a warning and falls back to random initialization — train your own with the [reference scripts](https://github.com/frgfm/Holocron/tree/main/references).
 
-Only `unet_rexnet13` (~9.3M params) currently ships pretrained weights.
+Holocron implements the following architectures (with reference papers):
+
+### Image classification
+* TridentNet from ["Scale-Aware Trident Networks for Object Detection"](https://arxiv.org/pdf/1901.01892.pdf)
+* SKNet from ["Selective Kernel Networks"](https://arxiv.org/pdf/1903.06586.pdf)
+* PyConvResNet from ["Pyramidal Convolution: Rethinking Convolutional Neural Networks for Visual Recognition"](https://arxiv.org/pdf/2006.11538.pdf)
+* ReXNet from ["ReXNet: Diminishing Representational Bottleneck on Convolutional Neural Network"](https://arxiv.org/pdf/2007.00992.pdf)
+* RepVGG from ["RepVGG: Making VGG-style ConvNets Great Again"](https://arxiv.org/pdf/2101.03697.pdf)
+
+### Semantic segmentation
+* U-Net from ["U-Net: Convolutional Networks for Biomedical Image Segmentation"](https://arxiv.org/pdf/1505.04597.pdf)
+* U-Net++ from ["UNet++: Redesigning Skip Connections to Exploit Multiscale Features in Image Segmentation"](https://arxiv.org/pdf/1912.05074.pdf)
+* UNet3+ from ["UNet 3+: A Full-Scale Connected UNet For Medical Image Segmentation"](https://arxiv.org/pdf/2004.08790.pdf)
 
 ### Object detection
-
-The detection models (`yolov1`, `yolov2`, `yolov4`) ship **no pretrained weights yet** — train them with the [reference scripts](https://github.com/frgfm/Holocron/tree/main/references/detection).
-
-Every other architecture is available **untrained** (randomly initialized); calling it with `pretrained=True` emits a warning and falls back to random initialization. See the [project README](https://github.com/frgfm/Holocron#paper-references) for the full catalogue of implemented architectures.
+* YOLO from ["You Only Look Once: Unified, Real-Time Object Detection"](https://pjreddie.com/media/files/papers/yolo_1.pdf)
+* YOLOv2 from ["YOLO9000: Better, Faster, Stronger"](https://pjreddie.com/media/files/papers/YOLO9000.pdf)
+* YOLOv4 from ["YOLOv4: Optimal Speed and Accuracy of Object Detection"](https://arxiv.org/pdf/2004.10934.pdf)

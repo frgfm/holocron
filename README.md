@@ -57,21 +57,21 @@ import torch
 from PIL import Image
 from torchvision.transforms.v2 import Compose, ConvertImageDtype, Normalize, PILToTensor, Resize
 from torchvision.transforms.v2.functional import InterpolationMode
-from holocron.models.classification import darknet24
+from holocron.models.classification import repvgg_a0
 
 # Load your model (weights are pretrained on Imagenette, a 10-class subset of ImageNet)
-model = darknet24(pretrained=True).eval()
+model = repvgg_a0(pretrained=True).eval()
 
 # Read your image
 img = Image.open(path_to_an_image).convert("RGB")
 
-# Preprocessing
+# Preprocessing (model.default_cfg is the Checkpoint the pretrained weights came from)
 config = model.default_cfg
 transform = Compose([
-    Resize(config["input_shape"][1:], interpolation=InterpolationMode.BILINEAR),
+    Resize(config.pre_processing.input_shape[1:], interpolation=InterpolationMode.BILINEAR),
     PILToTensor(),
     ConvertImageDtype(torch.float32),
-    Normalize(config["mean"], config["std"]),
+    Normalize(config.pre_processing.mean, config.pre_processing.std),
 ])
 
 input_tensor = transform(img).unsqueeze(0)
@@ -79,7 +79,7 @@ input_tensor = transform(img).unsqueeze(0)
 # Inference
 with torch.inference_mode():
     output = model(input_tensor)
-print(config["classes"][output.squeeze(0).argmax().item()], output.squeeze(0).softmax(dim=0).max())
+print(config.meta.categories[output.squeeze(0).argmax().item()], output.squeeze(0).softmax(dim=0).max())
 ```
 
 
