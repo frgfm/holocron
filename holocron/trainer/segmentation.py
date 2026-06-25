@@ -53,7 +53,7 @@ class SegmentationTrainer(Trainer):
 
             # borrowed from https://github.com/pytorch/vision/blob/master/references/segmentation/train.py
             pred = out.argmax(dim=1).flatten()
-            target = target.flatten()  # ty: ignore[possibly-missing-attribute]
+            target = target.flatten()
             k = (target >= 0) & (target < self.num_classes)
             inds = self.num_classes * target[k].to(torch.int64) + pred[k]
             nc = self.num_classes

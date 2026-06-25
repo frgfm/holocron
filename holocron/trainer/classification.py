@@ -61,7 +61,7 @@ class ClassificationTrainer(Trainer):
                 num_valid_batches += 1
 
             pred = out.topk(5, dim=1)[1] if out.shape[1] >= 5 else out.argmax(dim=1, keepdim=True)
-            correct = pred.eq(target.view(-1, 1).expand_as(pred))  # ty: ignore[possibly-missing-attribute]
+            correct = pred.eq(target.view(-1, 1).expand_as(pred))
             top1 += cast(int, correct[:, 0].sum().item())
             if out.shape[1] >= 5:
                 top5 += cast(int, correct.any(dim=1).sum().item())
@@ -232,7 +232,7 @@ class BinaryClassificationTrainer(ClassificationTrainer):
                 val_loss += loss.item()
                 num_valid_batches += 1
 
-            top1 += torch.sum((target.view_as(out) >= 0.5) == (torch.sigmoid(out) >= 0.5)).item() / out[0].numel()  # ty: ignore[possibly-missing-attribute]
+            top1 += torch.sum((target.view_as(out) >= 0.5) == (torch.sigmoid(out) >= 0.5)).item() / out[0].numel()
 
             num_samples += x.shape[0]
 

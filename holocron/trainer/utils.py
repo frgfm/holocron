@@ -28,7 +28,7 @@ def freeze_bn(mod: nn.Module) -> None:
     for m in mod.modules():
         if isinstance(m, _BatchNorm) and m.affine and all(not p.requires_grad for p in m.parameters()):
             # Switch back to commented code when https://github.com/pytorch/pytorch/issues/37823 is resolved
-            m.track_running_stats = False  # ty: ignore[unresolved-attribute]
+            m.track_running_stats = False
             m.eval()
 
 

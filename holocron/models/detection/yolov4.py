@@ -357,7 +357,7 @@ class YoloLayer(nn.Module):
         gt_centers = gt_centers.to(dtype=torch.long)
 
         target_selection = torch.tensor(
-            [_idx for _idx, _boxes in enumerate(gt_boxes) for _ in range(_boxes.shape[0])],
+            [idx_ for idx_, boxes_ in enumerate(gt_boxes) for _ in range(boxes_.shape[0])],
             dtype=torch.long,
             device=b_o.device,
         )
@@ -398,9 +398,9 @@ class YoloLayer(nn.Module):
 
         # Bbox regression
         bbox_loss = torch.zeros(1, device=b_o.device)
-        for idx, _target in enumerate(target):
-            if _target["boxes"].shape[0] > 0 and torch.any(obj_mask[idx]):
-                bbox_loss += ciou_loss(pred_boxes[idx, obj_mask[idx]], _target["boxes"]).min(dim=1).values.sum()
+        for idx, target_ in enumerate(target):
+            if target_["boxes"].shape[0] > 0 and torch.any(obj_mask[idx]):
+                bbox_loss += ciou_loss(pred_boxes[idx, obj_mask[idx]], target_["boxes"]).min(dim=1).values.sum()
 
         b_o = torch.sigmoid(b_o)
 
@@ -409,7 +409,8 @@ class YoloLayer(nn.Module):
             "noobj_loss": self.lambda_noobj * b_o[noobj_mask].pow(2).sum() / b_o.shape[0],
             "bbox_loss": self.lambda_coords * bbox_loss / b_o.shape[0],
             "clf_loss": self.lambda_class
-            * F.binary_cross_entropy_with_logits(
+            * F
+            .binary_cross_entropy_with_logits(
                 b_scores[obj_mask],
                 target_scores[obj_mask],
                 reduction="none",

@@ -19,7 +19,6 @@ from ..utils import _checkpoint, _configure_model, conv_sequence, fuse_conv_bn
 __all__ = [
     "RepBlock",
     "RepVGG",
-    "RepVGG",
     "RepVGG_A0_Checkpoint",
     "RepVGG_A1_Checkpoint",
     "RepVGG_A2_Checkpoint",

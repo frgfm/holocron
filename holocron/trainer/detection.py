@@ -63,7 +63,7 @@ class DetectionTrainer(Trainer):
     def _to_cuda(  # type: ignore[override]
         x: list[Tensor], target: list[dict[str, Tensor]]
     ) -> tuple[list[Tensor], list[dict[str, Tensor]]]:
-        x = [_x.cuda(non_blocking=True) for _x in x]
+        x = [x_.cuda(non_blocking=True) for x_ in x]
         target = [{k: v.cuda(non_blocking=True) for k, v in t.items()} for t in target]
         return x, target
 

@@ -48,7 +48,7 @@ class DarknetBodyV2(nn.Sequential):
         if norm_layer is None:
             norm_layer = nn.BatchNorm2d
 
-        in_chans = [stem_channels] + [_layout[0] for _layout in layout[:-1]]
+        in_chans = [stem_channels] + [layout_[0] for layout_ in layout[:-1]]
 
         super().__init__(
             OrderedDict([
@@ -72,9 +72,9 @@ class DarknetBodyV2(nn.Sequential):
                     "layers",
                     nn.Sequential(*[
                         self._make_layer(
-                            num_blocks, _in_chans, out_chans, act_layer, norm_layer, drop_layer, conv_layer
+                            num_blocks, in_chans_, out_chans, act_layer, norm_layer, drop_layer, conv_layer
                         )
-                        for _in_chans, (out_chans, num_blocks) in zip(in_chans, layout, strict=True)
+                        for in_chans_, (out_chans, num_blocks) in zip(in_chans, layout, strict=True)
                     ]),
                 ),
             ])

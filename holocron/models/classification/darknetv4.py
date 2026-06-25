@@ -135,7 +135,7 @@ class DarknetBodyV4(nn.Sequential):
         if norm_layer is None:
             norm_layer = nn.BatchNorm2d
 
-        in_chans = [stem_channels] + [_layout[0] for _layout in layout[:-1]]
+        in_chans = [stem_channels] + [layout_[0] for layout_ in layout[:-1]]
 
         super().__init__(
             OrderedDict([
@@ -158,8 +158,8 @@ class DarknetBodyV4(nn.Sequential):
                 (
                     "stages",
                     nn.Sequential(*[
-                        CSPStage(_in_chans, out_chans, num_blocks, act_layer, norm_layer, drop_layer, conv_layer)
-                        for _in_chans, (out_chans, num_blocks) in zip(in_chans, layout, strict=True)
+                        CSPStage(in_chans_, out_chans, num_blocks, act_layer, norm_layer, drop_layer, conv_layer)
+                        for in_chans_, (out_chans, num_blocks) in zip(in_chans, layout, strict=True)
                     ]),
                 ),
             ])

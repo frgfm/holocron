@@ -14,8 +14,7 @@ def main(args):
     checkpoint = torch.load(args.checkpoint, map_location="cpu")["model"]
     torch.save(checkpoint, args.outfile, _use_new_zipfile_serialization=False)
 
-    with Path(args.outfile).open("rb") as f:
-        sha_hash = hashlib.sha256(f.read()).hexdigest()
+    sha_hash = hashlib.sha256(Path(args.outfile).read_bytes()).hexdigest()
     print(f"Checkpoint saved to {args.outfile} with hash: {sha_hash[:8]}")
 
 

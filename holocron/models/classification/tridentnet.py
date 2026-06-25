@@ -45,7 +45,7 @@ class TridentConv2d(nn.Conv2d):
         return torch.cat(
             [
                 F.conv2d(
-                    _x,
+                    x_,
                     self.weight,
                     self.bias,
                     self.stride,
@@ -53,7 +53,7 @@ class TridentConv2d(nn.Conv2d):
                     (dilation,) * len(self.dilation),
                     self.groups,
                 )
-                for _x, dilation in zip(torch.chunk(x, self.num_branches, 1), dilations, strict=True)
+                for x_, dilation in zip(torch.chunk(x, self.num_branches, 1), dilations, strict=True)
             ],
             1,
         )
