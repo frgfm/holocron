@@ -160,7 +160,7 @@ class ClassBalancedWrapper(nn.Module):
         if self.criterion.weight is None:
             self.criterion.weight: Tensor | None = cb_weights
         else:
-            self.criterion.weight *= cb_weights.to(device=self.criterion.weight.device)  # ty: ignore[invalid-argument-type,possibly-missing-attribute]
+            self.criterion.weight *= cb_weights.to(device=self.criterion.weight.device)  # ty: ignore[invalid-argument-type]
 
     def forward(self, x: Tensor, target: Tensor) -> Tensor:
         return cast(Tensor, self.criterion.forward(x, target))

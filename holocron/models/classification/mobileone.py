@@ -65,7 +65,7 @@ class DepthConvBlock(nn.ModuleList):
         super().__init__(layers)
 
     def forward(self, x: Tensor) -> Tensor:
-        return sum(mod(x) for mod in self)  # ty: ignore[invalid-return-type]
+        return sum(mod(x) for mod in self)
 
     def reparametrize(self) -> nn.Conv2d:
         chans = cast(nn.Sequential, self[1])[0].in_channels
@@ -117,7 +117,7 @@ class PointConvBlock(nn.ModuleList):
         super().__init__(layers)
 
     def forward(self, x: Tensor) -> Tensor:
-        return sum(mod(x) for mod in self)  # ty: ignore[invalid-return-type]
+        return sum(mod(x) for mod in self)
 
     def reparametrize(self) -> nn.Conv2d:
         seq_idx = 1 if not isinstance(self[0], nn.Sequential) else 0
@@ -203,15 +203,15 @@ class MobileOne(nn.Sequential):
         layers: list[nn.Module] = [MobileOneBlock(in_channels, in_planes, overparam_factor, 2, act_layer, norm_layer)]
 
         # Consecutive convolutional blocks
-        for _num_blocks, _planes in zip(num_blocks, planes, strict=True):
+        for num_blocks_, planes_ in zip(num_blocks, planes, strict=True):
             # Stride & channel changes
-            stage = [MobileOneBlock(in_planes, _planes, overparam_factor, 2, act_layer, norm_layer)]
+            stage = [MobileOneBlock(in_planes, planes_, overparam_factor, 2, act_layer, norm_layer)]
             # Depth
             stage.extend([
-                MobileOneBlock(_planes, _planes, overparam_factor, 1, act_layer, norm_layer)
-                for _ in range(_num_blocks - 1)
+                MobileOneBlock(planes_, planes_, overparam_factor, 1, act_layer, norm_layer)
+                for _ in range(num_blocks_ - 1)
             ])
-            in_planes = _planes
+            in_planes = planes_
 
             layers.append(nn.Sequential(*stage))
 

@@ -99,24 +99,24 @@ class _YOLO(nn.Module):
             gt_idcs = gt_centers.to(dtype=torch.long)
 
             # Assign GT to anchors
-            for _idx in range(gt_boxes[idx].shape[0]):
+            for idx_ in range(gt_boxes[idx].shape[0]):
                 # Assign the anchor inside the cell
-                iou_ = box_iou(gt_boxes[idx][_idx].unsqueeze(0), pred_xyxy[idx, gt_idcs[_idx, 1], gt_idcs[_idx, 0]])
+                iou_ = box_iou(gt_boxes[idx][idx_].unsqueeze(0), pred_xyxy[idx, gt_idcs[idx_, 1], gt_idcs[idx_, 0]])
                 iou, anchor_idx = iou_.squeeze(0).max(dim=0)
                 # Flag that there is an object here
-                is_noobj[idx, gt_idcs[_idx, 1], gt_idcs[_idx, 0], anchor_idx] = False
+                is_noobj[idx, gt_idcs[idx_, 1], gt_idcs[idx_, 0], anchor_idx] = False
                 # Classification loss
-                gt_scores = torch.zeros_like(pred_scores[idx, gt_idcs[_idx, 1], gt_idcs[_idx, 0]])
-                gt_scores[:, gt_labels[idx][_idx]] = 1
-                clf_loss += (gt_scores - pred_scores[idx, gt_idcs[_idx, 1], gt_idcs[_idx, 0]]).pow(2).sum()
+                gt_scores = torch.zeros_like(pred_scores[idx, gt_idcs[idx_, 1], gt_idcs[idx_, 0]])
+                gt_scores[:, gt_labels[idx][idx_]] = 1
+                clf_loss += (gt_scores - pred_scores[idx, gt_idcs[idx_, 1], gt_idcs[idx_, 0]]).pow(2).sum()
                 # Objectness loss
-                obj_loss += (iou - pred_o[idx, gt_idcs[_idx, 1], gt_idcs[_idx, 0], anchor_idx]).pow(2)
+                obj_loss += (iou - pred_o[idx, gt_idcs[idx_, 1], gt_idcs[idx_, 0], anchor_idx]).pow(2)
                 # Bbox loss
                 bbox_loss += (
-                    (gt_xy[_idx] - pred_xy[idx, gt_idcs[_idx, 1], gt_idcs[_idx, 0], anchor_idx, :2]).pow(2).sum()
+                    (gt_xy[idx_] - pred_xy[idx, gt_idcs[idx_, 1], gt_idcs[idx_, 0], anchor_idx, :2]).pow(2).sum()
                 )
                 bbox_loss += (
-                    (gt_wh.sqrt() - pred_boxes[idx, gt_idcs[_idx, 1], gt_idcs[_idx, 0], anchor_idx, 2:].sqrt())
+                    (gt_wh.sqrt() - pred_boxes[idx, gt_idcs[idx_, 1], gt_idcs[idx_, 0], anchor_idx, 2:].sqrt())
                     .pow(2)
                     .sum()
                 )

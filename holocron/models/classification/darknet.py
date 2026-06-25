@@ -42,7 +42,7 @@ class DarknetBodyV1(nn.Sequential):
         if act_layer is None:
             act_layer = nn.LeakyReLU(0.1, inplace=True)
 
-        in_chans = [stem_channels] + [_layout[-1] for _layout in layout[:-1]]
+        in_chans = [stem_channels] + [layout_[-1] for layout_ in layout[:-1]]
 
         super().__init__(
             OrderedDict([
@@ -66,8 +66,8 @@ class DarknetBodyV1(nn.Sequential):
                 (
                     "layers",
                     nn.Sequential(*[
-                        self._make_layer([_in_chans, *planes], act_layer, norm_layer, drop_layer, conv_layer)
-                        for _in_chans, planes in zip(in_chans, layout, strict=True)
+                        self._make_layer([in_chans_, *planes], act_layer, norm_layer, drop_layer, conv_layer)
+                        for in_chans_, planes in zip(in_chans, layout, strict=True)
                     ]),
                 ),
             ])

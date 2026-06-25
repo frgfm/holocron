@@ -506,6 +506,6 @@ def unet_rexnet13(
     kwargs["final_upsampling"] = kwargs.get("final_upsampling", True)
     kwargs["act_layer"] = kwargs.get("act_layer", nn.SiLU(inplace=True))
     # hotfix of https://github.com/pytorch/vision/issues/3802
-    backbone[21] = nn.SiLU(inplace=True)  # ty: ignore[possibly-missing-implicit-call]
+    backbone[21] = nn.SiLU(inplace=True)
 
     return _dynamic_unet("unet_rexnet13", backbone, pretrained, progress, **kwargs)  # ty: ignore[invalid-argument-type]

@@ -9,8 +9,8 @@ from holocron.nn import SAM, BlurPool2d, DropBlock2d
 
 def _test_conv_seq(conv_seq, expected_classes, expected_channels):
     assert len(conv_seq) == len(expected_classes)
-    for _layer, mod_class in zip(conv_seq, expected_classes, strict=False):
-        assert isinstance(_layer, mod_class)
+    for layer, mod_class in zip(conv_seq, expected_classes, strict=False):
+        assert isinstance(layer, mod_class)
 
     input_t = torch.rand(1, conv_seq[0].in_channels, 224, 224)
     out = torch.nn.Sequential(*conv_seq)(input_t)

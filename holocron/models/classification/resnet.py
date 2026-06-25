@@ -317,13 +317,13 @@ class ResNet(nn.Sequential):
             block_args = {"groups": 1}
         if not isinstance(block_args, list):
             block_args = [block_args] * len(num_blocks)
-        for _num_blocks, _planes, _block_args in zip(num_blocks, planes, block_args, strict=True):
+        for num_blocks_, planes_, block_args_ in zip(num_blocks, planes, block_args, strict=True):
             layers.append(
                 self._make_layer(
                     block,
-                    _num_blocks,
+                    num_blocks_,
                     in_planes,
-                    _planes,
+                    planes_,
                     stride,
                     width_per_group,
                     act_layer=act_layer,
@@ -331,10 +331,10 @@ class ResNet(nn.Sequential):
                     drop_layer=drop_layer,
                     avg_downsample=avg_downsample,
                     num_repeats=num_repeats,
-                    block_args=_block_args,
+                    block_args=block_args_,
                 )
             )
-            in_planes = block.expansion * _planes
+            in_planes = block.expansion * planes_
             stride = 2
 
         super().__init__(
@@ -352,9 +352,9 @@ class ResNet(nn.Sequential):
         if zero_init_residual:
             for m in self.modules():
                 if isinstance(m, Bottleneck):
-                    m.convs[2][1].weight.data.zero_()  # ty: ignore[non-subscriptable,possibly-missing-attribute]
+                    m.convs[2][1].weight.data.zero_()  # ty: ignore[non-subscriptable]
                 elif isinstance(m, BasicBlock):
-                    m.convs[1][1].weight.data.zero_()  # ty: ignore[non-subscriptable,possibly-missing-attribute]
+                    m.convs[1][1].weight.data.zero_()  # ty: ignore[non-subscriptable]
 
     @staticmethod
     def _make_layer(

@@ -12,7 +12,7 @@ def mock_classification_image(tmpdir_factory):
     return requests.get(url, timeout=5).content
 
 
-@pytest_asyncio.fixture(scope="function")
+@pytest_asyncio.fixture
 async def test_app_asyncio():
     # for httpx>=20, follow_redirects=True (cf. https://github.com/encode/httpx/releases/tag/0.20.0)
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test", follow_redirects=True) as ac:

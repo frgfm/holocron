@@ -67,7 +67,7 @@ def plot_samples(images, targets, num_samples=8):
             axes[row][col].set_title(IMAGENETTE.classes[targets[idx].item()])
         else:
             class_idcs = torch.where(targets[idx] > 0)[0]
-            info = [f"{IMAGENETTE.classes[_idx.item()]} ({targets[idx, _idx]:.2f})" for _idx in class_idcs]
+            info = [f"{IMAGENETTE.classes[idx_.item()]} ({targets[idx, idx_]:.2f})" for idx_ in class_idcs]
             axes[row][col].set_title(" ".join(info))
 
     plt.show()

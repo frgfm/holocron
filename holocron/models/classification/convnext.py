@@ -150,22 +150,22 @@ class ConvNeXt(nn.Sequential):
 
         block_idx = 0
         tot_blocks = sum(num_blocks)
-        for _num_blocks, _planes, _oplanes in zip(num_blocks, planes, [*planes[1:], planes[-1]], strict=True):
+        for num_blocks_, planes_, oplanes in zip(num_blocks, planes, [*planes[1:], planes[-1]], strict=True):
             # adjust stochastic depth probability based on the depth of the stage block
-            sd_probs = [stochastic_depth_prob * (block_idx + _idx) / (tot_blocks - 1.0) for _idx in range(_num_blocks)]
+            sd_probs = [stochastic_depth_prob * (block_idx + idx) / (tot_blocks - 1.0) for idx in range(num_blocks_)]
             stage: list[nn.Module] = [
-                Bottlenext(_planes, act_layer, norm_layer, drop_layer, stochastic_depth_prob=sd_prob)
-                for _idx, sd_prob in zip(range(_num_blocks), sd_probs, strict=True)
+                Bottlenext(planes_, act_layer, norm_layer, drop_layer, stochastic_depth_prob=sd_prob)
+                for _idx, sd_prob in zip(range(num_blocks_), sd_probs, strict=True)
             ]
-            if _planes != _oplanes:
+            if planes_ != oplanes:
                 stage.append(
                     nn.Sequential(
-                        LayerNorm2d(_planes),
-                        nn.Conv2d(_planes, _oplanes, kernel_size=2, stride=2),
+                        LayerNorm2d(planes_),
+                        nn.Conv2d(planes_, oplanes, kernel_size=2, stride=2),
                     )
                 )
             layers.append(nn.Sequential(*stage))
-            block_idx += _num_blocks
+            block_idx += num_blocks_
 
         super().__init__(
             OrderedDict([

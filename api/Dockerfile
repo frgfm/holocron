@@ -14,7 +14,7 @@ ENV UV_PROJECT_ENVIRONMENT="/opt/venv"
 RUN apt-get update && apt-get install -y --no-install-recommends gcc python3-dev && rm -rf /var/lib/apt/lists/*
 # Install the project's dependencies using the lockfile and settings
 # https://docs.astral.sh/uv/guides/integration/docker/#using-uv-temporarily
-RUN --mount=from=ghcr.io/astral-sh/uv:0.9.5,source=/uv,target=/bin/uv \
+RUN --mount=from=ghcr.io/astral-sh/uv:0.11.24,source=/uv,target=/bin/uv \
     --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=uv.lock,target=uv.lock \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \

@@ -75,6 +75,7 @@ Each dictionary has 3 keys: box coordinates, classification probability, classif
 
 ```python
 import holocron.models as models
+
 yolov2 = models.yolov2(num_classes=10)
 ```
 
@@ -118,6 +119,7 @@ tensor of size (N x K x Ho x Wo).
 
 ```python
 import holocron.models as models
+
 unet = models.unet(num_classes=10)
 ```
 
