@@ -67,10 +67,10 @@ img = Image.open(path_to_an_image).convert("RGB")
 # Preprocessing
 config = model.default_cfg
 transform = Compose([
-    Resize(config['input_shape'][1:], interpolation=InterpolationMode.BILINEAR),
+    Resize(config["input_shape"][1:], interpolation=InterpolationMode.BILINEAR),
     PILToTensor(),
     ConvertImageDtype(torch.float32),
-    Normalize(config['mean'], config['std'])
+    Normalize(config["mean"], config["std"]),
 ])
 
 input_tensor = transform(img).unsqueeze(0)
@@ -78,7 +78,7 @@ input_tensor = transform(img).unsqueeze(0)
 # Inference
 with torch.inference_mode():
     output = model(input_tensor)
-print(config['classes'][output.squeeze(0).argmax().item()], output.squeeze(0).softmax(dim=0).max())
+print(config["classes"][output.squeeze(0).argmax().item()], output.squeeze(0).softmax(dim=0).max())
 ```
 
 
@@ -226,9 +226,10 @@ Your API is now running on port 8080, with its documentation http://localhost:80
 
 ```python
 import requests
-with open('/path/to/your/img.jpeg', 'rb') as f:
+
+with open("/path/to/your/img.jpeg", "rb") as f:
     data = f.read()
-response = requests.post("http://localhost:8080/classification", files={'file': data}).json()
+response = requests.post("http://localhost:8080/classification", files={"file": data}).json()
 ```
 
 

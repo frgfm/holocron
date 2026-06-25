@@ -38,9 +38,10 @@ with this snippet:
 
 ```python
 import requests
-with open('/path/to/your/img.jpg', 'rb') as f:
+
+with open("/path/to/your/img.jpg", "rb") as f:
     data = f.read()
-print(requests.post("http://api.localhost:8050/classification", files={'file': data}).json())
+print(requests.post("http://api.localhost:8050/classification", files={"file": data}).json())
 ```
 
 should yield
