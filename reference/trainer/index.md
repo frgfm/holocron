@@ -617,7 +617,7 @@ def evaluate(self) -> dict[str, float]:
             num_valid_batches += 1
 
         pred = out.topk(5, dim=1)[1] if out.shape[1] >= 5 else out.argmax(dim=1, keepdim=True)
-        correct = pred.eq(target.view(-1, 1).expand_as(pred))  # ty: ignore[possibly-missing-attribute]
+        correct = pred.eq(target.view(-1, 1).expand_as(pred))
         top1 += cast(int, correct[:, 0].sum().item())
         if out.shape[1] >= 5:
             top5 += cast(int, correct.any(dim=1).sum().item())
@@ -850,7 +850,7 @@ def evaluate(self) -> dict[str, float]:
             val_loss += loss.item()
             num_valid_batches += 1
 
-        top1 += torch.sum((target.view_as(out) >= 0.5) == (torch.sigmoid(out) >= 0.5)).item() / out[0].numel()  # ty: ignore[possibly-missing-attribute]
+        top1 += torch.sum((target.view_as(out) >= 0.5) == (torch.sigmoid(out) >= 0.5)).item() / out[0].numel()
 
         num_samples += x.shape[0]
 
@@ -932,7 +932,7 @@ def evaluate(self, ignore_index: int = 255) -> dict[str, float]:
 
         # borrowed from https://github.com/pytorch/vision/blob/master/references/segmentation/train.py
         pred = out.argmax(dim=1).flatten()
-        target = target.flatten()  # ty: ignore[possibly-missing-attribute]
+        target = target.flatten()
         k = (target >= 0) & (target < self.num_classes)
         inds = self.num_classes * target[k].to(torch.int64) + pred[k]
         nc = self.num_classes
@@ -1133,7 +1133,7 @@ def freeze_bn(mod: nn.Module) -> None:
     for m in mod.modules():
         if isinstance(m, _BatchNorm) and m.affine and all(not p.requires_grad for p in m.parameters()):
             # Switch back to commented code when https://github.com/pytorch/pytorch/issues/37823 is resolved
-            m.track_running_stats = False  # ty: ignore[unresolved-attribute]
+            m.track_running_stats = False
             m.eval()
 ````
 

@@ -67,6 +67,7 @@ Object detection models expect a 4D image tensor as an input (N x C x H x W) and
 
 ```python
 import holocron.models as models
+
 yolov2 = models.yolov2(num_classes=10)
 ```
 
@@ -642,6 +643,7 @@ Semantic segmentation models expect a 4D image tensor as an input (N x C x H x W
 
 ```python
 import holocron.models as models
+
 unet = models.unet(num_classes=10)
 ```
 
@@ -1033,7 +1035,7 @@ def unet_rexnet13(
     kwargs["final_upsampling"] = kwargs.get("final_upsampling", True)
     kwargs["act_layer"] = kwargs.get("act_layer", nn.SiLU(inplace=True))
     # hotfix of https://github.com/pytorch/vision/issues/3802
-    backbone[21] = nn.SiLU(inplace=True)  # ty: ignore[possibly-missing-implicit-call]
+    backbone[21] = nn.SiLU(inplace=True)
 
     return _dynamic_unet("unet_rexnet13", backbone, pretrained, progress, **kwargs)  # ty: ignore[invalid-argument-type]
 ```

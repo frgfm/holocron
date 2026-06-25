@@ -344,7 +344,7 @@ def __init__(self, criterion: nn.Module, num_samples: Tensor, beta: float = 0.99
     if self.criterion.weight is None:
         self.criterion.weight: Tensor | None = cb_weights
     else:
-        self.criterion.weight *= cb_weights.to(device=self.criterion.weight.device)  # ty: ignore[invalid-argument-type,possibly-missing-attribute]
+        self.criterion.weight *= cb_weights.to(device=self.criterion.weight.device)  # ty: ignore[invalid-argument-type]
 ```
 
 ## Convolution layers
