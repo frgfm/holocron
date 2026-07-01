@@ -228,13 +228,35 @@ class DiceLoss(Loss):
 
 
 class PolyLoss(Loss):
-    """Implements the Poly1 loss from ["PolyLoss: A Polynomial Expansion Perspective of Classification Loss
+    r"""Implements the Poly1 loss from ["PolyLoss: A Polynomial Expansion Perspective of Classification Loss
     Functions"](https://arxiv.org/pdf/2204.12511.pdf).
 
+    The loss expects **raw, unnormalized scores (logits)** as input (a log-softmax is applied internally),
+    of shape $(N, K)$ — or $(N, K, d_1, ..., d_n)$ for dense tasks. The ``target`` is either **hard class
+    indices** of shape $(N,)$ — or $(N, d_1, ..., d_n)$ — and dtype ``torch.int64``, or **soft class
+    probabilities** with the same shape as the input.
+
+    Example:
+        >>> import torch
+        >>> from holocron.nn import PolyLoss
+        >>> criterion = PolyLoss(ignore_index=-100)
+        >>> logits = torch.rand(4, 10, requires_grad=True)  # (N, num_classes) raw scores
+        >>> target = torch.tensor([0, -100, 3, 1])  # int64 class indices; the 2nd sample is ignored
+        >>> loss = criterion(logits, target)
+        >>> loss.backward()
+
+    Note:
+        Hard ``target`` must be of dtype ``torch.int64``; otherwise a ``TypeError`` is raised. Set a
+        sample/pixel target to ``ignore_index`` (``-100`` by default) to exclude it from the loss and
+        its gradient.
+
     Args:
-        *args: args of [`Loss`][holocron.nn.modules.loss.Loss]
-        eps: epsilon 1 from the paper
-        **kwargs: keyword args of [`Loss`][holocron.nn.modules.loss.Loss]
+        weight: manual rescaling weight given to each class (default: None)
+        ignore_index: target value that is ignored and does not contribute to the loss or gradient
+            (default: -100)
+        reduction: reduction to apply to the output, one of ``"none"`` | ``"mean"`` | ``"sum"``
+            (default: ``"mean"``)
+        eps: epsilon 1 from the paper (default: 2.0)
     """
 
     def __init__(

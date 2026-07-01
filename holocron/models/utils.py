@@ -17,7 +17,16 @@ from torch.hub import load_state_dict_from_url
 from holocron import models
 from holocron.nn import BlurPool2d
 
-from .checkpoints import Checkpoint, Dataset, Evaluation, LoadingMeta, Metric, PreProcessing, TrainingRecipe
+from .checkpoints import (
+    Checkpoint,
+    Dataset,
+    Evaluation,
+    LoadingMeta,
+    Metric,
+    PreProcessing,
+    TrainingRecipe,
+    _warn_pretrained_unavailable,
+)
 from .presets import IMAGENET, IMAGENETTE
 
 __all__ = ["conv_sequence", "fuse_conv_bn", "load_pretrained_params", "model_from_hf_hub"]
@@ -104,7 +113,7 @@ def load_pretrained_params(
         key_filter: prefix of the checkpoint keys to be loaded
     """
     if url is None:
-        logger.warning("Invalid model URL, using default initialization.")
+        _warn_pretrained_unavailable(model.__class__.__name__, stacklevel=3)
     else:
         state_dict = load_state_dict_from_url(url, progress=progress, map_location="cpu")
         if isinstance(key_filter, str):
