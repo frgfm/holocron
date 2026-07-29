@@ -94,7 +94,7 @@ updates:
     allow:
       - dependency-name: "torch"
       - dependency-name: "torchvision"
-  - package-ecosystem: "pip"
+  - package-ecosystem: "uv"
     directory: "api/"
     schedule:
       interval: "daily"
