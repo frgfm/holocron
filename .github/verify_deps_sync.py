@@ -1,4 +1,4 @@
-# Copyright (C) 2024-2025, François-Guillaume Fernandez.
+# Copyright (C) 2024-2026, François-Guillaume Fernandez.
 
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
@@ -49,6 +49,7 @@ def parse_dep_str(dep_str: str) -> dict[str, str]:
 
 def main():  # noqa: PLR0912
     # Retrieve & parse all deps files
+    # ponytail: add Pillow back when the docs stack supports >=12.2.
     deps_dict = {
         "uv": [],
         "ruff": [],
@@ -58,7 +59,6 @@ def main():  # noqa: PLR0912
         "pytest-cov": [],
         "pytest-pretty": [],
         "onnxruntime": [],
-        "Pillow": [],
         "huggingface-hub": [],
         "numpy": [],
     }
