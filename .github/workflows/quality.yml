@@ -50,6 +50,20 @@ jobs:
       - name: Run dependency sync checker
         run: make deps-check
 
+  model-zoo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          architecture: x64
+      - uses: astral-sh/setup-uv@v7
+        with:
+          version: ${{ env.UV_VERSION }}
+      - name: Check the model zoo table is up to date
+        run: make model-zoo-check
+
   headers:
     runs-on: ubuntu-latest
     steps:

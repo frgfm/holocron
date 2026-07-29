@@ -44,6 +44,10 @@ repos:
         name: check deps version sync
         entry: make deps-check
         language: system
+      - id: model-zoo-check
+        name: check model zoo table sync
+        entry: make model-zoo-check
+        language: system
       - id: typing-check
         name: check typing
         entry: make typing-check

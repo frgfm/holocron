@@ -23,7 +23,7 @@ DOCKER_TAG ?= latest
 DOCKER_PLATFORM ?= linux/amd64
 PYTHON_REQ_FILE = /tmp/requirements.txt
 
-.PHONY: help install install-quality lint-check lint-format precommit typing-check deps-check quality style init-gh-labels init-gh-settings install-mintlify start-mintlify
+.PHONY: help install install-quality lint-check lint-format precommit typing-check deps-check model-zoo model-zoo-check quality style init-gh-labels init-gh-settings install-mintlify start-mintlify
 
 help: ## Show this help message
 	@echo "Available commands:"
@@ -68,8 +68,14 @@ typing-check: ${PYPROJECT_FILE} ## Check type annotations
 deps-check: .github/verify_deps_sync.py ## Check dependency synchronization
 	uv run --script .github/verify_deps_sync.py
 
+model-zoo: .github/generate_model_zoo.py ## Regenerate the pretrained model-zoo table in README & docs
+	uv run --script .github/generate_model_zoo.py
+
+model-zoo-check: .github/generate_model_zoo.py ## Check the model-zoo table is in sync with checkpoint metadata
+	uv run --script .github/generate_model_zoo.py --check
+
 # this target runs checks on all files
-quality: lint-check typing-check deps-check ## Run all quality checks
+quality: lint-check typing-check deps-check model-zoo-check ## Run all quality checks
 
 style: precommit ## Format code and run pre-commit hooks
 

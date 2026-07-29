@@ -3,7 +3,7 @@
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
-import logging
+import warnings
 from dataclasses import dataclass
 from enum import StrEnum
 
@@ -16,10 +16,39 @@ __all__ = [
     "LoadingMeta",
     "Metric",
     "PreProcessing",
+    "PretrainedWeightsUnavailableWarning",
     "TrainingRecipe",
 ]
 
-logger = logging.getLogger(__name__)
+
+class PretrainedWeightsUnavailableWarning(UserWarning):
+    """Warns that ``pretrained=True`` was requested but no checkpoint is available for that model.
+
+    Silence it with ``warnings.filterwarnings("ignore", category=PretrainedWeightsUnavailableWarning)``.
+    """
+
+
+def _warn_pretrained_unavailable(model_name: str | None = None, *, stacklevel: int = 3) -> None:
+    """Emit a single, actionable warning when no pretrained checkpoint is available.
+
+    Centralizes the message used by both ``_handle_legacy_pretrained`` and
+    ``holocron.models.utils.load_pretrained_params`` so the wording and links stay in sync.
+
+    Args:
+        model_name: name of the model class; included in the message when provided.
+        stacklevel: forwarded to ``warnings.warn`` so the warning is attributed to the model builder
+            (e.g. ``repvgg_a0``) rather than to a Holocron internal. The default of 3 suits the two
+            call sites above; do not lower it.
+    """
+    target = f" for {model_name}" if model_name else ""
+    warnings.warn(
+        f"No pretrained weights are available{target}; the model will be randomly initialized. "
+        "Browse the models that ship pretrained weights in the model zoo "
+        "(https://frgfm.github.io/holocron/) or train your own with the reference scripts "
+        "(https://github.com/frgfm/Holocron/tree/main/references).",
+        PretrainedWeightsUnavailableWarning,
+        stacklevel=stacklevel,
+    )
 
 
 @dataclass
@@ -103,6 +132,6 @@ def _handle_legacy_pretrained(
     checkpoint = checkpoint or (default_checkpoint if pretrained else None)
 
     if pretrained and checkpoint is None:
-        logger.warning("Invalid model URL, using default initialization.")
+        _warn_pretrained_unavailable(stacklevel=3)
 
     return checkpoint
