@@ -1,10 +1,11 @@
-# Holocron
+# Holocron — development documentation
 
 > PyTorch implementations of recent Computer Vision tricks (ReXNet, RepVGG, Unet3p, YOLOv4, CIoU loss, AdaBelief, PolyLoss, MobileOne).
 
 ## Getting started
 
 - [Installation](https://frgfm.github.io/holocron/getting-started/installation/index.md)
+- [Fine-tune a classifier](https://frgfm.github.io/holocron/getting-started/classification/index.md)
 - [Holocron Notebooks](https://frgfm.github.io/holocron/getting-started/notebooks/index.md)
 
 ## Package Reference

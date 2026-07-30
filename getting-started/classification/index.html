@@ -12,13 +12,13 @@
         <meta name="author" content="François-Guillaume Fernandez">
       
       
-        <link rel="canonical" href="https://frgfm.github.io/holocron/reference/utils.data/">
+        <link rel="canonical" href="https://frgfm.github.io/holocron/getting-started/classification/">
       
       
-        <link rel="prev" href="../utils/">
+        <link rel="prev" href="../installation/">
       
       
-        <link rel="next" href="../../notes/changelog/">
+        <link rel="next" href="../notebooks/">
       
       
       <link rel="icon" href="../../img/favicon.svg">
@@ -26,7 +26,7 @@
     
     
       
-        <title>Data - Holocron — development documentation</title>
+        <title>Fine-tune a classifier - Holocron — development documentation</title>
       
     
     
@@ -75,11 +75,11 @@
       
         <meta  property="og:type"  content="website" >
       
-        <meta  property="og:title"  content="Data - Holocron — development documentation" >
+        <meta  property="og:title"  content="Fine-tune a classifier - Holocron — development documentation" >
       
         <meta  property="og:description"  content="PyTorch implementations of recent Computer Vision tricks (ReXNet, RepVGG, Unet3p, YOLOv4, CIoU loss, AdaBelief, PolyLoss, MobileOne)." >
       
-        <meta  property="og:image"  content="https://frgfm.github.io/holocron/assets/images/social/reference/utils.data.png" >
+        <meta  property="og:image"  content="https://frgfm.github.io/holocron/assets/images/social/getting-started/classification.png" >
       
         <meta  property="og:image:type"  content="image/png" >
       
@@ -87,15 +87,15 @@
       
         <meta  property="og:image:height"  content="630" >
       
-        <meta  property="og:url"  content="https://frgfm.github.io/holocron/reference/utils.data/" >
+        <meta  property="og:url"  content="https://frgfm.github.io/holocron/getting-started/classification/" >
       
         <meta  name="twitter:card"  content="summary_large_image" >
       
-        <meta  name="twitter:title"  content="Data - Holocron — development documentation" >
+        <meta  name="twitter:title"  content="Fine-tune a classifier - Holocron — development documentation" >
       
         <meta  name="twitter:description"  content="PyTorch implementations of recent Computer Vision tricks (ReXNet, RepVGG, Unet3p, YOLOv4, CIoU loss, AdaBelief, PolyLoss, MobileOne)." >
       
-        <meta  name="twitter:image"  content="https://frgfm.github.io/holocron/assets/images/social/reference/utils.data.png" >
+        <meta  name="twitter:image"  content="https://frgfm.github.io/holocron/assets/images/social/getting-started/classification.png" >
       
     
     
@@ -118,7 +118,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#holocronutilsdata" class="md-skip">
+        <a href="#fine-tune-a-classifier" class="md-skip">
           Skip to content
         </a>
       
@@ -153,7 +153,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Data
+              Fine-tune a classifier
             
           </span>
         </div>
@@ -292,11 +292,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../getting-started/installation/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../installation/" class="md-tabs__link">
           
   
   
@@ -314,8 +316,6 @@
   
   
   
-    
-  
   
     
     
@@ -323,13 +323,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../models/models/" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../../reference/models/models/" class="md-tabs__link">
           
   
   
@@ -444,8 +442,10 @@
       
   
   
+    
   
   
+  
     
     
       
@@ -459,17 +459,20 @@
     
     
       
+        
+        
+      
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
         
           
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
             
   
   
@@ -482,7 +485,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             Getting started
@@ -496,7 +499,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../getting-started/installation/" class="md-nav__link">
+      <a href="../installation/" class="md-nav__link">
         
   
   
@@ -516,10 +519,32 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../getting-started/classification/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Fine-tune a classifier
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -530,6 +555,80 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#prepare-the-dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      Prepare the dataset
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#load-the-weights-then-replace-the-head" class="md-nav__link">
+    <span class="md-ellipsis">
+      Load the weights, then replace the head
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#train-the-custom-head" class="md-nav__link">
+    <span class="md-ellipsis">
+      Train the custom head
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#save-and-resume" class="md-nav__link">
+    <span class="md-ellipsis">
+      Save and resume
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#run-inference-with-custom-labels" class="md-nav__link">
+    <span class="md-ellipsis">
+      Run inference with custom labels
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#target-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      Target constraints
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -542,7 +641,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../getting-started/notebooks/" class="md-nav__link">
+      <a href="../notebooks/" class="md-nav__link">
         
   
   
@@ -569,10 +668,8 @@
       
   
   
-    
   
   
-  
     
     
       
@@ -594,20 +691,17 @@
     
     
       
-        
-        
-      
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
         
           
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
             
   
   
@@ -620,7 +714,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             Package Reference
@@ -681,7 +775,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../models/models/" class="md-nav__link">
+      <a href="../../reference/models/models/" class="md-nav__link">
         
   
   
@@ -775,7 +869,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../models/classification/resnet/" class="md-nav__link">
+      <a href="../../reference/models/classification/resnet/" class="md-nav__link">
         
   
   
@@ -798,7 +892,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../models/classification/resnext/" class="md-nav__link">
+      <a href="../../reference/models/classification/resnext/" class="md-nav__link">
         
   
   
@@ -821,7 +915,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../models/classification/res2net/" class="md-nav__link">
+      <a href="../../reference/models/classification/res2net/" class="md-nav__link">
         
   
   
@@ -844,7 +938,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../models/classification/tridentnet/" class="md-nav__link">
+      <a href="../../reference/models/classification/tridentnet/" class="md-nav__link">
         
   
   
@@ -867,7 +961,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../models/classification/convnext/" class="md-nav__link">
+      <a href="../../reference/models/classification/convnext/" class="md-nav__link">
         
   
   
@@ -890,7 +984,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../models/classification/pyconv_resnet/" class="md-nav__link">
+      <a href="../../reference/models/classification/pyconv_resnet/" class="md-nav__link">
         
   
   
@@ -913,7 +1007,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../models/classification/rexnet/" class="md-nav__link">
+      <a href="../../reference/models/classification/rexnet/" class="md-nav__link">
         
   
   
@@ -936,7 +1030,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../models/classification/sknet/" class="md-nav__link">
+      <a href="../../reference/models/classification/sknet/" class="md-nav__link">
         
   
   
@@ -959,7 +1053,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../models/classification/darknet/" class="md-nav__link">
+      <a href="../../reference/models/classification/darknet/" class="md-nav__link">
         
   
   
@@ -982,7 +1076,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../models/classification/darknetv2/" class="md-nav__link">
+      <a href="../../reference/models/classification/darknetv2/" class="md-nav__link">
         
   
   
@@ -1005,7 +1099,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../models/classification/darknetv3/" class="md-nav__link">
+      <a href="../../reference/models/classification/darknetv3/" class="md-nav__link">
         
   
   
@@ -1028,7 +1122,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../models/classification/darknetv4/" class="md-nav__link">
+      <a href="../../reference/models/classification/darknetv4/" class="md-nav__link">
         
   
   
@@ -1051,7 +1145,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../models/classification/repvgg/" class="md-nav__link">
+      <a href="../../reference/models/classification/repvgg/" class="md-nav__link">
         
   
   
@@ -1074,7 +1168,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../models/classification/mobileone/" class="md-nav__link">
+      <a href="../../reference/models/classification/mobileone/" class="md-nav__link">
         
   
   
@@ -1113,7 +1207,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../nn/" class="md-nav__link">
+      <a href="../../reference/nn/" class="md-nav__link">
         
   
   
@@ -1136,7 +1230,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ops/" class="md-nav__link">
+      <a href="../../reference/ops/" class="md-nav__link">
         
   
   
@@ -1159,7 +1253,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../optim/" class="md-nav__link">
+      <a href="../../reference/optim/" class="md-nav__link">
         
   
   
@@ -1182,7 +1276,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../trainer/" class="md-nav__link">
+      <a href="../../reference/trainer/" class="md-nav__link">
         
   
   
@@ -1205,7 +1299,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../transforms/" class="md-nav__link">
+      <a href="../../reference/transforms/" class="md-nav__link">
         
   
   
@@ -1225,10 +1319,8 @@
                 
   
   
-    
   
   
-  
     
     
       
@@ -1243,11 +1335,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_7" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_7" >
         
           
           <label class="md-nav__link" for="__nav_3_7" id="__nav_3_7_label" tabindex="0">
@@ -1263,7 +1355,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_7_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_7_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3_7">
             <span class="md-nav__icon md-icon"></span>
             Utils
@@ -1277,7 +1369,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../utils/" class="md-nav__link">
+      <a href="../../reference/utils/" class="md-nav__link">
         
   
   
@@ -1297,32 +1389,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Data
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../reference/utils.data/" class="md-nav__link">
         
   
   
@@ -1333,50 +1403,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#batch-collate" class="md-nav__link">
-    <span class="md-ellipsis">
-      Batch collate
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Batch collate">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#holocron.utils.data.Mixup" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;Mixup
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1499,26 +1525,56 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#batch-collate" class="md-nav__link">
+  <a href="#prepare-the-dataset" class="md-nav__link">
     <span class="md-ellipsis">
-      Batch collate
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Batch collate">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#holocron.utils.data.Mixup" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;Mixup
+      Prepare the dataset
     </span>
   </a>
   
 </li>
-        
-      </ul>
-    </nav>
+      
+        <li class="md-nav__item">
+  <a href="#load-the-weights-then-replace-the-head" class="md-nav__link">
+    <span class="md-ellipsis">
+      Load the weights, then replace the head
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#train-the-custom-head" class="md-nav__link">
+    <span class="md-ellipsis">
+      Train the custom head
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#save-and-resume" class="md-nav__link">
+    <span class="md-ellipsis">
+      Save and resume
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#run-inference-with-custom-labels" class="md-nav__link">
+    <span class="md-ellipsis">
+      Run inference with custom labels
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#target-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      Target constraints
+    </span>
+  </a>
   
 </li>
       
@@ -1541,167 +1597,145 @@
   
 
 
-<h1 id="holocronutilsdata">holocron.utils.data<a class="headerlink" href="#holocronutilsdata" title="Permanent link">&para;</a></h1>
-<h2 id="batch-collate">Batch collate<a class="headerlink" href="#batch-collate" title="Permanent link">&para;</a></h2>
-
-
-<div class="doc doc-object doc-module">
-
-
-
-
-    <div class="doc doc-contents first">
-
-
-
-
-
-
-
-
-
-
-<div class="doc doc-children">
-
-
-
-
-
-
-
-
-
-<div class="doc doc-object doc-class">
-
-
-
-<h3 id="holocron.utils.data.Mixup" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">Mixup</span>
-
-
-<a href="#holocron.utils.data.Mixup" class="headerlink" title="Permanent link">&para;</a></h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">Mixup</span><span class="p">(</span><span class="n">num_classes</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">,</span> <span class="n">alpha</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">)</span>
+<h1 id="fine-tune-a-classifier">Fine-tune a classifier<a class="headerlink" href="#fine-tune-a-classifier" title="Permanent link">&para;</a></h1>
+<p>This guide adapts the default pretrained ResNet-18 to a folder of custom
+classes. <code>ResNet18_Checkpoint.DEFAULT.value</code> was trained on
+<a href="https://github.com/fastai/imagenette">Imagenette</a>, a ten-class subset of
+ImageNet. Many bundled classification checkpoints target Imagenette; selected
+ReXNet checkpoints target ImageNet-1K instead. Always inspect the selected
+checkpoint metadata.</p>
+<h2 id="prepare-the-dataset">Prepare the dataset<a class="headerlink" href="#prepare-the-dataset" title="Permanent link">&para;</a></h2>
+<p><a class="autorefs autorefs-external" href="https://docs.pytorch.org/vision/stable/generated/torchvision.datasets.ImageFolder.html#torchvision.datasets.ImageFolder"><code>ImageFolder</code></a> expects one directory per
+class, with matching class directories under <code>train</code> and <code>val</code>:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>dataset/
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>├── train/
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>│   ├── class_a/
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>│   │   ├── image_001.jpg
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>│   │   └── image_002.jpg
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>│   └── class_b/
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>│       └── image_003.jpg
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>└── val/
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    ├── class_a/
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    │   └── image_004.jpg
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    └── class_b/
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>        └── image_005.jpg
 </span></code></pre></div>
-
-    <div class="doc doc-contents ">
-            <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-external" title="&lt;code&gt;torch.nn.Module&lt;/code&gt;" href="https://docs.pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module">Module</a></code></p>
-
-
-
-        <p>Implements a batch collate function with MixUp strategy from
-<a href="https://arxiv.org/pdf/1710.09412.pdf">"mixup: Beyond Empirical Risk Minimization"</a>.</p>
-
-
-<details class="example" open>
-  <summary>Example</summary>
-  <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">torch.utils.data._utils.collate</span><span class="w"> </span><span class="kn">import</span> <span class="n">default_collate</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">holocron.utils.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mixup</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">mix</span> <span class="o">=</span> <span class="n">Mixup</span><span class="p">(</span><span class="n">num_classes</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.4</span><span class="p">)</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="n">loader</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">collate_fn</span><span class="o">=</span><span class="k">lambda</span> <span class="n">b</span><span class="p">:</span> <span class="n">mix</span><span class="p">(</span><span class="o">*</span><span class="n">default_collate</span><span class="p">(</span><span class="n">b</span><span class="p">)))</span>
+<p>Load the checkpoint metadata first. It defines the input size, interpolation,
+normalization and original labels used by the published weights:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">torch</span><span class="w"> </span><span class="kn">import</span> <span class="n">nn</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">torch.utils.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataLoader</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">torchvision.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">ImageFolder</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="kn">from</span><span class="w"> </span><span class="nn">torchvision.transforms.v2</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    <span class="n">Compose</span><span class="p">,</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    <span class="n">ConvertImageDtype</span><span class="p">,</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    <span class="n">Normalize</span><span class="p">,</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    <span class="n">PILToTensor</span><span class="p">,</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    <span class="n">RandomHorizontalFlip</span><span class="p">,</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>    <span class="n">RandomResizedCrop</span><span class="p">,</span>
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>    <span class="n">Resize</span><span class="p">,</span>
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="p">)</span>
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>
+</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="kn">from</span><span class="w"> </span><span class="nn">holocron.models.classification</span><span class="w"> </span><span class="kn">import</span> <span class="n">ResNet18_Checkpoint</span><span class="p">,</span> <span class="n">resnet18</span>
+</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="kn">from</span><span class="w"> </span><span class="nn">holocron.trainer</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClassificationTrainer</span>
+</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>
+</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="n">checkpoint</span> <span class="o">=</span> <span class="n">ResNet18_Checkpoint</span><span class="o">.</span><span class="n">DEFAULT</span><span class="o">.</span><span class="n">value</span>
+</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="n">preprocessing</span> <span class="o">=</span> <span class="n">checkpoint</span><span class="o">.</span><span class="n">pre_processing</span>
+</span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="n">original_labels</span> <span class="o">=</span> <span class="n">checkpoint</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">categories</span>
+</span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>
+</span><span id="__span-1-22"><a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="n">train_transform</span> <span class="o">=</span> <span class="n">Compose</span><span class="p">([</span>
+</span><span id="__span-1-23"><a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>    <span class="n">RandomResizedCrop</span><span class="p">(</span>
+</span><span id="__span-1-24"><a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>        <span class="n">preprocessing</span><span class="o">.</span><span class="n">input_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span>
+</span><span id="__span-1-25"><a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>        <span class="n">interpolation</span><span class="o">=</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">interpolation</span><span class="p">,</span>
+</span><span id="__span-1-26"><a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a>    <span class="p">),</span>
+</span><span id="__span-1-27"><a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>    <span class="n">RandomHorizontalFlip</span><span class="p">(),</span>
+</span><span id="__span-1-28"><a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a>    <span class="n">PILToTensor</span><span class="p">(),</span>
+</span><span id="__span-1-29"><a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a>    <span class="n">ConvertImageDtype</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
+</span><span id="__span-1-30"><a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a>    <span class="n">Normalize</span><span class="p">(</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">mean</span><span class="p">,</span> <span class="n">preprocessing</span><span class="o">.</span><span class="n">std</span><span class="p">),</span>
+</span><span id="__span-1-31"><a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a><span class="p">])</span>
+</span><span id="__span-1-32"><a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a><span class="n">val_transform</span> <span class="o">=</span> <span class="n">Compose</span><span class="p">([</span>
+</span><span id="__span-1-33"><a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a>    <span class="n">Resize</span><span class="p">(</span>
+</span><span id="__span-1-34"><a id="__codelineno-1-34" name="__codelineno-1-34" href="#__codelineno-1-34"></a>        <span class="n">preprocessing</span><span class="o">.</span><span class="n">input_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span>
+</span><span id="__span-1-35"><a id="__codelineno-1-35" name="__codelineno-1-35" href="#__codelineno-1-35"></a>        <span class="n">interpolation</span><span class="o">=</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">interpolation</span><span class="p">,</span>
+</span><span id="__span-1-36"><a id="__codelineno-1-36" name="__codelineno-1-36" href="#__codelineno-1-36"></a>    <span class="p">),</span>
+</span><span id="__span-1-37"><a id="__codelineno-1-37" name="__codelineno-1-37" href="#__codelineno-1-37"></a>    <span class="n">PILToTensor</span><span class="p">(),</span>
+</span><span id="__span-1-38"><a id="__codelineno-1-38" name="__codelineno-1-38" href="#__codelineno-1-38"></a>    <span class="n">ConvertImageDtype</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
+</span><span id="__span-1-39"><a id="__codelineno-1-39" name="__codelineno-1-39" href="#__codelineno-1-39"></a>    <span class="n">Normalize</span><span class="p">(</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">mean</span><span class="p">,</span> <span class="n">preprocessing</span><span class="o">.</span><span class="n">std</span><span class="p">),</span>
+</span><span id="__span-1-40"><a id="__codelineno-1-40" name="__codelineno-1-40" href="#__codelineno-1-40"></a><span class="p">])</span>
+</span><span id="__span-1-41"><a id="__codelineno-1-41" name="__codelineno-1-41" href="#__codelineno-1-41"></a>
+</span><span id="__span-1-42"><a id="__codelineno-1-42" name="__codelineno-1-42" href="#__codelineno-1-42"></a><span class="n">train_set</span> <span class="o">=</span> <span class="n">ImageFolder</span><span class="p">(</span><span class="s2">&quot;dataset/train&quot;</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">train_transform</span><span class="p">)</span>
+</span><span id="__span-1-43"><a id="__codelineno-1-43" name="__codelineno-1-43" href="#__codelineno-1-43"></a><span class="n">val_set</span> <span class="o">=</span> <span class="n">ImageFolder</span><span class="p">(</span><span class="s2">&quot;dataset/val&quot;</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">val_transform</span><span class="p">)</span>
+</span><span id="__span-1-44"><a id="__codelineno-1-44" name="__codelineno-1-44" href="#__codelineno-1-44"></a><span class="k">if</span> <span class="n">train_set</span><span class="o">.</span><span class="n">classes</span> <span class="o">!=</span> <span class="n">val_set</span><span class="o">.</span><span class="n">classes</span><span class="p">:</span>
+</span><span id="__span-1-45"><a id="__codelineno-1-45" name="__codelineno-1-45" href="#__codelineno-1-45"></a>    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;train and val must contain the same class directories&quot;</span><span class="p">)</span>
+</span><span id="__span-1-46"><a id="__codelineno-1-46" name="__codelineno-1-46" href="#__codelineno-1-46"></a>
+</span><span id="__span-1-47"><a id="__codelineno-1-47" name="__codelineno-1-47" href="#__codelineno-1-47"></a><span class="n">train_loader</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">train_set</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+</span><span id="__span-1-48"><a id="__codelineno-1-48" name="__codelineno-1-48" href="#__codelineno-1-48"></a><span class="n">val_loader</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">val_set</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
 </span></code></pre></div>
-</details>
-
-<table>
-      <thead>
-        <tr>
-          <th><span class="doc-section-title">PARAMETER</span></th>
-          <th><span>DESCRIPTION</span></th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>num_classes</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                <p>number of expected classes</p>
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>alpha</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                <p>mixup factor</p>
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></code>
-                  </span>
-                  <span class="doc-param-default">
-                    <b>DEFAULT:</b>
-                      <code>0.2</code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-
-
-
-
-
-
-
-                  <details class="mkdocstrings-source">
-                    <summary>Source code in <code>holocron/utils/data/collate.py</code></summary>
-                    <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-33">33</a></span>
-<span class="normal"><a href="#__codelineno-0-34">34</a></span>
-<span class="normal"><a href="#__codelineno-0-35">35</a></span>
-<span class="normal"><a href="#__codelineno-0-36">36</a></span>
-<span class="normal"><a href="#__codelineno-0-37">37</a></span>
-<span class="normal"><a href="#__codelineno-0-38">38</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-33"><a id="__codelineno-0-33" name="__codelineno-0-33"></a><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-0-34"><a id="__codelineno-0-34" name="__codelineno-0-34"></a>    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-</span><span id="__span-0-35"><a id="__codelineno-0-35" name="__codelineno-0-35"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">num_classes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">num_classes</span>
-</span><span id="__span-0-36"><a id="__codelineno-0-36" name="__codelineno-0-36"></a>    <span class="k">if</span> <span class="n">alpha</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-</span><span id="__span-0-37"><a id="__codelineno-0-37" name="__codelineno-0-37"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`alpha` only takes positive values&quot;</span><span class="p">)</span>
-</span><span id="__span-0-38"><a id="__codelineno-0-38" name="__codelineno-0-38"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">alpha</span>
-</span></code></pre></div></td></tr></table></div>
-                  </details>
-
-
-
-<div class="doc doc-children">
-
-
-
-
-
-
-
-
-
-
-
-
-  </div>
-
-    </div>
-
-</div>
-
-
-
-
-  </div>
-
-    </div>
-
-</div>
+<p><code>original_labels</code> describes the checkpoint's Imagenette outputs before the
+head is replaced. <code>train_set.classes</code> describes your custom outputs.</p>
+<h2 id="load-the-weights-then-replace-the-head">Load the weights, then replace the head<a class="headerlink" href="#load-the-weights-then-replace-the-head" title="Permanent link">&para;</a></h2>
+<p>The checkpoint must load while the model still has its original ten-output
+head. Replace <code>model.head</code> only afterwards:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">model</span> <span class="o">=</span> <span class="n">resnet18</span><span class="p">(</span><span class="n">checkpoint</span><span class="o">=</span><span class="n">checkpoint</span><span class="p">)</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">model</span><span class="o">.</span><span class="n">head</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">head</span><span class="o">.</span><span class="n">in_features</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">train_set</span><span class="o">.</span><span class="n">classes</span><span class="p">))</span>
+</span></code></pre></div>
+<p>Replacing the head before loading the checkpoint would create a state-dict
+shape mismatch.</p>
+<h2 id="train-the-custom-head">Train the custom head<a class="headerlink" href="#train-the-custom-head" title="Permanent link">&para;</a></h2>
+<p>Start by freezing <code>features</code>, which leaves the new head trainable:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">criterion</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">CrossEntropyLoss</span><span class="p">()</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">optimizer</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">AdamW</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">3e-4</span><span class="p">)</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="n">trainer</span> <span class="o">=</span> <span class="n">ClassificationTrainer</span><span class="p">(</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="n">model</span><span class="p">,</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="n">train_loader</span><span class="p">,</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    <span class="n">val_loader</span><span class="p">,</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>    <span class="n">criterion</span><span class="p">,</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>    <span class="n">optimizer</span><span class="p">,</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>    <span class="n">gpu</span><span class="o">=</span><span class="mi">0</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>    <span class="n">output_file</span><span class="o">=</span><span class="s2">&quot;resnet18-custom.pth&quot;</span><span class="p">,</span>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="p">)</span>
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="n">trainer</span><span class="o">.</span><span class="n">fit_n_epochs</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">lr</span><span class="o">=</span><span class="mf">3e-4</span><span class="p">,</span> <span class="n">freeze_until</span><span class="o">=</span><span class="s2">&quot;features&quot;</span><span class="p">)</span>
+</span></code></pre></div>
+<p>Optionally unfreeze the full model and continue at a lower learning rate:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">trainer</span><span class="o">.</span><span class="n">fit_n_epochs</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">lr</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">)</span>
+</span></code></pre></div>
+<p>Calling <code>fit_n_epochs</code> without <code>freeze_until</code> makes every model parameter
+trainable again.</p>
+<h2 id="save-and-resume">Save and resume<a class="headerlink" href="#save-and-resume" title="Permanent link">&para;</a></h2>
+<p>The trainer automatically saves its best validation state to <code>output_file</code>.
+You can also save and load explicitly:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">trainer</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;resnet18-custom.pth&quot;</span><span class="p">)</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="n">state</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;resnet18-custom.pth&quot;</span><span class="p">,</span> <span class="n">map_location</span><span class="o">=</span><span class="s2">&quot;cpu&quot;</span><span class="p">,</span> <span class="n">weights_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="n">trainer</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+</span></code></pre></div>
+<p>Current trainer checkpoints contain the model, epoch, step and best loss. They
+do <strong>not</strong> contain optimizer or scheduler state, so loading resumes model and
+counter state rather than the exact optimization trajectory. Persist
+<code>train_set.classes</code> with your deployment artifacts because trainer checkpoints
+do not store class names.</p>
+<h2 id="run-inference-with-custom-labels">Run inference with custom labels<a class="headerlink" href="#run-inference-with-custom-labels" title="Permanent link">&para;</a></h2>
+<p>After fine-tuning, use <code>ImageFolder.classes</code>, not
+<code>checkpoint.meta.categories</code>, to decode the new head:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">PIL</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="n">image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;image.jpg&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s2">&quot;RGB&quot;</span><span class="p">)</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="n">device</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">())</span><span class="o">.</span><span class="n">device</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">inference_mode</span><span class="p">():</span>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>    <span class="n">probabilities</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">val_transform</span><span class="p">(</span><span class="n">image</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">))</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>
+</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="n">class_idx</span> <span class="o">=</span> <span class="n">probabilities</span><span class="o">.</span><span class="n">argmax</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="n">label</span> <span class="o">=</span> <span class="n">train_set</span><span class="o">.</span><span class="n">classes</span><span class="p">[</span><span class="n">class_idx</span><span class="p">]</span>
+</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="n">confidence</span> <span class="o">=</span> <span class="n">probabilities</span><span class="p">[</span><span class="n">class_idx</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+</span><span id="__span-6-13"><a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="nb">print</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">confidence</span><span class="p">)</span>
+</span></code></pre></div>
+<h2 id="target-constraints">Target constraints<a class="headerlink" href="#target-constraints" title="Permanent link">&para;</a></h2>
+<p>For the <code>CrossEntropyLoss</code> setup above, hard targets are <code>torch.int64</code> class
+indices in <code>[0, number_of_classes)</code>. A configured <code>ignore_index</code> may appear
+outside that range and excludes those hard targets from the loss. Soft targets
+are also supported as floating-point class probabilities with the same shape
+as the logits; <code>ignore_index</code> applies only to hard class-index targets.</p>
 
 
 
@@ -1744,7 +1778,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../utils/" class="md-footer__link md-footer__link--prev" aria-label="Previous: holocron.utils">
+          <a href="../installation/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Installation">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -1754,20 +1788,20 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                holocron.utils
+                Installation
               </div>
             </div>
           </a>
         
         
           
-          <a href="../../notes/changelog/" class="md-footer__link md-footer__link--next" aria-label="Next: Changelog">
+          <a href="../notebooks/" class="md-footer__link md-footer__link--next" aria-label="Next: Holocron Notebooks">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Changelog
+                Holocron Notebooks
               </div>
             </div>
             <div class="md-footer__button md-icon">

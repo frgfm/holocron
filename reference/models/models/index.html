@@ -26,7 +26,7 @@
     
     
       
-        <title>holocron.models - Holocron</title>
+        <title>holocron.models - Holocron — development documentation</title>
       
     
     
@@ -75,7 +75,7 @@
       
         <meta  property="og:type"  content="website" >
       
-        <meta  property="og:title"  content="holocron.models - Holocron" >
+        <meta  property="og:title"  content="holocron.models - Holocron — development documentation" >
       
         <meta  property="og:description"  content="PyTorch implementations of recent Computer Vision tricks (ReXNet, RepVGG, Unet3p, YOLOv4, CIoU loss, AdaBelief, PolyLoss, MobileOne)." >
       
@@ -91,7 +91,7 @@
       
         <meta  name="twitter:card"  content="summary_large_image" >
       
-        <meta  name="twitter:title"  content="holocron.models - Holocron" >
+        <meta  name="twitter:title"  content="holocron.models - Holocron — development documentation" >
       
         <meta  name="twitter:description"  content="PyTorch implementations of recent Computer Vision tricks (ReXNet, RepVGG, Unet3p, YOLOv4, CIoU loss, AdaBelief, PolyLoss, MobileOne)." >
       
@@ -134,7 +134,7 @@
 
 <header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../.." title="Holocron" class="md-header__button md-logo" aria-label="Holocron" data-md-component="logo">
+    <a href="../../.." title="Holocron — development documentation" class="md-header__button md-logo" aria-label="Holocron — development documentation" data-md-component="logo">
       
   <img src="../../../img/logo.svg" alt="logo">
 
@@ -147,7 +147,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Holocron
+            Holocron — development documentation
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -396,12 +396,12 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../.." title="Holocron" class="md-nav__button md-logo" aria-label="Holocron" data-md-component="logo">
+    <a href="../../.." title="Holocron — development documentation" class="md-nav__button md-logo" aria-label="Holocron — development documentation" data-md-component="logo">
       
   <img src="../../../img/logo.svg" alt="logo">
 
     </a>
-    Holocron
+    Holocron — development documentation
   </label>
   
     <div class="md-nav__source">
@@ -448,6 +448,8 @@
   
     
     
+      
+        
       
         
       
@@ -500,6 +502,29 @@
   
   <span class="md-ellipsis">
     Installation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/classification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Fine-tune a classifier
     
   </span>
   
@@ -706,6 +731,15 @@
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#support-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      Support status
+    </span>
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#classification" class="md-nav__link">
@@ -1714,6 +1748,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#support-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      Support status
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#classification" class="md-nav__link">
     <span class="md-ellipsis">
       Classification
@@ -1999,8 +2042,50 @@
 <h1 id="holocronmodels">holocron.models<a class="headerlink" href="#holocronmodels" title="Permanent link">&para;</a></h1>
 <p>The models subpackage contains definitions of models for addressing
 different tasks, including: image classification, pixelwise semantic
-segmentation, object detection, instance segmentation, person
-keypoint detection and video classification.</p>
+segmentation and object detection.</p>
+<h2 id="support-status">Support status<a class="headerlink" href="#support-status" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>Architectures</th>
+<th>Published checkpoints</th>
+<th>Training</th>
+<th>ONNX</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Classification</td>
+<td>14 families</td>
+<td>Imagenette checkpoints with top-1/top-5 metrics; selected ReXNet ImageNet-1K checkpoints</td>
+<td><a href="https://github.com/frgfm/holocron/blob/main/references/classification/train.py">Reference script</a></td>
+<td><a href="https://github.com/frgfm/holocron/blob/main/scripts/export_to_onnx.py">Classification export</a></td>
+<td><strong>Validated</strong></td>
+</tr>
+<tr>
+<td>Semantic segmentation</td>
+<td>U-Net, U-Net++, UNet3+</td>
+<td>Only the legacy <code>unet_rexnet13</code> weights; dataset and metric are not documented</td>
+<td><a href="https://github.com/frgfm/holocron/blob/main/references/segmentation/train.py">Reference script</a></td>
+<td>Not documented</td>
+<td><strong>Unbenchmarked</strong></td>
+</tr>
+<tr>
+<td>Object detection</td>
+<td>YOLOv1, YOLOv2, YOLOv4</td>
+<td>None</td>
+<td><a href="https://github.com/frgfm/holocron/blob/main/references/detection/train.py">Reference script</a></td>
+<td>Not documented</td>
+<td><strong>Experimental</strong> (<a href="https://github.com/frgfm/holocron/issues/110">#110</a>, <a href="https://github.com/frgfm/holocron/issues/253">#253</a>, <a href="https://github.com/frgfm/holocron/discussions/230">discussion #230</a>)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Validated</strong> means published task checkpoints and metrics are available.
+<strong>Unbenchmarked</strong> means an implementation or legacy weight exists without a
+documented evaluation dataset and metric. <strong>Experimental</strong> means the API is
+available, but published task weights and a confirmed benchmark are not.</p>
 <h2 id="classification">Classification<a class="headerlink" href="#classification" title="Permanent link">&para;</a></h2>
 <p>Classification models expect a 4D image tensor as an input (N x C x H x W) and returns a 2D output (N x K).
 The output represents the classification scores for each output classes.</p>
@@ -2440,6 +2525,14 @@ The output represents the classification scores for each output classes.</p>
 </tbody>
 </table>
 <h2 id="object-detection">Object Detection<a class="headerlink" href="#object-detection" title="Permanent link">&para;</a></h2>
+<div class="admonition warning">
+<p class="admonition-title">Experimental</p>
+<p>YOLOv1, YOLOv2 and YOLOv4 have a reference training script but no
+published detection weights. Known training and benchmark gaps are tracked
+in <a href="https://github.com/frgfm/holocron/issues/110">#110</a>,
+<a href="https://github.com/frgfm/holocron/issues/253">#253</a> and
+<a href="https://github.com/frgfm/holocron/discussions/230">discussion #230</a>.</p>
+</div>
 <p>Object detection models expect a 4D image tensor as an input (N x C x H x W) and returns a list of dictionaries.
 Each dictionary has 3 keys: box coordinates, classification probability, classification label.</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">holocron.models</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">models</span>
@@ -3905,6 +3998,12 @@ and <span class="arithmatex">\(loc^{GT}_k\)</span> is the k-th ground truth boun
     </div>
 
 </div><h2 id="semantic-segmentation">Semantic Segmentation<a class="headerlink" href="#semantic-segmentation" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Unbenchmarked</p>
+<p><code>unet_rexnet13</code> is the only segmentation model with a legacy checkpoint.
+Its training dataset and evaluation metric are not documented. Other
+segmentation architectures have no published weights.</p>
+</div>
 <p>Semantic segmentation models expect a 4D image tensor as an input (N x C x H x W) and returns a classification score
 tensor of size (N x K x Ho x Wo).</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">holocron.models</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">models</span>

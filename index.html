@@ -24,7 +24,7 @@
     
     
       
-        <title>Holocron</title>
+        <title>Holocron — development documentation</title>
       
     
     
@@ -73,7 +73,7 @@
       
         <meta  property="og:type"  content="website" >
       
-        <meta  property="og:title"  content="Holocron" >
+        <meta  property="og:title"  content="Holocron — development documentation" >
       
         <meta  property="og:description"  content="PyTorch implementations of recent Computer Vision tricks (ReXNet, RepVGG, Unet3p, YOLOv4, CIoU loss, AdaBelief, PolyLoss, MobileOne)." >
       
@@ -89,7 +89,7 @@
       
         <meta  name="twitter:card"  content="summary_large_image" >
       
-        <meta  name="twitter:title"  content="Holocron" >
+        <meta  name="twitter:title"  content="Holocron — development documentation" >
       
         <meta  name="twitter:description"  content="PyTorch implementations of recent Computer Vision tricks (ReXNet, RepVGG, Unet3p, YOLOv4, CIoU loss, AdaBelief, PolyLoss, MobileOne)." >
       
@@ -132,7 +132,7 @@
 
 <header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="." title="Holocron" class="md-header__button md-logo" aria-label="Holocron" data-md-component="logo">
+    <a href="." title="Holocron — development documentation" class="md-header__button md-logo" aria-label="Holocron — development documentation" data-md-component="logo">
       
   <img src="img/logo.svg" alt="logo">
 
@@ -145,7 +145,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Holocron
+            Holocron — development documentation
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -392,12 +392,12 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="." title="Holocron" class="md-nav__button md-logo" aria-label="Holocron" data-md-component="logo">
+    <a href="." title="Holocron — development documentation" class="md-nav__button md-logo" aria-label="Holocron — development documentation" data-md-component="logo">
       
   <img src="img/logo.svg" alt="logo">
 
     </a>
-    Holocron
+    Holocron — development documentation
   </label>
   
     <div class="md-nav__source">
@@ -499,27 +499,27 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#image-classification" class="md-nav__link">
+  <a href="#image-classification-validated-checkpoints" class="md-nav__link">
     <span class="md-ellipsis">
-      Image classification
+      Image classification — validated checkpoints
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#semantic-segmentation" class="md-nav__link">
+  <a href="#semantic-segmentation-unbenchmarked" class="md-nav__link">
     <span class="md-ellipsis">
-      Semantic segmentation
+      Semantic segmentation — unbenchmarked
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#object-detection" class="md-nav__link">
+  <a href="#object-detection-experimental" class="md-nav__link">
     <span class="md-ellipsis">
-      Object detection
+      Object detection — experimental
     </span>
   </a>
   
@@ -546,6 +546,8 @@
   
     
     
+      
+        
       
         
       
@@ -598,6 +600,29 @@
   
   <span class="md-ellipsis">
     Installation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="getting-started/classification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Fine-tune a classifier
     
   </span>
   
@@ -1527,27 +1552,27 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#image-classification" class="md-nav__link">
+  <a href="#image-classification-validated-checkpoints" class="md-nav__link">
     <span class="md-ellipsis">
-      Image classification
+      Image classification — validated checkpoints
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#semantic-segmentation" class="md-nav__link">
+  <a href="#semantic-segmentation-unbenchmarked" class="md-nav__link">
     <span class="md-ellipsis">
-      Semantic segmentation
+      Semantic segmentation — unbenchmarked
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#object-detection" class="md-nav__link">
+  <a href="#object-detection-experimental" class="md-nav__link">
     <span class="md-ellipsis">
-      Object detection
+      Object detection — experimental
     </span>
   </a>
   
@@ -1583,6 +1608,12 @@
 </p>
 
 <p>Holocron is meant to bridge the gap between <a href="https://pytorch.org/">PyTorch</a> and latest research papers. It brings training components that are not available yet in PyTorch with a similar interface.</p>
+<div class="admonition warning">
+<p class="admonition-title">Development documentation</p>
+<p>These pages follow the <code>main</code> branch and Holocron <code>0.2.2.dev0</code>. The stable
+PyPI release is <code>0.2.1</code>, and some APIs differ. See the
+<a href="getting-started/installation/">installation options</a>.</p>
+</div>
 <p>This project is meant for:</p>
 <ul>
 <li><img alt="⚡" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/26a1.svg" title=":zap:" /> <strong>speed</strong>: architectures in this repo are picked for both pure performances and minimal latency</li>
@@ -1590,40 +1621,53 @@
 </ul>
 <h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h2>
 <p>Create and activate a virtual environment and then install Holocron:</p>
-<div class="language-shell highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>pylocron
+<div class="language-shell highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;pylocron @ git+https://github.com/frgfm/holocron.git&quot;</span>
 </span></code></pre></div>
-<p>Check out the <a href="getting-started/installation/">installation guide</a> for more options</p>
+<p>For stable <code>0.2.1</code> and system-wide options, see the
+<a href="getting-started/installation/">installation guide</a>.</p>
 <h2 id="quick-start">Quick start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
-<p>Load a model and use it just like any PyTorch model:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">PIL</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">torchvision.transforms.v2</span><span class="w"> </span><span class="kn">import</span> <span class="n">Compose</span><span class="p">,</span> <span class="n">ConvertImageDtype</span><span class="p">,</span> <span class="n">Normalize</span><span class="p">,</span> <span class="n">PILToTensor</span><span class="p">,</span> <span class="n">Resize</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">torchvision.transforms.v2.functional</span><span class="w"> </span><span class="kn">import</span> <span class="n">InterpolationMode</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">holocron.models.classification</span><span class="w"> </span><span class="kn">import</span> <span class="n">repvgg_a0</span>
-</span></span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="c1"># Load your model</span>
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="hll"><span class="n">model</span> <span class="o">=</span> <span class="n">repvgg_a0</span><span class="p">(</span><span class="n">pretrained</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
-</span></span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>
-</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="c1"># Read your image</span>
-</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">path_to_an_image</span><span class="p">)</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s2">&quot;RGB&quot;</span><span class="p">)</span>
+<p>Load a checkpoint and use its preprocessing and category metadata:</p>
+<!-- quickstart-example-start -->
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">PIL</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">torchvision.transforms.v2</span><span class="w"> </span><span class="kn">import</span> <span class="n">Compose</span><span class="p">,</span> <span class="n">ConvertImageDtype</span><span class="p">,</span> <span class="n">Normalize</span><span class="p">,</span> <span class="n">PILToTensor</span><span class="p">,</span> <span class="n">Resize</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">holocron.models.classification</span><span class="w"> </span><span class="kn">import</span> <span class="n">ResNet18_Checkpoint</span><span class="p">,</span> <span class="n">resnet18</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="n">checkpoint</span> <span class="o">=</span> <span class="n">ResNet18_Checkpoint</span><span class="o">.</span><span class="n">DEFAULT</span><span class="o">.</span><span class="n">value</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="n">model</span> <span class="o">=</span> <span class="n">resnet18</span><span class="p">(</span><span class="n">checkpoint</span><span class="o">=</span><span class="n">checkpoint</span><span class="p">)</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="n">image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">path_to_an_image</span><span class="p">)</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s2">&quot;RGB&quot;</span><span class="p">)</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="n">preprocessing</span> <span class="o">=</span> <span class="n">checkpoint</span><span class="o">.</span><span class="n">pre_processing</span>
 </span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>
-</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="c1"># Preprocessing</span>
-</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="n">config</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">default_cfg</span>
-</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="n">transform</span> <span class="o">=</span> <span class="n">Compose</span><span class="p">([</span>
-</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>    <span class="n">Resize</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;input_shape&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">:],</span> <span class="n">interpolation</span><span class="o">=</span><span class="n">InterpolationMode</span><span class="o">.</span><span class="n">BILINEAR</span><span class="p">),</span>
-</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>    <span class="n">PILToTensor</span><span class="p">(),</span>
-</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>    <span class="n">ConvertImageDtype</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
-</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>    <span class="n">Normalize</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;mean&quot;</span><span class="p">],</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;std&quot;</span><span class="p">]),</span>
-</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="p">])</span>
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="n">transform</span> <span class="o">=</span> <span class="n">Compose</span><span class="p">([</span>
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>    <span class="n">Resize</span><span class="p">(</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">input_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">interpolation</span><span class="o">=</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">interpolation</span><span class="p">),</span>
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>    <span class="n">PILToTensor</span><span class="p">(),</span>
+</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>    <span class="n">ConvertImageDtype</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
+</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>    <span class="n">Normalize</span><span class="p">(</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">mean</span><span class="p">,</span> <span class="n">preprocessing</span><span class="o">.</span><span class="n">std</span><span class="p">),</span>
+</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="p">])</span>
+</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>
+</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="n">input_tensor</span> <span class="o">=</span> <span class="n">transform</span><span class="p">(</span><span class="n">image</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 </span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>
-</span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="n">input_tensor</span> <span class="o">=</span> <span class="n">transform</span><span class="p">(</span><span class="n">img</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-</span><span id="__span-1-22"><a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>
-</span><span id="__span-1-23"><a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a><span class="c1"># Inference</span>
-</span><span id="__span-1-24"><a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a><span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">inference_mode</span><span class="p">():</span>
-</span><span id="__span-1-25"><a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>    <span class="n">output</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">input_tensor</span><span class="p">)</span>
-</span><span id="__span-1-26"><a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a><span class="nb">print</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;classes&quot;</span><span class="p">][</span><span class="n">output</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">argmax</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()],</span> <span class="n">output</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+</span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">inference_mode</span><span class="p">():</span>
+</span><span id="__span-1-22"><a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>    <span class="n">probabilities</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">input_tensor</span><span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</span><span id="__span-1-23"><a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>
+</span><span id="__span-1-24"><a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a><span class="n">class_idx</span> <span class="o">=</span> <span class="n">probabilities</span><span class="o">.</span><span class="n">argmax</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+</span><span id="__span-1-25"><a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a><span class="n">label</span> <span class="o">=</span> <span class="n">checkpoint</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">categories</span><span class="p">[</span><span class="n">class_idx</span><span class="p">]</span>
+</span><span id="__span-1-26"><a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a><span class="n">confidence</span> <span class="o">=</span> <span class="n">probabilities</span><span class="p">[</span><span class="n">class_idx</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+</span><span id="__span-1-27"><a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a><span class="nb">print</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">confidence</span><span class="p">)</span>
 </span></code></pre></div>
+<!-- quickstart-example-end -->
+
+<p>To adapt this checkpoint to your own classes, follow the
+<a href="getting-started/classification/">classification and transfer-learning guide</a>.</p>
 <h2 id="model-zoo">Model zoo<a class="headerlink" href="#model-zoo" title="Permanent link">&para;</a></h2>
-<h3 id="image-classification">Image classification<a class="headerlink" href="#image-classification" title="Permanent link">&para;</a></h3>
+<p>Holocron implements all three tasks below, but they do not have the same level
+of checkpoint and benchmark coverage. See the
+<a href="reference/models/models/#support-status">capability and maturity matrix</a>
+before choosing a model.</p>
+<h3 id="image-classification-validated-checkpoints">Image classification — validated checkpoints<a class="headerlink" href="#image-classification-validated-checkpoints" title="Permanent link">&para;</a></h3>
+<p>Published checkpoints and metrics cover Imagenette, plus selected ReXNet
+ImageNet-1K variants.</p>
 <ul>
 <li>TridentNet from <a href="https://arxiv.org/pdf/1901.01892.pdf">"Scale-Aware Trident Networks for Object Detection"</a></li>
 <li>SKNet from <a href="https://arxiv.org/pdf/1903.06586.pdf">"Selective Kernel Networks"</a></li>
@@ -1631,13 +1675,13 @@
 <li>ReXNet from <a href="https://arxiv.org/pdf/2007.00992.pdf">"ReXNet: Diminishing Representational Bottleneck on Convolutional Neural Network"</a></li>
 <li>RepVGG from <a href="https://arxiv.org/pdf/2101.03697.pdf">"RepVGG: Making VGG-style ConvNets Great Again"</a></li>
 </ul>
-<h3 id="semantic-segmentation">Semantic segmentation<a class="headerlink" href="#semantic-segmentation" title="Permanent link">&para;</a></h3>
+<h3 id="semantic-segmentation-unbenchmarked">Semantic segmentation — unbenchmarked<a class="headerlink" href="#semantic-segmentation-unbenchmarked" title="Permanent link">&para;</a></h3>
 <ul>
 <li>U-Net from <a href="https://arxiv.org/pdf/1505.04597.pdf">"U-Net: Convolutional Networks for Biomedical Image Segmentation"</a></li>
 <li>U-Net++ from <a href="https://arxiv.org/pdf/1912.05074.pdf">"UNet++: Redesigning Skip Connections to Exploit Multiscale Features in Image Segmentation"</a></li>
 <li>UNet3+ from <a href="https://arxiv.org/pdf/2004.08790.pdf">"UNet 3+: A Full-Scale Connected UNet For Medical Image Segmentation"</a></li>
 </ul>
-<h3 id="object-detection">Object detection<a class="headerlink" href="#object-detection" title="Permanent link">&para;</a></h3>
+<h3 id="object-detection-experimental">Object detection — experimental<a class="headerlink" href="#object-detection-experimental" title="Permanent link">&para;</a></h3>
 <ul>
 <li>YOLO from <a href="https://pjreddie.com/media/files/papers/yolo_1.pdf">"You Only Look Once: Unified, Real-Time Object Detection"</a></li>
 <li>YOLOv2 from <a href="https://pjreddie.com/media/files/papers/YOLO9000.pdf">"YOLO9000: Better, Faster, Stronger"</a></li>

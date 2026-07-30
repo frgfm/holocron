@@ -1,6 +1,16 @@
 # holocron.models
 
-The models subpackage contains definitions of models for addressing different tasks, including: image classification, pixelwise semantic segmentation, object detection, instance segmentation, person keypoint detection and video classification.
+The models subpackage contains definitions of models for addressing different tasks, including: image classification, pixelwise semantic segmentation and object detection.
+
+## Support status
+
+| Task                  | Architectures          | Published checkpoints                                                                    | Training                                                                                           | ONNX                                                                                           | Status                                                                                                                                                                                              |
+| --------------------- | ---------------------- | ---------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Classification        | 14 families            | Imagenette checkpoints with top-1/top-5 metrics; selected ReXNet ImageNet-1K checkpoints | [Reference script](https://github.com/frgfm/holocron/blob/main/references/classification/train.py) | [Classification export](https://github.com/frgfm/holocron/blob/main/scripts/export_to_onnx.py) | **Validated**                                                                                                                                                                                       |
+| Semantic segmentation | U-Net, U-Net++, UNet3+ | Only the legacy `unet_rexnet13` weights; dataset and metric are not documented           | [Reference script](https://github.com/frgfm/holocron/blob/main/references/segmentation/train.py)   | Not documented                                                                                 | **Unbenchmarked**                                                                                                                                                                                   |
+| Object detection      | YOLOv1, YOLOv2, YOLOv4 | None                                                                                     | [Reference script](https://github.com/frgfm/holocron/blob/main/references/detection/train.py)      | Not documented                                                                                 | **Experimental** ([#110](https://github.com/frgfm/holocron/issues/110), [#253](https://github.com/frgfm/holocron/issues/253), [discussion #230](https://github.com/frgfm/holocron/discussions/230)) |
+
+**Validated** means published task checkpoints and metrics are available. **Unbenchmarked** means an implementation or legacy weight exists without a documented evaluation dataset and metric. **Experimental** means the API is available, but published task weights and a confirmed benchmark are not.
 
 ## Classification
 
@@ -62,6 +72,10 @@ Here is the list of available checkpoints:
 | SKNet50_Checkpoint.IMAGENETTE           | 94.37%    | 99.54%    | 35.2M      | 134.7         |
 
 ## Object Detection
+
+Experimental
+
+YOLOv1, YOLOv2 and YOLOv4 have a reference training script but no published detection weights. Known training and benchmark gaps are tracked in [#110](https://github.com/frgfm/holocron/issues/110), [#253](https://github.com/frgfm/holocron/issues/253) and [discussion #230](https://github.com/frgfm/holocron/discussions/230).
 
 Object detection models expect a 4D image tensor as an input (N x C x H x W) and returns a list of dictionaries. Each dictionary has 3 keys: box coordinates, classification probability, classification label.
 
@@ -638,6 +652,10 @@ def yolov4(pretrained: bool = False, progress: bool = True, pretrained_backbone:
 ```
 
 ## Semantic Segmentation
+
+Unbenchmarked
+
+`unet_rexnet13` is the only segmentation model with a legacy checkpoint. Its training dataset and evaluation metric are not documented. Other segmentation architectures have no published weights.
 
 Semantic segmentation models expect a 4D image tensor as an input (N x C x H x W) and returns a classification score tensor of size (N x K x Ho x Wo).
 
