@@ -37,6 +37,8 @@ Classification models expect a 4D image tensor as an input (N x C x H x W) and r
 
 Here is the list of available checkpoints:
 
+The chart compares only the 27 Imagenette checkpoints. ImageNet-1K rows remain in the table for reference but use a different evaluation dataset.
+
 | **Checkpoint**                          | **Acc@1** | **Acc@5** | **Params** | **Size (MB)** |
 | --------------------------------------- | --------- | --------- | ---------- | ------------- |
 | CSPDarknet53_Checkpoint.IMAGENETTE      | 94.50%    | 99.64%    | 26.6M      | 101.8         |

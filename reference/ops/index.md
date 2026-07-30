@@ -90,6 +90,8 @@ The loss is defined as follows:
 
 [ \\mathcal{L}\_{DIoU} = 1 - IoU + \\frac{\\rho^2(b, b^{GT})}{c^2} ]
 
+Illustration from the original paper:
+
 where (\\IoU) is the Intersection over Union, (b) and (b^{GT}) are the centers of the box and the ground truth box respectively, (c) c is the diagonal length of the smallest enclosing box covering the two boxes, and (\\rho(.)) is the Euclidean distance.
 
 | PARAMETER | DESCRIPTION                                       |
@@ -114,12 +116,14 @@ def diou_loss(boxes1: Tensor, boxes2: Tensor) -> Tensor:
     \mathcal{L}_{DIoU} = 1 - IoU + \frac{\rho^2(b, b^{GT})}{c^2}
     $$
 
+    Illustration from the original paper:
+
+    ![Distance-IoU loss](https://github.com/frgfm/Holocron/releases/download/v0.1.3/diou_loss.png)
+
     where $\IoU$ is the Intersection over Union,
     $b$ and $b^{GT}$ are the centers of the box and the ground truth box respectively,
     $c$ c is the diagonal length of the smallest enclosing box covering the two boxes,
     and $\rho(.)$ is the Euclidean distance.
-
-    ![Distance-IoU loss](https://github.com/frgfm/Holocron/releases/download/v0.1.3/diou_loss.png)
 
     Args:
         boxes1: bounding boxes of shape [M, 4]

@@ -1604,6 +1604,7 @@ classes. <code>ResNet18_Checkpoint.DEFAULT.value</code> was trained on
 ImageNet. Many bundled classification checkpoints target Imagenette; selected
 ReXNet checkpoints target ImageNet-1K instead. Always inspect the selected
 checkpoint metadata.</p>
+<p><img alt="Six-step transfer-learning workflow: load the checkpoint contract and weights before replacing the head, train the custom head with frozen features, optionally fine-tune the full model, then decode with custom labels." src="../../img/classification-transfer.svg" /></p>
 <h2 id="prepare-the-dataset">Prepare the dataset<a class="headerlink" href="#prepare-the-dataset" title="Permanent link">&para;</a></h2>
 <p><a class="autorefs autorefs-external" href="https://docs.pytorch.org/vision/stable/generated/torchvision.datasets.ImageFolder.html#torchvision.datasets.ImageFolder"><code>ImageFolder</code></a> expects one directory per
 class, with matching class directories under <code>train</code> and <code>val</code>:</p>
