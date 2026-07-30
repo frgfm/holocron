@@ -1,5 +1,5 @@
 # Project information
-site_name: Holocron
+site_name: Holocron — development documentation
 site_url: https://frgfm.github.io/holocron
 site_description: PyTorch implementations of recent Computer Vision tricks (ReXNet, RepVGG, Unet3p, YOLOv4, CIoU loss, AdaBelief, PolyLoss, MobileOne).
 site_author: François-Guillaume Fernandez
@@ -74,6 +74,7 @@ plugins:
     sections:
       Getting started:
         - getting-started/installation.md
+        - getting-started/classification.md
         - getting-started/notebooks.md
       Package Reference:
         - reference/models/models.md
@@ -171,6 +172,7 @@ nav:
   - Home: index.md
   - Getting started:
     - getting-started/installation.md
+    - getting-started/classification.md
     - getting-started/notebooks.md
   - Package Reference:
     - Models:
