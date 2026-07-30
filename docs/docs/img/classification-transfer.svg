@@ -45,9 +45,8 @@
     .note-title { font-size: 20px; font-weight: 700; }
     .note-text { font-size: 18px; }
     @media (max-width: 500px) {
-      .body { font-size: 23px; }
+      .step-title, .body { font-size: 22px; }
       .code { font-size: 20px; }
-      .warning-text { font-size: 21px; }
       .note-text { font-size: 19px; }
     }
     @media (prefers-color-scheme: dark) {
@@ -93,7 +92,7 @@
     <circle class="step-number" cx="335" cy="126" r="17"/>
     <text class="step-number-text" x="335" y="133">2</text>
     <text class="step-title" x="358" y="134">Load weights</text>
-    <text class="body" x="330" y="177">Keep the original head</text>
+    <text class="body" x="330" y="177">Keep original head</text>
     <text class="code" x="330" y="209">resnet18(</text>
     <text class="code" x="330" y="235"> checkpoint=…)</text>
   </g>
@@ -111,7 +110,8 @@
   <g>
     <rect class="warning" x="245" y="300" width="350" height="54" rx="10"/>
     <text class="warning-icon" x="273" y="335">×</text>
-    <text class="warning-text" x="295" y="334">Replacing the head first breaks loading</text>
+    <text class="warning-text" x="295" y="323">Load weights before</text>
+    <text class="warning-text" x="295" y="345">replacing the head</text>
   </g>
 
   <g>
@@ -128,10 +128,10 @@
     <rect class="card-optional" x="310" y="390" width="230" height="170" rx="12"/>
     <circle class="step-number" cx="335" cy="416" r="17"/>
     <text class="step-number-text" x="335" y="423">5</text>
-    <text class="step-title" x="358" y="424">Optional unfreeze</text>
-    <text class="body" x="330" y="473">Fine-tune the full model</text>
+    <text class="step-title" x="357" y="424">Optional unfreeze</text>
+    <text class="body" x="330" y="473">Fine-tune full model</text>
     <text class="code" x="330" y="508">fit_n_epochs(...)</text>
-    <text class="body" x="330" y="538">all parameters update</text>
+    <text class="body" x="330" y="538">all weights update</text>
   </g>
 
   <g>
