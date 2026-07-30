@@ -1,3 +1,4 @@
+import math
 import re
 from pathlib import Path
 
@@ -52,8 +53,10 @@ def test_checkpoint_chart_matches_table():
         match.groupdict()
         for match in re.finditer(
             r'<g class="checkpoint[^"]*" data-checkpoint="(?P<checkpoint>[^"]+)" '
-            r'data-acc1="(?P<acc1>[\d.]+)" data-params="(?P<params>[\d.]+)"(?P<flags>[^>]*)>',
+            r'data-acc1="(?P<acc1>[\d.]+)" data-params="(?P<params>[\d.]+)"(?P<flags>[^>]*)>'
+            r"(?P<body>.*?)</g>",
             chart,
+            re.DOTALL,
         )
     ]
     plotted = {point["checkpoint"]: (float(point["acc1"]), float(point["params"])) for point in points}
@@ -63,6 +66,25 @@ def test_checkpoint_chart_matches_table():
     assert [point["checkpoint"] for point in points if 'data-default="true"' in point["flags"]] == [
         "ResNet18_Checkpoint.IMAGENETTE"
     ]
+
+    positions = {}
+    for point in points:
+        circle = re.search(r'<circle class="point" cx="([\d.]+)" cy="([\d.]+)"', point["body"])
+        if circle is not None:
+            x, y = map(float, circle.groups())
+        else:
+            diamond = re.search(r'<path class="default-marker" d="([^"]+)"', point["body"])
+            assert diamond is not None
+            coordinates = [float(value) for value in re.findall(r"[\d.]+", diamond[1])]
+            x = sum(coordinates[::2]) / (len(coordinates) / 2)
+            y = sum(coordinates[1::2]) / (len(coordinates) / 2)
+
+        positions[point["checkpoint"]] = (x, y)
+        acc1, params = plotted[point["checkpoint"]]
+        expected_x = 90 + (math.log10(params) - math.log10(3)) / (math.log10(200) - math.log10(3)) * 750
+        expected_y = 570 - (acc1 - 87) / (96 - 87) * 470
+        assert math.isclose(x, expected_x, abs_tol=0.11)
+        assert math.isclose(y, expected_y, abs_tol=0.11)
 
     expected_pareto = {
         checkpoint
@@ -77,3 +99,11 @@ def test_checkpoint_chart_matches_table():
     }
     plotted_pareto = {point["checkpoint"] for point in points if 'data-pareto="true"' in point["flags"]}
     assert plotted_pareto == expected_pareto
+
+    frontier = re.search(r'<polyline class="frontier-line" points="([^"]+)"', chart)
+    assert frontier is not None
+    frontier_points = [tuple(map(float, point.split(","))) for point in frontier[1].split()]
+    expected_frontier = [
+        positions[checkpoint] for checkpoint in sorted(expected_pareto, key=lambda name: documented[name][1])
+    ]
+    assert frontier_points == expected_frontier
