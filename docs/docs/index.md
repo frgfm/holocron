@@ -73,7 +73,10 @@ of checkpoint and benchmark coverage. See the
 [capability and maturity matrix](reference/models/models.md#support-status)
 before choosing a model.
 
-### Image classification — validated
+### Image classification — validated checkpoints
+
+Published checkpoints and metrics cover Imagenette, plus selected ReXNet
+ImageNet-1K variants.
 
 * TridentNet from ["Scale-Aware Trident Networks for Object Detection"](https://arxiv.org/pdf/1901.01892.pdf)
 * SKNet from ["Selective Kernel Networks"](https://arxiv.org/pdf/1903.06586.pdf)

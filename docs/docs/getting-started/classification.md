@@ -138,7 +138,9 @@ trainer.load(state)
 
 Current trainer checkpoints contain the model, epoch, step and best loss. They
 do **not** contain optimizer or scheduler state, so loading resumes model and
-counter state rather than the exact optimization trajectory.
+counter state rather than the exact optimization trajectory. Persist
+`train_set.classes` with your deployment artifacts because trainer checkpoints
+do not store class names.
 
 ## Run inference with custom labels
 
