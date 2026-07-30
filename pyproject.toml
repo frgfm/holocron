@@ -82,10 +82,10 @@ docs = [
 
 
 [project.urls]
-documentation = "https://frgfm.github.io/Holocron"
+documentation = "https://frgfm.github.io/holocron/"
 repository = "https://github.com/frgfm/Holocron"
 tracker = "https://github.com/frgfm/Holocron/issues"
-changelog = "https://frgfm.github.io/Holocron/latest/changelog.html"
+changelog = "https://frgfm.github.io/holocron/notes/changelog/"
 
 [tool.uv.build-backend]
 module-name = "holocron"
