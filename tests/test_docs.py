@@ -56,10 +56,7 @@ def test_checkpoint_chart_matches_table():
             chart,
         )
     ]
-    plotted = {
-        point["checkpoint"]: (float(point["acc1"]), float(point["params"]))
-        for point in points
-    }
+    plotted = {point["checkpoint"]: (float(point["acc1"]), float(point["params"])) for point in points}
 
     assert len(points) == len(plotted) == len(documented) == 27
     assert plotted == documented
@@ -78,7 +75,5 @@ def test_checkpoint_chart_matches_table():
             for other_checkpoint, (other_acc1, other_params) in documented.items()
         )
     }
-    plotted_pareto = {
-        point["checkpoint"] for point in points if 'data-pareto="true"' in point["flags"]
-    }
+    plotted_pareto = {point["checkpoint"] for point in points if 'data-pareto="true"' in point["flags"]}
     assert plotted_pareto == expected_pareto
