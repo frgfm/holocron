@@ -1,0 +1,149 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 800" role="img" aria-labelledby="title desc">
+  <title id="title">Geometry of IoU, GIoU, DIoU, and CIoU</title>
+  <desc id="desc">
+    Four panels reuse the same solid target box A and dashed prediction box B. IoU highlights their
+    intersection, GIoU adds the unused area in the smallest enclosing box, DIoU adds the distance between
+    box centers, and CIoU adds the mismatch between their width-to-height ratios.
+  </desc>
+  <defs>
+    <pattern id="overlap-hatch" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <line class="overlap-stripe" x1="0" y1="0" x2="0" y2="10"/>
+    </pattern>
+    <pattern id="unused-hatch" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <line class="unused-stripe" x1="0" y1="0" x2="0" y2="9"/>
+    </pattern>
+    <marker id="dimension-arrow" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto-start-reverse">
+      <path d="M7 0 0 3.5 7 7z" class="dimension-head"/>
+    </marker>
+    <g id="box-pair">
+      <rect class="target-box" x="0" y="0" width="160" height="100"/>
+      <rect class="prediction-box" x="80" y="50" width="160" height="100"/>
+      <text class="box-label target-label" x="10" y="28">A · target</text>
+      <text class="box-label prediction-label" x="104" y="138">B · prediction</text>
+    </g>
+  </defs>
+  <style>
+    .canvas { fill: #faf8fb; stroke: #d9d1dc; }
+    .panel { fill: #fff; stroke: #d9d1dc; }
+    .title, .panel-title, .formula, .box-label, .geometry-label { fill: #2b2430; }
+    .subtitle, .panel-subtitle, .legend { fill: #675f6a; }
+    .target-box { fill: none; stroke: #a84c7a; stroke-width: 5; }
+    .prediction-box { fill: none; stroke: #0e7490; stroke-width: 5; stroke-dasharray: 12 8; }
+    .target-label { fill: #7f305a; }
+    .prediction-label { fill: #0e6178; }
+    .overlap-area { fill: #b979a0; fill-opacity: .3; }
+    .overlap-stripe { stroke: #7f305a; stroke-width: 3; }
+    .enclosure { fill: none; stroke: #675f6a; stroke-width: 3; stroke-dasharray: 5 6; }
+    .unused-area { fill: #f5c96a; fill-opacity: .25; }
+    .unused-stripe { stroke: #9a6700; stroke-width: 2.5; }
+    .center-line, .diagonal, .dimension {
+      fill: none;
+      stroke: #675f6a;
+      stroke-width: 3;
+      stroke-dasharray: 7 6;
+    }
+    .center-dot { fill: #2b2430; stroke: #fff; stroke-width: 2; }
+    .dimension { marker-start: url(#dimension-arrow); marker-end: url(#dimension-arrow); }
+    .dimension-head { fill: #675f6a; }
+    text {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      text-rendering: geometricPrecision;
+    }
+    .title { font-size: 30px; font-weight: 700; }
+    .subtitle { font-size: 19px; }
+    .legend { font-size: 17px; }
+    .panel-title { font-size: 27px; font-weight: 700; }
+    .panel-subtitle { font-size: 18px; }
+    .formula {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 20px;
+      font-weight: 650;
+    }
+    .box-label { font-size: 17px; font-weight: 700; }
+    .geometry-label { font-size: 18px; font-weight: 700; }
+    @media (max-width: 500px) {
+      .panel-title { font-size: 31px; }
+      .panel-subtitle { font-size: 20px; }
+      .formula { font-size: 22px; }
+      .box-label { font-size: 19px; }
+      .geometry-label { font-size: 20px; }
+    }
+    @media (prefers-color-scheme: dark) {
+      .canvas { fill: #171419; stroke: #4d4552; }
+      .panel { fill: #211d24; stroke: #4d4552; }
+      .title, .panel-title, .formula, .box-label, .geometry-label { fill: #f3edf4; }
+      .subtitle, .panel-subtitle, .legend { fill: #c4bbc7; }
+      .target-box { stroke: #e38ab7; }
+      .prediction-box { stroke: #67e8f9; }
+      .target-label { fill: #f1a5cb; }
+      .prediction-label { fill: #8cecf8; }
+      .overlap-area { fill: #e38ab7; fill-opacity: .22; }
+      .overlap-stripe { stroke: #f1a5cb; }
+      .enclosure, .center-line, .diagonal, .dimension { stroke: #c4bbc7; }
+      .unused-area { fill: #f5c96a; fill-opacity: .16; }
+      .unused-stripe { stroke: #ffd778; }
+      .center-dot { fill: #f3edf4; stroke: #211d24; }
+      .dimension-head { fill: #c4bbc7; }
+    }
+  </style>
+
+  <rect class="canvas" x="1" y="1" width="898" height="798" rx="16"/>
+  <text class="title" x="30" y="43">One box pair, four increasingly strict comparisons</text>
+  <text class="subtitle" x="30" y="71">Each metric keeps overlap, then adds a geometric penalty.</text>
+  <text class="legend" x="552" y="69">A: solid target · B: dashed prediction</text>
+
+  <g>
+    <rect class="panel" x="30" y="100" width="405" height="290" rx="12"/>
+    <text class="panel-title" x="55" y="138">IoU</text>
+    <text class="panel-subtitle" x="55" y="164">Overlap relative to the union</text>
+    <rect class="overlap-area" x="175" y="235" width="80" height="50"/>
+    <rect x="175" y="235" width="80" height="50" fill="url(#overlap-hatch)"/>
+    <use href="#box-pair" x="95" y="185"/>
+    <text class="geometry-label" x="215" y="229" text-anchor="middle">intersection</text>
+    <text class="formula" x="232.5" y="370" text-anchor="middle">IoU = |A ∩ B| / |A ∪ B|</text>
+  </g>
+
+  <g>
+    <rect class="panel" x="465" y="100" width="405" height="290" rx="12"/>
+    <text class="panel-title" x="490" y="138">GIoU</text>
+    <text class="panel-subtitle" x="490" y="164">Adds unused enclosing area</text>
+    <rect class="unused-area" x="690" y="185" width="80" height="50"/>
+    <rect x="690" y="185" width="80" height="50" fill="url(#unused-hatch)"/>
+    <rect class="unused-area" x="530" y="285" width="80" height="50"/>
+    <rect x="530" y="285" width="80" height="50" fill="url(#unused-hatch)"/>
+    <rect class="enclosure" x="530" y="185" width="240" height="150"/>
+    <use href="#box-pair" x="530" y="185"/>
+    <text class="geometry-label" x="746" y="215">C</text>
+    <text class="formula" x="667.5" y="370" text-anchor="middle">GIoU = IoU − unused(C) / |C|</text>
+  </g>
+
+  <g>
+    <rect class="panel" x="30" y="420" width="405" height="340" rx="12"/>
+    <text class="panel-title" x="55" y="458">DIoU</text>
+    <text class="panel-subtitle" x="55" y="484">Adds distance between box centers</text>
+    <use href="#box-pair" x="95" y="505"/>
+    <line class="diagonal" x1="95" y1="505" x2="335" y2="655"/>
+    <line class="center-line" x1="175" y1="555" x2="255" y2="605"/>
+    <circle class="center-dot" cx="175" cy="555" r="6"/>
+    <circle class="center-dot" cx="255" cy="605" r="6"/>
+    <text class="geometry-label" x="203" y="570">ρ²</text>
+    <text class="geometry-label" x="302" y="625">c²</text>
+    <text class="formula" x="232.5" y="740" text-anchor="middle">DIoU = IoU − ρ² / c²</text>
+  </g>
+
+  <g>
+    <rect class="panel" x="465" y="420" width="405" height="340" rx="12"/>
+    <text class="panel-title" x="490" y="458">CIoU</text>
+    <text class="panel-subtitle" x="490" y="484">Adds width-to-height agreement</text>
+    <use href="#box-pair" x="530" y="505"/>
+    <line class="dimension" x1="536" y1="495" x2="684" y2="495"/>
+    <line class="dimension" x1="520" y1="511" x2="520" y2="599"/>
+    <line class="dimension" x1="616" y1="665" x2="764" y2="665"/>
+    <line class="dimension" x1="780" y1="561" x2="780" y2="649"/>
+    <text class="geometry-label" x="610" y="490" text-anchor="middle">w₁</text>
+    <text class="geometry-label" x="511" y="559" text-anchor="end">h₁</text>
+    <text class="geometry-label" x="690" y="688" text-anchor="middle">w₂</text>
+    <text class="geometry-label" x="788" y="609">h₂</text>
+    <text class="formula" x="667.5" y="740" text-anchor="middle">CIoU = DIoU − αv</text>
+  </g>
+</svg>

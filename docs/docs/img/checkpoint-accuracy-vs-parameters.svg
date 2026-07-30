@@ -1,0 +1,217 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 690" role="img" aria-labelledby="title desc">
+  <title id="title">Imagenette checkpoint accuracy versus parameter count</title>
+  <desc id="desc">
+    Scatter plot of 27 comparable Imagenette checkpoints. The horizontal axis is parameter count on a
+    logarithmic scale and the vertical axis is top-one accuracy. A connected ring marks the Pareto frontier,
+    and a diamond marks the default ResNet-18 checkpoint.
+  </desc>
+  <style>
+    .canvas { fill: #faf8fb; stroke: #d9d1dc; }
+    .plot { fill: #fff; stroke: #9b919f; }
+    .grid { stroke: #e5dfe7; stroke-width: 1; }
+    .axis { stroke: #675f6a; stroke-width: 2; }
+    .title, .label, .tick, .annotation { fill: #2b2430; }
+    .subtitle { fill: #675f6a; }
+    .point { fill: #817987; stroke: #fff; stroke-width: 2; }
+    .frontier-line { fill: none; stroke: #a84c7a; stroke-width: 4; }
+    .pareto .point { fill: #fff; stroke: #a84c7a; stroke-width: 4; }
+    .legend-pareto { fill: #fff; stroke: #a84c7a; stroke-width: 4; }
+    .default-marker { fill: #0e7490; stroke: #fff; stroke-width: 2.5; }
+    .leader { fill: none; stroke: #675f6a; stroke-width: 1.5; }
+    text {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      text-rendering: geometricPrecision;
+    }
+    .title { font-size: 28px; font-weight: 700; }
+    .subtitle { font-size: 18px; }
+    .label { font-size: 20px; font-weight: 650; }
+    .tick { font-size: 18px; }
+    .annotation { font-size: 18px; font-weight: 650; }
+    @media (max-width: 500px) {
+      .subtitle, .tick { font-size: 21px; }
+      .label { font-size: 23px; }
+      .annotation { font-size: 20px; }
+    }
+    @media (prefers-color-scheme: dark) {
+      .canvas { fill: #171419; stroke: #4d4552; }
+      .plot { fill: #211d24; stroke: #655c69; }
+      .grid { stroke: #39323c; }
+      .axis { stroke: #c4bbc7; }
+      .title, .label, .tick, .annotation { fill: #f3edf4; }
+      .subtitle { fill: #c4bbc7; }
+      .point { fill: #aaa1ad; stroke: #211d24; }
+      .frontier-line { stroke: #e38ab7; }
+      .pareto .point { fill: #211d24; stroke: #e38ab7; }
+      .legend-pareto { fill: #171419; stroke: #e38ab7; }
+      .default-marker { fill: #67e8f9; stroke: #211d24; }
+      .leader { stroke: #c4bbc7; }
+    }
+  </style>
+
+  <rect class="canvas" x="1" y="1" width="898" height="688" rx="16"/>
+  <text class="title" x="65" y="42">Imagenette accuracy vs. model size</text>
+  <text class="subtitle" x="65" y="70">27 published checkpoints · up and left is better</text>
+
+  <circle class="point" cx="553" cy="65" r="6"/>
+  <text class="tick" x="566" y="71">all</text>
+  <line class="frontier-line" x1="620" y1="65" x2="650" y2="65"/>
+  <circle class="legend-pareto" cx="635" cy="65" r="7"/>
+  <text class="tick" x="660" y="71">Pareto</text>
+  <path class="default-marker" d="M769 55 779 65 769 75 759 65z"/>
+  <text class="tick" x="786" y="71">default</text>
+
+  <rect class="plot" x="90" y="100" width="750" height="470"/>
+  <g aria-hidden="true">
+    <line class="grid" x1="90" y1="517.8" x2="840" y2="517.8"/>
+    <line class="grid" x1="90" y1="413.3" x2="840" y2="413.3"/>
+    <line class="grid" x1="90" y1="308.9" x2="840" y2="308.9"/>
+    <line class="grid" x1="90" y1="204.4" x2="840" y2="204.4"/>
+    <line class="grid" x1="90" y1="100" x2="840" y2="100"/>
+    <line class="grid" x1="90" y1="100" x2="90" y2="570"/>
+    <line class="grid" x1="181.2" y1="100" x2="181.2" y2="570"/>
+    <line class="grid" x1="305" y1="100" x2="305" y2="570"/>
+    <line class="grid" x1="428.8" y1="100" x2="428.8" y2="570"/>
+    <line class="grid" x1="592.4" y1="100" x2="592.4" y2="570"/>
+    <line class="grid" x1="716.2" y1="100" x2="716.2" y2="570"/>
+    <line class="grid" x1="840" y1="100" x2="840" y2="570"/>
+  </g>
+
+  <line class="axis" x1="90" y1="570" x2="840" y2="570"/>
+  <line class="axis" x1="90" y1="100" x2="90" y2="570"/>
+  <g aria-hidden="true">
+    <text class="tick" x="75" y="524" text-anchor="end">88</text>
+    <text class="tick" x="75" y="420" text-anchor="end">90</text>
+    <text class="tick" x="75" y="315" text-anchor="end">92</text>
+    <text class="tick" x="75" y="211" text-anchor="end">94</text>
+    <text class="tick" x="75" y="107" text-anchor="end">96</text>
+    <text class="tick" x="90" y="596" text-anchor="middle">3</text>
+    <text class="tick" x="181.2" y="596" text-anchor="middle">5</text>
+    <text class="tick" x="305" y="596" text-anchor="middle">10</text>
+    <text class="tick" x="428.8" y="596" text-anchor="middle">20</text>
+    <text class="tick" x="592.4" y="596" text-anchor="middle">50</text>
+    <text class="tick" x="716.2" y="596" text-anchor="middle">100</text>
+    <text class="tick" x="840" y="596" text-anchor="middle">200</text>
+    <text class="label" x="465" y="632" text-anchor="middle">Parameters (millions, logarithmic scale)</text>
+    <text class="label" x="25" y="335" text-anchor="middle" transform="rotate(-90 25 335)">Imagenette Acc@1 (%)</text>
+  </g>
+
+  <polyline class="frontier-line" points="112.4,539.2 117.5,184.1 210.8,158.5 362.5,139.7 396.6,129.2"/>
+
+  <g class="checkpoint" data-checkpoint="CSPDarknet53_Checkpoint.IMAGENETTE" data-acc1="94.50" data-params="26.6">
+    <title>CSPDarknet53: 94.50% Acc@1, 26.6M parameters</title>
+    <circle class="point" cx="479.7" cy="178.3" r="6"/>
+  </g>
+  <g class="checkpoint" data-checkpoint="CSPDarknet53_Mish_Checkpoint.IMAGENETTE" data-acc1="94.65" data-params="26.6">
+    <title>CSPDarknet53 Mish: 94.65% Acc@1, 26.6M parameters</title>
+    <circle class="point" cx="479.7" cy="170.5" r="6"/>
+  </g>
+  <g class="checkpoint pareto" data-checkpoint="ConvNeXt_Atto_Checkpoint.IMAGENETTE" data-acc1="87.59" data-params="3.4" data-pareto="true">
+    <title>ConvNeXt Atto: 87.59% Acc@1, 3.4M parameters; Pareto frontier</title>
+    <circle class="point" cx="112.4" cy="539.2" r="7"/>
+  </g>
+  <g class="checkpoint" data-checkpoint="Darknet19_Checkpoint.IMAGENETTE" data-acc1="93.86" data-params="19.8">
+    <title>Darknet-19: 93.86% Acc@1, 19.8M parameters</title>
+    <circle class="point" cx="427" cy="211.8" r="6"/>
+  </g>
+  <g class="checkpoint" data-checkpoint="Darknet53_Checkpoint.IMAGENETTE" data-acc1="94.17" data-params="40.6">
+    <title>Darknet-53: 94.17% Acc@1, 40.6M parameters</title>
+    <circle class="point" cx="555.2" cy="195.6" r="6"/>
+  </g>
+  <g class="checkpoint" data-checkpoint="MobileOne_S0_Checkpoint.IMAGENETTE" data-acc1="88.08" data-params="4.3">
+    <title>MobileOne S0: 88.08% Acc@1, 4.3M parameters</title>
+    <circle class="point" cx="154.3" cy="513.6" r="6"/>
+  </g>
+  <g class="checkpoint" data-checkpoint="MobileOne_S1_Checkpoint.IMAGENETTE" data-acc1="91.26" data-params="3.6">
+    <title>MobileOne S1: 91.26% Acc@1, 3.6M parameters</title>
+    <circle class="point" cx="122.6" cy="347.5" r="6"/>
+  </g>
+  <g class="checkpoint" data-checkpoint="MobileOne_S2_Checkpoint.IMAGENETTE" data-acc1="91.31" data-params="5.9">
+    <title>MobileOne S2: 91.31% Acc@1, 5.9M parameters</title>
+    <circle class="point" cx="210.8" cy="344.9" r="6"/>
+  </g>
+  <g class="checkpoint" data-checkpoint="MobileOne_S3_Checkpoint.IMAGENETTE" data-acc1="91.06" data-params="8.1">
+    <title>MobileOne S3: 91.06% Acc@1, 8.1M parameters</title>
+    <circle class="point" cx="267.4" cy="358" r="6"/>
+  </g>
+  <g class="checkpoint pareto" data-checkpoint="ReXNet1_0x_Checkpoint.IMAGENETTE" data-acc1="94.39" data-params="3.5" data-pareto="true">
+    <title>ReXNet 1.0x: 94.39% Acc@1, 3.5M parameters; Pareto frontier</title>
+    <circle class="point" cx="117.5" cy="184.1" r="7"/>
+  </g>
+  <g class="checkpoint pareto" data-checkpoint="ReXNet1_3x_Checkpoint.IMAGENETTE" data-acc1="94.88" data-params="5.9" data-pareto="true">
+    <title>ReXNet 1.3x: 94.88% Acc@1, 5.9M parameters; Pareto frontier</title>
+    <circle class="point" cx="210.8" cy="158.5" r="7"/>
+  </g>
+  <g class="checkpoint" data-checkpoint="ReXNet1_5x_Checkpoint.IMAGENETTE" data-acc1="94.47" data-params="7.8">
+    <title>ReXNet 1.5x: 94.47% Acc@1, 7.8M parameters</title>
+    <circle class="point" cx="260.6" cy="179.9" r="6"/>
+  </g>
+  <g class="checkpoint pareto" data-checkpoint="ReXNet2_0x_Checkpoint.IMAGENETTE" data-acc1="95.24" data-params="13.8" data-pareto="true">
+    <title>ReXNet 2.0x: 95.24% Acc@1, 13.8M parameters; Pareto frontier</title>
+    <circle class="point" cx="362.5" cy="139.7" r="7"/>
+  </g>
+  <g class="checkpoint pareto" data-checkpoint="ReXNet2_2x_Checkpoint.IMAGENETTE" data-acc1="95.44" data-params="16.7" data-pareto="true">
+    <title>ReXNet 2.2x: 95.44% Acc@1, 16.7M parameters; Pareto frontier</title>
+    <circle class="point" cx="396.6" cy="129.2" r="7"/>
+  </g>
+  <g class="checkpoint" data-checkpoint="RepVGG_A0_Checkpoint.IMAGENETTE" data-acc1="92.92" data-params="24.7">
+    <title>RepVGG A0: 92.92% Acc@1, 24.7M parameters</title>
+    <circle class="point" cx="466.5" cy="260.8" r="6"/>
+  </g>
+  <g class="checkpoint" data-checkpoint="RepVGG_A1_Checkpoint.IMAGENETTE" data-acc1="93.78" data-params="30.1">
+    <title>RepVGG A1: 93.78% Acc@1, 30.1M parameters</title>
+    <circle class="point" cx="501.8" cy="215.9" r="6"/>
+  </g>
+  <g class="checkpoint" data-checkpoint="RepVGG_A2_Checkpoint.IMAGENETTE" data-acc1="93.63" data-params="48.6">
+    <title>RepVGG A2: 93.63% Acc@1, 48.6M parameters</title>
+    <circle class="point" cx="587.4" cy="223.8" r="6"/>
+  </g>
+  <g class="checkpoint" data-checkpoint="RepVGG_B0_Checkpoint.IMAGENETTE" data-acc1="92.69" data-params="31.8">
+    <title>RepVGG B0: 92.69% Acc@1, 31.8M parameters</title>
+    <circle class="point" cx="511.6" cy="272.9" r="6"/>
+  </g>
+  <g class="checkpoint" data-checkpoint="RepVGG_B1_Checkpoint.IMAGENETTE" data-acc1="93.96" data-params="100.8">
+    <title>RepVGG B1: 93.96% Acc@1, 100.8M parameters</title>
+    <circle class="point" cx="717.6" cy="206.5" r="6"/>
+  </g>
+  <g class="checkpoint" data-checkpoint="RepVGG_B2_Checkpoint.IMAGENETTE" data-acc1="94.14" data-params="157.5">
+    <title>RepVGG B2: 94.14% Acc@1, 157.5M parameters</title>
+    <circle class="point" cx="797.3" cy="197.1" r="6"/>
+  </g>
+  <g class="checkpoint" data-checkpoint="Res2Net50_26w_4s_Checkpoint.IMAGENETTE" data-acc1="93.94" data-params="23.7">
+    <title>Res2Net-50 26w 4s: 93.94% Acc@1, 23.7M parameters</title>
+    <circle class="point" cx="459.1" cy="207.6" r="6"/>
+  </g>
+  <g class="checkpoint" data-checkpoint="ResNeXt50_32x4d_Checkpoint.IMAGENETTE" data-acc1="94.55" data-params="23.0">
+    <title>ResNeXt-50 32x4d: 94.55% Acc@1, 23.0M parameters</title>
+    <circle class="point" cx="453.8" cy="175.7" r="6"/>
+  </g>
+  <g class="checkpoint default" data-checkpoint="ResNet18_Checkpoint.IMAGENETTE" data-acc1="93.61" data-params="11.2" data-default="true">
+    <title>Default ResNet-18: 93.61% Acc@1, 11.2M parameters</title>
+    <path class="default-marker" d="M325.2 214.8 335.2 224.8 325.2 234.8 315.2 224.8z"/>
+  </g>
+  <g class="checkpoint" data-checkpoint="ResNet34_Checkpoint.IMAGENETTE" data-acc1="93.81" data-params="21.3">
+    <title>ResNet-34: 93.81% Acc@1, 21.3M parameters</title>
+    <circle class="point" cx="440" cy="214.4" r="6"/>
+  </g>
+  <g class="checkpoint" data-checkpoint="ResNet50D_Checkpoint.IMAGENETTE" data-acc1="94.65" data-params="23.5">
+    <title>ResNet-50D: 94.65% Acc@1, 23.5M parameters</title>
+    <circle class="point" cx="457.6" cy="170.5" r="6"/>
+  </g>
+  <g class="checkpoint" data-checkpoint="ResNet50_Checkpoint.IMAGENETTE" data-acc1="93.78" data-params="23.5">
+    <title>ResNet-50: 93.78% Acc@1, 23.5M parameters</title>
+    <circle class="point" cx="457.6" cy="215.9" r="6"/>
+  </g>
+  <g class="checkpoint" data-checkpoint="SKNet50_Checkpoint.IMAGENETTE" data-acc1="94.37" data-params="35.2">
+    <title>SKNet-50: 94.37% Acc@1, 35.2M parameters</title>
+    <circle class="point" cx="529.8" cy="185.1" r="6"/>
+  </g>
+
+  <path class="leader" d="M119 187 151 208"/>
+  <text class="annotation" x="156" y="215">Pareto · ReXNet 1.0×</text>
+  <path class="leader" d="M398 129 430 112"/>
+  <text class="annotation" x="436" y="116">ReXNet 2.2×</text>
+  <path class="leader" d="M324 229 348 251"/>
+  <text class="annotation" x="353" y="258">Default · ResNet-18</text>
+  <path class="leader" d="M115 538 143 521"/>
+  <text class="annotation" x="148" y="525">ConvNeXt Atto</text>
+</svg>
