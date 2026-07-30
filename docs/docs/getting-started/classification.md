@@ -7,6 +7,8 @@ ImageNet. Many bundled classification checkpoints target Imagenette; selected
 ReXNet checkpoints target ImageNet-1K instead. Always inspect the selected
 checkpoint metadata.
 
+![Six-step transfer-learning workflow: load the checkpoint contract and weights before replacing the head, train the custom head with frozen features, optionally fine-tune the full model, then decode with custom labels.](../img/classification-transfer.svg)
+
 ## Prepare the dataset
 
 [`ImageFolder`][torchvision.datasets.ImageFolder] expects one directory per

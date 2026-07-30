@@ -43,6 +43,11 @@ The output represents the classification scores for each output classes.
 
 Here is the list of available checkpoints:
 
+The chart compares only the 27 Imagenette checkpoints. ImageNet-1K rows remain
+in the table for reference but use a different evaluation dataset.
+
+![Scatter plot of Imagenette top-one accuracy against parameter count, with the Pareto frontier and default ResNet-18 checkpoint highlighted.](../../img/checkpoint-accuracy-vs-parameters.svg)
+
 | **Checkpoint** | **Acc@1** | **Acc@5** | **Params** | **Size (MB)** |
 |---|---|---|---|---|
 | [`CSPDarknet53_Checkpoint.IMAGENETTE`][holocron.models.classification.CSPDarknet53_Checkpoint.IMAGENETTE] | 94.50% | 99.64% | 26.6M | 101.8 |

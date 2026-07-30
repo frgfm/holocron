@@ -1,0 +1,160 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 700" role="img" aria-labelledby="title desc">
+  <title id="title">Transfer-learning workflow for a custom Holocron classifier</title>
+  <desc id="desc">
+    Six numbered steps show checkpoint metadata, loading pretrained weights, replacing the classification
+    head, training with frozen features, optional full-model fine-tuning, and inference with custom labels.
+    Warnings explain that the head must be replaced after loading weights and that original checkpoint
+    categories must not be used for custom outputs. A final note lists trainer checkpoint contents.
+  </desc>
+  <defs>
+    <marker id="arrow" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+      <path d="M0 0 9 4.5 0 9z" class="arrow-head"/>
+    </marker>
+  </defs>
+  <style>
+    .canvas { fill: #faf8fb; stroke: #d9d1dc; }
+    .card { fill: #fff; stroke: #d9d1dc; }
+    .card-key { fill: #f5edf2; stroke: #a84c7a; }
+    .card-optional { fill: #eef8fa; stroke: #0e7490; }
+    .title, .step-title, .body, .code, .note-title, .note-text { fill: #2b2430; }
+    .subtitle, .muted { fill: #675f6a; }
+    .step-number { fill: #a84c7a; }
+    .step-number-text { fill: #fff; }
+    .arrow { fill: none; stroke: #675f6a; stroke-width: 3; marker-end: url(#arrow); }
+    .arrow-head { fill: #675f6a; }
+    .warning { fill: #fff2f0; stroke: #b42318; }
+    .warning-icon, .warning-text { fill: #b42318; }
+    .checkpoint-note { fill: #f2eef4; stroke: #9b919f; }
+    .saved { fill: #176b45; }
+    .omitted { fill: #9b2c22; }
+    text {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      text-rendering: geometricPrecision;
+    }
+    .title { font-size: 30px; font-weight: 700; }
+    .subtitle { font-size: 20px; }
+    .step-title { font-size: 25px; font-weight: 700; }
+    .body { font-size: 21px; }
+    .code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 18px;
+    }
+    .step-number-text { font-size: 20px; font-weight: 700; text-anchor: middle; }
+    .warning-text { font-size: 20px; font-weight: 650; }
+    .warning-icon { font-size: 25px; font-weight: 800; text-anchor: middle; }
+    .note-title { font-size: 20px; font-weight: 700; }
+    .note-text { font-size: 18px; }
+    @media (max-width: 500px) {
+      .body { font-size: 23px; }
+      .code { font-size: 20px; }
+      .warning-text { font-size: 21px; }
+      .note-text { font-size: 19px; }
+    }
+    @media (prefers-color-scheme: dark) {
+      .canvas { fill: #171419; stroke: #4d4552; }
+      .card { fill: #211d24; stroke: #4d4552; }
+      .card-key { fill: #2c2028; stroke: #e38ab7; }
+      .card-optional { fill: #17272b; stroke: #67e8f9; }
+      .title, .step-title, .body, .code, .note-title, .note-text { fill: #f3edf4; }
+      .subtitle, .muted { fill: #c4bbc7; }
+      .step-number { fill: #d978aa; }
+      .arrow { stroke: #c4bbc7; }
+      .arrow-head { fill: #c4bbc7; }
+      .warning { fill: #351c1d; stroke: #ff8a80; }
+      .warning-icon, .warning-text { fill: #ff8a80; }
+      .checkpoint-note { fill: #28232b; stroke: #655c69; }
+      .saved { fill: #7ee2b8; }
+      .omitted { fill: #ffaaa3; }
+    }
+  </style>
+
+  <rect class="canvas" x="1" y="1" width="838" height="698" rx="16"/>
+  <text class="title" x="30" y="42">From published checkpoint to custom classifier</text>
+  <text class="subtitle" x="30" y="70">Load the original contract first; customize only after the weights are in place.</text>
+
+  <path class="arrow" d="M250 185H300"/>
+  <path class="arrow" d="M530 185H580"/>
+  <path class="arrow" d="M700 270V375"/>
+  <path class="arrow" d="M590 475H540"/>
+  <path class="arrow" d="M310 475H260"/>
+
+  <g>
+    <rect class="card-key" x="30" y="100" width="220" height="170" rx="12"/>
+    <circle class="step-number" cx="55" cy="126" r="17"/>
+    <text class="step-number-text" x="55" y="133">1</text>
+    <text class="step-title" x="78" y="134">Checkpoint data</text>
+    <text class="body" x="50" y="174">Weights</text>
+    <text class="body" x="50" y="205">Input transform</text>
+    <text class="body" x="50" y="236">Original labels</text>
+  </g>
+
+  <g>
+    <rect class="card" x="310" y="100" width="220" height="170" rx="12"/>
+    <circle class="step-number" cx="335" cy="126" r="17"/>
+    <text class="step-number-text" x="335" y="133">2</text>
+    <text class="step-title" x="358" y="134">Load weights</text>
+    <text class="body" x="330" y="177">Keep the original head</text>
+    <text class="code" x="330" y="209">resnet18(</text>
+    <text class="code" x="330" y="235"> checkpoint=…)</text>
+  </g>
+
+  <g>
+    <rect class="card-key" x="590" y="100" width="220" height="170" rx="12"/>
+    <circle class="step-number" cx="615" cy="126" r="17"/>
+    <text class="step-number-text" x="615" y="133">3</text>
+    <text class="step-title" x="638" y="134">Replace head</text>
+    <text class="code" x="610" y="181">model.head = …</text>
+    <text class="body" x="610" y="216">10 → N outputs</text>
+    <text class="body" x="610" y="246">after loading</text>
+  </g>
+
+  <g>
+    <rect class="warning" x="245" y="300" width="350" height="54" rx="10"/>
+    <text class="warning-icon" x="273" y="335">×</text>
+    <text class="warning-text" x="295" y="334">Replacing the head first breaks loading</text>
+  </g>
+
+  <g>
+    <rect class="card" x="590" y="390" width="220" height="170" rx="12"/>
+    <circle class="step-number" cx="615" cy="416" r="17"/>
+    <text class="step-number-text" x="615" y="423">4</text>
+    <text class="step-title" x="638" y="424">Train new head</text>
+    <text class="code" x="610" y="470">freeze_until=</text>
+    <text class="code" x="610" y="496">"features"</text>
+    <text class="body" x="610" y="532">features stay frozen</text>
+  </g>
+
+  <g>
+    <rect class="card-optional" x="310" y="390" width="230" height="170" rx="12"/>
+    <circle class="step-number" cx="335" cy="416" r="17"/>
+    <text class="step-number-text" x="335" y="423">5</text>
+    <text class="step-title" x="358" y="424">Optional unfreeze</text>
+    <text class="body" x="330" y="473">Fine-tune the full model</text>
+    <text class="code" x="330" y="508">fit_n_epochs(...)</text>
+    <text class="body" x="330" y="538">all parameters update</text>
+  </g>
+
+  <g>
+    <rect class="card-key" x="30" y="390" width="230" height="170" rx="12"/>
+    <circle class="step-number" cx="55" cy="416" r="17"/>
+    <text class="step-number-text" x="55" y="423">6</text>
+    <text class="step-title" x="78" y="424">Save, then infer</text>
+    <text class="body" x="50" y="471">Decode outputs with</text>
+    <text class="code" x="50" y="505">train_set.classes</text>
+    <text class="body" x="50" y="536">your custom labels</text>
+  </g>
+
+  <g>
+    <rect class="warning" x="30" y="585" width="330" height="85" rx="10"/>
+    <text class="warning-icon" x="57" y="620">×</text>
+    <text class="warning-text" x="80" y="618">Do not reuse the original</text>
+    <text class="warning-text" x="80" y="647">checkpoint categories</text>
+  </g>
+
+  <g>
+    <rect class="checkpoint-note" x="380" y="585" width="430" height="85" rx="10"/>
+    <text class="note-title" x="400" y="614">Trainer checkpoint</text>
+    <text class="note-text saved" x="400" y="641">✓ model · epoch · step · best loss</text>
+    <text class="note-text omitted" x="400" y="663">× optimizer · scheduler · class names</text>
+  </g>
+</svg>

@@ -32,3 +32,53 @@ def test_homepage_quickstart(monkeypatch, tmp_path):
     assert probabilities.shape == (len(checkpoint.meta.categories),)
     assert namespace["label"] in checkpoint.meta.categories
     assert 0 <= namespace["confidence"] <= 1
+
+
+def test_checkpoint_chart_matches_table():
+    repo_root = Path(__file__).parents[1]
+    models_page = (repo_root / "docs" / "docs" / "reference" / "models" / "models.md").read_text()
+    documented = {
+        match["checkpoint"]: (float(match["acc1"]), float(match["params"]))
+        for match in re.finditer(
+            r"^\| \[`(?P<checkpoint>[^`]+\.IMAGENETTE)`\]\[[^\]]+\] \| "
+            r"(?P<acc1>\d+\.\d+)% \| [^|]+ \| (?P<params>\d+(?:\.\d+)?)M \|",
+            models_page,
+            re.MULTILINE,
+        )
+    }
+
+    chart = (repo_root / "docs" / "docs" / "img" / "checkpoint-accuracy-vs-parameters.svg").read_text()
+    points = [
+        match.groupdict()
+        for match in re.finditer(
+            r'<g class="checkpoint[^"]*" data-checkpoint="(?P<checkpoint>[^"]+)" '
+            r'data-acc1="(?P<acc1>[\d.]+)" data-params="(?P<params>[\d.]+)"(?P<flags>[^>]*)>',
+            chart,
+        )
+    ]
+    plotted = {
+        point["checkpoint"]: (float(point["acc1"]), float(point["params"]))
+        for point in points
+    }
+
+    assert len(points) == len(plotted) == len(documented) == 27
+    assert plotted == documented
+    assert [point["checkpoint"] for point in points if 'data-default="true"' in point["flags"]] == [
+        "ResNet18_Checkpoint.IMAGENETTE"
+    ]
+
+    expected_pareto = {
+        checkpoint
+        for checkpoint, (acc1, params) in documented.items()
+        if not any(
+            other_checkpoint != checkpoint
+            and other_params <= params
+            and other_acc1 >= acc1
+            and (other_params < params or other_acc1 > acc1)
+            for other_checkpoint, (other_acc1, other_params) in documented.items()
+        )
+    }
+    plotted_pareto = {
+        point["checkpoint"] for point in points if 'data-pareto="true"' in point["flags"]
+    }
+    assert plotted_pareto == expected_pareto

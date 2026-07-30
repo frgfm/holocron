@@ -121,8 +121,6 @@ def diou_loss(boxes1: Tensor, boxes2: Tensor) -> Tensor:
     $c$ c is the diagonal length of the smallest enclosing box covering the two boxes,
     and $\rho(.)$ is the Euclidean distance.
 
-    ![Distance-IoU loss](https://github.com/frgfm/Holocron/releases/download/v0.1.3/diou_loss.png)
-
     Args:
         boxes1: bounding boxes of shape [M, 4]
         boxes2: bounding boxes of shape [N, 4]
