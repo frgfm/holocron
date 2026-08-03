@@ -161,16 +161,17 @@ class Trainer:
             # Backprop
             if not self.skip_nan_loss or torch.isfinite(batch_loss):
                 nan_cnt = 0
-                self._backprop_step(batch_loss)
+                if self._backprop_step(batch_loss):
+                    self.scheduler.step()
             else:
                 nan_cnt += 1
                 if nan_cnt > self.nan_tolerance:
                     raise ValueError(f"loss value has been NaN or inf for more than {self.nan_tolerance} steps.")
-            # Update LR
-            self.scheduler.step()
             pb.comment = f"Training loss: {batch_loss.item():.4}"
 
             self.step += 1
+        if self._optimizer_step():
+            self.scheduler.step()
         self.epoch += 1
 
     def to_cuda(
@@ -200,31 +201,39 @@ class Trainer:
         target = target.cuda(non_blocking=True)
         return x, target
 
-    def _backprop_step(self, loss: Tensor) -> None:
-        # Backpropate the loss
+    def _backprop_step(self, loss: Tensor, force: bool = False) -> bool:
         self._grad_count += 1
         if self.amp:
-            # Backprop
             self.scaler.scale(loss).backward()
-            if self._grad_count == self.gradient_acc:
-                # Safeguard for Gradient explosion
-                if isinstance(self.grad_clip, float):
-                    self.scaler.unscale_(self.optimizer)
-                    nn.utils.clip_grad_norm_(self.model.parameters(), self.grad_clip)
-                self.scaler.step(self.optimizer)
-                self.scaler.update()
-                self.optimizer.zero_grad()
-                self._grad_count = 0
         else:
-            # Backprop
             loss.backward()
-            if self._grad_count == self.gradient_acc:
-                # Safeguard for Gradient explosion
-                if isinstance(self.grad_clip, float):
-                    nn.utils.clip_grad_norm_(self.model.parameters(), self.grad_clip)
-                self.optimizer.step()
-                self.optimizer.zero_grad()
-                self._grad_count = 0
+        if self._grad_count < self.gradient_acc and not force:
+            return False
+        return self._optimizer_step()
+
+    def _optimizer_step(self) -> bool:
+        if self._grad_count == 0:
+            return False
+
+        if self.amp:
+            self.scaler.unscale_(self.optimizer)
+        for param in self.model.parameters():
+            if param.grad is not None:
+                param.grad.div_(self._grad_count)
+        if isinstance(self.grad_clip, float):
+            nn.utils.clip_grad_norm_(self.model.parameters(), self.grad_clip)
+
+        if self.amp:
+            scale = self.scaler.get_scale()
+            self.scaler.step(self.optimizer)
+            self.scaler.update()
+            stepped = self.scaler.get_scale() >= scale
+        else:
+            self.optimizer.step()
+            stepped = True
+        self.optimizer.zero_grad()
+        self._grad_count = 0
+        return stepped
 
     def _get_loss(self, x: Tensor, target: Tensor, return_logits: bool = False) -> Tensor | tuple[Tensor, Tensor]:
         # AMP
@@ -269,6 +278,7 @@ class Trainer:
                 if len(params) > 0:
                     self.optimizer.add_param_group({"params": params, "weight_decay": wd})
         self.optimizer.zero_grad()
+        self._grad_count = 0
 
     @torch.inference_mode()
     def evaluate(self):  # type: ignore[no-untyped-def]  # noqa: D102, ANN201
@@ -280,10 +290,11 @@ class Trainer:
 
     def _reset_scheduler(self, lr: float, num_epochs: int, sched_type: str = "onecycle", **kwargs: Any) -> None:
         self.scheduler: LRScheduler
+        num_steps = num_epochs * math.ceil(len(self.train_loader) / self.gradient_acc)
         if sched_type == "onecycle":
-            self.scheduler = OneCycleLR(self.optimizer, lr, num_epochs * len(self.train_loader), **kwargs)
+            self.scheduler = OneCycleLR(self.optimizer, lr, num_steps, **kwargs)
         elif sched_type == "cosine":
-            self.scheduler = CosineAnnealingLR(self.optimizer, num_epochs * len(self.train_loader), **kwargs)
+            self.scheduler = CosineAnnealingLR(self.optimizer, num_steps, **kwargs)
         else:
             raise ValueError(f"The following scheduler type is not supported: {sched_type}")
 
@@ -350,7 +361,7 @@ class Trainer:
            start_lr: initial learning rate
            end_lr: final learning rate
            norm_weight_decay: weight decay to apply to normalization parameters
-           num_it: number of iterations to perform
+           num_it: maximum number of microbatches to consume
 
         Raises:
             ValueError: if the number of iterations is greater than the number of available batches
@@ -361,11 +372,14 @@ class Trainer:
         freeze_model(self.model.train(), freeze_until)
         # Update param groups & LR
         self._reset_opt(start_lr, norm_weight_decay)
-        gamma = (end_lr / start_lr) ** (1 / (num_it - 1))
+        num_steps = math.ceil(num_it / self.gradient_acc)
+        gamma = (end_lr / start_lr) ** (1 / (num_steps - 1)) if num_steps > 1 else 1
         scheduler = MultiplicativeLR(self.optimizer, lambda step: gamma)
 
-        self.lr_recorder = [start_lr * gamma**idx for idx in range(num_it)]
+        self.lr_recorder = []
         self.loss_recorder = []
+        accumulated_loss = 0.0
+        accumulated_batches = 0
 
         if self.amp:
             self.scaler = GradScaler("cuda")
@@ -375,21 +389,25 @@ class Trainer:
 
             # Forward
             batch_loss: Tensor = self._get_loss(x, target)  # type: ignore[assignment]
-            self._backprop_step(batch_loss)
-            # Update LR
-            scheduler.step()
-
-            # Record
             if torch.isnan(batch_loss) or torch.isinf(batch_loss):
                 if batch_idx == 0:
                     raise ValueError("loss value is NaN or inf.")
                 break
-            self.loss_recorder.append(batch_loss.item())
-            # Stop after the number of iterations
-            if batch_idx + 1 == num_it:
-                break
 
-        self.lr_recorder = self.lr_recorder[: len(self.loss_recorder)]
+            accumulated_loss += batch_loss.item()
+            accumulated_batches += 1
+            is_last_batch = batch_idx + 1 == num_it
+            stepped = self._backprop_step(batch_loss, force=is_last_batch)
+            if self._grad_count == 0:
+                if stepped:
+                    self.lr_recorder.append(float(self.optimizer.param_groups[0]["lr"]))
+                    self.loss_recorder.append(accumulated_loss / accumulated_batches)
+                    scheduler.step()
+                accumulated_loss = 0.0
+                accumulated_batches = 0
+
+            if is_last_batch:
+                break
 
     def plot_recorder(self, beta: float = 0.95, **kwargs: Any) -> None:
         """Display the results of the LR grid search
