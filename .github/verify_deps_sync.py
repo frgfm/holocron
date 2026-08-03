@@ -49,7 +49,6 @@ def parse_dep_str(dep_str: str) -> dict[str, str]:
 
 def main():  # noqa: PLR0912
     # Retrieve & parse all deps files
-    # ponytail: add Pillow back when the docs stack supports >=12.2.
     deps_dict = {
         "uv": [],
         "ruff": [],
@@ -61,6 +60,7 @@ def main():  # noqa: PLR0912
         "onnxruntime": [],
         "huggingface-hub": [],
         "numpy": [],
+        "Pillow": [],
     }
     # Parse dockerfiles
     for dockerfile in DOCKERFILES:
