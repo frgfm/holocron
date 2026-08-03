@@ -6,11 +6,11 @@
 # /// script
 # requires-python = ">=3.11"
 # dependencies = [
-#     "gradio>=5.0.0,<6.0.0",
+#     "gradio>=6.7.0,<7.0.0",
 #     "huggingface-hub>=1.0.0,<2.0.0",
 #     "numpy>=1.19.5,<3.0.0",
 #     "onnxruntime>=1.22.0,<2.0.0",
-#     "Pillow>=8.4.0,!=9.2.0",
+#     "Pillow>=12.3.0,<13.0.0",
 # ]
 # ///
 
