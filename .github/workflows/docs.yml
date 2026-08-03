@@ -65,11 +65,11 @@ jobs:
       - name: Documentation sanity check
         run: test -e docs/site/index.html || exit
       - name: Install SSH Client 🔑
-        uses: webfactory/ssh-agent@v0.9.1
+        uses: webfactory/ssh-agent@v0.10.0
         with:
           ssh-private-key: ${{ secrets.SSH_DEPLOY_KEY }}
       - name: Deploy to Github Pages
-        uses: JamesIves/github-pages-deploy-action@v4.7.3
+        uses: JamesIves/github-pages-deploy-action@v4.8.0
         with:
           branch: gh-pages
           folder: 'docs/site'
