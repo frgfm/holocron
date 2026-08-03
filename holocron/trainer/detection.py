@@ -28,14 +28,15 @@ def assign_iou(gt_boxes: Tensor, pred_boxes: Tensor, iou_threshold: float = 0.5)
     iou = iou.max(dim=1)
     gt_kept = iou.values >= iou_threshold
     assign_unique = torch.unique(iou.indices[gt_kept])
+    kept_gt_indices = torch.arange(gt_boxes.shape[0], device=gt_boxes.device)[gt_kept]
     # Filter
     if iou.indices[gt_kept].shape[0] == assign_unique.shape[0]:
-        return torch.arange(gt_boxes.shape[0])[gt_kept], iou.indices[gt_kept]  # type: ignore[return-value]
+        return kept_gt_indices, iou.indices[gt_kept]  # type: ignore[return-value]
 
     gt_indices, pred_indices = [], []
     for pred_idx in assign_unique:
         selection = iou.values[gt_kept][iou.indices[gt_kept] == pred_idx].argmax()
-        gt_indices.append(torch.arange(gt_boxes.shape[0])[gt_kept][selection].item())
+        gt_indices.append(kept_gt_indices[selection].item())
         pred_indices.append(iou.indices[gt_kept][selection].item())
     return gt_indices, pred_indices  # type: ignore[return-value]
 
