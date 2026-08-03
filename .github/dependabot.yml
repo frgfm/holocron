@@ -21,13 +21,13 @@ updates:
       actions:
         patterns:
           - "*"
-  - package-ecosystem: "pip"
+  - package-ecosystem: "uv"
     directory: "/"
     labels:
       - "dependencies"
       - "type: misc"
     commit-message:
-      prefix: "build(deps-dev)"
+      prefix: "build(deps)"
     schedule:
       interval: "daily"
       time: "08:00"
@@ -36,64 +36,32 @@ updates:
       - dependency-name: "ruff"
       - dependency-name: "ty"
       - dependency-name: "prek"
+      - dependency-name: "mkdocs"
+      - dependency-name: "mkdocs-material"
+      - dependency-name: "mkdocstrings"
+      - dependency-name: "griffe-typingdoc"
+      - dependency-name: "pytest"
+      - dependency-name: "pytest-cov"
+      - dependency-name: "pytest-pretty"
+      - dependency-name: "torch"
+      - dependency-name: "torchvision"
     groups:
       quality:
         patterns:
           - "ruff"
           - "ty"
           - "prek"
-  - package-ecosystem: "pip"
-    directory: "/"
-    labels:
-      - "dependencies"
-      - "type: misc"
-    commit-message:
-      prefix: "build(deps-docs)"
-    schedule:
-      interval: "daily"
-      time: "08:00"
-    allow:
-      # Safe updates
-      - dependency-name: "mkdocs"
-      - dependency-name: "mkdocs-material"
-      - dependency-name: "mkdocstrings"
-      - dependency-name: "griffe-typingdoc"
-    groups:
-      quality:
+      docs:
         patterns:
           - "mkdocs"
           - "mkdocs-material"
           - "mkdocstrings"
           - "griffe-typingdoc"
-  - package-ecosystem: "pip"
-    directory: "/"
-    labels:
-      - "dependencies"
-      - "type: misc"
-    commit-message:
-      prefix: "build(deps-test)"
-    schedule:
-      interval: "daily"
-      time: "08:00"
-    allow:
-      # Safe updates
-      - dependency-name: "pytest"
-      - dependency-name: "pytest-cov"
-      - dependency-name: "pytest-pretty"
-    groups:
-      quality:
+      tests:
         patterns:
           - "pytest"
           - "pytest-cov"
           - "pytest-pretty"
-  - package-ecosystem: "pip"
-    directory: "/"
-    schedule:
-      interval: "daily"
-      time: "08:00"
-    allow:
-      - dependency-name: "torch"
-      - dependency-name: "torchvision"
   - package-ecosystem: "uv"
     directory: "api/"
     schedule:
