@@ -17,6 +17,16 @@ No need to download the dataset, torchvision will handle [this](https://pytorch.
 python train.py VOC2012 --arch yolov2 --lr 1e-5 -b 32 -j 16 --epochs 20 --opt radam --sched onecycle
 ```
 
+### YOLOv4 smoke gate
+
+Run this five-epoch correctness smoke from `references/detection`:
+
+```bash
+python train.py VOC2012 --arch yolov4 --img-size 608 --lr 1.3e-3 -b 8 --grad-acc 8 -j 8 --epochs 5 --opt sgd --momentum 0.949 --wd 5e-4 --sched onecycle --freeze-until backbone --amp --device 0 --output-file ./checkpoints/yolov4-voc-smoke.pth
+```
+
+Accept it only when all losses remain finite, the checkpoint is created, and epoch-five localization and detection errors are lower than epoch one. This smoke does not claim paper-level accuracy.
+
 
 
 ## Personal leaderboard

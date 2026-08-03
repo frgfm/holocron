@@ -9,7 +9,7 @@ from typing import Any
 import torch
 import torch.nn.functional as F
 from torch import Tensor, nn
-from torchvision.ops.boxes import box_iou, nms
+from torchvision.ops.boxes import box_iou
 from torchvision.ops.misc import FrozenBatchNorm2d
 
 from holocron.nn import SPP, DropBlock2d
@@ -19,6 +19,7 @@ from holocron.ops.boxes import ciou_loss
 from ..classification.darknetv4 import DarknetBodyV4
 from ..classification.darknetv4 import default_cfgs as dark_cfgs
 from ..utils import conv_sequence, load_pretrained_params
+from .yolo import _post_process
 
 __all__ = ["PAN", "YOLOv4", "yolov4"]
 
@@ -239,16 +240,24 @@ class YoloLayer(nn.Module):
         scale_xy: float = 1.0,
         iou_thresh: float = 0.213,
         lambda_obj: float = 1,
-        lambda_noobj: float = 0.001,
-        lambda_class: float = 0.1,
-        lambda_coords: float = 1.0,
+        lambda_noobj: float = 1,
+        lambda_class: float = 1,
+        lambda_coords: float = 0.07,
         rpn_nms_thresh: float = 0.7,
         box_score_thresh: float = 0.05,
-        ignore_thresh: float = 0.5,
+        ignore_thresh: float = 0.7,
+        all_anchors: Tensor | None = None,
+        anchor_mask: Tensor | None = None,
     ) -> None:
         super().__init__()
         self.num_classes: int = num_classes
         self.register_buffer("anchors", anchors)
+        if all_anchors is None:
+            all_anchors = anchors
+        if anchor_mask is None:
+            anchor_mask = torch.arange(len(anchors), device=anchors.device)
+        self.register_buffer("all_anchors", all_anchors, persistent=False)
+        self.register_buffer("anchor_mask", anchor_mask, persistent=False)
 
         self.rpn_nms_thresh: float = rpn_nms_thresh
         self.box_score_thresh: float = box_score_thresh
@@ -303,89 +312,56 @@ class YoloLayer(nn.Module):
     def post_process(
         boxes: Tensor, b_o: Tensor, b_scores: Tensor, rpn_nms_thresh: float = 0.7, box_score_thresh: float = 0.05
     ) -> list[dict[str, Tensor]]:
-        b_o = torch.sigmoid(b_o)
-        b_scores = torch.sigmoid(b_scores)
-
-        boxes = boxes.clamp_(0, 1)
-        detections = []
-        for idx in range(b_o.shape[0]):
-            coords = torch.zeros((0, 4), dtype=torch.float32, device=b_o.device)
-            scores = torch.zeros(0, dtype=torch.float32, device=b_o.device)
-            labels = torch.zeros(0, dtype=torch.long, device=b_o.device)
-
-            # Objectness filter
-            if torch.any(b_o[idx] >= 0.5):
-                coords = boxes[idx, b_o[idx] >= 0.5]
-                scores, labels = b_scores[idx, b_o[idx] >= 0.5].max(dim=-1)
-                # Multiply by the objectness
-                scores.mul_(b_o[idx, b_o[idx] >= 0.5])
-
-                # Confidence threshold
-                coords = coords[scores >= box_score_thresh]
-                labels = labels[scores >= box_score_thresh]
-                scores = scores[scores >= box_score_thresh]
-                coords = coords.clamp_(0, 1)
-                # NMS
-                kept_idxs = nms(coords, scores, iou_threshold=rpn_nms_thresh)
-                coords = coords[kept_idxs]
-                scores = scores[kept_idxs]
-                labels = labels[kept_idxs]
-
-            detections.append({"boxes": coords, "scores": scores, "labels": labels})
-
-        return detections
+        return _post_process(
+            boxes.clamp(0, 1).reshape(boxes.shape[0], -1, 4),
+            torch.sigmoid(b_o).flatten(1),
+            torch.sigmoid(b_scores).reshape(b_scores.shape[0], -1, b_scores.shape[-1]),
+            rpn_nms_thresh,
+            box_score_thresh,
+        )
 
     def _build_targets(
         self, pred_boxes: Tensor, b_o: Tensor, b_scores: Tensor, target: list[dict[str, Tensor]]
     ) -> tuple[Tensor, Tensor, Tensor, Tensor]:
-        b, h, w, num_anchors = b_o.shape
+        _b, h, w, num_anchors = b_o.shape
 
-        # Target formatting
-        target_o = torch.zeros((b, h, w, num_anchors), device=b_o.device)
-        target_scores = torch.zeros((b, h, w, num_anchors, self.num_classes), device=b_o.device)
-        obj_mask = torch.zeros((b, h, w, num_anchors), dtype=torch.bool, device=b_o.device)
-        noobj_mask = torch.ones((b, h, w, num_anchors), dtype=torch.bool, device=b_o.device)
+        target_boxes = torch.zeros_like(pred_boxes)
+        target_scores = torch.zeros_like(b_scores)
+        obj_mask = torch.zeros_like(b_o, dtype=torch.bool)
+        noobj_mask = torch.ones_like(b_o, dtype=torch.bool)
 
-        gt_boxes = [t["boxes"] for t in target]
-        gt_labels = [t["labels"] for t in target]
+        self.all_anchors: Tensor
+        self.anchor_mask: Tensor
+        anchor_boxes = torch.cat((-self.all_anchors / 2, self.all_anchors / 2), dim=-1)
+        for batch_idx, target_ in enumerate(target):
+            boxes, labels = target_["boxes"], target_["labels"]
+            if boxes.shape[0] == 0:
+                continue
 
-        # GT coords --> left, top, width, height
-        boxes = torch.cat(gt_boxes, dim=0)
-        gt_centers = boxes[..., [0, 2, 1, 3]].reshape(-1, 2, 2).mean(dim=-1)
-        gt_centers[:, 0] *= w
-        gt_centers[:, 1] *= h
-        gt_centers = gt_centers.to(dtype=torch.long)
+            ignored = box_iou(pred_boxes[batch_idx].detach().reshape(-1, 4), boxes).amax(dim=1)
+            noobj_mask[batch_idx] = ignored.reshape(h, w, num_anchors) <= self.ignore_thresh
 
-        target_selection = torch.tensor(
-            [idx_ for idx_, boxes_ in enumerate(gt_boxes) for _ in range(boxes_.shape[0])],
-            dtype=torch.long,
-            device=b_o.device,
-        )
-        if target_selection.shape[0] > 0:
-            # Anchors IoU
             gt_wh = boxes[:, 2:] - boxes[:, :2]
-            anchor_idxs = box_iou(
-                torch.cat((-gt_wh, gt_wh), dim=-1), torch.cat((-self.anchors, self.anchors), dim=-1)
-            ).argmax(dim=1)
+            anchor_ious = box_iou(torch.cat((-gt_wh / 2, gt_wh / 2), dim=-1), anchor_boxes)
+            selected = anchor_ious > self.iou_thresh
+            selected.scatter_(1, anchor_ious.argmax(dim=1, keepdim=True), True)
 
-            # Assign boxes
-            obj_mask[target_selection, gt_centers[:, 1], gt_centers[:, 0], anchor_idxs] = True
-            noobj_mask[target_selection, gt_centers[:, 1], gt_centers[:, 0], :] = False
+            centers = (boxes[:, :2] + boxes[:, 2:]) / 2
+            grid_x = (centers[:, 0] * w).long().clamp_(0, w - 1)
+            grid_y = (centers[:, 1] * h).long().clamp_(0, h - 1)
+            for gt_idx, global_anchor_idx in selected.nonzero():
+                local_anchor = (self.anchor_mask == global_anchor_idx).nonzero()
+                if local_anchor.numel() == 0:
+                    continue
+                anchor_idx = local_anchor.item()
+                y, x = grid_y[gt_idx], grid_x[gt_idx]
+                obj_mask[batch_idx, y, x, anchor_idx] = True
+                noobj_mask[batch_idx, y, x, anchor_idx] = False
+                target_boxes[batch_idx, y, x, anchor_idx] = boxes[gt_idx]
+                target_scores[batch_idx, y, x, anchor_idx] = 0
+                target_scores[batch_idx, y, x, anchor_idx, labels[gt_idx]] = 1
 
-            # B * cells * predictors * info
-            for idx in range(b):
-                if gt_boxes[idx].shape[0] > 0:
-                    # IoU with cells that enclose the GT centers
-                    gt_ious, gt_idxs = box_iou(pred_boxes[idx, obj_mask[idx]], gt_boxes[idx]).max(dim=1)
-                    # Objectness target
-                    target_o[idx, obj_mask[idx]] = gt_ious
-                    # Classification target
-                    target_scores[idx, obj_mask[idx], gt_labels[idx][gt_idxs]] = 1.0
-                    # Ignore predictions
-                    gt_ious = box_iou(pred_boxes[idx, noobj_mask[idx]], gt_boxes[idx]).max(dim=1).values
-                    noobj_mask[idx, noobj_mask[idx]][gt_ious >= self.ignore_thresh] = False
-
-        return target_o, target_scores, obj_mask, noobj_mask
+        return target_boxes, target_scores, obj_mask, noobj_mask
 
     def _compute_losses(
         self,
@@ -394,29 +370,24 @@ class YoloLayer(nn.Module):
         b_scores: Tensor,
         target: list[dict[str, Tensor]],
     ) -> dict[str, Tensor]:
-        target_o, target_scores, obj_mask, noobj_mask = self._build_targets(pred_boxes, b_o, b_scores, target)
+        target_boxes, target_scores, obj_mask, noobj_mask = self._build_targets(pred_boxes, b_o, b_scores, target)
 
-        # Bbox regression
-        bbox_loss = torch.zeros(1, device=b_o.device)
-        for idx, target_ in enumerate(target):
-            if target_["boxes"].shape[0] > 0 and torch.any(obj_mask[idx]):
-                bbox_loss += ciou_loss(pred_boxes[idx, obj_mask[idx]], target_["boxes"]).min(dim=1).values.sum()
-
-        b_o = torch.sigmoid(b_o)
+        bbox_loss = pred_boxes.sum() * 0
+        if torch.any(obj_mask):
+            matched_boxes = target_boxes[obj_mask]
+            areas = (matched_boxes[:, 2] - matched_boxes[:, 0]) * (matched_boxes[:, 3] - matched_boxes[:, 1])
+            bbox_loss = ((2 - areas) * ciou_loss(pred_boxes[obj_mask], matched_boxes).diagonal()).sum()
 
         return {
-            "obj_loss": self.lambda_obj * F.mse_loss(b_o[obj_mask], target_o[obj_mask], reduction="sum") / b_o.shape[0],
-            "noobj_loss": self.lambda_noobj * b_o[noobj_mask].pow(2).sum() / b_o.shape[0],
+            "obj_loss": self.lambda_obj
+            * F.binary_cross_entropy_with_logits(b_o[obj_mask], torch.ones_like(b_o[obj_mask]), reduction="sum")
+            / b_o.shape[0],
+            "noobj_loss": self.lambda_noobj
+            * F.binary_cross_entropy_with_logits(b_o[noobj_mask], torch.zeros_like(b_o[noobj_mask]), reduction="sum")
+            / b_o.shape[0],
             "bbox_loss": self.lambda_coords * bbox_loss / b_o.shape[0],
             "clf_loss": self.lambda_class
-            * F
-            .binary_cross_entropy_with_logits(
-                b_scores[obj_mask],
-                target_scores[obj_mask],
-                reduction="none",
-            )
-            .mean(1)
-            .sum(0)
+            * F.binary_cross_entropy_with_logits(b_scores[obj_mask], target_scores[obj_mask], reduction="sum")
             / b_o.shape[0],
         }
 
@@ -479,6 +450,7 @@ class Yolov4Head(nn.Module):
             raise AssertionError(f"The number of anchors is expected to be 3. received: {anchors.shape[0]}")
 
         super().__init__()
+        all_anchors = anchors.reshape(-1, 2)
 
         self.head1 = nn.Sequential(
             *conv_sequence(
@@ -487,7 +459,13 @@ class Yolov4Head(nn.Module):
             *conv_sequence(256, (5 + num_classes) * 3, None, None, None, conv_layer, kernel_size=1, bias=True),
         )
 
-        self.yolo1 = YoloLayer(anchors[0], num_classes=num_classes, scale_xy=1.2)
+        self.yolo1 = YoloLayer(
+            anchors[0],
+            num_classes=num_classes,
+            scale_xy=1.2,
+            all_anchors=all_anchors,
+            anchor_mask=torch.arange(3),
+        )
 
         self.pre_head2 = nn.Sequential(
             *conv_sequence(
@@ -543,7 +521,13 @@ class Yolov4Head(nn.Module):
             *conv_sequence(512, (5 + num_classes) * 3, None, None, None, conv_layer, kernel_size=1, bias=True),
         )
 
-        self.yolo2 = YoloLayer(anchors[1], num_classes=num_classes, scale_xy=1.1)
+        self.yolo2 = YoloLayer(
+            anchors[1],
+            num_classes=num_classes,
+            scale_xy=1.1,
+            all_anchors=all_anchors,
+            anchor_mask=torch.arange(3, 6),
+        )
 
         self.pre_head3 = nn.Sequential(
             *conv_sequence(
@@ -605,7 +589,13 @@ class Yolov4Head(nn.Module):
             *conv_sequence(1024, (5 + num_classes) * 3, None, None, None, conv_layer, kernel_size=1, bias=True),
         )
 
-        self.yolo3 = YoloLayer(anchors[2], num_classes=num_classes, scale_xy=1.05)
+        self.yolo3 = YoloLayer(
+            anchors[2],
+            num_classes=num_classes,
+            scale_xy=1.05,
+            all_anchors=all_anchors,
+            anchor_mask=torch.arange(6, 9),
+        )
         init_module(self, "leaky_relu")
         # Zero init
         self.head1[-1].weight.data.zero_()
@@ -629,20 +619,27 @@ class Yolov4Head(nn.Module):
         h3 = torch.cat([h3, feats[2]], dim=1)
         o3 = self.head3(h3)
 
-        # YOLO output
+        if not self.training:
+            outputs = [
+                layer._format_outputs(output)  # noqa: SLF001
+                for layer, output in zip((self.yolo1, self.yolo2, self.yolo3), (o1, o2, o3), strict=True)
+            ]
+            boxes = torch.cat([output[0].reshape(output[0].shape[0], -1, 4) for output in outputs], dim=1)
+            objectness = torch.cat([output[1].flatten(1) for output in outputs], dim=1).sigmoid()
+            scores = torch.cat(
+                [output[2].reshape(output[2].shape[0], -1, output[2].shape[-1]) for output in outputs], dim=1
+            ).sigmoid()
+            return _post_process(
+                boxes.clamp(0, 1),
+                objectness,
+                scores,
+                self.yolo1.rpn_nms_thresh,
+                self.yolo1.box_score_thresh,
+            )
+
         y1 = self.yolo1(o1, target)
         y2 = self.yolo2(o2, target)
         y3 = self.yolo3(o3, target)
-
-        if not self.training:
-            return [
-                {
-                    "boxes": torch.cat((det1["boxes"], det2["boxes"], det3["boxes"]), dim=0),
-                    "scores": torch.cat((det1["scores"], det2["scores"], det3["scores"]), dim=0),
-                    "labels": torch.cat((det1["labels"], det2["labels"], det3["labels"]), dim=0),
-                }
-                for det1, det2, det3 in zip(y1, y2, y3, strict=True)
-            ]
 
         return {k: y1[k] + y2[k] + y3[k] for k in y1}
 
@@ -730,24 +727,9 @@ def yolov4(pretrained: bool = False, progress: bool = True, pretrained_backbone:
     r"""YOLOv4 model from
     ["YOLOv4: Optimal Speed and Accuracy of Object Detection"](https://arxiv.org/pdf/2004.10934.pdf).
 
-    The architecture improves upon YOLOv3 by including: the usage of [DropBlock](https://arxiv.org/pdf/1810.12890.pdf) regularization, [Mish](https://arxiv.org/pdf/1908.08681.pdf) activation, [CSP](https://arxiv.org/pdf/2004.10934.pdf) and [SAM](https://arxiv.org/pdf/1807.06521.pdf) in the
-    backbone, [SPP](https://arxiv.org/pdf/1406.4729.pdf) and [PAN](https://arxiv.org/pdf/1803.01534.pdf) in the
-    neck.
-
-    For training, YOLOv4 uses the same multi-part loss as YOLOv3 apart from its box coordinate loss:
-
-    $$
-        \mathcal{L}_{coords} = \sum\limits_{i=0}^{S^2}  \sum\limits_{j=0}^{B}
-        \min\limits_{k \in [1, M]} C_{IoU}(\hat{loc}_{ij}, loc^{GT}_k)
-    $$
-
-    where:
-    - $S$ is size of the output feature map (13 for an input size $(416, 416)$),
-    - $B$ is the number of anchor boxes per grid cell (default: 3),
-    - $M$ is the number of ground truth boxes,
-    - $C_{IoU}$ is the complete IoU loss,
-    - $\hat{loc}_{ij}$ is the predicted bounding box for grid cell $i$ at anchor $j$,
-    and $loc^{GT}_k$ is the k-th ground truth bounding box.
+    The implementation combines a CSPDarknet53-Mish backbone with an SPP/PAN neck and three detection scales.
+    Training uses the YOLOv4 anchor masks and multi-anchor assignment, binary cross-entropy for objectness and
+    classification, and area-weighted Complete IoU for matched boxes.
 
     Args:
         pretrained: If True, returns a model pre-trained on ImageNet

@@ -186,7 +186,7 @@ def main(args):
 
     model_params = [p for p in model.parameters() if p.requires_grad]
     if args.opt == "sgd":
-        optimizer = torch.optim.SGD(model_params, args.lr, momentum=0.9, weight_decay=args.weight_decay)
+        optimizer = torch.optim.SGD(model_params, args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
     elif args.opt == "radam":
         optimizer = holocron.optim.RAdam(
             model_params, args.lr, betas=(0.95, 0.99), eps=1e-6, weight_decay=args.weight_decay
@@ -304,6 +304,7 @@ def get_parser():
     group.add_argument("--freeze-until", default=None, type=str, help="Last layer to freeze")
     group.add_argument("--grad-acc", default=1, type=int, help="Number of batches to accumulate the gradient of")
     group.add_argument("--opt", default="adamp", type=str, help="optimizer")
+    group.add_argument("--momentum", default=0.9, type=float, help="SGD momentum")
     group.add_argument("--sched", default="onecycle", type=str, help="Scheduler to be used")
     group.add_argument("--wd", "--weight-decay", default=0, type=float, help="weight decay", dest="weight_decay")
     group.add_argument("--norm-wd", default=None, type=float, help="weight decay of norm parameters")

@@ -9,7 +9,7 @@ from typing import Any
 import torch
 import torch.nn.functional as F
 from torch import Tensor, nn
-from torchvision.ops.boxes import box_iou, nms
+from torchvision.ops.boxes import batched_nms, box_iou
 
 from holocron.nn.init import init_module
 
@@ -190,34 +190,26 @@ class _YOLO(nn.Module):
             clamp=True,
         ).reshape(b_o.shape[0], -1, 4)
 
-        detections = []
-        for idx in range(b_coords.shape[0]):
-            coords = torch.zeros((0, 4), dtype=b_o.dtype, device=b_o.device)
-            scores = torch.zeros(0, dtype=b_o.dtype, device=b_o.device)
-            labels = torch.zeros(0, dtype=torch.long, device=b_o.device)
+        return _post_process(pred_xyxy, b_o, b_scores, rpn_nms_thresh, box_score_thresh)
 
-            # Objectness filter
-            obj_mask = b_o[idx] >= 0.5
-            if torch.any(obj_mask):
-                coords = pred_xyxy[idx, obj_mask]
-                scores, labels = b_scores[idx, obj_mask].max(dim=-1)
-                # Multiply by the objectness
-                scores.mul_(b_o[idx, obj_mask])
 
-                # Confidence threshold
-                coords = coords[scores >= box_score_thresh]
-                labels = labels[scores >= box_score_thresh]
-                scores = scores[scores >= box_score_thresh]
+def _post_process(
+    boxes: Tensor,
+    b_o: Tensor,
+    b_scores: Tensor,
+    rpn_nms_thresh: float = 0.7,
+    box_score_thresh: float = 0.05,
+) -> list[dict[str, Tensor]]:
+    detections: list[dict[str, Tensor]] = []
+    for idx in range(boxes.shape[0]):
+        scores, labels = b_scores[idx].max(dim=-1)
+        scores *= b_o[idx]
+        score_mask = scores >= box_score_thresh
+        coords, scores, labels = boxes[idx, score_mask], scores[score_mask], labels[score_mask]
+        kept_idxs = batched_nms(coords, scores, labels, iou_threshold=rpn_nms_thresh)
+        detections.append({"boxes": coords[kept_idxs], "scores": scores[kept_idxs], "labels": labels[kept_idxs]})
 
-                # NMS
-                kept_idxs = nms(coords, scores, iou_threshold=rpn_nms_thresh)
-                coords = coords[kept_idxs]
-                scores = scores[kept_idxs]
-                labels = labels[kept_idxs]
-
-            detections.append({"boxes": coords, "scores": scores, "labels": labels})
-
-        return detections
+    return detections
 
 
 class YOLOv1(_YOLO):
