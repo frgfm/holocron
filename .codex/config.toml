@@ -1,0 +1,5 @@
+[mcp_servers.colab-mcp]
+command = "uvx"
+args = ["git+https://github.com/googlecolab/colab-mcp"]
+startup_timeout_sec = 30
+tool_timeout_sec = 3600
