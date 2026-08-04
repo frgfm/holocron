@@ -229,7 +229,13 @@ def main(args):
 
     if args.find_lr:
         print("Looking for optimal LR")
-        trainer.find_lr(args.freeze_until, norm_weight_decay=args.norm_wd, num_it=min(len(train_loader), 100))
+        trainer.find_lr(
+            args.freeze_until,
+            start_lr=args.find_lr_start,
+            end_lr=args.find_lr_end,
+            norm_weight_decay=args.norm_wd,
+            num_it=min(len(train_loader), 100),
+        )
         trainer.plot_recorder()
         return
 
@@ -311,6 +317,8 @@ def get_parser():
     # Actions
     group = parser.add_argument_group("Actions")
     group.add_argument("--find-lr", action="store_true", help="Should you run LR Finder")
+    group.add_argument("--find-lr-start", default=1e-7, type=float, help="initial LR for LR Finder")
+    group.add_argument("--find-lr-end", default=1, type=float, help="final LR for LR Finder")
     group.add_argument("--find-size", dest="find_size", action="store_true", help="Should you run Image size Finder")
     group.add_argument("--check-setup", action="store_true", help="Check your training setup")
     group.add_argument("--show-samples", action="store_true", help="Whether training samples should be displayed")
