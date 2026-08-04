@@ -293,9 +293,10 @@ class YoloLayer(nn.Module):
         b_xy[..., 1].div_(h)
 
         # Box dimension
-        b_wh = torch.exp(output[..., 2:4]) * self.anchors.view(1, 1, 1, -1, 2)
-        # Fix overflow by clipping
-        b_wh = b_wh.clamp_(0, 2)
+        anchors = self.anchors.to(dtype=output.dtype).view(1, 1, 1, -1, 2)
+        max_wh_logits = torch.log(2 / anchors)
+        wh_logits = torch.minimum(output[..., 2:4], max_wh_logits)
+        b_wh = (torch.exp(wh_logits) * anchors).clamp_min_(2 * torch.finfo(output.dtype).eps)
 
         top_left = b_xy - 0.5 * b_wh
         bot_right = top_left + b_wh

@@ -324,6 +324,20 @@ def test_yolov4_empty_targets_and_objectness_gradients():
     assert torch.count_nonzero(output.grad[:, 5:]) == 0
 
 
+@pytest.mark.parametrize("wh_logit", [-1000.0, 1000.0])
+def test_yolov4_extreme_box_logits_are_finite(wh_logit):
+    layer = YoloLayer(torch.tensor([[0.1, 0.1]]), num_classes=2).train()
+    output = torch.zeros((1, 7, 1, 1))
+    output[:, 2:4] = wh_logit
+    output.requires_grad_()
+    target = [{"boxes": torch.tensor([[0.4, 0.4, 0.6, 0.6]]), "labels": torch.tensor([1])}]
+
+    total_loss = sum(layer(output, target).values())
+    assert torch.isfinite(total_loss)
+    total_loss.backward()
+    assert torch.isfinite(output.grad).all()
+
+
 @torch.inference_mode()
 def test_yolo_post_process_combined_confidence_and_class_aware_nms():
     low_objectness = _post_process(
