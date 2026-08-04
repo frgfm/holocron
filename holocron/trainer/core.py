@@ -479,7 +479,7 @@ class Trainer:
         if self.amp:
             self.scaler = GradScaler("cuda")
 
-        for _ in range(num_it):
+        for idx in range(num_it):
             # Forward
             batch_loss: Tensor = self._get_loss(x, target)  # type: ignore[assignment]
             # Backprop
