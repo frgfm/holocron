@@ -198,7 +198,7 @@ def test_find_lr_gradient_accumulation(monkeypatch, gradient_acc, num_it, expect
     assert learner.loss_recorder == pytest.approx(expected_losses)
     assert learner.lr_recorder[0] == pytest.approx(1e-3)
     assert learner.lr_recorder[-1] == pytest.approx(1e-1 if expected_steps > 1 else 1e-3)
-    assert progress_totals == [num_it]
+    assert progress_totals == [expected_steps]
     assert learner._grad_count == 0
     assert not any("lr_scheduler.step() before optimizer.step()" in str(warning.message) for warning in caught)
     if expected_steps > 1:
@@ -233,20 +233,21 @@ def test_find_lr_ignores_amp_overflow(monkeypatch):
         def get_scale(self):
             return self.current_scale
 
-    x = torch.tensor([[1.0], [2.0]])
+    x = torch.tensor([[1.0], [2.0], [3.0]])
     learner = _linear_trainer(x, torch.zeros_like(x), gradient_acc=1, optimizer_cls=_CountingSGD)
-    losses = iter([1.0, 2.0])
+    losses = iter([1.0, 2.0, 3.0])
     learner._get_loss = lambda *_args: learner.model.weight.sum() * 0 + next(losses)
     learner.amp = True
     monkeypatch.setattr("holocron.trainer.core.GradScaler", SkipFirstGradScaler)
     monkeypatch.setattr("holocron.trainer.core.MultiplicativeLR", _CountingScheduler)
+    monkeypatch.setattr("holocron.trainer.core.progress_bar", lambda data, **_kwargs: data)
 
     learner.find_lr(start_lr=1e-3, end_lr=1e-1, num_it=2)
 
-    assert learner.optimizer.used_lrs == pytest.approx([1e-3])
-    assert _CountingScheduler.instance.steps == 1
-    assert learner.lr_recorder == pytest.approx([1e-3])
-    assert learner.loss_recorder == pytest.approx([2.0])
+    assert learner.optimizer.used_lrs == pytest.approx([1e-3, 1e-1])
+    assert _CountingScheduler.instance.steps == 2
+    assert learner.lr_recorder == pytest.approx([1e-3, 1e-1])
+    assert learner.loss_recorder == pytest.approx([2.0, 3.0])
     assert learner._grad_count == 0
 
 
