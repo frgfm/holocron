@@ -6,6 +6,7 @@
 import math
 from collections import defaultdict
 from collections.abc import Callable, Sequence
+from itertools import islice
 from typing import Any, cast
 
 import matplotlib.pyplot as plt
@@ -384,7 +385,7 @@ class Trainer:
         if self.amp:
             self.scaler = GradScaler("cuda")
 
-        for batch_idx, (x, target) in enumerate(self.train_loader):
+        for batch_idx, (x, target) in enumerate(progress_bar(islice(self.train_loader, num_it), total=num_it)):
             x, target = self.to_cuda(x, target)
 
             # Forward
@@ -405,9 +406,6 @@ class Trainer:
                     scheduler.step()
                 accumulated_loss = 0.0
                 accumulated_batches = 0
-
-            if is_last_batch:
-                break
 
     def plot_recorder(self, beta: float = 0.95, **kwargs: Any) -> None:
         """Display the results of the LR grid search

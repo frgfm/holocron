@@ -182,6 +182,8 @@ def test_find_lr_gradient_accumulation(monkeypatch, gradient_acc, num_it, expect
     loss_iter = iter(losses)
     learner._get_loss = lambda *_args: learner.model.weight.sum() * 0 + next(loss_iter)
     monkeypatch.setattr("holocron.trainer.core.MultiplicativeLR", _CountingScheduler)
+    progress_totals = []
+    monkeypatch.setattr("holocron.trainer.core.progress_bar", lambda data, total: progress_totals.append(total) or data)
 
     with warnings.catch_warnings(record=True) as caught:
         warnings.simplefilter("always")
@@ -196,6 +198,7 @@ def test_find_lr_gradient_accumulation(monkeypatch, gradient_acc, num_it, expect
     assert learner.loss_recorder == pytest.approx(expected_losses)
     assert learner.lr_recorder[0] == pytest.approx(1e-3)
     assert learner.lr_recorder[-1] == pytest.approx(1e-1 if expected_steps > 1 else 1e-3)
+    assert progress_totals == [num_it]
     assert learner._grad_count == 0
     assert not any("lr_scheduler.step() before optimizer.step()" in str(warning.message) for warning in caught)
     if expected_steps > 1:

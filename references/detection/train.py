@@ -6,6 +6,7 @@
 """Training script for object detection"""
 
 import datetime
+import logging
 import math
 import os
 import time
@@ -327,10 +328,13 @@ def get_parser():
     group = parser.add_argument_group("Experiment tracking")
     group.add_argument("--wb", action="store_true", help="Log to Weights & Biases")
     group.add_argument("--name", type=str, default=None, help="Name of your training experiment")
+    group.add_argument("--quiet-codecarbon", action="store_true", help="Only report CodeCarbon errors")
 
     return parser
 
 
 if __name__ == "__main__":
     args = get_parser().parse_args()
+    if args.quiet_codecarbon:
+        logging.getLogger("codecarbon").setLevel(logging.ERROR)
     main(args)
