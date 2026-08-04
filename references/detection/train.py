@@ -6,7 +6,6 @@
 """Training script for object detection"""
 
 import datetime
-import logging
 import math
 import os
 import time
@@ -94,7 +93,6 @@ def plot_samples(images, targets, num_samples=8):
     plt.show()
 
 
-@track_emissions()
 def main(args):
     print(args)
 
@@ -335,5 +333,4 @@ def get_parser():
 
 if __name__ == "__main__":
     args = get_parser().parse_args()
-    logging.getLogger("codecarbon").setLevel(logging.INFO if args.verbose_codecarbon else logging.ERROR)
-    main(args)
+    track_emissions(log_level="info" if args.verbose_codecarbon else "error")(main)(args)
