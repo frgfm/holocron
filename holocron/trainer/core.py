@@ -427,21 +427,10 @@ class Trainer:
             avg_loss = beta * avg_loss + (1 - beta) * loss
             smoothed_losses.append(avg_loss / (1 - beta ** (idx + 1)))
 
-        # Properly rescale Y-axis
-        data_slice = slice(
-            min(len(self.loss_recorder) // 10, 10),
-            -min(len(self.loss_recorder) // 20, 5) if len(self.loss_recorder) >= 20 else len(self.loss_recorder),
-        )
-        vals: np.ndarray = np.array(smoothed_losses[data_slice])
-        min_idx = vals.argmin()
-        max_val = vals.max() if min_idx is None else vals[: min_idx + 1].max()
-        delta = max_val - vals[min_idx]
-
-        plt.plot(self.lr_recorder[data_slice], smoothed_losses[data_slice])
+        plt.plot(self.lr_recorder, smoothed_losses)
         plt.xscale("log")
         plt.xlabel("Learning Rate")
         plt.ylabel("Training loss")
-        plt.ylim(vals[min_idx] - 0.1 * delta, max_val + 0.2 * delta)
         plt.grid(True, linestyle="--", axis="x")
         plt.show(**kwargs)
 

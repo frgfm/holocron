@@ -202,7 +202,10 @@ def test_find_lr_gradient_accumulation(monkeypatch, gradient_acc, num_it, expect
     assert learner._grad_count == 0
     assert not any("lr_scheduler.step() before optimizer.step()" in str(warning.message) for warning in caught)
     if expected_steps > 1:
+        plotted_lrs = []
+        monkeypatch.setattr("holocron.trainer.core.plt.plot", lambda lrs, _losses: plotted_lrs.extend(lrs))
         learner.plot_recorder(block=False)
+        assert plotted_lrs == pytest.approx(learner.lr_recorder)
 
 
 def test_find_lr_ignores_amp_overflow(monkeypatch):
