@@ -5,6 +5,7 @@ import torch
 from torch import nn
 
 from holocron.models import classification
+from holocron.models.classification.repvit import _RepVGGDW  # noqa: PLC2701
 
 
 def _test_classification_model(name, num_classes, pretrained):
@@ -64,6 +65,29 @@ def test_mobileone_reparametrize():
 
 
 @pytest.mark.parametrize(
+    ("arch", "training_params", "deployment_params"),
+    [
+        ("repvit_m0_9", 5_103_560, 5_067_056),
+        ("repvit_m1_0", 6_852_900, 6_810_312),
+        ("repvit_m1_1", 8_288_888, 8_244_312),
+    ],
+)
+def test_repvit_reparametrize(arch, training_params, deployment_params):
+    x = torch.rand((1, 3, 64, 64))
+    model = classification.__dict__[arch](pretrained=False, num_classes=1000).eval()
+    assert sum(p.numel() for p in model.parameters()) == training_params
+
+    with torch.no_grad():
+        out = model(x)
+    model.reparametrize()
+
+    assert sum(p.numel() for p in model.parameters()) == deployment_params
+    assert not any(isinstance(mod, (nn.BatchNorm1d, nn.BatchNorm2d, _RepVGGDW)) for mod in model.modules())
+    with torch.no_grad():
+        torch.testing.assert_close(out, model(x), rtol=1e-4, atol=1e-5)
+
+
+@pytest.mark.parametrize(
     ("arch", "pretrained"),
     [
         ("darknet24", True),
@@ -106,6 +130,9 @@ def test_mobileone_reparametrize():
         ("mobileone_s1", False),
         ("mobileone_s2", False),
         ("mobileone_s3", False),
+        ("repvit_m0_9", False),
+        ("repvit_m1_0", False),
+        ("repvit_m1_1", False),
     ],
 )
 def test_classification_model(arch, pretrained):
@@ -129,10 +156,13 @@ def test_classification_model(arch, pretrained):
         "repvgg_a0",
         "convnext_atto",
         "mobileone_s0",
+        "repvit_m0_9",
     ],
 )
 def test_classification_onnx_export(arch, tmpdir_factory):
     model = classification.__dict__[arch](pretrained=False, num_classes=10).eval()
+    if hasattr(model, "reparametrize"):
+        model.reparametrize()
     tmp_path = Path(str(tmpdir_factory.mktemp("onnx"))).joinpath(f"{arch}.onnx")
     img_tensor = torch.rand((1, 3, 224, 224))
     with torch.no_grad():
