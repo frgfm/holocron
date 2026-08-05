@@ -186,7 +186,7 @@ class _RepViTBlock(nn.Module):
 
 class RepViT(nn.Sequential):
     """Implements RepViT as described in
-    `"RepViT: Revisiting Mobile CNN From ViT Perspective" <https://arxiv.org/abs/2307.09283>`_.
+    ["RepViT: Revisiting Mobile CNN From ViT Perspective"](https://arxiv.org/abs/2307.09283).
 
     Args:
         channels: number of output channels in each stage
@@ -216,7 +216,7 @@ class RepViT(nn.Sequential):
             blocks: list[nn.Module] = []
             for block_idx in range(depth):
                 stride = 2 if stage_idx > 0 and block_idx == 0 else 1
-                # Paper pattern: SE on the first block, then alternating blocks except stage ends.
+                # Official configs: SE on the first block, then alternating blocks except stage ends.
                 use_se = block_idx == 0 if stage_idx == 0 else block_idx % 2 == 1 and block_idx < depth - 1
                 blocks.append(_RepViTBlock(in_planes, out_planes, stride, use_se))
                 in_planes = out_planes
@@ -234,6 +234,8 @@ class RepViT(nn.Sequential):
         """Fuse training-time branches and batch-normalization layers for deployment."""
         self.features: nn.Sequential
         patch_embed = cast(nn.Sequential, self.features[0])
+        if not isinstance(patch_embed[0], _ConvNorm):
+            return
         patch_embed[0] = cast(_ConvNorm, patch_embed[0]).reparametrize()
         patch_embed[-1] = cast(_ConvNorm, patch_embed[-1]).reparametrize()
         for stage in self.features[1:]:

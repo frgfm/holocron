@@ -74,11 +74,14 @@ def test_mobileone_reparametrize():
 )
 def test_repvit_reparametrize(arch, training_params, deployment_params):
     x = torch.rand((1, 3, 64, 64))
-    model = classification.__dict__[arch](pretrained=False, num_classes=1000).eval()
+    model = classification.__dict__[arch](pretrained=False, num_classes=1000)
     assert sum(p.numel() for p in model.parameters()) == training_params
 
     with torch.no_grad():
+        model(torch.rand((4, 3, 64, 64)))
+        model.eval()
         out = model(x)
+    model.reparametrize()
     model.reparametrize()
 
     assert sum(p.numel() for p in model.parameters()) == deployment_params

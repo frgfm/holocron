@@ -38,9 +38,9 @@ from local CPU or MPS checks.
 
 | Model | Parameters before/after fusion | MACs | Top-1 | Top-5 | Status |
 |---|---:|---:|---:|---:|---|
-| RepViT-M0.9 | Pending | Pending | Pending | Pending | CUDA run required |
-| RepViT-M1.0 | Pending | Pending | Pending | Pending | CUDA run required |
-| RepViT-M1.1 | Pending | Pending | Pending | Pending | CUDA run required |
+| RepViT-M0.9 | 5,103,560 / 5,067,056 | Pending | Pending | Pending | CUDA run required |
+| RepViT-M1.0 | 6,852,900 / 6,810,312 | Pending | Pending | Pending | CUDA run required |
+| RepViT-M1.1 | 8,288,888 / 8,244,312 | Pending | Pending | Pending | CUDA run required |
 | MobileOne-S2 | Pending rerun | Pending | Pending | Pending | CUDA run required |
 
 No pretrained RepViT checkpoint is published with this implementation.
