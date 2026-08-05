@@ -77,6 +77,7 @@ def plot_samples(images, targets, num_samples=8):
 def main(args):
     print(args)
 
+    torch.manual_seed(args.seed)
     torch.backends.cudnn.benchmark = True
 
     # Data loading
@@ -276,6 +277,7 @@ def main(args):
                 "loss": "crossentropy",
                 "label_smoothing": args.label_smoothing,
                 "mixup_alpha": args.mixup_alpha,
+                "seed": args.seed,
             },
         )
 
@@ -310,6 +312,7 @@ def get_parser():
     group.add_argument("--pretrained", action="store_true", help="Use pre-trained models from the modelzoo")
     group.add_argument("--output-file", default="./checkpoints/checkpoint.pth", help="path where to save")
     group.add_argument("--resume", default="", help="resume from checkpoint")
+    group.add_argument("--seed", default=0, type=int, help="random seed")
     # Hardware
     group = parser.add_argument_group("Hardware")
     group.add_argument("--device", default=None, type=int, help="device")

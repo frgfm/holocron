@@ -25,8 +25,8 @@ def main(args):
         state_dict = torch.load(args.checkpoint, map_location="cpu")
         model.load_state_dict(state_dict, strict=True)
 
-    # RepVGG
-    if args.arch.startswith("repvgg") or args.arch.startswith("mobileone"):
+    # Reparametrizable models
+    if hasattr(model, "reparametrize"):
         model.reparametrize()
 
     # Input
