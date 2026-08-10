@@ -1,4 +1,5 @@
 import hashlib
+import json
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -10,6 +11,7 @@ from PIL import Image, ImageFont
 
 from holocron import utils
 from holocron.utils import fonts as font_utils
+from scripts import prepare_fonts as font_prep
 
 
 @pytest.fixture(scope="module")
@@ -144,39 +146,72 @@ def test_find_fonts_uses_bundled_fonts(monkeypatch):
     font_utils.find_fonts.cache_clear()
 
 
-def test_download_fonts_cache(monkeypatch, tmp_path):
+@pytest.fixture
+def font_manifest(tmp_path):
     payload = b"font payload"
     checksum = hashlib.sha256(payload).hexdigest()
-    monkeypatch.setattr(font_utils, "_FONT_MANIFEST", (("Test.ttf", "ofl/test/Test.ttf", checksum),))
+    manifest = {
+        "version": 1,
+        "sources": {"test": {"base_url": "https://example.com/fonts", "revision": "abc123"}},
+        "fonts": [
+            {
+                "family": "Test",
+                "style": "Regular",
+                "source": "test",
+                "path": "Test.ttf",
+                "filename": "Test.ttf",
+                "sha256": checksum,
+                "license": "OFL-1.1",
+            }
+        ],
+    }
+    manifest_path = tmp_path / "fonts.json"
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    return manifest_path, payload
+
+
+def test_prepare_fonts_cache(font_manifest, monkeypatch, tmp_path):
+    manifest_path, payload = font_manifest
     calls = []
 
     def _download(url, destination, hash_prefix, progress):
         calls.append((url, Path(destination), hash_prefix, progress))
         Path(destination).write_bytes(payload)
 
-    monkeypatch.setattr(font_utils, "download_url_to_file", _download)
-    expected = (str(tmp_path / "Test.ttf"),)
+    monkeypatch.setattr(font_prep, "download_url_to_file", _download)
+    output_dir = tmp_path / "output"
+    expected = (output_dir / "Test.ttf",)
 
-    assert font_utils.download_fonts(tmp_path, progress=False) == expected
-    assert font_utils.download_fonts(tmp_path, progress=False) == expected
+    assert font_prep.prepare_fonts(manifest_path, output_dir, progress=False) == expected
+    assert font_prep.prepare_fonts(manifest_path, output_dir, progress=False) == expected
     assert len(calls) == 1
     assert calls[0][1].name.startswith(".Test.ttf.")
 
-    (tmp_path / "Test.ttf").write_bytes(b"corrupt")
-    assert font_utils.download_fonts(tmp_path, progress=False) == expected
+    expected[0].write_bytes(b"corrupt")
+    assert font_prep.prepare_fonts(manifest_path, output_dir, progress=False) == expected
     assert len(calls) == 2
-    assert (tmp_path / "Test.ttf").read_bytes() == payload
+    assert expected[0].read_bytes() == payload
 
 
-def test_download_fonts_rejects_bad_checksum(monkeypatch, tmp_path):
-    checksum = hashlib.sha256(b"expected").hexdigest()
-    monkeypatch.setattr(font_utils, "_FONT_MANIFEST", (("Test.ttf", "ofl/test/Test.ttf", checksum),))
+def test_prepare_fonts_rejects_bad_checksum(font_manifest, monkeypatch, tmp_path):
+    manifest_path, _ = font_manifest
 
     def _download(url, destination, hash_prefix, progress):
         del url, destination, hash_prefix, progress
         raise RuntimeError("invalid hash value")
 
-    monkeypatch.setattr(font_utils, "download_url_to_file", _download)
+    monkeypatch.setattr(font_prep, "download_url_to_file", _download)
+    output_dir = tmp_path / "output"
     with pytest.raises(RuntimeError, match="invalid hash value"):
-        font_utils.download_fonts(tmp_path)
-    assert not (tmp_path / "Test.ttf").exists()
+        font_prep.prepare_fonts(manifest_path, output_dir)
+    assert not (output_dir / "Test.ttf").exists()
+
+
+def test_prepare_fonts_rejects_unknown_version(font_manifest, tmp_path):
+    manifest_path, _ = font_manifest
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["version"] = 2
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="unsupported font manifest version"):
+        font_prep.prepare_fonts(manifest_path, tmp_path / "output")

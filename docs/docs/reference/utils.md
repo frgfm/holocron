@@ -5,22 +5,29 @@
 ## Synthetic text rendering
 
 Load fonts once, then render tight grayscale masks for characters or complete
-sequences. Font discovery and the optional download happen before the sampling
+sequences. Font discovery and corpus preparation happen before the sampling
 loop; resizing and stochastic effects remain regular TorchVision transforms.
+
+The library performs no network access. To prepare the pinned starter manifest
+from the repository, run:
+
+```console
+uv run --python 3.12 scripts/prepare_fonts.py --output /tmp/holocron-fonts
+```
+
+Use `find_fonts(text)` instead when only installed system fonts are needed.
 
 ```python
 from itertools import cycle
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 from PIL import ImageFont
 from torchvision.transforms import v2
 
-from holocron.utils import find_fonts, render_text
+from holocron.utils import render_text
 
-font_paths = find_fonts("OCR-42é")[:3]
-# For a reproducible five-family OFL pack instead:
-# from holocron.utils import download_fonts
-# font_paths = download_fonts()
+font_paths = tuple(str(path) for path in sorted(Path("/tmp/holocron-fonts").glob("*.ttf")))[:3]
 fonts = [ImageFont.truetype(path, 48) for path in font_paths]
 
 augment = v2.Compose([
@@ -50,7 +57,6 @@ Font License.
         members:
             - render_text
             - find_fonts
-            - download_fonts
 
 ## Miscellaneous
 

@@ -3,49 +3,14 @@
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
-import hashlib
 from functools import lru_cache
 from pathlib import Path
-from tempfile import NamedTemporaryFile
-from urllib.parse import quote
 
 from matplotlib import font_manager
 from matplotlib.ft2font import FT2Font
 from PIL import Image, ImageFont
-from torch.hub import download_url_to_file, get_dir
 
-__all__ = ["download_fonts", "find_fonts", "render_text"]
-
-
-_GOOGLE_FONTS_REVISION = "038b637da7b3fd956a4ed93ffc607c3d5e4ce172"
-_GOOGLE_FONTS_URL = f"https://raw.githubusercontent.com/google/fonts/{_GOOGLE_FONTS_REVISION}"
-_FONT_MANIFEST = (
-    (
-        "Montserrat.ttf",
-        "ofl/montserrat/Montserrat[wght].ttf",
-        "0f7b311b2f3279e4eef9b2f968bcdbab6e28f4daeb1f049f4f278a902bcd82f7",
-    ),
-    (
-        "Lora.ttf",
-        "ofl/lora/Lora[wght].ttf",
-        "822a6621ccbe8d97d20ac88c1c41f5615c9c2c202eaa75f272cd452aac6475a7",
-    ),
-    (
-        "RobotoMono.ttf",
-        "ofl/robotomono/RobotoMono[wght].ttf",
-        "66a80e79d17e4c7cabd162e2916578a4cc08fd19eef6e2a643305eae9c567b2b",
-    ),
-    (
-        "Caveat.ttf",
-        "ofl/caveat/Caveat[wght].ttf",
-        "0bdb6b660482d31531b3945849fba5916b3ef8695da7024a9e6b9ee3c4157988",
-    ),
-    (
-        "BebasNeue.ttf",
-        "ofl/bebasneue/BebasNeue-Regular.ttf",
-        "08e4623805102d819f58601e46e345648846075e363b2ceb23313c2d1c83ec73",
-    ),
-)
+__all__ = ["find_fonts", "render_text"]
 
 
 def _validate_color(name: str, color: int) -> None:
@@ -143,44 +108,3 @@ def find_fonts(text: str | None = None) -> tuple[str, ...]:
             continue
         available.append(font_path)
     return tuple(available)
-
-
-def _sha256(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as file:
-        while chunk := file.read(1024 * 1024):
-            digest.update(chunk)
-    return digest.hexdigest()
-
-
-def download_fonts(cache_dir: str | Path | None = None, *, progress: bool = True) -> tuple[str, ...]:
-    """Download a small SHA-256-verified Latin OCR font collection.
-
-    Args:
-        cache_dir: destination directory, or the Holocron Torch Hub cache by default
-        progress: whether to display download progress
-
-    Returns:
-        downloaded font paths in deterministic manifest order
-    """
-    root = Path(cache_dir) if cache_dir is not None else Path(get_dir()) / "holocron" / "fonts"
-    root.mkdir(parents=True, exist_ok=True)
-
-    font_paths = []
-    for filename, source_path, expected_sha256 in _FONT_MANIFEST:
-        destination = root / filename
-        if destination.is_file() and _sha256(destination) == expected_sha256:
-            font_paths.append(str(destination))
-            continue
-
-        url = f"{_GOOGLE_FONTS_URL}/{quote(source_path, safe='/')}"
-        with NamedTemporaryFile(dir=root, prefix=f".{filename}.", delete=False) as file:
-            temporary = Path(file.name)
-        try:
-            download_url_to_file(url, str(temporary), hash_prefix=expected_sha256, progress=progress)
-            temporary.replace(destination)
-        finally:
-            temporary.unlink(missing_ok=True)
-        font_paths.append(str(destination))
-
-    return tuple(font_paths)
