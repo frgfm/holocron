@@ -1,0 +1,318 @@
+# Copyright (C) 2019-2026, François-Guillaume Fernandez.
+
+# This program is licensed under the Apache License 2.0.
+# See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
+
+from collections import OrderedDict
+from typing import Any, cast
+
+import torch
+from torch import Tensor, nn
+from torch.nn import functional as F
+from torchvision.ops import SqueezeExcitation
+
+from holocron.nn import GlobalAvgPool2d
+
+from ..checkpoints import Checkpoint, _handle_legacy_pretrained
+from ..utils import _configure_model, fuse_conv_bn
+
+__all__ = ["RepViT", "repvit_m0_9", "repvit_m1_0", "repvit_m1_1"]
+
+
+def _make_divisible(value: float, divisor: int = 8) -> int:
+    rounded = max(divisor, int(value + divisor / 2) // divisor * divisor)
+    return rounded + divisor if rounded < 0.9 * value else rounded
+
+
+class _ConvNorm(nn.Sequential):
+    def __init__(
+        self,
+        in_channels: int,
+        out_channels: int,
+        kernel_size: int = 1,
+        stride: int = 1,
+        padding: int = 0,
+        groups: int = 1,
+        bn_weight_init: float = 1.0,
+    ) -> None:
+        conv = nn.Conv2d(
+            in_channels,
+            out_channels,
+            kernel_size,
+            stride,
+            padding,
+            groups=groups,
+            bias=False,
+        )
+        norm = nn.BatchNorm2d(out_channels)
+        super().__init__(conv, norm)
+
+        if norm.weight is not None:
+            nn.init.constant_(norm.weight, bn_weight_init)
+        if norm.bias is not None:
+            nn.init.zeros_(norm.bias)
+
+    @torch.no_grad()
+    def reparametrize(self) -> nn.Conv2d:
+        conv, norm = cast(nn.Conv2d, self[0]), cast(nn.BatchNorm2d, self[1])
+        kernel, bias = fuse_conv_bn(conv, norm)
+        fused = nn.Conv2d(
+            conv.in_channels,
+            conv.out_channels,
+            conv.kernel_size,
+            conv.stride,
+            conv.padding,
+            conv.dilation,
+            conv.groups,
+            bias=True,
+            padding_mode=conv.padding_mode,
+            device=conv.weight.device,
+            dtype=conv.weight.dtype,
+        )
+        fused.weight.copy_(kernel)
+        cast(Tensor, fused.bias).copy_(bias)
+        return fused
+
+
+class _BatchNormLinear(nn.Sequential):
+    def __init__(self, in_features: int, out_features: int) -> None:
+        norm = nn.BatchNorm1d(in_features)
+        linear = nn.Linear(in_features, out_features)
+        super().__init__(norm, linear)
+
+        nn.init.trunc_normal_(linear.weight, std=0.02)
+        if linear.bias is not None:
+            nn.init.zeros_(linear.bias)
+
+    @torch.no_grad()
+    def reparametrize(self) -> nn.Linear:
+        norm, linear = cast(nn.BatchNorm1d, self[0]), cast(nn.Linear, self[1])
+        norm_weight, norm_bias = cast(Tensor, norm.weight), cast(Tensor, norm.bias)
+        running_mean, running_var = cast(Tensor, norm.running_mean), cast(Tensor, norm.running_var)
+        scale = norm_weight / torch.sqrt(running_var + norm.eps)
+        shift = norm_bias - running_mean * scale
+        fused = nn.Linear(
+            linear.in_features,
+            linear.out_features,
+            bias=True,
+            device=linear.weight.device,
+            dtype=linear.weight.dtype,
+        )
+        fused.weight.copy_(linear.weight * scale.unsqueeze(0))
+        fused_bias = cast(Tensor, fused.bias)
+        fused_bias.copy_(linear.weight @ shift)
+        if linear.bias is not None:
+            fused_bias.add_(linear.bias)
+        return fused
+
+
+class _Residual(nn.Module):
+    def __init__(self, block: nn.Module) -> None:
+        super().__init__()
+        self.block = block
+
+    def forward(self, x: Tensor) -> Tensor:
+        return x + self.block(x)
+
+
+class _RepVGGDW(nn.Module):
+    def __init__(self, channels: int) -> None:
+        super().__init__()
+        self.conv3 = _ConvNorm(channels, channels, 3, padding=1, groups=channels)
+        self.conv1 = nn.Conv2d(channels, channels, 1, groups=channels)
+        self.norm = nn.BatchNorm2d(channels)
+
+    def forward(self, x: Tensor) -> Tensor:
+        return self.norm(self.conv3(x) + self.conv1(x) + x)
+
+    @torch.no_grad()
+    def reparametrize(self) -> nn.Conv2d:
+        conv3 = self.conv3.reparametrize()
+        conv3_bias, conv1_bias = cast(Tensor, conv3.bias), cast(Tensor, self.conv1.bias)
+
+        conv3.weight.add_(F.pad(self.conv1.weight, [1, 1, 1, 1]))
+        conv3.weight.add_(F.pad(torch.ones_like(self.conv1.weight), [1, 1, 1, 1]))
+        conv3_bias.add_(conv1_bias)
+
+        norm_weight, norm_bias = cast(Tensor, self.norm.weight), cast(Tensor, self.norm.bias)
+        running_mean, running_var = cast(Tensor, self.norm.running_mean), cast(Tensor, self.norm.running_var)
+        scale = norm_weight / torch.sqrt(running_var + self.norm.eps)
+        conv3.weight.mul_(scale.view(-1, 1, 1, 1))
+        conv3_bias.sub_(running_mean).mul_(scale).add_(norm_bias)
+        return conv3
+
+
+class _RepViTBlock(nn.Module):
+    def __init__(self, in_channels: int, out_channels: int, stride: int, use_se: bool) -> None:
+        super().__init__()
+        if stride not in {1, 2}:
+            raise ValueError("`stride` is expected to be 1 or 2")
+        if stride == 1 and in_channels != out_channels:
+            raise ValueError("stride-1 blocks require matching input and output channels")
+
+        attention = SqueezeExcitation(in_channels, _make_divisible(in_channels / 4)) if use_se else nn.Identity()
+        if stride == 1:
+            self.token_mixer = nn.Sequential(_RepVGGDW(in_channels), attention)
+        else:
+            self.token_mixer = nn.Sequential(
+                _ConvNorm(in_channels, in_channels, 3, stride=2, padding=1, groups=in_channels),
+                attention,
+                _ConvNorm(in_channels, out_channels),
+            )
+
+        self.channel_mixer = _Residual(
+            nn.Sequential(
+                _ConvNorm(out_channels, 2 * out_channels),
+                nn.GELU(),
+                _ConvNorm(2 * out_channels, out_channels, bn_weight_init=0),
+            )
+        )
+
+    def forward(self, x: Tensor) -> Tensor:
+        return self.channel_mixer(self.token_mixer(x))
+
+    def reparametrize(self) -> None:
+        token_mixer = self.token_mixer
+        first = token_mixer[0]
+        if isinstance(first, (_ConvNorm, _RepVGGDW)):
+            token_mixer[0] = first.reparametrize()
+        if isinstance(token_mixer[-1], _ConvNorm):
+            token_mixer[-1] = token_mixer[-1].reparametrize()
+
+        channel_mixer = cast(nn.Sequential, self.channel_mixer.block)
+        channel_mixer[0] = cast(_ConvNorm, channel_mixer[0]).reparametrize()
+        channel_mixer[-1] = cast(_ConvNorm, channel_mixer[-1]).reparametrize()
+
+
+class RepViT(nn.Sequential):
+    """Implements RepViT as described in
+    ["RepViT: Revisiting Mobile CNN From ViT Perspective"](https://arxiv.org/abs/2307.09283).
+
+    Args:
+        channels: number of output channels in each stage
+        num_blocks: number of blocks in each stage
+        num_classes: number of output classes
+        in_channels: number of input channels
+    """
+
+    def __init__(
+        self,
+        channels: list[int],
+        num_blocks: list[int],
+        num_classes: int = 10,
+        in_channels: int = 3,
+    ) -> None:
+        if len(channels) != 4 or len(num_blocks) != 4:
+            raise ValueError("`channels` and `num_blocks` are expected to contain four stages")
+
+        patch_embed = nn.Sequential(
+            _ConvNorm(in_channels, channels[0] // 2, 3, stride=2, padding=1),
+            nn.GELU(),
+            _ConvNorm(channels[0] // 2, channels[0], 3, stride=2, padding=1),
+        )
+        stages: list[nn.Sequential] = []
+        in_planes = channels[0]
+        for stage_idx, (out_planes, depth) in enumerate(zip(channels, num_blocks, strict=True)):
+            blocks: list[nn.Module] = []
+            for block_idx in range(depth):
+                stride = 2 if stage_idx > 0 and block_idx == 0 else 1
+                # Official configs: SE on the first block, then alternating blocks except stage ends.
+                use_se = block_idx == 0 if stage_idx == 0 else block_idx % 2 == 1 and block_idx < depth - 1
+                blocks.append(_RepViTBlock(in_planes, out_planes, stride, use_se))
+                in_planes = out_planes
+            stages.append(nn.Sequential(*blocks))
+
+        super().__init__(
+            OrderedDict([
+                ("features", nn.Sequential(patch_embed, *stages)),
+                ("pool", GlobalAvgPool2d(flatten=True)),
+                ("head", _BatchNormLinear(channels[-1], num_classes)),
+            ])
+        )
+
+    def reparametrize(self) -> None:
+        """Fuse training-time branches and batch-normalization layers for deployment."""
+        self.features: nn.Sequential
+        patch_embed = cast(nn.Sequential, self.features[0])
+        if not isinstance(patch_embed[0], _ConvNorm):
+            return
+        patch_embed[0] = cast(_ConvNorm, patch_embed[0]).reparametrize()
+        patch_embed[-1] = cast(_ConvNorm, patch_embed[-1]).reparametrize()
+        for stage in self.features[1:]:
+            for block in cast(nn.Sequential, stage):
+                cast(_RepViTBlock, block).reparametrize()
+        self.head = cast(_BatchNormLinear, self.head).reparametrize()
+
+
+def _repvit(
+    checkpoint: Checkpoint | None,
+    progress: bool,
+    channels: list[int],
+    num_blocks: list[int],
+    **kwargs: Any,
+) -> RepViT:
+    model = RepViT(channels, num_blocks, **kwargs)
+    return _configure_model(model, checkpoint, progress=progress)
+
+
+def repvit_m0_9(
+    pretrained: bool = False,
+    checkpoint: Checkpoint | None = None,
+    progress: bool = True,
+    **kwargs: Any,
+) -> RepViT:
+    """RepViT-M0.9 model.
+
+    Args:
+        pretrained: If True, loads the default checkpoint when one is available
+        checkpoint: If specified, sets the model parameters to the checkpoint values
+        progress: If True, displays a download progress bar
+        kwargs: keyword arguments of [`RepViT`][holocron.models.classification.repvit.RepViT]
+
+    Returns:
+        A RepViT-M0.9 model
+    """
+    checkpoint = _handle_legacy_pretrained(pretrained, checkpoint, None)
+    return _repvit(checkpoint, progress, [48, 96, 192, 384], [3, 4, 16, 3], **kwargs)
+
+
+def repvit_m1_0(
+    pretrained: bool = False,
+    checkpoint: Checkpoint | None = None,
+    progress: bool = True,
+    **kwargs: Any,
+) -> RepViT:
+    """RepViT-M1.0 model.
+
+    Args:
+        pretrained: If True, loads the default checkpoint when one is available
+        checkpoint: If specified, sets the model parameters to the checkpoint values
+        progress: If True, displays a download progress bar
+        kwargs: keyword arguments of [`RepViT`][holocron.models.classification.repvit.RepViT]
+
+    Returns:
+        A RepViT-M1.0 model
+    """
+    checkpoint = _handle_legacy_pretrained(pretrained, checkpoint, None)
+    return _repvit(checkpoint, progress, [56, 112, 224, 448], [3, 4, 16, 3], **kwargs)
+
+
+def repvit_m1_1(
+    pretrained: bool = False,
+    checkpoint: Checkpoint | None = None,
+    progress: bool = True,
+    **kwargs: Any,
+) -> RepViT:
+    """RepViT-M1.1 model.
+
+    Args:
+        pretrained: If True, loads the default checkpoint when one is available
+        checkpoint: If specified, sets the model parameters to the checkpoint values
+        progress: If True, displays a download progress bar
+        kwargs: keyword arguments of [`RepViT`][holocron.models.classification.repvit.RepViT]
+
+    Returns:
+        A RepViT-M1.1 model
+    """
+    checkpoint = _handle_legacy_pretrained(pretrained, checkpoint, None)
+    return _repvit(checkpoint, progress, [64, 128, 256, 512], [3, 4, 14, 3], **kwargs)
