@@ -49,7 +49,9 @@ _FONT_MANIFEST = (
 
 
 def _validate_color(name: str, color: int) -> None:
-    if isinstance(color, bool) or not isinstance(color, int) or not 0 <= color <= 255:
+    if isinstance(color, bool) or not isinstance(color, int):
+        raise TypeError(f"{name} must be an integer")
+    if not 0 <= color <= 255:
         raise ValueError(f"{name} must be an integer between 0 and 255")
 
 
@@ -160,9 +162,6 @@ def download_fonts(cache_dir: str | Path | None = None, *, progress: bool = True
 
     Returns:
         downloaded font paths in deterministic manifest order
-
-    Raises:
-        RuntimeError: if a downloaded file fails SHA-256 verification
     """
     root = Path(cache_dir) if cache_dir is not None else Path(get_dir()) / "holocron" / "fonts"
     root.mkdir(parents=True, exist_ok=True)
@@ -179,8 +178,6 @@ def download_fonts(cache_dir: str | Path | None = None, *, progress: bool = True
             temporary = Path(file.name)
         try:
             download_url_to_file(url, str(temporary), hash_prefix=expected_sha256, progress=progress)
-            if _sha256(temporary) != expected_sha256:
-                raise RuntimeError(f"invalid SHA-256 for downloaded font: {filename}")
             temporary.replace(destination)
         finally:
             temporary.unlink(missing_ok=True)

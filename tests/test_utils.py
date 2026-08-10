@@ -125,6 +125,8 @@ def test_render_text_invalid_options(dejavu_sans):
         utils.render_text("A", dejavu_sans, padding=-1)
     with pytest.raises(ValueError, match="between 0 and 255"):
         utils.render_text("A", dejavu_sans, text_color=256)
+    with pytest.raises(TypeError, match="must be an integer"):
+        utils.render_text("A", dejavu_sans, text_color=True)
     with pytest.raises(ValueError, match="must differ"):
         utils.render_text("A", dejavu_sans, background_color=0, text_color=0)
     with pytest.raises(TypeError, match="FreeTypeFont"):
@@ -171,10 +173,10 @@ def test_download_fonts_rejects_bad_checksum(monkeypatch, tmp_path):
     monkeypatch.setattr(font_utils, "_FONT_MANIFEST", (("Test.ttf", "ofl/test/Test.ttf", checksum),))
 
     def _download(url, destination, hash_prefix, progress):
-        del url, hash_prefix, progress
-        Path(destination).write_bytes(b"unexpected")
+        del url, destination, hash_prefix, progress
+        raise RuntimeError("invalid hash value")
 
     monkeypatch.setattr(font_utils, "download_url_to_file", _download)
-    with pytest.raises(RuntimeError, match="invalid SHA-256"):
+    with pytest.raises(RuntimeError, match="invalid hash value"):
         font_utils.download_fonts(tmp_path)
     assert not (tmp_path / "Test.ttf").exists()
