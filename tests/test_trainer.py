@@ -297,7 +297,7 @@ def _test_trainer(
 
 def test_classification_trainer(tmpdir_factory):
     folder = tmpdir_factory.mktemp("checkpoints")
-    file_path = str(folder.join("tmp.pt"))
+    file_path = str(folder.join("nested", "tmp.pt"))
 
     num_it = 100
     batch_size = 8

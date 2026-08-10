@@ -6,6 +6,7 @@
 import math
 from collections import defaultdict
 from collections.abc import Callable, Sequence
+from pathlib import Path
 from typing import Any, cast
 
 import matplotlib.pyplot as plt
@@ -115,6 +116,7 @@ class Trainer:
         Args:
             output_file: destination file path
         """
+        Path(output_file).parent.mkdir(parents=True, exist_ok=True)
         torch.save(
             {
                 "epoch": self.epoch,
