@@ -299,13 +299,13 @@ find_lr(freeze_until: str | None = None, start_lr: float = 1e-07, end_lr: float 
 
 Gridsearch the optimal learning rate for the training as described in ["Cyclical Learning Rates for Training Neural Networks"](https://arxiv.org/pdf/1506.01186.pdf).
 
-| PARAMETER           | DESCRIPTION                                                         |
-| ------------------- | ------------------------------------------------------------------- |
-| `freeze_until`      | last layer to freeze **TYPE:** \`str                                |
-| `start_lr`          | initial learning rate **TYPE:** `float` **DEFAULT:** `1e-07`        |
-| `end_lr`            | final learning rate **TYPE:** `float` **DEFAULT:** `1`              |
-| `norm_weight_decay` | weight decay to apply to normalization parameters **TYPE:** \`float |
-| `num_it`            | number of iterations to perform **TYPE:** `int` **DEFAULT:** `100`  |
+| PARAMETER           | DESCRIPTION                                                                  |
+| ------------------- | ---------------------------------------------------------------------------- |
+| `freeze_until`      | last layer to freeze **TYPE:** \`str                                         |
+| `start_lr`          | initial learning rate **TYPE:** `float` **DEFAULT:** `1e-07`                 |
+| `end_lr`            | final learning rate **TYPE:** `float` **DEFAULT:** `1`                       |
+| `norm_weight_decay` | weight decay to apply to normalization parameters **TYPE:** \`float          |
+| `num_it`            | maximum number of microbatches to consume **TYPE:** `int` **DEFAULT:** `100` |
 
 | RAISES       | DESCRIPTION                                                                 |
 | ------------ | --------------------------------------------------------------------------- |
@@ -330,7 +330,7 @@ def find_lr(
        start_lr: initial learning rate
        end_lr: final learning rate
        norm_weight_decay: weight decay to apply to normalization parameters
-       num_it: number of iterations to perform
+       num_it: maximum number of microbatches to consume
 
     Raises:
         ValueError: if the number of iterations is greater than the number of available batches
@@ -341,11 +341,14 @@ def find_lr(
     freeze_model(self.model.train(), freeze_until)
     # Update param groups & LR
     self._reset_opt(start_lr, norm_weight_decay)
-    gamma = (end_lr / start_lr) ** (1 / (num_it - 1))
+    num_steps = math.ceil(num_it / self.gradient_acc)
+    gamma = (end_lr / start_lr) ** (1 / (num_steps - 1)) if num_steps > 1 else 1
     scheduler = MultiplicativeLR(self.optimizer, lambda step: gamma)
 
-    self.lr_recorder = [start_lr * gamma**idx for idx in range(num_it)]
+    self.lr_recorder = []
     self.loss_recorder = []
+    accumulated_loss = 0.0
+    accumulated_batches = 0
 
     if self.amp:
         self.scaler = GradScaler("cuda")
@@ -355,21 +358,25 @@ def find_lr(
 
         # Forward
         batch_loss: Tensor = self._get_loss(x, target)  # type: ignore[assignment]
-        self._backprop_step(batch_loss)
-        # Update LR
-        scheduler.step()
-
-        # Record
         if torch.isnan(batch_loss) or torch.isinf(batch_loss):
             if batch_idx == 0:
                 raise ValueError("loss value is NaN or inf.")
             break
-        self.loss_recorder.append(batch_loss.item())
-        # Stop after the number of iterations
-        if batch_idx + 1 == num_it:
-            break
 
-    self.lr_recorder = self.lr_recorder[: len(self.loss_recorder)]
+        accumulated_loss += batch_loss.item()
+        accumulated_batches += 1
+        is_last_batch = batch_idx + 1 == num_it
+        stepped = self._backprop_step(batch_loss, force=is_last_batch)
+        if self._grad_count == 0:
+            if stepped:
+                self.lr_recorder.append(float(self.optimizer.param_groups[0]["lr"]))
+                self.loss_recorder.append(accumulated_loss / accumulated_batches)
+                scheduler.step()
+            accumulated_loss = 0.0
+            accumulated_batches = 0
+
+        if is_last_batch:
+            break
 ```
 
 #### plot_recorder
