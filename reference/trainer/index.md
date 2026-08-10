@@ -183,6 +183,7 @@ def save(self, output_file: str) -> None:
     Args:
         output_file: destination file path
     """
+    Path(output_file).parent.mkdir(parents=True, exist_ok=True)
     torch.save(
         {
             "epoch": self.epoch,
