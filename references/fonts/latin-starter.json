@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "sources": {
+    "google-fonts": {
+      "base_url": "https://raw.githubusercontent.com/google/fonts",
+      "revision": "038b637da7b3fd956a4ed93ffc607c3d5e4ce172"
+    }
+  },
+  "fonts": [
+    {
+      "family": "Montserrat",
+      "style": "Variable",
+      "source": "google-fonts",
+      "path": "ofl/montserrat/Montserrat[wght].ttf",
+      "filename": "Montserrat.ttf",
+      "sha256": "0f7b311b2f3279e4eef9b2f968bcdbab6e28f4daeb1f049f4f278a902bcd82f7",
+      "license": "OFL-1.1"
+    },
+    {
+      "family": "Lora",
+      "style": "Variable",
+      "source": "google-fonts",
+      "path": "ofl/lora/Lora[wght].ttf",
+      "filename": "Lora.ttf",
+      "sha256": "822a6621ccbe8d97d20ac88c1c41f5615c9c2c202eaa75f272cd452aac6475a7",
+      "license": "OFL-1.1"
+    },
+    {
+      "family": "Roboto Mono",
+      "style": "Variable",
+      "source": "google-fonts",
+      "path": "ofl/robotomono/RobotoMono[wght].ttf",
+      "filename": "RobotoMono.ttf",
+      "sha256": "66a80e79d17e4c7cabd162e2916578a4cc08fd19eef6e2a643305eae9c567b2b",
+      "license": "OFL-1.1"
+    },
+    {
+      "family": "Caveat",
+      "style": "Variable",
+      "source": "google-fonts",
+      "path": "ofl/caveat/Caveat[wght].ttf",
+      "filename": "Caveat.ttf",
+      "sha256": "0bdb6b660482d31531b3945849fba5916b3ef8695da7024a9e6b9ee3c4157988",
+      "license": "OFL-1.1"
+    },
+    {
+      "family": "Bebas Neue",
+      "style": "Regular",
+      "source": "google-fonts",
+      "path": "ofl/bebasneue/BebasNeue-Regular.ttf",
+      "filename": "BebasNeue.ttf",
+      "sha256": "08e4623805102d819f58601e46e345648846075e363b2ceb23313c2d1c83ec73",
+      "license": "OFL-1.1"
+    }
+  ]
+}
