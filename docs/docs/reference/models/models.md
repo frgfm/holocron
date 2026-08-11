@@ -4,6 +4,25 @@ The models subpackage contains definitions of models for addressing
 different tasks, including: image classification, pixelwise semantic
 segmentation and object detection.
 
+## Programmatic discovery
+
+Model discovery uses the public task modules as its source of truth, so agents
+and applications do not need to inspect module internals:
+
+```python
+from holocron.models import Maturity, get_model, get_model_info, list_checkpoints, list_models
+
+names = list_models(task="classification", maturity=Maturity.VALIDATED, pretrained=True)
+checkpoint = list_checkpoints(names[0])[0]
+model = get_model(names[0], checkpoint=checkpoint)
+info = get_model_info(names[0])
+```
+
+Maturity is assigned to each model from its available evidence. Classification
+models with typed evaluation-backed checkpoints are `validated`; other
+classification models and segmentation models are `preview`; detection models
+remain `experimental` until standard benchmark evidence is published.
+
 ## Support status
 
 | Task | Architectures | Published checkpoints | Training | ONNX | Status |

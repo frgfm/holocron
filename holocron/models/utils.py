@@ -14,9 +14,9 @@ from huggingface_hub.file_download import hf_hub_download
 from torch import nn
 from torch.hub import load_state_dict_from_url
 
-from holocron import models
 from holocron.nn import BlurPool2d
 
+from .catalog import get_model
 from .checkpoints import Checkpoint, Dataset, Evaluation, LoadingMeta, Metric, PreProcessing, TrainingRecipe
 from .presets import IMAGENET, IMAGENETTE
 
@@ -165,7 +165,7 @@ def model_from_hf_hub(repo_id: str, **kwargs: Any) -> nn.Module:
     with Path(hf_hub_download(repo_id, filename="config.json", **kwargs)).open("rb") as f:
         cfg = json.load(f)
 
-    model = models.__dict__[cfg["arch"]](num_classes=len(cfg["classes"]), pretrained=False)
+    model = get_model(cfg["arch"], num_classes=len(cfg["classes"]), pretrained=False)
     # Patch the config
     if model.default_cfg is None:
         model.default_cfg = cfg

@@ -2,7 +2,7 @@ import pytest
 import torch
 from torch import nn
 
-from holocron.models import utils
+from holocron.models import Maturity, get_model, get_model_info, list_checkpoints, list_models, utils
 from holocron.models.classification.repvgg import RepVGG
 from holocron.nn import SAM, BlurPool2d, DropBlock2d
 
@@ -90,3 +90,44 @@ def test_model_from_hf_hub():
 
     # Check num of params
     assert sum(p.data.numel() for p in model.parameters()) == 24741642
+
+
+def test_model_catalog():
+    names = list_models()
+    assert names == sorted(names)
+    assert len(names) == len(set(names)) == 59
+    assert set(names) == set(list_models(task="classification")) | set(list_models(task="detection")) | set(
+        list_models(task="segmentation")
+    )
+    assert list_models(maturity=Maturity.EXPERIMENTAL) == ["yolov1", "yolov2", "yolov4"]
+    assert "convnext_atto" in list_models(maturity="validated", pretrained=True)
+    assert "repvit_m0_9" in list_models(maturity="preview", pretrained=False)
+    assert get_model_info("unet_rexnet13").pretrained
+
+    with pytest.raises(ValueError, match="unknown task"):
+        list_models(task="generation")
+    with pytest.raises(ValueError, match="unknown model"):
+        get_model_info("missing")
+
+
+@pytest.mark.parametrize(
+    ("name", "kwargs"),
+    [
+        ("repvit_m0_9", {"num_classes": 7}),
+        ("yolov1", {"num_classes": 7, "pretrained_backbone": False}),
+        ("unet", {"num_classes": 7}),
+    ],
+)
+def test_get_model(name, kwargs):
+    assert isinstance(get_model(name, **kwargs), nn.Module)
+
+
+def test_model_checkpoints():
+    checkpoint = list_checkpoints("convnext_atto")[0]
+    assert checkpoint.meta.arch == "convnext_atto"
+    assert list_checkpoints("repvit_m0_9") == ()
+
+    with pytest.raises(ValueError, match="does not match"):
+        get_model("resnet18", checkpoint=checkpoint)
+    with pytest.raises(TypeError, match="must be a Checkpoint"):
+        get_model("resnet18", checkpoint="imagenette")
