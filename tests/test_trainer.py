@@ -9,6 +9,7 @@ from torchvision.models import get_model, get_model_weights
 
 from holocron import trainer
 from holocron.nn import GlobalAvgPool2d
+from holocron.trainer.detection import assign_iou
 
 
 class MockClassificationDataset(Dataset):
@@ -73,6 +74,32 @@ class MockDetDataset(Dataset):
 
     def __len__(self):
         return self.n
+
+
+@pytest.mark.parametrize(
+    "device",
+    ["cpu", pytest.param("cuda", marks=pytest.mark.skipif(not torch.cuda.is_available(), reason="CUDA unavailable"))],
+)
+def test_assign_iou_device(device):
+    gt_boxes = torch.tensor([[0, 0, 1, 1], [2, 2, 3, 3]], dtype=torch.float32, device=device)
+    pred_boxes = gt_boxes.clone()
+
+    gt_indices, pred_indices = assign_iou(gt_boxes, pred_boxes)
+
+    assert gt_indices.device == gt_boxes.device
+    assert pred_indices.device == gt_boxes.device
+    torch.testing.assert_close(gt_indices, torch.tensor([0, 1], device=device))
+    torch.testing.assert_close(pred_indices, torch.tensor([0, 1], device=device))
+
+
+def test_assign_iou_duplicate_predictions():
+    gt_boxes = torch.tensor([[0, 0, 0.8, 0.8], [2, 2, 3, 3], [0, 0, 1, 1]], dtype=torch.float32)
+    pred_boxes = torch.tensor([[0, 0, 1, 1], [2, 2, 3, 3]], dtype=torch.float32)
+
+    gt_indices, pred_indices = assign_iou(gt_boxes, pred_boxes)
+
+    torch.testing.assert_close(gt_indices, torch.tensor([2, 1]))
+    torch.testing.assert_close(pred_indices, torch.tensor([0, 1]))
 
 
 def collate_fn(batch):

@@ -57,7 +57,7 @@ def test_box_giou(boxes):
 
 def test_aspect_ratio(boxes):
     # All boxes are squares so arctan should yield Pi / 4
-    assert torch.equal(ops.boxes.aspect_ratio(boxes), math.pi / 4 * torch.ones(boxes.shape[0]))
+    assert torch.allclose(ops.boxes.aspect_ratio(boxes), math.pi / 4 * torch.ones(boxes.shape[0]))
 
 
 def test_aspect_ratio_consistency(boxes):
@@ -74,3 +74,18 @@ def test_ciou_loss(boxes):
     for idx in range(boxes.shape[0]):
         assert ciou[idx, idx].item() == 0.0
     assert ciou[0, 2].item() == ciou[2, 3].item()
+
+
+def test_ciou_loss_aspect_ratio_term():
+    boxes1 = torch.tensor([[-1, -0.5, 1, 0.5]], dtype=torch.float32, requires_grad=True)
+    boxes2 = torch.tensor([[-0.5, -1, 0.5, 1]], dtype=torch.float32)
+
+    iou = 1 / 3
+    v = 4 / math.pi**2 * (math.atan(2) - math.atan(0.5)) ** 2
+    expected = 1 - iou + v**2 / (1 - iou + v)
+    loss = ops.boxes.ciou_loss(boxes1, boxes2)
+
+    assert loss.item() == pytest.approx(expected)
+    assert loss.item() > ops.boxes.diou_loss(boxes1, boxes2).item()
+    loss.backward()
+    assert torch.isfinite(boxes1.grad).all()

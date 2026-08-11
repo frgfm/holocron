@@ -13,7 +13,7 @@ from .core import Trainer
 __all__ = ["DetectionTrainer"]
 
 
-def assign_iou(gt_boxes: Tensor, pred_boxes: Tensor, iou_threshold: float = 0.5) -> tuple[list[int], list[int]]:
+def assign_iou(gt_boxes: Tensor, pred_boxes: Tensor, iou_threshold: float = 0.5) -> tuple[Tensor, Tensor]:
     """Assigns boxes by IoU
 
     Args:
@@ -27,17 +27,20 @@ def assign_iou(gt_boxes: Tensor, pred_boxes: Tensor, iou_threshold: float = 0.5)
     iou = box_iou(gt_boxes, pred_boxes)
     iou = iou.max(dim=1)
     gt_kept = iou.values >= iou_threshold
-    assign_unique = torch.unique(iou.indices[gt_kept])
+    kept_pred_indices = iou.indices[gt_kept]
+    assign_unique = torch.unique(kept_pred_indices)
+    kept_gt_indices = torch.arange(gt_boxes.shape[0], device=gt_boxes.device)[gt_kept]
     # Filter
-    if iou.indices[gt_kept].shape[0] == assign_unique.shape[0]:
-        return torch.arange(gt_boxes.shape[0])[gt_kept], iou.indices[gt_kept]  # type: ignore[return-value]
+    if kept_pred_indices.shape[0] == assign_unique.shape[0]:
+        return kept_gt_indices, kept_pred_indices
 
     gt_indices, pred_indices = [], []
     for pred_idx in assign_unique:
-        selection = iou.values[gt_kept][iou.indices[gt_kept] == pred_idx].argmax()
-        gt_indices.append(torch.arange(gt_boxes.shape[0])[gt_kept][selection].item())
-        pred_indices.append(iou.indices[gt_kept][selection].item())
-    return gt_indices, pred_indices  # type: ignore[return-value]
+        candidates = kept_pred_indices == pred_idx
+        selection = iou.values[gt_kept][candidates].argmax()
+        gt_indices.append(kept_gt_indices[candidates][selection])
+        pred_indices.append(pred_idx)
+    return torch.stack(gt_indices), torch.stack(pred_indices)
 
 
 class DetectionTrainer(Trainer):
