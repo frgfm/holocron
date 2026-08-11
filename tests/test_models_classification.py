@@ -162,6 +162,54 @@ def test_classification_model(arch, pretrained):
         "repvit_m0_9",
     ],
 )
+def test_classification_feature_interface(arch):
+    model = classification.__dict__[arch](pretrained=False, num_classes=7).eval()
+    x = torch.rand((1, 3, 64, 64))
+
+    with torch.no_grad():
+        features = model.forward_features(x)
+        logits = model.forward_head(features)
+        embedding = model.forward_head(features, pre_logits=True)
+        torch.testing.assert_close(logits, model(x))
+
+    classifier = model.get_classifier()
+    embedding_size = classifier.in_features if isinstance(classifier, nn.Linear) else classifier.in_channels
+    assert embedding.shape == (x.shape[0], embedding_size)
+
+    device, dtype = classifier.weight.device, classifier.weight.dtype
+    model.reset_classifier(3)
+    replacement = model.get_classifier()
+    assert replacement is not classifier
+    assert replacement.weight.device == device
+    assert replacement.weight.dtype == dtype
+
+    x.requires_grad_()
+    output = model(x)
+    assert output.shape == (x.shape[0], 3)
+    output.sum().backward()
+    assert x.grad is not None
+    assert replacement.weight.grad is not None
+
+
+@pytest.mark.parametrize(
+    "arch",
+    [
+        "darknet24",
+        "darknet19",
+        "darknet53",
+        "cspdarknet53",
+        "resnet18",
+        "res2net50_26w_4s",
+        "tridentnet50",
+        "pyconv_resnet50",
+        "rexnet1_0x",
+        "sknet50",
+        "repvgg_a0",
+        "convnext_atto",
+        "mobileone_s0",
+        "repvit_m0_9",
+    ],
+)
 def test_classification_onnx_export(arch, tmpdir_factory):
     model = classification.__dict__[arch](pretrained=False, num_classes=10).eval()
     if hasattr(model, "reparametrize"):

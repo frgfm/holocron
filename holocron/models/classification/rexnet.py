@@ -17,6 +17,7 @@ from holocron.nn import GlobalAvgPool2d, init
 
 from ..checkpoints import Checkpoint, Dataset, _handle_legacy_pretrained
 from ..utils import _checkpoint, _configure_model, conv_sequence
+from ._features import _ClassifierMixin
 
 __all__ = [
     "ReXBlock",
@@ -143,7 +144,7 @@ class ReXBlock(nn.Module):
         return out
 
 
-class ReXNet(nn.Sequential):
+class ReXNet(_ClassifierMixin, nn.Sequential):
     def __init__(
         self,
         width_mult: float = 1.0,
