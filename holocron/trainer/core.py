@@ -4,6 +4,8 @@
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
 import math
+import os
+import tempfile
 from collections import defaultdict
 from collections.abc import Callable, Sequence
 from pathlib import Path
@@ -19,11 +21,28 @@ from torch.amp.grad_scaler import GradScaler
 from torch.optim.lr_scheduler import CosineAnnealingLR, LRScheduler, MultiplicativeLR, OneCycleLR
 from torch.utils.data import DataLoader
 
+from .experiment import RunResult, write_run_bundle
 from .utils import freeze_bn, freeze_model, split_normalization_params
 
 ParamSeq = Sequence[torch.nn.Parameter]
 
 __all__ = ["Trainer"]
+
+
+def _type_name(value: Any) -> str:
+    return f"{type(value).__module__}.{type(value).__qualname__}"
+
+
+def _primitive(value: Any) -> Any:
+    if value is None or isinstance(value, bool | int | float | str):
+        return value
+    if isinstance(value, dict):
+        return {str(key): _primitive(item) for key, item in value.items()}
+    if isinstance(value, list | tuple):
+        return [_primitive(item) for item in value]
+    if isinstance(value, Path):
+        return str(value)
+    return repr(value)
 
 
 class Trainer:
@@ -87,6 +106,12 @@ class Trainer:
         self._params: tuple[ParamSeq, ParamSeq] = ([], [])
         self.lr_recorder: list[float] = []
         self.loss_recorder: list[float] = []
+        self._run_config: dict[str, Any] = {}
+        self._metrics_history: list[dict[str, float | int | None]] = []
+        self._resume_scheduler_state: dict[str, Any] | None = None
+        self._resume_optimizer_state: dict[str, Any] | None = None
+        self._resume_scaler_state: dict[str, Any] | None = None
+        self._is_resuming = False
         self.set_device(gpu)
         self._reset_opt(self.optimizer.defaults["lr"])
 
@@ -116,17 +141,56 @@ class Trainer:
         Args:
             output_file: destination file path
         """
-        Path(output_file).parent.mkdir(parents=True, exist_ok=True)
-        torch.save(
-            {
-                "epoch": self.epoch,
-                "step": self.step,
-                "min_loss": self.min_loss,
-                "model": self.model.state_dict(),
+        output_path = Path(output_file)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        rng_state: dict[str, Tensor | list[Tensor]] = {"cpu": torch.get_rng_state()}
+        if torch.cuda.is_available():
+            rng_state["cuda"] = torch.cuda.get_rng_state_all()
+        parameter_names = {id(parameter): name for name, parameter in self.model.named_parameters()}
+        state = {
+            "schema_version": 2,
+            "epoch": self.epoch,
+            "step": self.step,
+            "min_loss": self.min_loss,
+            "best_metric": self.min_loss,
+            "model": self.model.state_dict(),
+            "optimizer": self.optimizer.state_dict(),
+            "scheduler": self.scheduler.state_dict() if hasattr(self, "scheduler") else None,
+            "scaler": self.scaler.state_dict() if hasattr(self, "scaler") else None,
+            "rng_state": rng_state,
+            "metrics": self._metrics_history,
+            "config": self._checkpoint_config(),
+            "optimizer_param_names": [
+                [parameter_names[id(parameter)] for parameter in group["params"]]
+                for group in self.optimizer.param_groups
+            ],
+            "parameter_requires_grad": {
+                name: parameter.requires_grad for name, parameter in self.model.named_parameters()
             },
-            output_file,
-            _use_new_zipfile_serialization=False,
-        )
+        }
+        fd, tmp_name = tempfile.mkstemp(prefix=f".{output_path.name}.", suffix=".tmp", dir=output_path.parent)
+        os.close(fd)
+        try:
+            torch.save(state, tmp_name)
+            Path(tmp_name).replace(output_path)
+        finally:
+            Path(tmp_name).unlink(missing_ok=True)
+
+    def _checkpoint_config(self) -> dict[str, Any]:
+        return {
+            "trainer": {
+                "class": _type_name(self),
+                "model": _type_name(self.model),
+                "criterion": _type_name(self.criterion),
+                "optimizer": _type_name(self.optimizer),
+                "amp": self.amp,
+                "gradient_acc": self.gradient_acc,
+                "gradient_clip": self.grad_clip,
+                "skip_nan_loss": self.skip_nan_loss,
+                "nan_tolerance": self.nan_tolerance,
+            },
+            "run": self._run_config.copy(),
+        }
 
     def load(self, state: dict[str, Any]) -> None:
         """Resume from a trainer state
@@ -134,11 +198,42 @@ class Trainer:
         Args:
             state: checkpoint dictionary
         """
-        self.start_epoch = state["epoch"]
+        self.start_epoch = state.get("epoch", 0)
         self.epoch = self.start_epoch
-        self.step = state["step"]
-        self.min_loss = state["min_loss"]
+        self.step = state.get("step", 0)
+        self.min_loss = state.get("best_metric", state.get("min_loss", math.inf))
         self.model.load_state_dict(state["model"])
+        if state.get("schema_version") != 2:
+            self._run_config = {}
+            self._metrics_history = []
+            self._is_resuming = False
+            return
+
+        config = state.get("config", {})
+        self._run_config = dict(config.get("run", {}))
+        self._metrics_history = [dict(metric) for metric in state.get("metrics", [])]
+        self._resume_optimizer_state = state.get("optimizer")
+        self._resume_scheduler_state = state.get("scheduler")
+        self._resume_scaler_state = state.get("scaler")
+        self._is_resuming = bool(self._run_config and self._resume_scheduler_state is not None)
+
+        if self._resume_optimizer_state is not None:
+            named_parameters = dict(self.model.named_parameters())
+            for name, requires_grad in state.get("parameter_requires_grad", {}).items():
+                named_parameters[name].requires_grad_(requires_grad)
+            parameter_groups = state.get("optimizer_param_names", [])
+            if parameter_groups:
+                self.optimizer.state = defaultdict(dict)
+                self.optimizer.param_groups = []
+                for group in parameter_groups:
+                    self.optimizer.add_param_group({"params": [named_parameters[name] for name in group]})
+            self.optimizer.load_state_dict(self._resume_optimizer_state)
+
+        rng_state = state.get("rng_state", {})
+        if "cpu" in rng_state:
+            torch.set_rng_state(rng_state["cpu"])
+        if torch.cuda.is_available() and rng_state.get("cuda"):
+            torch.cuda.set_rng_state_all(rng_state["cuda"])
 
     def _fit_epoch(self, mb: ConsoleMasterBar | NBMasterBar) -> None:
         """Fit a single epoch
@@ -307,9 +402,13 @@ class Trainer:
         freeze_until: str | None = None,
         sched_type: str = "onecycle",
         norm_weight_decay: float | None = None,
+        run_dir: str | None = None,
         **kwargs: Any,
-    ) -> None:
+    ) -> RunResult:
         """Train the model for a given number of epochs.
+
+        A resumed run reuses its stored optimizer and scheduler configuration;
+        ``num_epochs`` is the number of remaining epochs to execute.
 
         Args:
             num_epochs: number of epochs to train
@@ -317,21 +416,63 @@ class Trainer:
             freeze_until: last layer to freeze
             sched_type: type of scheduler to use
             norm_weight_decay: weight decay to apply to normalization parameters
+            run_dir: optional directory for a schema-v1 run bundle
             **kwargs: keyword args passed to the [`LRScheduler`][torch.optim.lr_scheduler.LRScheduler]
-        """
-        freeze_model(self.model.train(), freeze_until)
-        # Update param groups & LR
-        self._reset_opt(lr, norm_weight_decay)
-        # Scheduler
-        self._reset_scheduler(lr, num_epochs, sched_type, **kwargs)
 
-        if self.amp:
-            self.scaler = GradScaler("cuda")
+        Returns:
+            run result including metrics, resolved configuration, and checkpoint path
+
+        Raises:
+            ValueError: if a resumed run would exceed its original schedule
+        """
+        if self._is_resuming:
+            resume_config = self._run_config
+            if self.epoch + num_epochs > int(resume_config["end_epoch"]):
+                raise ValueError("resumed run exceeds the original scheduler length")
+            freeze_until = resume_config.get("freeze_until")
+            freeze_model(self.model.train(), freeze_until)
+            self._reset_scheduler(
+                float(resume_config["lr"]),
+                int(resume_config["num_epochs"]),
+                str(resume_config["sched_type"]),
+                **resume_config.get("scheduler_kwargs", {}),
+            )
+            if self._resume_scheduler_state is not None:
+                self.scheduler.load_state_dict(self._resume_scheduler_state)
+            if self._resume_optimizer_state is not None:
+                self.optimizer.load_state_dict(self._resume_optimizer_state)
+            if self.amp:
+                self.scaler = GradScaler("cuda")
+                if self._resume_scaler_state is not None:
+                    self.scaler.load_state_dict(self._resume_scaler_state)
+            self._is_resuming = False
+        else:
+            self.start_epoch = self.epoch
+            self._run_config = {
+                "num_epochs": num_epochs,
+                "start_epoch": self.start_epoch,
+                "end_epoch": self.start_epoch + num_epochs,
+                "lr": lr,
+                "freeze_until": freeze_until,
+                "sched_type": sched_type,
+                "norm_weight_decay": norm_weight_decay,
+                "scheduler_kwargs": _primitive(kwargs),
+            }
+            self._metrics_history = []
+            freeze_model(self.model.train(), freeze_until)
+            self._reset_opt(lr, norm_weight_decay)
+            self._reset_scheduler(lr, num_epochs, sched_type, **kwargs)
+
+            if self.amp:
+                self.scaler = GradScaler("cuda")
 
         mb = master_bar(range(num_epochs))
         for _ in mb:
             self._fit_epoch(mb)
             eval_metrics = self.evaluate()
+            metric_record: dict[str, float | int | None] = {"epoch": self.epoch, "step": self.step}
+            metric_record.update({key: None if value is None else float(value) for key, value in eval_metrics.items()})
+            self._metrics_history.append(metric_record)
 
             # master bar
             mb.main_bar.comment = f"Epoch {self.epoch}/{self.start_epoch + num_epochs}"
@@ -342,10 +483,24 @@ class Trainer:
                     f"Validation loss decreased {self.min_loss:.4} --> {eval_metrics['val_loss']:.4}: saving state..."
                 )
                 self.min_loss = eval_metrics["val_loss"]
-                self.save(self.output_file)
+            self.save(self.output_file)
 
             if self.on_epoch_end is not None:
                 self.on_epoch_end(eval_metrics)
+
+        checkpoint = str(Path(self.output_file)) if Path(self.output_file).is_file() else None
+        result = RunResult(
+            epoch=self.epoch,
+            step=self.step,
+            best_metric=self.min_loss,
+            metrics=tuple(self._metrics_history),
+            config=self._checkpoint_config(),
+            checkpoint=checkpoint,
+            bundle_dir=run_dir,
+        )
+        if run_dir is not None:
+            write_run_bundle(run_dir, result)
+        return result
 
     def find_lr(
         self,
