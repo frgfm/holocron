@@ -188,15 +188,21 @@ In the table below, you will find a latency benchmark for all supported models:
 
 **The reported latency for RepVGG models is the one of the reparametrized version**
 
-This benchmark was performed over 100 iterations on (224, 224) inputs, on a laptop to better reflect performances that can be expected by common users. The hardware setup includes an [Intel(R) Core(TM) i7-10750H](https://ark.intel.com/content/www/us/en/ark/products/201837/intel-core-i710750h-processor-12m-cache-up-to-5-00-ghz.html) for the CPU, and a [NVIDIA GeForce RTX 2070 with Max-Q Design](https://www.nvidia.com/fr-fr/geforce/graphics-cards/rtx-2070/) for the GPU.
+The historical table above was measured over 100 iterations on (224, 224) inputs. The hardware setup included an [Intel(R) Core(TM) i7-10750H](https://ark.intel.com/content/www/us/en/ark/products/201837/intel-core-i710750h-processor-12m-cache-up-to-5-00-ghz.html) for the CPU, and a [NVIDIA GeForce RTX 2070 with Max-Q Design](https://www.nvidia.com/fr-fr/geforce/graphics-cards/rtx-2070/) for the GPU.
 
-You can run this latency benchmark for any model on your hardware as follows:
+Run a synchronized PyTorch/ONNX Runtime benchmark on your hardware. The current script uses `torch.utils.benchmark` and reports median, mean, and IQR; `--json` emits the same measurements with environment metadata:
 
 ```bash
-python scripts/eval_latency.py rexnet1_0x
+uv run --extra scripts python scripts/eval_latency.py rexnet1_0x --json
 ```
 
-*All script arguments can be checked using `python scripts/eval_latency.py --help`*
+Export a dynamic-batch ONNX model and optionally verify it with ONNX Runtime while saving a conversion report:
+
+```bash
+uv run --extra scripts python scripts/export_to_onnx.py rexnet1_0x --verify --report
+```
+
+*All arguments can be checked with the scripts' `--help` option.*
 
 ### Docker container
 

@@ -8,99 +8,154 @@ Holocron model latency benchmark
 """
 
 import argparse
-import time
+import importlib
+import json
+import platform
+from collections.abc import Callable
+from pathlib import Path
+from tempfile import TemporaryDirectory
+from typing import Any
 
-import numpy as np
-import onnxruntime
 import torch
+from torch.utils import benchmark
 
 from holocron import models
 
 
-@torch.inference_mode()
+def _synchronize(device: torch.device) -> None:
+    if device.type == "cuda":
+        torch.cuda.synchronize(device)
+    elif device.type == "mps":
+        torch.mps.synchronize()
+
+
 def run_evaluation(
-    model: torch.nn.Module, img_tensor: torch.Tensor, num_it: int = 100, warmup_it: int = 10
-) -> np.array:
-    # Warmup
+    fn: Callable[[], Any],
+    *,
+    device: torch.device,
+    min_run_time: float = 1.0,
+    warmup_it: int = 10,
+    num_threads: int = 1,
+) -> dict[str, float | int]:
+    """Benchmark a callable with accelerator-aware synchronization.
+
+    Returns:
+        Machine-readable timing statistics.
+    """
     for _ in range(warmup_it):
-        _ = model(img_tensor)
+        fn()
+    _synchronize(device)
 
-    timings = []
+    measurement = benchmark.Timer(
+        stmt="fn()",
+        globals={"fn": fn},
+        num_threads=num_threads,
+    ).blocked_autorange(min_run_time=min_run_time)
+    return {
+        "mean_ms": 1000 * measurement.mean,
+        "median_ms": 1000 * measurement.median,
+        "iqr_ms": 1000 * measurement.iqr,
+        "measurements": len(measurement.raw_times),
+        "runs_per_measurement": measurement.number_per_run,
+        "threads": num_threads,
+    }
 
-    # Evaluation runs
-    for _ in range(num_it):
-        start_ts = time.perf_counter()
-        _ = model(img_tensor)
-        timings.append(time.perf_counter() - start_ts)
 
-    return np.array(timings)
-
-
-def run_onnx_evaluation(
-    model: onnxruntime.InferenceSession, img_tensor: np.array, num_it: int = 100, warmup_it: int = 10
-) -> np.array:
-    # Set input
-    ort_input = {model.get_inputs()[0].name: img_tensor}
-    # Warmup
-    for _ in range(warmup_it):
-        _ = model.run(None, ort_input)
-
-    timings = []
-
-    # Evaluation runs
-    for _ in range(num_it):
-        start_ts = time.perf_counter()
-        _ = model.run(None, ort_input)
-        timings.append(time.perf_counter() - start_ts)
-
-    return np.array(timings)
+def _format_measurement(name: str, result: dict[str, float | int]) -> str:
+    return f"{name} - median {result['median_ms']:.2f}ms, mean {result['mean_ms']:.2f}ms, IQR {result['iqr_ms']:.2f}ms"
 
 
 @torch.inference_mode()
-def main(args):
-    # Pretrained imagenet model
-    model = models.__dict__[args.arch](pretrained=args.pretrained).eval()
-    # Reparametrizable models
+def main(args: argparse.Namespace) -> dict[str, Any]:
+    factory = getattr(models, args.arch, None)
+    if not callable(factory):
+        raise TypeError(f"unknown architecture: {args.arch}")
+    model = factory(pretrained=args.pretrained).eval()
     if hasattr(model, "reparametrize"):
         model.reparametrize()
 
-    # Input
-    img_tensor = torch.rand((1, 3, args.size, args.size))
+    input_shape = (args.batch_size, 3, args.size, args.size)
+    cpu = torch.device("cpu")
+    cpu_input = torch.rand(input_shape)
+    results: dict[str, dict[str, float | int]] = {
+        "pytorch_cpu": run_evaluation(
+            lambda: model(cpu_input),
+            device=cpu,
+            min_run_time=args.min_run_time,
+            warmup_it=args.warmup,
+            num_threads=args.num_threads,
+        )
+    }
 
-    timings = run_evaluation(model, img_tensor, args.it)
-    cpu_str = f"mean {1000 * timings.mean():.2f}ms, std {1000 * timings.std():.2f}ms"
+    onnxruntime = importlib.import_module("onnxruntime")
 
-    # ONNX
-    torch.onnx.export(
-        model,
-        img_tensor,
-        "tmp.onnx",
-        export_params=True,
-        opset_version=20,
-        dynamo=False,
-        verbose=False,
-    )
-    onnx_session = onnxruntime.InferenceSession("tmp.onnx")
-    npy_tensor = img_tensor.numpy()
-    timings = run_onnx_evaluation(onnx_session, npy_tensor, args.it)
-    onnx_str = f"mean {1000 * timings.mean():.2f}ms, std {1000 * timings.std():.2f}ms"
+    with TemporaryDirectory(prefix="holocron-onnx-") as tmp_dir:
+        onnx_path = Path(tmp_dir) / "model.onnx"
+        torch.onnx.export(
+            model,
+            (cpu_input,),
+            onnx_path,
+            export_params=True,
+            opset_version=20,
+            dynamo=True,
+            input_names=("input",),
+            output_names=("output",),
+            dynamic_shapes=({0: torch.export.Dim("batch", min=1)},),
+            verbose=False,
+        )
+        session_options = onnxruntime.SessionOptions()
+        session_options.intra_op_num_threads = args.num_threads
+        session = onnxruntime.InferenceSession(
+            onnx_path,
+            sess_options=session_options,
+            providers=("CPUExecutionProvider",),
+        )
+        ort_input = {session.get_inputs()[0].name: cpu_input.numpy()}
+        results["onnxruntime_cpu"] = run_evaluation(
+            lambda: session.run(None, ort_input),
+            device=cpu,
+            min_run_time=args.min_run_time,
+            warmup_it=args.warmup,
+            num_threads=args.num_threads,
+        )
 
-    # GPU
-    if args.device is None:
-        args.device = "cuda:0" if torch.cuda.is_available() else "cpu"
-    if args.device == "cpu":
-        gpu_str = "N/A"
+    device = torch.device(args.device or ("cuda:0" if torch.cuda.is_available() else "cpu"))
+    if device.type != "cpu":
+        device_model = model.to(device=device)
+        device_input = cpu_input.to(device=device)
+        results[f"pytorch_{device.type}"] = run_evaluation(
+            lambda: device_model(device_input),
+            device=device,
+            min_run_time=args.min_run_time,
+            warmup_it=args.warmup,
+            num_threads=args.num_threads,
+        )
+
+    report: dict[str, Any] = {
+        "architecture": args.arch,
+        "input_shape": list(input_shape),
+        "environment": {
+            "python": platform.python_version(),
+            "platform": platform.platform(),
+            "torch": torch.__version__,
+            "torch_cuda": torch.version.cuda,
+            "onnxruntime": onnxruntime.__version__,
+        },
+        "results": results,
+    }
+    if args.json:
+        print(json.dumps(report, indent=2, sort_keys=True))
     else:
-        device = torch.device(args.device)
-        model = model.to(device=device)
-
-        # Input
-        img_tensor = img_tensor.to(device=device)
-        timings = run_evaluation(model, img_tensor, args.it)
-        gpu_str = f"mean {1000 * timings.mean():.2f}ms, std {1000 * timings.std():.2f}ms"
-
-    print(f"{args.arch} ({args.it} runs on ({args.size}, {args.size}) inputs)")
-    print(f"CPU - {cpu_str}\nONNX - {onnx_str}\nGPU - {gpu_str}")
+        print(f"{args.arch} ({input_shape[0]}x3x{args.size}x{args.size})")
+        labels = {
+            "pytorch_cpu": "PyTorch CPU",
+            "onnxruntime_cpu": "ONNX Runtime CPU",
+            "pytorch_cuda": "PyTorch CUDA",
+            "pytorch_mps": "PyTorch MPS",
+        }
+        for name, result in results.items():
+            print(_format_measurement(labels.get(name, name), result))
+    return report
 
 
 if __name__ == "__main__":
@@ -108,13 +163,12 @@ if __name__ == "__main__":
         description="Holocron model latency benchmark", formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
     parser.add_argument("arch", type=str, help="Architecture to use")
-    parser.add_argument("--size", type=int, default=224, help="The image input size")
-    parser.add_argument("--device", type=str, default=None, help="Default device to perform computation on")
-    parser.add_argument("--it", type=int, default=100, help="Number of iterations to run")
-    parser.add_argument("--warmup", type=int, default=10, help="Number of iterations for warmup")
-    parser.add_argument(
-        "--pretrained", dest="pretrained", help="Use pre-trained models from the modelzoo", action="store_true"
-    )
-    args = parser.parse_args()
-
-    main(args)
+    parser.add_argument("--size", type=int, default=224, help="The square image input size")
+    parser.add_argument("--batch-size", type=int, default=1, help="The batch size")
+    parser.add_argument("--device", type=str, help="Optional accelerator device, such as cuda:0 or mps")
+    parser.add_argument("--min-run-time", type=float, default=1.0, help="Minimum seconds per benchmark")
+    parser.add_argument("--warmup", type=int, default=10, help="Warmup iterations")
+    parser.add_argument("--num-threads", type=int, default=1, help="PyTorch CPU threads")
+    parser.add_argument("--pretrained", action="store_true", help="Use pretrained model-zoo weights")
+    parser.add_argument("--json", action="store_true", help="Print machine-readable JSON")
+    main(parser.parse_args())
