@@ -75,6 +75,7 @@ plugins:
       Getting started:
         - getting-started/installation.md
         - getting-started/classification.md
+        - getting-started/model-cards.md
         - getting-started/notebooks.md
       Package Reference:
         - reference/models/models.md
@@ -173,6 +174,7 @@ nav:
   - Getting started:
     - getting-started/installation.md
     - getting-started/classification.md
+    - getting-started/model-cards.md
     - getting-started/notebooks.md
   - Package Reference:
     - Models:
