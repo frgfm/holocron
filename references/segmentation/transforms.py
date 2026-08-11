@@ -7,7 +7,8 @@
 
 import numpy as np
 import torch
-from torchvision.transforms.v2 import InterpolationMode, transforms
+from torchvision import transforms
+from torchvision.transforms import InterpolationMode
 from torchvision.transforms.v2 import functional as F
 
 

@@ -21,7 +21,7 @@ tar -xvzf imagenette2-320.tgz
 From there, you can run your training with the following command
 
 ```
-python train.py imagenette2-320/ --arch darknet53 --lr 5e-3 -b 32 -j 16 --epochs 40 --opt adamp --sched onecycle
+python train.py imagenette2-320/ --arch darknet53 --seed 0 --lr 5e-3 -b 32 -j 16 --epochs 40 --opt adamp --sched onecycle
 ```
 
 ## Synthetic character classification

@@ -15,8 +15,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 import torch.utils.data
-import wandb
-from codecarbon import track_emissions
 from matplotlib.patches import Rectangle
 from torch.utils.data import RandomSampler, SequentialSampler
 from torchvision.datasets import VOCDetection
@@ -93,10 +91,18 @@ def plot_samples(images, targets, num_samples=8):
     plt.show()
 
 
-@track_emissions()
 def main(args):
+    from codecarbon import track_emissions  # noqa: PLC0415 - keep parser importable without training extras
+
+    return track_emissions()(_main)(args)
+
+
+def _main(args):
+    import wandb  # noqa: PLC0415 - keep parser importable without training extras
+
     print(args)
 
+    torch.manual_seed(args.seed)
     torch.backends.cudnn.benchmark = True
 
     # Data loading
@@ -260,6 +266,7 @@ def main(args):
                 "input_size": args.img_size,
                 "optimizer": args.opt,
                 "dataset": "PASCAL VOC2012 Detection",
+                "seed": args.seed,
             },
         )
 
@@ -284,6 +291,7 @@ def get_parser():
     group.add_argument("--pretrained", action="store_true", help="Use pre-trained models from the modelzoo")
     group.add_argument("--output-file", default="./checkpoints/model.pth", help="path where to save")
     group.add_argument("--resume", default="", help="resume from checkpoint")
+    group.add_argument("--seed", default=0, type=int, help="random seed")
     # Hardware
     group = parser.add_argument_group("Hardware")
     group.add_argument("--device", default=None, type=int, help="device")
