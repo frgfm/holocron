@@ -90,6 +90,20 @@ def test_family_is_sampled_before_style():
         assert 0.25 < counts["Sans", style] / sans_count < 0.42
 
 
+def test_validation_holds_out_whole_font_families():
+    records = [
+        characters.FontRecord(SANS, "ignored"),
+        characters.FontRecord(FONT_ROOT / "DejaVuSans-Bold.ttf", "ignored"),
+        characters.FontRecord(FONT_ROOT / "DejaVuSerif.ttf", "ignored"),
+    ]
+    train, validation = characters.split_font_families("AB", records, 32, 0.2, 3)
+
+    assert {record.family for record in train}.isdisjoint({record.family for record in validation})
+    assert (train, validation) == characters.split_font_families("AB", records, 32, 0.2, 3)
+    with pytest.raises(ValueError, match="at least 2 font families"):
+        characters.split_font_families("AB", records[:2], 32, 0.2, 3)
+
+
 @pytest.mark.parametrize(
     ("alphabet", "message"),
     [
@@ -154,19 +168,20 @@ def test_dataloader_smoke(workers):
     gc.collect()
 
 
-def _write_manifest(path, filename, checksum):
+def _write_manifest(path, *fonts):
     path.write_text(
         json.dumps({
             "version": 1,
             "sources": {"test": {"revision": "abc123"}},
             "fonts": [
                 {
-                    "family": "DejaVu Sans",
+                    "family": family,
                     "style": "Regular",
                     "source": "test",
                     "filename": filename,
                     "sha256": checksum,
                 }
+                for family, filename, checksum in fonts
             ],
         }),
         encoding="utf-8",
@@ -177,9 +192,15 @@ def test_cli_grid_training_resume_and_provenance(monkeypatch, tmp_path):
     font_dir = tmp_path / "fonts"
     font_dir.mkdir()
     font_path = font_dir / "Test.ttf"
+    validation_font_path = font_dir / "Validation.ttf"
     shutil.copy2(SANS, font_path)
+    shutil.copy2(FONT_ROOT / "DejaVuSerif.ttf", validation_font_path)
     manifest = tmp_path / "fonts.json"
-    _write_manifest(manifest, font_path.name, characters._sha256(font_path))
+    _write_manifest(
+        manifest,
+        ("DejaVu Sans", font_path.name, characters._sha256(font_path)),
+        ("DejaVu Serif", validation_font_path.name, characters._sha256(validation_font_path)),
+    )
 
     common = [
         "--font-dir",
@@ -211,31 +232,48 @@ def test_cli_grid_training_resume_and_provenance(monkeypatch, tmp_path):
     characters.main(characters.get_parser().parse_args([*common, "--show-samples", str(grid_path)]))
     assert grid_path.is_file()
 
-    def tiny_classifier(pretrained=False, *, num_classes=1, **_kwargs):
-        assert not pretrained
+    model_calls = []
+
+    def tiny_classifier(name, *, num_classes=1, **_kwargs):
+        model_calls.append(name)
         return nn.Sequential(nn.Flatten(), nn.Linear(3 * 16 * 16, num_classes))
 
-    monkeypatch.setattr(characters.classification, "convnext_atto", tiny_classifier)
+    monkeypatch.setattr(characters, "get_model", tiny_classifier)
     output_dir = tmp_path / "output"
     training_args = [*common, "--output-dir", str(output_dir)]
     characters.main(characters.get_parser().parse_args(training_args))
 
     checkpoint = output_dir / "checkpoint.pth"
-    metadata_path = output_dir / "checkpoint.json"
     assert checkpoint.is_file()
-    metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+    manifest_path = output_dir / "manifest.json"
+    assert manifest_path.is_file()
+    bundle = json.loads(manifest_path.read_text(encoding="utf-8"))
+    metadata = bundle["run"]["config"]["recipe"]
+    assert bundle["schema_version"] == 1
+    assert {artifact["path"] for artifact in bundle["artifacts"]} == {
+        "metrics.jsonl",
+        "checkpoints/checkpoint.pth",
+        "artifacts/fonts.json",
+    }
     assert metadata["class_to_index"] == {"A": 0, "B": 1}
     assert metadata["architecture"] == "convnext_atto"
-    assert metadata["fonts"][0]["path"] == "Test.ttf"
+    assert metadata["maturity"] == "experimental"
+    assert {font["path"] for font in metadata["fonts"]} == {"Test.ttf", "Validation.ttf"}
     assert metadata["manifest"]["source_revisions"] == {"test": "abc123"}
-    metadata_before_resume = metadata_path.read_text(encoding="utf-8")
-    monkeypatch.setattr(
-        characters.ClassificationTrainer,
-        "evaluate",
-        lambda _self: {"val_loss": float("inf"), "acc1": 0.0, "acc5": 0.0},
-    )
-    characters.main(characters.get_parser().parse_args([*training_args, "--resume", str(checkpoint)]))
-    assert metadata_path.read_text(encoding="utf-8") == metadata_before_resume
+    assert set(metadata["font_split"]["training_families"]).isdisjoint(metadata["font_split"]["validation_families"])
+    assert model_calls == ["convnext_atto"]
+
+    loaded_versions = []
+    original_load = characters.ClassificationTrainer.load
+
+    def track_load(self, state):
+        loaded_versions.append(state["schema_version"])
+        return original_load(self, state)
+
+    monkeypatch.setattr(characters.ClassificationTrainer, "load", track_load)
+    monkeypatch.setattr(characters.ClassificationTrainer, "check_setup", lambda *_args, **_kwargs: None)
+    characters.main(characters.get_parser().parse_args([*training_args, "--resume", str(checkpoint), "--check-setup"]))
+    assert loaded_versions == [2]
 
 
 def test_manifest_checksum_is_verified(tmp_path):
@@ -244,7 +282,7 @@ def test_manifest_checksum_is_verified(tmp_path):
     font_path = font_dir / "Test.ttf"
     shutil.copy2(SANS, font_path)
     manifest = tmp_path / "fonts.json"
-    _write_manifest(manifest, font_path.name, "0" * 64)
+    _write_manifest(manifest, ("DejaVu Sans", font_path.name, "0" * 64))
     with pytest.raises(ValueError, match="checksum mismatch"):
         characters.resolve_font_records("A", font_dir, manifest)
 
@@ -260,11 +298,10 @@ def test_unmanifested_font_hashes_are_deferred(monkeypatch, tmp_path):
     assert hashes == []
     dataset = characters.SyntheticCharacterDataset("A", records, 32, 1, T.PILToTensor())
     args = characters.get_parser().parse_args(["--font-dir", str(font_dir)])
-    metadata = tmp_path / "checkpoint.json"
-    characters.write_provenance(metadata, args, dataset, dataset.fonts, None)
+    metadata = characters.recipe_metadata(args, dataset, dataset, dataset.fonts, None)
 
     assert hashes == [font_dir / "Test.ttf"]
-    assert json.loads(metadata.read_text(encoding="utf-8"))["fonts"][0]["sha256"] == "hash"
+    assert metadata["fonts"][0]["sha256"] == "hash"
 
 
 def test_fixed_batch_can_lower_loss(monkeypatch, tmp_path):

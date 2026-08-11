@@ -12,7 +12,6 @@ import math
 import os
 import platform
 import time
-import warnings
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, replace
 from functools import partial
@@ -29,19 +28,13 @@ from torchvision.transforms import v2 as T
 from torchvision.transforms.v2 import functional as F
 from torchvision.transforms.v2.functional import InterpolationMode, to_pil_image
 
-from holocron.models import classification
-from holocron.trainer import ClassificationTrainer
+from holocron.models import get_model, list_models
+from holocron.trainer import ClassificationTrainer, write_run_bundle
 from holocron.utils import find_fonts, render_text
 
 DEFAULT_ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 FONT_EXTENSIONS = {".otf", ".ttc", ".ttf"}
-MODEL_NAMES = tuple(
-    sorted(
-        name
-        for name, value in vars(classification).items()
-        if name.islower() and not name.startswith("_") and callable(value)
-    )
-)
+MODEL_NAMES = tuple(list_models(task="classification"))
 
 
 @dataclass(frozen=True)
@@ -286,6 +279,34 @@ def resolve_font_records(
     return tuple(FontRecord(path, str(path)) for path in paths), None
 
 
+def split_font_families(
+    alphabet: Sequence[str],
+    records: Sequence[FontRecord],
+    render_size: int,
+    validation_fraction: float,
+    seed: int,
+) -> tuple[tuple[FontRecord, ...], tuple[FontRecord, ...]]:
+    """Hold out whole font families for validation.
+
+    Returns:
+        disjoint training and validation font records
+
+    Raises:
+        ValueError: if fewer than two font families are available
+    """
+    resolved, _ = _inspect_fonts(alphabet, records, render_size)
+    families = sorted({record.family for record in resolved})
+    if len(families) < 2:
+        raise ValueError("held-out-family validation requires at least 2 font families")
+    families = [families[index] for index in torch.randperm(len(families), generator=_generator(seed)).tolist()]
+    validation_count = min(len(families) - 1, max(1, round(len(families) * validation_fraction)))
+    validation_families = set(families[:validation_count])
+    return (
+        tuple(record for record in resolved if record.family not in validation_families),
+        tuple(record for record in resolved if record.family in validation_families),
+    )
+
+
 def square_pad(image: Image.Image, margin: int) -> Image.Image:
     """Add a margin and center a tight glyph in a square without resizing it.
 
@@ -424,13 +445,13 @@ def _json_value(value: Any) -> Any:
     return str(value) if isinstance(value, Path) else value
 
 
-def write_provenance(
-    output_path: Path,
+def recipe_metadata(
     args: argparse.Namespace,
-    dataset: SyntheticCharacterDataset,
+    train_set: SyntheticCharacterDataset,
+    val_set: SyntheticCharacterDataset,
     records: Sequence[FontRecord],
     manifest_info: dict[str, Any] | None,
-) -> None:
+) -> dict[str, Any]:
     font_root = args.font_dir.resolve() if args.font_dir is not None else None
     fonts = []
     for record in records:
@@ -445,35 +466,22 @@ def write_provenance(
             "sha256": record.sha256 or _sha256(record.path),
             "source": record.source,
         })
-    payload = {
-        "version": 1,
-        "alphabet": list(dataset.classes),
-        "class_to_index": dataset.class_to_idx,
+    return {
+        "maturity": "experimental",
+        "alphabet": list(train_set.classes),
+        "class_to_index": train_set.class_to_idx,
         "seed": args.seed,
         "image_size": args.image_size,
         "render_size": args.render_size,
         "architecture": args.arch,
         "configuration": {key: _json_value(value) for key, value in vars(args).items()},
+        "font_split": {
+            "training_families": sorted({record.family for record in train_set.fonts}),
+            "validation_families": sorted({record.family for record in val_set.fonts}),
+        },
         "fonts": fonts,
         "manifest": manifest_info,
     }
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-
-
-def validate_resume_metadata(resume_path: Path, architecture: str, classes: Sequence[str]) -> None:
-    metadata_path = resume_path.with_suffix(".json")
-    if not metadata_path.is_file():
-        warnings.warn(
-            f"resume metadata not found at {metadata_path}; architecture and alphabet cannot be verified",
-            stacklevel=2,
-        )
-        return
-    metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
-    if metadata.get("architecture") != architecture:
-        raise ValueError("resume checkpoint architecture does not match --arch")
-    if metadata.get("alphabet") != list(classes):
-        raise ValueError("resume checkpoint alphabet does not match --alphabet")
 
 
 def _positive_int(value: str) -> int:
@@ -518,6 +526,13 @@ def _scale_jitter(value: str) -> float:
     return parsed
 
 
+def _heldout_fraction(value: str) -> float:
+    parsed = float(value)
+    if not 0 < parsed < 1:
+        raise argparse.ArgumentTypeError("expected a fraction between 0 and 1")
+    return parsed
+
+
 def get_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     data = parser.add_argument_group("Data and model")
@@ -529,6 +544,7 @@ def get_parser() -> argparse.ArgumentParser:
     data.add_argument("--render-size", type=_positive_int, default=128, help="font rasterization size")
     data.add_argument("--samples-per-epoch", type=_positive_int, default=62_000)
     data.add_argument("--validation-fonts-per-class", type=_positive_int, default=5)
+    data.add_argument("--validation-family-fraction", type=_heldout_fraction, default=0.2)
 
     loading = parser.add_argument_group("Data loading")
     loading.add_argument("--batch-size", type=_positive_int, default=256)
@@ -574,7 +590,16 @@ def main(args: argparse.Namespace) -> None:
     alphabet = tuple(args.alphabet)
     records, manifest_info = resolve_font_records(alphabet, args.font_dir, args.manifest)
     train_transform, val_transform = build_transforms(args)
-    train_set = SyntheticCharacterDataset(alphabet, records, args.render_size, args.samples_per_epoch, train_transform)
+    if args.show_samples is not None or args.benchmark_loader:
+        train_records = records
+        val_records: tuple[FontRecord, ...] = ()
+    else:
+        train_records, val_records = split_font_families(
+            alphabet, records, args.render_size, args.validation_family_fraction, args.seed
+        )
+    train_set = SyntheticCharacterDataset(
+        alphabet, train_records, args.render_size, args.samples_per_epoch, train_transform
+    )
     train_sampler = RandomSampler(train_set, generator=_generator(args.seed))
     train_loader = build_loader(
         train_set,
@@ -592,14 +617,17 @@ def main(args: argparse.Namespace) -> None:
         benchmark_loader(train_loader, args.benchmark_warmup_batches, args.benchmark_batches)
         return
 
-    val_set = SyntheticCharacterDataset(
-        alphabet,
-        records,
-        args.render_size,
-        len(alphabet) * args.validation_fonts_per_class,
-        val_transform,
-        deterministic=True,
-    )
+    try:
+        val_set = SyntheticCharacterDataset(
+            alphabet,
+            val_records,
+            args.render_size,
+            len(alphabet) * args.validation_fonts_per_class,
+            val_transform,
+            deterministic=True,
+        )
+    except ValueError as exc:
+        raise ValueError(f"held-out validation families do not support the full alphabet: {exc}") from exc
     val_loader = build_loader(
         val_set,
         args.batch_size,
@@ -609,18 +637,11 @@ def main(args: argparse.Namespace) -> None:
         pin_memory=gpu is not None,
     )
 
-    model = getattr(classification, args.arch)(False, num_classes=len(alphabet))
+    print("Recipe maturity: experimental; no benchmark or validated checkpoint is claimed.")
+    model = get_model(args.arch, num_classes=len(alphabet))
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
     checkpoint_path = args.output_dir / "checkpoint.pth"
-    best_loss = math.inf
-
-    def save_metadata(metrics: dict[str, float]) -> None:
-        nonlocal best_loss
-        if metrics["val_loss"] < best_loss:
-            write_provenance(args.output_dir / "checkpoint.json", args, train_set, train_set.fonts, manifest_info)
-            best_loss = metrics["val_loss"]
-
     trainer = ClassificationTrainer(
         model,
         train_loader,
@@ -630,18 +651,19 @@ def main(args: argparse.Namespace) -> None:
         gpu,
         str(checkpoint_path),
         amp=args.amp,
-        on_epoch_end=save_metadata,
     )
 
     if args.resume is not None:
-        validate_resume_metadata(args.resume, args.arch, train_set.classes)
-        trainer.load(torch.load(args.resume, map_location="cpu"))
-    best_loss = trainer.min_loss
+        trainer.load(torch.load(args.resume, map_location="cpu", weights_only=True))
     if args.check_setup:
         trainer.check_setup(lr=args.lr, num_it=100)
         return
 
-    trainer.fit_n_epochs(args.epochs, args.lr, sched_type="onecycle")
+    result = trainer.fit_n_epochs(args.epochs, args.lr, sched_type="onecycle")
+    metadata = recipe_metadata(args, train_set, val_set, (*train_set.fonts, *val_set.fonts), manifest_info)
+    result = replace(result, config={**result.config, "recipe": metadata}, bundle_dir=str(args.output_dir))
+    artifacts = (args.manifest,) if args.manifest is not None else ()
+    write_run_bundle(args.output_dir, result, artifacts)
 
 
 if __name__ == "__main__":

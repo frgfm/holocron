@@ -26,6 +26,8 @@ python train.py imagenette2-320/ --arch darknet53 --seed 0 --lr 5e-3 -b 32 -j 16
 
 ## Synthetic character classification
 
+> **Experimental recipe:** this is a reproducible starting point, not a validated benchmark or published checkpoint.
+
 Prepare the checksum-verified starter fonts once:
 
 ```shell
@@ -66,6 +68,16 @@ uv run --python 3.12 --extra training \
 ```
 
 `--render-size` controls glyph rasterization resolution; `--image-size` controls the final model input resolution. To expand the corpus, prepare another local manifest and directory and pass those paths to the same script—no Python changes are needed. Training itself never downloads data or fonts.
+
+Training holds out whole font families for validation (`--validation-family-fraction 0.2` by default), so at least two families are required. The output directory is a schema-v1 run bundle containing metrics, the resumable checkpoint-v2, font provenance, and a manifest written last. Resume an interrupted run by passing the remaining epoch count:
+
+```shell
+uv run --python 3.12 --extra training \
+  references/classification/train_characters.py \
+  --font-dir /tmp/holocron-fonts \
+  --manifest references/fonts/latin-starter.json \
+  --resume checkpoints/characters/checkpoint.pth --epochs 4
+```
 
 ## Personal leaderboard
 
