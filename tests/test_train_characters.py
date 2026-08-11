@@ -77,6 +77,7 @@ def test_family_is_sampled_before_style():
     assert len(expected) == len(records)
 
     dataset = characters.SyntheticCharacterDataset("A", records, 32, 1, to_tensor)
+    assert {record.family for record in dataset.fonts} == {"DejaVu Sans", "DejaVu Serif"}
     torch.manual_seed(0)
     counts = Counter()
     for _ in range(1_000):
@@ -227,8 +228,6 @@ def test_cli_grid_training_resume_and_provenance(monkeypatch, tmp_path):
     assert metadata["architecture"] == "convnext_atto"
     assert metadata["fonts"][0]["path"] == "Test.ttf"
     assert metadata["manifest"]["source_revisions"] == {"test": "abc123"}
-    assert metadata["base_mask_cache"] is False
-
     metadata_before_resume = metadata_path.read_text(encoding="utf-8")
     monkeypatch.setattr(
         characters.ClassificationTrainer,
@@ -248,6 +247,24 @@ def test_manifest_checksum_is_verified(tmp_path):
     _write_manifest(manifest, font_path.name, "0" * 64)
     with pytest.raises(ValueError, match="checksum mismatch"):
         characters.resolve_font_records("A", font_dir, manifest)
+
+
+def test_unmanifested_font_hashes_are_deferred(monkeypatch, tmp_path):
+    font_dir = tmp_path / "fonts"
+    font_dir.mkdir()
+    shutil.copy2(SANS, font_dir / "Test.ttf")
+    hashes = []
+    monkeypatch.setattr(characters, "_sha256", lambda path: hashes.append(path) or "hash")
+
+    records, _ = characters.resolve_font_records("A", font_dir, None)
+    assert hashes == []
+    dataset = characters.SyntheticCharacterDataset("A", records, 32, 1, T.PILToTensor())
+    args = characters.get_parser().parse_args(["--font-dir", str(font_dir)])
+    metadata = tmp_path / "checkpoint.json"
+    characters.write_provenance(metadata, args, dataset, dataset.fonts, None)
+
+    assert hashes == [font_dir / "Test.ttf"]
+    assert json.loads(metadata.read_text(encoding="utf-8"))["fonts"][0]["sha256"] == "hash"
 
 
 def test_fixed_batch_can_lower_loss(monkeypatch, tmp_path):

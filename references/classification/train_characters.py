@@ -1,5 +1,5 @@
-# Copyright (C) 2019-2026, François-Guillaume Fernandez.
-#
+# Copyright (C) 2026, François-Guillaume Fernandez.
+
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
@@ -14,7 +14,7 @@ import platform
 import time
 import warnings
 from collections.abc import Callable, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from functools import partial
 from pathlib import Path
 from typing import Any
@@ -55,6 +55,80 @@ class FontRecord:
     source: str | None = None
 
 
+def _validate_alphabet(alphabet: Sequence[str]) -> tuple[str, ...]:
+    classes = tuple(alphabet)
+    if not classes:
+        raise ValueError("alphabet must not be empty")
+    if any(not isinstance(character, str) or len(character) != 1 for character in classes):
+        raise ValueError("alphabet entries must each be one Unicode code point")
+    if len(set(classes)) != len(classes):
+        raise ValueError("alphabet must not contain duplicate characters")
+    if any(not character.isprintable() or character.isspace() for character in classes):
+        raise ValueError("alphabet must contain visible characters only")
+    return classes
+
+
+def _as_font_record(record: FontRecord | str | Path) -> FontRecord:
+    if isinstance(record, FontRecord):
+        return record
+    path = Path(record).expanduser().resolve()
+    return FontRecord(path, str(path))
+
+
+def _inspect_fonts(
+    classes: Sequence[str], fonts: Sequence[FontRecord | str | Path], render_size: int
+) -> tuple[tuple[FontRecord, ...], list[list[FontRecord]]]:
+    records = tuple(_as_font_record(record) for record in fonts)
+    if not records:
+        raise ValueError("fonts must not be empty")
+    if len({record.path for record in records}) != len(records):
+        raise ValueError("fonts must not contain duplicate paths")
+
+    compatible: list[list[FontRecord]] = [[] for _ in classes]
+    validated_records = []
+    for record in records:
+        if not record.path.is_file():
+            raise FileNotFoundError(f"font file does not exist: {record.path}")
+        try:
+            font_info = FT2Font(str(record.path))
+            codepoints = font_info.get_charmap()
+            font = ImageFont.truetype(str(record.path), render_size)
+        except (OSError, RuntimeError, ValueError) as exc:
+            raise ValueError(f"unable to load font: {record.path}") from exc
+
+        resolved_record = replace(record, family=font_info.family_name, style=font_info.style_name)
+        validated_records.append(resolved_record)
+        for class_index, character in enumerate(classes):
+            if ord(character) not in codepoints:
+                continue
+            try:
+                render_text(character, font)
+            except ValueError:
+                continue
+            compatible[class_index].append(resolved_record)
+    return tuple(validated_records), compatible
+
+
+def _group_fonts(
+    classes: Sequence[str], records: Sequence[FontRecord], compatible: Sequence[Sequence[FontRecord]]
+) -> tuple[list[tuple[tuple[FontRecord, ...], ...]], list[tuple[FontRecord, ...]], tuple[FontRecord, ...]]:
+    font_groups = []
+    font_choices = []
+    for character, choices in zip(classes, compatible, strict=True):
+        if not choices:
+            raise ValueError(f"no visible font supports character {character!r}")
+        families: dict[str, list[FontRecord]] = {}
+        for record in choices:
+            families.setdefault(record.family, []).append(record)
+        groups = tuple(tuple(styles) for styles in families.values())
+        font_groups.append(groups)
+        font_choices.append(tuple(record for group in groups for record in group))
+
+    selected_paths = {record.path for choices in compatible for record in choices}
+    selected_records = tuple(record for record in records if record.path in selected_paths)
+    return font_groups, font_choices, selected_records
+
+
 class SyntheticCharacterDataset(Dataset[tuple[Tensor, int]]):
     """Map-style dataset that renders one live character image per sample."""
 
@@ -68,15 +142,7 @@ class SyntheticCharacterDataset(Dataset[tuple[Tensor, int]]):
         *,
         deterministic: bool = False,
     ) -> None:
-        self.classes = tuple(alphabet)
-        if not self.classes:
-            raise ValueError("alphabet must not be empty")
-        if any(not isinstance(character, str) or len(character) != 1 for character in self.classes):
-            raise ValueError("alphabet entries must each be one Unicode code point")
-        if len(set(self.classes)) != len(self.classes):
-            raise ValueError("alphabet must not contain duplicate characters")
-        if any(not character.isprintable() or character.isspace() for character in self.classes):
-            raise ValueError("alphabet must contain visible characters only")
+        self.classes = _validate_alphabet(alphabet)
         if isinstance(render_size, bool) or not isinstance(render_size, int) or render_size <= 0:
             raise ValueError("render_size must be a positive integer")
         if isinstance(samples_per_epoch, bool) or not isinstance(samples_per_epoch, int) or samples_per_epoch <= 0:
@@ -84,48 +150,8 @@ class SyntheticCharacterDataset(Dataset[tuple[Tensor, int]]):
         if not callable(transform):
             raise TypeError("transform must be callable")
 
-        records = tuple(
-            record
-            if isinstance(record, FontRecord)
-            else FontRecord(Path(record).expanduser().resolve(), str(Path(record).expanduser().resolve()))
-            for record in fonts
-        )
-        if not records:
-            raise ValueError("fonts must not be empty")
-        if len({record.path for record in records}) != len(records):
-            raise ValueError("fonts must not contain duplicate paths")
-
-        compatible: list[list[FontRecord]] = [[] for _ in self.classes]
-        for record in records:
-            if not record.path.is_file():
-                raise FileNotFoundError(f"font file does not exist: {record.path}")
-            try:
-                codepoints = FT2Font(str(record.path)).get_charmap()
-                font = ImageFont.truetype(str(record.path), render_size)
-            except (OSError, RuntimeError, ValueError) as exc:
-                raise ValueError(f"unable to load font: {record.path}") from exc
-
-            for class_index, character in enumerate(self.classes):
-                if ord(character) not in codepoints:
-                    continue
-                try:
-                    render_text(character, font)
-                except ValueError:
-                    continue
-                compatible[class_index].append(record)
-
-        self._font_groups: list[tuple[tuple[FontRecord, ...], ...]] = []
-        self._font_choices: list[tuple[FontRecord, ...]] = []
-        for character, choices in zip(self.classes, compatible, strict=True):
-            if not choices:
-                raise ValueError(f"no visible font supports character {character!r}")
-            families: dict[str, list[FontRecord]] = {}
-            for record in choices:
-                families.setdefault(record.family, []).append(record)
-            groups = tuple(tuple(styles) for styles in families.values())
-            self._font_groups.append(groups)
-            self._font_choices.append(tuple(record for group in groups for record in group))
-
+        records, compatible = _inspect_fonts(self.classes, fonts, render_size)
+        self._font_groups, self._font_choices, self.fonts = _group_fonts(self.classes, records, compatible)
         self.class_to_idx = {character: index for index, character in enumerate(self.classes)}
         self.render_size = render_size
         self.samples_per_epoch = samples_per_epoch
@@ -175,6 +201,40 @@ def _sha256(path: Path) -> str:
         return hashlib.file_digest(stream, "sha256").hexdigest()
 
 
+def _manifest_font_records(
+    font_dir: Path, manifest_path: Path, sources: dict[str, Any], font_entries: Sequence[Any]
+) -> tuple[FontRecord, ...]:
+    records = []
+    for entry in font_entries:
+        try:
+            filename = entry["filename"]
+            family = entry["family"]
+            expected_hash = entry["sha256"].lower()
+            source = entry["source"]
+        except (AttributeError, KeyError, TypeError) as exc:
+            raise ValueError(f"invalid font entry in manifest: {manifest_path}") from exc
+        if not all(isinstance(value, str) for value in (filename, family, expected_hash, source)):
+            raise ValueError(f"invalid font entry in manifest: {manifest_path}")
+        if source not in sources:
+            raise ValueError(f"unknown font source in manifest: {source}")
+        try:
+            valid_checksum = len(bytes.fromhex(expected_hash)) == 32
+        except ValueError:
+            valid_checksum = False
+        if not valid_checksum:
+            raise ValueError(f"invalid font checksum: {filename}")
+        if Path(filename).name != filename:
+            raise ValueError(f"invalid font filename: {filename}")
+        path = (font_dir / filename).resolve()
+        if not path.is_file():
+            raise FileNotFoundError(f"font file does not exist: {path}")
+        actual_hash = _sha256(path)
+        if actual_hash != expected_hash:
+            raise ValueError(f"font checksum mismatch: {path}")
+        records.append(FontRecord(path, family, entry.get("style"), actual_hash, source))
+    return tuple(records)
+
+
 def resolve_font_records(
     alphabet: Sequence[str], font_dir: Path | None, manifest_path: Path | None
 ) -> tuple[tuple[FontRecord, ...], dict[str, Any] | None]:
@@ -184,15 +244,13 @@ def resolve_font_records(
         font records and optional manifest metadata
 
     Raises:
-        FileNotFoundError: if a manifest font is missing
         NotADirectoryError: if the requested font directory does not exist
         TypeError: if a manifest source has an invalid type
         ValueError: if the inputs, manifest, checksums, or discovered corpus are invalid
     """
-    if manifest_path is not None and font_dir is None:
-        raise ValueError("--manifest requires --font-dir")
-
     if manifest_path is not None:
+        if font_dir is None:
+            raise ValueError("--manifest requires --font-dir")
         try:
             manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
             if manifest.get("version") != 1:
@@ -206,41 +264,13 @@ def resolve_font_records(
         if any(not isinstance(source, dict) for source in sources.values()):
             raise TypeError(f"invalid font source in manifest: {manifest_path}")
 
-        records = []
-        for entry in font_entries:
-            try:
-                filename = entry["filename"]
-                family = entry["family"]
-                expected_hash = entry["sha256"].lower()
-                source = entry["source"]
-            except (AttributeError, KeyError, TypeError) as exc:
-                raise ValueError(f"invalid font entry in manifest: {manifest_path}") from exc
-            if not all(isinstance(value, str) for value in (filename, family, expected_hash, source)):
-                raise ValueError(f"invalid font entry in manifest: {manifest_path}")
-            if source not in sources:
-                raise ValueError(f"unknown font source in manifest: {source}")
-            try:
-                valid_checksum = len(bytes.fromhex(expected_hash)) == 32
-            except ValueError:
-                valid_checksum = False
-            if not valid_checksum:
-                raise ValueError(f"invalid font checksum: {filename}")
-            if Path(filename).name != filename:
-                raise ValueError(f"invalid font filename: {filename}")
-            path = (font_dir / filename).resolve()  # type: ignore[operator]
-            if not path.is_file():
-                raise FileNotFoundError(f"font file does not exist: {path}")
-            actual_hash = _sha256(path)
-            if actual_hash != expected_hash:
-                raise ValueError(f"font checksum mismatch: {path}")
-            records.append(FontRecord(path, family, entry.get("style"), actual_hash, source))
-
+        records = _manifest_font_records(font_dir, manifest_path, sources, font_entries)
         manifest_info = {
             "path": str(manifest_path.resolve()),
             "version": manifest["version"],
             "source_revisions": {name: source.get("revision") for name, source in sources.items()},
         }
-        return tuple(records), manifest_info
+        return records, manifest_info
 
     if font_dir is not None:
         if not font_dir.is_dir():
@@ -253,7 +283,7 @@ def resolve_font_records(
 
     if not paths:
         raise ValueError("no local font files found")
-    return tuple(FontRecord(path, str(path), sha256=_sha256(path)) for path in paths), None
+    return tuple(FontRecord(path, str(path)) for path in paths), None
 
 
 def square_pad(image: Image.Image, margin: int) -> Image.Image:
@@ -364,7 +394,7 @@ def benchmark_loader(loader: DataLoader, warmup_batches: int, measured_batches: 
     print(f"Hardware: {platform.processor() or platform.machine()} ({platform.platform()})")
     print(
         f"Loader: workers={loader.num_workers}, batch_size={loader.batch_size}, "
-        f"render_size={dataset.render_size}, image_size={image_size}, base_mask_cache=disabled"
+        f"render_size={dataset.render_size}, image_size={image_size}, font_cache=worker-local"
     )
     print(
         f"Measured {sample_count} samples after {warmup_batches} warm-up batches and "
@@ -412,7 +442,7 @@ def write_provenance(
             "path": str(path),
             "family": record.family,
             "style": record.style,
-            "sha256": record.sha256,
+            "sha256": record.sha256 or _sha256(record.path),
             "source": record.source,
         })
     payload = {
@@ -426,7 +456,6 @@ def write_provenance(
         "configuration": {key: _json_value(value) for key, value in vars(args).items()},
         "fonts": fonts,
         "manifest": manifest_info,
-        "base_mask_cache": False,
     }
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
@@ -584,14 +613,13 @@ def main(args: argparse.Namespace) -> None:
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
     checkpoint_path = args.output_dir / "checkpoint.pth"
-    checkpoint_mtime = checkpoint_path.stat().st_mtime_ns if checkpoint_path.is_file() else None
+    best_loss = math.inf
 
-    def save_metadata(_metrics: dict[str, float]) -> None:
-        nonlocal checkpoint_mtime
-        current_mtime = checkpoint_path.stat().st_mtime_ns if checkpoint_path.is_file() else None
-        if current_mtime != checkpoint_mtime:
-            write_provenance(args.output_dir / "checkpoint.json", args, train_set, records, manifest_info)
-            checkpoint_mtime = current_mtime
+    def save_metadata(metrics: dict[str, float]) -> None:
+        nonlocal best_loss
+        if metrics["val_loss"] < best_loss:
+            write_provenance(args.output_dir / "checkpoint.json", args, train_set, train_set.fonts, manifest_info)
+            best_loss = metrics["val_loss"]
 
     trainer = ClassificationTrainer(
         model,
@@ -608,6 +636,7 @@ def main(args: argparse.Namespace) -> None:
     if args.resume is not None:
         validate_resume_metadata(args.resume, args.arch, train_set.classes)
         trainer.load(torch.load(args.resume, map_location="cpu"))
+    best_loss = trainer.min_loss
     if args.check_setup:
         trainer.check_setup(lr=args.lr, num_it=100)
         return
