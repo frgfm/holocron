@@ -9,7 +9,6 @@ from dataclasses import dataclass
 from enum import Enum
 from functools import cache
 from importlib import import_module
-from types import ModuleType
 from typing import Any
 
 from torch import nn
@@ -33,14 +32,10 @@ _TASKS = ("classification", "detection", "segmentation")
 
 
 @cache
-def _task_modules() -> dict[str, ModuleType]:
-    return {task: import_module(f"{__package__}.{task}") for task in _TASKS}
-
-
-@cache
 def _model_factories() -> dict[str, tuple[str, Callable[..., nn.Module]]]:
     factories: dict[str, tuple[str, Callable[..., nn.Module]]] = {}
-    for task, module in _task_modules().items():
+    for task in _TASKS:
+        module = import_module(f"{__package__}.{task}")
         for name, factory in vars(module).items():
             if name.startswith("_") or not inspect.isfunction(factory):
                 continue
@@ -70,12 +65,6 @@ def _checkpoint_map() -> dict[str, tuple[Checkpoint, ...]]:
     return {name: tuple(values) for name, values in checkpoints.items()}
 
 
-def _has_legacy_weights(name: str, factory: Callable[..., nn.Module]) -> bool:
-    configs = getattr(import_module(factory.__module__), "default_cfgs", {})
-    config = configs.get(name, {}) if isinstance(configs, dict) else {}
-    return isinstance(config, dict) and bool(config.get("url"))
-
-
 def get_model_info(name: str) -> ModelInfo:
     """Return task, maturity, and weight availability for a model.
 
@@ -94,7 +83,9 @@ def get_model_info(name: str) -> ModelInfo:
         raise ValueError(f"unknown model: {name}") from exc
 
     checkpoints = _checkpoint_map().get(name, ())
-    pretrained = bool(checkpoints) or _has_legacy_weights(name, factory)
+    configs = getattr(import_module(factory.__module__), "default_cfgs", {})
+    config = configs.get(name, {}) if isinstance(configs, dict) else {}
+    pretrained = bool(checkpoints) or (isinstance(config, dict) and bool(config.get("url")))
     if task == "detection":
         maturity = Maturity.EXPERIMENTAL
     elif task == "segmentation" or not checkpoints:
