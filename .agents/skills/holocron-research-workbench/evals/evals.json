@@ -1,0 +1,23 @@
+{
+  "skill_name": "holocron-research-workbench",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "In this Holocron checkout, choose a small pretrained classification model for a CPU transfer-learning experiment, show how to instantiate it without source introspection, and tell me exactly what evidence is and is not available.",
+      "expected_output": "Uses the public catalog and typed checkpoints, reports maturity and metadata, and avoids claiming unrun training or benchmark evidence.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "My Holocron training job stopped after epoch 2. I have its checkpoint and output directory. Explain how an agent should decide whether this is an exact resume, restart it safely, and validate the resulting evidence bundle.",
+      "expected_output": "Distinguishes schema-v2 exact resume from legacy warm restart, preserves the scheduler horizon, and treats manifest.json as the completion marker.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "A new Holocron detector passes shape tests and overfits one batch. Can we call it validated and publish a latency comparison? Give the next commands and gates an agent should run.",
+      "expected_output": "Keeps the detector experimental, requires AP50/AP50:95 and export parity, and separates CPU, CUDA, and latency evidence.",
+      "files": []
+    }
+  ]
+}
