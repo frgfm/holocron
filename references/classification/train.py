@@ -16,8 +16,6 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
-import wandb
-from codecarbon import track_emissions
 from torch import nn
 from torch.utils.data import RandomSampler, SequentialSampler
 from torch.utils.data._utils.collate import default_collate
@@ -73,8 +71,15 @@ def plot_samples(images, targets, num_samples=8):
     plt.show()
 
 
-@track_emissions()
 def main(args):
+    from codecarbon import track_emissions  # noqa: PLC0415 - keep parser importable without training extras
+
+    return track_emissions()(_main)(args)
+
+
+def _main(args):
+    import wandb  # noqa: PLC0415 - keep parser importable without training extras
+
     print(args)
 
     torch.manual_seed(args.seed)
@@ -226,7 +231,7 @@ def main(args):
     )
     if args.resume:
         print(f"Resuming {args.resume}")
-        checkpoint = torch.load(args.resume, map_location="cpu")
+        checkpoint = torch.load(args.resume, map_location="cpu", weights_only=True)
         trainer.load(checkpoint)
 
     if args.test_only:
@@ -289,6 +294,7 @@ def main(args):
         args.freeze_until,
         args.sched,
         norm_weight_decay=args.norm_wd,
+        run_dir=args.run_dir,
         div_factor=100,
         pct_start=0.1,
     )
@@ -311,6 +317,7 @@ def get_parser():
     group.add_argument("--arch", default="darknet19", type=str, help="architecture to use")
     group.add_argument("--pretrained", action="store_true", help="Use pre-trained models from the modelzoo")
     group.add_argument("--output-file", default="./checkpoints/checkpoint.pth", help="path where to save")
+    group.add_argument("--run-dir", default=None, help="optional run bundle directory")
     group.add_argument("--resume", default="", help="resume from checkpoint")
     group.add_argument("--seed", default=0, type=int, help="random seed")
     # Hardware

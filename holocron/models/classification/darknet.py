@@ -15,6 +15,7 @@ from holocron.nn.init import init_module
 
 from ..presets import IMAGENETTE
 from ..utils import conv_sequence, load_pretrained_params
+from ._features import _ClassifierMixin
 
 __all__ = ["DarknetV1", "darknet24"]
 
@@ -103,7 +104,7 @@ class DarknetBodyV1(nn.Sequential):
         return nn.Sequential(*layers)
 
 
-class DarknetV1(nn.Sequential):
+class DarknetV1(_ClassifierMixin, nn.Sequential):
     def __init__(
         self,
         layout: list[list[int]],

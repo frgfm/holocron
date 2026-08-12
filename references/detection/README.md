@@ -8,13 +8,13 @@ Ensure that you have holocron installed
 
 ```bash
 git clone https://github.com/frgfm/Holocron.git
-pip install -e "Holocron/.[training]"
+pip install -e "Holocron/.[training,evaluation]"
 ```
 
 No need to download the dataset, torchvision will handle [this](https://pytorch.org/docs/stable/torchvision/datasets.html#torchvision.datasets.VOCDetection) for you! From there, you can run your training with the following command
 
 ```bash
-python train.py VOC2012 --arch yolov2 --lr 1e-5 -b 32 -j 16 --epochs 20 --opt radam --sched onecycle
+python train.py VOC2012 --arch yolov2 --seed 0 --lr 1e-5 -b 32 -j 16 --epochs 20 --opt radam --sched onecycle
 ```
 
 
@@ -40,7 +40,7 @@ Here, the recall being the ratio of correctly predicted ground truth predictions
 
 | Size (px) | Epochs | args                                                         | Loc@.5 | Clf@.5 | Det@.5 | # Runs |
 | --------- | ------ | ------------------------------------------------------------ | ------ | ------ | ------ | ------ |
-| 416       | 40     | VOC2012 --arch yolov2 --img-size 416 --lr 5e-4 -b 64 -j 16 --epochs 40 --opt tadam --freeze-backbone --sched onecycle | 83.09  | 52.82  | 92.02  | 1      |
+| 416       | 40     | VOC2012 --arch yolov2 --img-size 416 --lr 5e-4 -b 64 -j 16 --epochs 40 --opt tadam --freeze-until backbone --sched onecycle | 83.09  | 52.82  | 92.02  | 1      |
 
 
 

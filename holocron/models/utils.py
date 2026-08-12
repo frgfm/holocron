@@ -3,20 +3,24 @@
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
+import hashlib
 import json
 import logging
+import os
+import tempfile
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any, TypeVar
+from urllib.parse import urlparse
 
 import torch
 from huggingface_hub.file_download import hf_hub_download
 from torch import nn
-from torch.hub import load_state_dict_from_url
+from torch.hub import download_url_to_file, get_dir, load_state_dict_from_url
 
-from holocron import models
 from holocron.nn import BlurPool2d
 
+from .catalog import get_model
 from .checkpoints import Checkpoint, Dataset, Evaluation, LoadingMeta, Metric, PreProcessing, TrainingRecipe
 from .presets import IMAGENET, IMAGENETTE
 
@@ -93,20 +97,50 @@ def load_pretrained_params(
     progress: bool = True,
     key_replacement: tuple[str, str] | None = None,
     key_filter: str | None = None,
+    *,
+    sha256: str | None = None,
 ) -> None:
     """Loads a checkpoint on a model given its URL.
 
     Args:
         model: PyTorch model
         url: the URL of the checkpoint to download
-        progress: whether a progress br should be displayed when downloading the checkpoint
+        sha256: expected full SHA-256 digest
+        progress: whether a progress bar should be displayed when downloading the checkpoint
         key_replacement: a mapping to replace keys in the checkpoint before loading them
         key_filter: prefix of the checkpoint keys to be loaded
+
+    Raises:
+        ValueError: if the expected digest or checkpoint URL is invalid
     """
     if url is None:
         logger.warning("Invalid model URL, using default initialization.")
     else:
-        state_dict = load_state_dict_from_url(url, progress=progress, map_location="cpu")
+        if sha256 is None:
+            state_dict = load_state_dict_from_url(url, progress=progress, map_location="cpu")
+        else:
+            if len(sha256) != 64 or any(char not in "0123456789abcdef" for char in sha256.lower()):
+                raise ValueError("sha256 must be a 64-character hexadecimal digest")
+            filename = Path(urlparse(url).path).name
+            if not filename:
+                raise ValueError("checkpoint URL has no file name")
+            checkpoint_dir = Path(get_dir()) / "checkpoints"
+            checkpoint_dir.mkdir(parents=True, exist_ok=True)
+            checkpoint_path = checkpoint_dir / filename
+
+            digest = None
+            if checkpoint_path.is_file():
+                with checkpoint_path.open("rb") as file:
+                    digest = hashlib.file_digest(file, "sha256").hexdigest()
+            if digest != sha256.lower():
+                fd, tmp_name = tempfile.mkstemp(prefix=f".{filename}.", suffix=".tmp", dir=checkpoint_dir)
+                os.close(fd)
+                try:
+                    download_url_to_file(url, tmp_name, hash_prefix=sha256.lower(), progress=progress)
+                    Path(tmp_name).replace(checkpoint_path)
+                finally:
+                    Path(tmp_name).unlink(missing_ok=True)
+            state_dict = torch.load(checkpoint_path, map_location="cpu", weights_only=True)
         if isinstance(key_filter, str):
             state_dict = {k: v for k, v in state_dict.items() if k.startswith(key_filter)}
         if isinstance(key_replacement, tuple):
@@ -148,24 +182,31 @@ def fuse_conv_bn(conv: nn.Conv2d, bn: nn.BatchNorm2d) -> tuple[torch.Tensor, tor
     return fused_kernel, fused_bias
 
 
-def model_from_hf_hub(repo_id: str, **kwargs: Any) -> nn.Module:
+def model_from_hf_hub(repo_id: str, *, revision: str, **kwargs: Any) -> nn.Module:
     """Instantiate & load a pretrained model from HF hub.
 
     from holocron.models.utils import model_from_hf_hub
-    model = model_from_hf_hub("frgfm/rexnet1_0x")
+    model = model_from_hf_hub("frgfm/rexnet1_0x", revision="<commit SHA>")
 
     Args:
         repo_id: HuggingFace model hub repo
+        revision: immutable Hub commit revision
         kwargs: kwargs of `hf_hub_download`
 
     Returns:
         Model loaded with the checkpoint
+
+    Raises:
+        ValueError: if revision is not an immutable commit SHA
     """
+    if len(revision) != 40 or set(revision.lower()) - set("0123456789abcdef"):
+        raise ValueError("revision must be a 40-character commit SHA")
+
     # Get the config
-    with Path(hf_hub_download(repo_id, filename="config.json", **kwargs)).open("rb") as f:
+    with Path(hf_hub_download(repo_id, filename="config.json", revision=revision, **kwargs)).open("rb") as f:
         cfg = json.load(f)
 
-    model = models.__dict__[cfg["arch"]](num_classes=len(cfg["classes"]), pretrained=False)
+    model = get_model(cfg["arch"], num_classes=len(cfg["classes"]), pretrained=False)
     # Patch the config
     if model.default_cfg is None:
         model.default_cfg = cfg
@@ -175,7 +216,11 @@ def model_from_hf_hub(repo_id: str, **kwargs: Any) -> nn.Module:
         model.default_cfg.update(cfg)
 
     # Load the checkpoint
-    state_dict = torch.load(hf_hub_download(repo_id, filename="pytorch_model.bin", **kwargs), map_location="cpu")
+    state_dict = torch.load(
+        hf_hub_download(repo_id, filename="pytorch_model.bin", revision=revision, **kwargs),
+        map_location="cpu",
+        weights_only=True,
+    )
     model.load_state_dict(state_dict)
 
     return model
@@ -189,7 +234,7 @@ def _configure_model(
     model.default_cfg = checkpoint  # type: ignore[assignment]
     # Load pretrained parameters
     if isinstance(checkpoint, Checkpoint):
-        load_pretrained_params(model, checkpoint.meta.url, **kwargs)
+        load_pretrained_params(model, checkpoint.meta.url, sha256=checkpoint.meta.sha256, **kwargs)
 
     return model
 

@@ -1,0 +1,339 @@
+import gc
+import json
+import shutil
+from collections import Counter
+from pathlib import Path
+
+import matplotlib as mpl
+import pytest
+import torch
+from PIL import ImageFont
+from torch import nn
+from torch.utils.data import SequentialSampler
+from torchvision.transforms import v2 as T
+
+from references.classification import train_characters as characters
+
+FONT_ROOT = Path(mpl.get_data_path()) / "fonts" / "ttf"
+SANS = FONT_ROOT / "DejaVuSans.ttf"
+
+
+def _transform_args(*args):
+    return characters.get_parser().parse_args([
+        "--image-size",
+        "24",
+        "--render-size",
+        "32",
+        "--margin",
+        "2",
+        *args,
+    ])
+
+
+def test_dataset_balance_outputs_and_reproducibility():
+    train_transform, val_transform = characters.build_transforms(
+        _transform_args("--rotation", "20", "--translate", "0.2", "--scale-jitter", "0.2")
+    )
+    record = characters.FontRecord(SANS, "DejaVu Sans")
+    dataset = characters.SyntheticCharacterDataset("ABC", [record], 32, 7, train_transform)
+
+    assert dataset.classes == ("A", "B", "C")
+    assert dataset.class_to_idx == {"A": 0, "B": 1, "C": 2}
+    assert Counter(dataset[index][1] for index in range(len(dataset))) == {0: 3, 1: 2, 2: 2}
+    image, target = dataset[1]
+    assert image.shape == (3, 24, 24)
+    assert image.dtype == torch.float32
+    assert target == 1
+
+    torch.manual_seed(3)
+    first = dataset[0][0]
+    torch.manual_seed(3)
+    repeated = dataset[0][0]
+    torch.manual_seed(4)
+    different = dataset[0][0]
+    assert torch.equal(first, repeated)
+    assert not torch.equal(first, different)
+
+    validation = characters.SyntheticCharacterDataset("ABC", [record], 32, 6, val_transform, deterministic=True)
+    first_pass = [validation[index] for index in range(len(validation))]
+    second_pass = [validation[index] for index in range(len(validation))]
+    assert [target for _, target in first_pass] == [0, 1, 2, 0, 1, 2]
+    assert all(torch.equal(first[0], second[0]) for first, second in zip(first_pass, second_pass, strict=True))
+
+
+def test_family_is_sampled_before_style():
+    records = [
+        characters.FontRecord(FONT_ROOT / "DejaVuSans.ttf", "Sans", "Regular"),
+        characters.FontRecord(FONT_ROOT / "DejaVuSans-Bold.ttf", "Sans", "Bold"),
+        characters.FontRecord(FONT_ROOT / "DejaVuSans-Oblique.ttf", "Sans", "Oblique"),
+        characters.FontRecord(FONT_ROOT / "DejaVuSerif.ttf", "Serif", "Regular"),
+    ]
+    to_tensor = T.PILToTensor()
+    expected = {}
+    for record in records:
+        font = ImageFont.truetype(str(record.path), 32)
+        image = to_tensor(characters.render_text("A", font))
+        expected[tuple(image.shape), image.numpy().tobytes()] = (record.family, record.style)
+    assert len(expected) == len(records)
+
+    dataset = characters.SyntheticCharacterDataset("A", records, 32, 1, to_tensor)
+    assert {record.family for record in dataset.fonts} == {"DejaVu Sans", "DejaVu Serif"}
+    torch.manual_seed(0)
+    counts = Counter()
+    for _ in range(1_000):
+        image, _ = dataset[0]
+        counts[expected[tuple(image.shape), image.numpy().tobytes()]] += 1
+
+    sans_count = sum(count for (family, _), count in counts.items() if family == "Sans")
+    assert 430 < sans_count < 570
+    for style in ("Regular", "Bold", "Oblique"):
+        assert 0.25 < counts["Sans", style] / sans_count < 0.42
+
+
+def test_validation_holds_out_whole_font_families():
+    records = [
+        characters.FontRecord(SANS, "ignored"),
+        characters.FontRecord(FONT_ROOT / "DejaVuSans-Bold.ttf", "ignored"),
+        characters.FontRecord(FONT_ROOT / "DejaVuSerif.ttf", "ignored"),
+    ]
+    train, validation = characters.split_font_families("AB", records, 32, 0.2, 3)
+
+    assert {record.family for record in train}.isdisjoint({record.family for record in validation})
+    assert (train, validation) == characters.split_font_families("AB", records, 32, 0.2, 3)
+    with pytest.raises(ValueError, match="at least 2 font families"):
+        characters.split_font_families("AB", records[:2], 32, 0.2, 3)
+
+
+@pytest.mark.parametrize(
+    ("alphabet", "message"),
+    [
+        ("", "must not be empty"),
+        ("AA", "duplicate"),
+        (" ", "visible"),
+        ("你", "no visible font supports"),
+    ],
+)
+def test_dataset_rejects_invalid_alphabets(alphabet, message):
+    with pytest.raises(ValueError, match=message):
+        characters.SyntheticCharacterDataset(alphabet, [SANS], 32, 1, T.PILToTensor())
+
+
+def test_dataset_rejects_invalid_fonts(tmp_path):
+    missing = tmp_path / "missing.ttf"
+    with pytest.raises(FileNotFoundError, match="does not exist"):
+        characters.SyntheticCharacterDataset("A", [missing], 32, 1, T.PILToTensor())
+
+    corrupt = tmp_path / "corrupt.ttf"
+    corrupt.write_text("not a font", encoding="utf-8")
+    with pytest.raises(ValueError, match="unable to load"):
+        characters.SyntheticCharacterDataset("A", [corrupt], 32, 1, T.PILToTensor())
+
+
+def test_font_objects_are_reused(monkeypatch):
+    dataset = characters.SyntheticCharacterDataset("A", [SANS], 32, 2, T.PILToTensor())
+    original = characters.ImageFont.truetype
+    calls = 0
+
+    def counted_truetype(*args, **kwargs):
+        nonlocal calls
+        calls += 1
+        return original(*args, **kwargs)
+
+    monkeypatch.setattr(characters.ImageFont, "truetype", counted_truetype)
+    dataset[0]
+    dataset[1]
+    assert calls == 1
+    state = dataset.__getstate__()
+    assert state["_font_cache"] == {}
+    assert state["_font_cache_pid"] is None
+
+
+@pytest.mark.parametrize("workers", [0, 1])
+def test_dataloader_smoke(workers):
+    _, val_transform = characters.build_transforms(_transform_args())
+    dataset = characters.SyntheticCharacterDataset("AB", [SANS], 32, 4, val_transform, deterministic=True)
+    dataset[0]
+    loader = characters.build_loader(
+        dataset,
+        2,
+        workers,
+        SequentialSampler(dataset),
+        0,
+        pin_memory=False,
+    )
+    images, targets = next(iter(loader))
+    assert images.shape == (2, 3, 24, 24)
+    assert targets.tolist() == [0, 1]
+    del loader
+    gc.collect()
+
+
+def _write_manifest(path, *fonts):
+    path.write_text(
+        json.dumps({
+            "version": 1,
+            "sources": {"test": {"revision": "abc123"}},
+            "fonts": [
+                {
+                    "family": family,
+                    "style": "Regular",
+                    "source": "test",
+                    "filename": filename,
+                    "sha256": checksum,
+                }
+                for family, filename, checksum in fonts
+            ],
+        }),
+        encoding="utf-8",
+    )
+
+
+def test_cli_grid_training_resume_and_provenance(monkeypatch, tmp_path):
+    font_dir = tmp_path / "fonts"
+    font_dir.mkdir()
+    font_path = font_dir / "Test.ttf"
+    validation_font_path = font_dir / "Validation.ttf"
+    shutil.copy2(SANS, font_path)
+    shutil.copy2(FONT_ROOT / "DejaVuSerif.ttf", validation_font_path)
+    manifest = tmp_path / "fonts.json"
+    _write_manifest(
+        manifest,
+        ("DejaVu Sans", font_path.name, characters._sha256(font_path)),
+        ("DejaVu Serif", validation_font_path.name, characters._sha256(validation_font_path)),
+    )
+
+    common = [
+        "--font-dir",
+        str(font_dir),
+        "--manifest",
+        str(manifest),
+        "--alphabet",
+        "AB",
+        "--arch",
+        "convnext_atto",
+        "--image-size",
+        "16",
+        "--render-size",
+        "32",
+        "--samples-per-epoch",
+        "4",
+        "--validation-fonts-per-class",
+        "1",
+        "--batch-size",
+        "2",
+        "--workers",
+        "0",
+        "--epochs",
+        "1",
+        "--device",
+        "cpu",
+    ]
+    grid_path = tmp_path / "grid.png"
+    characters.main(characters.get_parser().parse_args([*common, "--show-samples", str(grid_path)]))
+    assert grid_path.is_file()
+
+    model_calls = []
+
+    def tiny_classifier(name, *, num_classes=1, **_kwargs):
+        model_calls.append(name)
+        return nn.Sequential(nn.Flatten(), nn.Linear(3 * 16 * 16, num_classes))
+
+    monkeypatch.setattr(characters, "get_model", tiny_classifier)
+    output_dir = tmp_path / "output"
+    training_args = [*common, "--output-dir", str(output_dir)]
+    characters.main(characters.get_parser().parse_args(training_args))
+
+    checkpoint = output_dir / "checkpoint.pth"
+    assert checkpoint.is_file()
+    manifest_path = output_dir / "manifest.json"
+    assert manifest_path.is_file()
+    bundle = json.loads(manifest_path.read_text(encoding="utf-8"))
+    metadata = bundle["run"]["config"]["recipe"]
+    assert bundle["schema_version"] == 1
+    assert {artifact["path"] for artifact in bundle["artifacts"]} == {
+        "metrics.jsonl",
+        "checkpoints/checkpoint.pth",
+        "artifacts/fonts.json",
+    }
+    assert metadata["class_to_index"] == {"A": 0, "B": 1}
+    assert metadata["architecture"] == "convnext_atto"
+    assert metadata["maturity"] == "experimental"
+    assert {font["path"] for font in metadata["fonts"]} == {"Test.ttf", "Validation.ttf"}
+    assert metadata["manifest"]["source_revisions"] == {"test": "abc123"}
+    assert set(metadata["font_split"]["training_families"]).isdisjoint(metadata["font_split"]["validation_families"])
+    assert model_calls == ["convnext_atto"]
+
+    loaded_versions = []
+    original_load = characters.ClassificationTrainer.load
+
+    def track_load(self, state):
+        loaded_versions.append(state["schema_version"])
+        return original_load(self, state)
+
+    monkeypatch.setattr(characters.ClassificationTrainer, "load", track_load)
+    monkeypatch.setattr(characters.ClassificationTrainer, "check_setup", lambda *_args, **_kwargs: None)
+    characters.main(characters.get_parser().parse_args([*training_args, "--resume", str(checkpoint), "--check-setup"]))
+    assert loaded_versions == [2]
+
+
+def test_manifest_checksum_is_verified(tmp_path):
+    font_dir = tmp_path / "fonts"
+    font_dir.mkdir()
+    font_path = font_dir / "Test.ttf"
+    shutil.copy2(SANS, font_path)
+    manifest = tmp_path / "fonts.json"
+    _write_manifest(manifest, ("DejaVu Sans", font_path.name, "0" * 64))
+    with pytest.raises(ValueError, match="checksum mismatch"):
+        characters.resolve_font_records("A", font_dir, manifest)
+
+
+def test_unmanifested_font_hashes_are_deferred(monkeypatch, tmp_path):
+    font_dir = tmp_path / "fonts"
+    font_dir.mkdir()
+    shutil.copy2(SANS, font_dir / "Test.ttf")
+    hashes = []
+    monkeypatch.setattr(characters, "_sha256", lambda path: hashes.append(path) or "hash")
+
+    records, _ = characters.resolve_font_records("A", font_dir, None)
+    assert hashes == []
+    dataset = characters.SyntheticCharacterDataset("A", records, 32, 1, T.PILToTensor())
+    args = characters.get_parser().parse_args(["--font-dir", str(font_dir)])
+    metadata = characters.recipe_metadata(args, dataset, dataset, dataset.fonts, None)
+
+    assert hashes == [font_dir / "Test.ttf"]
+    assert metadata["fonts"][0]["sha256"] == "hash"
+
+
+def test_fixed_batch_can_lower_loss(monkeypatch, tmp_path):
+    torch.manual_seed(0)
+    transform = T.Compose([
+        T.Resize((8, 8), antialias=True),
+        T.Grayscale(num_output_channels=3),
+        T.ToImage(),
+        T.ToDtype(torch.float32, scale=True),
+    ])
+    dataset = characters.SyntheticCharacterDataset("AB", [SANS], 32, 2, transform, deterministic=True)
+    loader = characters.build_loader(
+        dataset,
+        2,
+        0,
+        SequentialSampler(dataset),
+        0,
+        pin_memory=False,
+    )
+    model = nn.Sequential(nn.Flatten(), nn.Linear(3 * 8 * 8, 2))
+    criterion = nn.CrossEntropyLoss()
+    trainer = characters.ClassificationTrainer(
+        model,
+        loader,
+        loader,
+        criterion,
+        torch.optim.SGD(model.parameters(), lr=0.2),
+        output_file=str(tmp_path / "checkpoint.pth"),
+    )
+    images, targets = next(iter(loader))
+    initial_loss = criterion(model(images), targets).item()
+    monkeypatch.setattr(characters.plt, "show", lambda **_kwargs: None)
+    trainer.check_setup(lr=0.2, num_it=30)
+    final_loss = criterion(model(images), targets).item()
+    assert final_loss < initial_loss

@@ -1,8 +1,11 @@
+import hashlib
+from pathlib import Path
+
 import pytest
 import torch
 from torch import nn
 
-from holocron.models import utils
+from holocron.models import Maturity, get_model, get_model_info, list_checkpoints, list_models, utils
 from holocron.models.classification.repvgg import RepVGG
 from holocron.nn import SAM, BlurPool2d, DropBlock2d
 
@@ -83,10 +86,85 @@ def test_fuse_conv_bn():
         assert torch.allclose(bn(conv(x)), fused_conv(x), atol=1e-6)
 
 
+def test_pretrained_checkpoint_full_hash(monkeypatch, tmp_path):
+    model = nn.Linear(2, 1)
+    state_path = tmp_path / "source.pth"
+    torch.save(model.state_dict(), state_path)
+    digest = hashlib.sha256(state_path.read_bytes()).hexdigest()
+    downloads = []
+
+    def _download(url, destination, hash_prefix, progress):
+        downloads.append((url, hash_prefix, progress))
+        Path(destination).write_bytes(state_path.read_bytes())
+
+    monkeypatch.setattr(utils, "get_dir", lambda: str(tmp_path / "hub"))
+    monkeypatch.setattr(utils, "download_url_to_file", _download)
+    utils.load_pretrained_params(model, "https://example.org/weights.pth", progress=False, sha256=digest)
+    utils.load_pretrained_params(model, "https://example.org/weights.pth", progress=False, sha256=digest)
+
+    assert downloads == [("https://example.org/weights.pth", digest, False)]
+
+
+def test_pretrained_checkpoint_rejects_invalid_hash():
+    with pytest.raises(ValueError, match="64-character hexadecimal"):
+        utils.load_pretrained_params(nn.Linear(2, 1), "https://example.org/weights.pth", sha256="invalid")
+
+
 def test_model_from_hf_hub():
-    model = utils.model_from_hf_hub("frgfm/repvgg_a0")
+    model = utils.model_from_hf_hub("frgfm/repvgg_a0", revision="ab1c8cc7cd9dcc49c60352791c799fbda90cf2e8")
     # Check model type
     assert isinstance(model, RepVGG)
 
     # Check num of params
     assert sum(p.data.numel() for p in model.parameters()) == 24741642
+
+
+def test_model_from_hf_hub_requires_commit_revision():
+    with pytest.raises(ValueError, match="40-character commit SHA"):
+        utils.model_from_hf_hub("frgfm/repvgg_a0", revision="main")
+
+
+def test_model_catalog():
+    names = list_models()
+    assert names == sorted(names)
+    assert len(names) == len(set(names)) == 62
+    assert set(names) == set(list_models(task="classification")) | set(list_models(task="detection")) | set(
+        list_models(task="segmentation")
+    )
+    assert list_models(maturity=Maturity.EXPERIMENTAL) == ["yolov1", "yolov2", "yolov4"]
+    assert list_models(maturity="validated") == []
+    assert "convnext_atto" in list_models(maturity="preview", pretrained=True)
+    assert "repvit_m0_9" in list_models(maturity="preview", pretrained=False)
+    assert "iformer_t" in list_models(task="classification", maturity="preview", pretrained=False)
+    assert get_model_info("unet_rexnet13").pretrained
+
+    with pytest.raises(ValueError, match="unknown task"):
+        list_models(task="generation")
+    with pytest.raises(ValueError, match="unknown model"):
+        get_model_info("missing")
+
+
+@pytest.mark.parametrize(
+    ("name", "kwargs"),
+    [
+        ("repvit_m0_9", {"num_classes": 7}),
+        ("iformer_t", {"num_classes": 7}),
+        ("yolov1", {"num_classes": 7, "pretrained_backbone": False}),
+        ("unet", {"num_classes": 7}),
+    ],
+)
+def test_get_model(name, kwargs):
+    assert isinstance(get_model(name, **kwargs), nn.Module)
+
+
+def test_model_checkpoints():
+    checkpoint = list_checkpoints("convnext_atto")[0]
+    assert checkpoint.meta.arch == "convnext_atto"
+    assert checkpoint.maturity is Maturity.PREVIEW
+    assert list_checkpoints("repvit_m0_9") == ()
+    assert list_checkpoints("iformer_t") == ()
+
+    with pytest.raises(ValueError, match="does not match"):
+        get_model("resnet18", checkpoint=checkpoint)
+    with pytest.raises(TypeError, match="must be a Checkpoint"):
+        get_model("resnet18", checkpoint="imagenette")

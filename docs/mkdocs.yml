@@ -75,6 +75,7 @@ plugins:
       Getting started:
         - getting-started/installation.md
         - getting-started/classification.md
+        - getting-started/model-cards.md
         - getting-started/notebooks.md
       Package Reference:
         - reference/models/models.md
@@ -86,6 +87,7 @@ plugins:
         - reference/utils.md
         - reference/utils.data.md
       Notes:
+        - notes/v0.3-migration.md
         - notes/changelog.md
   mkdocstrings:
     handlers:
@@ -173,6 +175,7 @@ nav:
   - Getting started:
     - getting-started/installation.md
     - getting-started/classification.md
+    - getting-started/model-cards.md
     - getting-started/notebooks.md
   - Package Reference:
     - Models:
@@ -193,6 +196,7 @@ nav:
         - reference/models/classification/repvgg.md
         - reference/models/classification/mobileone.md
         - reference/models/classification/repvit.md
+        - reference/models/classification/iformer.md
     - Layers: reference/nn.md
     - Operators: reference/ops.md
     - Optimizers: reference/optim.md
@@ -202,4 +206,5 @@ nav:
       - reference/utils.md
       - Data: reference/utils.data.md
   - Notes:
+    - notes/v0.3-migration.md
     - notes/changelog.md

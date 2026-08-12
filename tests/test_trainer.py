@@ -1,3 +1,4 @@
+import builtins
 import math
 import warnings
 
@@ -9,6 +10,7 @@ from torchvision.models import get_model, get_model_weights
 
 from holocron import trainer
 from holocron.nn import GlobalAvgPool2d
+from holocron.trainer.detection import assign_iou, detection_average_precision
 
 
 class MockClassificationDataset(Dataset):
@@ -73,6 +75,127 @@ class MockDetDataset(Dataset):
 
     def __len__(self):
         return self.n
+
+
+@pytest.mark.parametrize(
+    "device",
+    ["cpu", pytest.param("cuda", marks=pytest.mark.skipif(not torch.cuda.is_available(), reason="CUDA unavailable"))],
+)
+def test_assign_iou_device(device):
+    gt_boxes = torch.tensor([[0, 0, 1, 1], [2, 2, 3, 3]], dtype=torch.float32, device=device)
+    pred_boxes = gt_boxes.clone()
+
+    gt_indices, pred_indices = assign_iou(gt_boxes, pred_boxes)
+
+    assert gt_indices.device == gt_boxes.device
+    assert pred_indices.device == gt_boxes.device
+    torch.testing.assert_close(gt_indices, torch.tensor([0, 1], device=device))
+    torch.testing.assert_close(pred_indices, torch.tensor([0, 1], device=device))
+
+
+def test_assign_iou_duplicate_predictions():
+    gt_boxes = torch.tensor([[0, 0, 0.8, 0.8], [2, 2, 3, 3], [0, 0, 1, 1]], dtype=torch.float32)
+    pred_boxes = torch.tensor([[0, 0, 1, 1], [2, 2, 3, 3]], dtype=torch.float32)
+
+    gt_indices, pred_indices = assign_iou(gt_boxes, pred_boxes)
+
+    torch.testing.assert_close(gt_indices, torch.tensor([2, 1]))
+    torch.testing.assert_close(pred_indices, torch.tensor([0, 1]))
+
+
+def test_detection_average_precision_perfect_multi_image(capsys):
+    pytest.importorskip("pycocotools")
+    targets = [
+        {"boxes": torch.tensor([[0.1, 0.1, 0.4, 0.4], [0.5, 0.5, 0.9, 0.9]]), "labels": torch.tensor([0, 2])},
+        {"boxes": torch.tensor([[0.2, 0.3, 0.7, 0.8]]), "labels": torch.tensor([2])},
+    ]
+    predictions = [{**target, "scores": torch.ones(target["boxes"].shape[0])} for target in targets]
+
+    metrics = detection_average_precision(predictions, targets)
+
+    assert metrics["ap50"] == pytest.approx(1)
+    assert metrics["ap50_95"] == pytest.approx(1)
+    assert not capsys.readouterr().out
+
+
+def test_detection_average_precision_miss():
+    pytest.importorskip("pycocotools")
+    targets = [{"boxes": torch.tensor([[0.0, 0.0, 0.2, 0.2]]), "labels": torch.tensor([1])}]
+    predictions = [
+        {"boxes": torch.tensor([[0.8, 0.8, 1.0, 1.0]]), "labels": torch.tensor([1]), "scores": torch.ones(1)}
+    ]
+
+    metrics = detection_average_precision(predictions, targets)
+
+    assert metrics == {"ap50": 0.0, "ap50_95": 0.0}
+
+
+@pytest.mark.parametrize(
+    ("predictions", "targets", "expected"),
+    [
+        (
+            [{"boxes": torch.zeros((0, 4)), "labels": torch.zeros(0, dtype=torch.long), "scores": torch.zeros(0)}],
+            [{"boxes": torch.tensor([[0.0, 0.0, 1.0, 1.0]]), "labels": torch.tensor([0])}],
+            {"ap50": 0.0, "ap50_95": 0.0},
+        ),
+        (
+            [{"boxes": torch.zeros((0, 4)), "labels": torch.zeros(0, dtype=torch.long), "scores": torch.zeros(0)}],
+            [{"boxes": torch.zeros((0, 4)), "labels": torch.zeros(0, dtype=torch.long)}],
+            {"ap50": None, "ap50_95": None},
+        ),
+        (
+            [{"boxes": torch.tensor([[0.0, 0.0, 1.0, 1.0]]), "labels": torch.tensor([0]), "scores": torch.ones(1)}],
+            [{"boxes": torch.zeros((0, 4)), "labels": torch.zeros(0, dtype=torch.long)}],
+            {"ap50": None, "ap50_95": None},
+        ),
+    ],
+)
+def test_detection_average_precision_empty(predictions, targets, expected):
+    assert detection_average_precision(predictions, targets) == expected
+
+
+def test_detection_average_precision_requires_extra(monkeypatch):
+    import_ = builtins.__import__
+
+    def import_without_pycocotools(name, *args, **kwargs):
+        if name.startswith("pycocotools"):
+            raise ImportError
+        return import_(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", import_without_pycocotools)
+    targets = [{"boxes": torch.tensor([[0.0, 0.0, 1.0, 1.0]]), "labels": torch.tensor([0])}]
+    predictions = [{**targets[0], "scores": torch.ones(1)}]
+
+    with pytest.raises(ImportError, match=r"pylocron\[evaluation\]"):
+        detection_average_precision(predictions, targets)
+
+
+def test_detection_trainer_average_precision():
+    pytest.importorskip("pycocotools")
+
+    class PerfectDetector(nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.weight = nn.Parameter(torch.zeros(1))
+
+        def forward(self, x):
+            score = torch.sigmoid(self.weight)
+            return [
+                {"boxes": torch.tensor([[0.1, 0.2, 0.8, 0.9]]), "labels": torch.tensor([1]), "scores": score} for _ in x
+            ]
+
+    dataset = [(torch.zeros((3, 4, 4)), {"boxes": torch.tensor([[0.1, 0.2, 0.8, 0.9]]), "labels": torch.tensor([1])})]
+    loader = DataLoader(dataset, collate_fn=collate_fn)
+    model = PerfectDetector()
+    learner = trainer.DetectionTrainer(model, loader, loader, None, torch.optim.SGD(model.parameters(), lr=0.1))
+
+    metrics = learner.evaluate()
+
+    assert metrics["ap50"] == pytest.approx(1)
+    assert metrics["ap50_95"] == pytest.approx(1)
+    assert metrics["loc_err"] == 0
+    assert metrics["clf_err"] == 0
+    assert metrics["det_err"] == 0
 
 
 def collate_fn(batch):
@@ -417,7 +540,11 @@ def test_segmentation_trainer(tmpdir_factory):
     _test_trainer(learner, num_it, "2.weight", None)
 
 
-def test_detection_trainer(tmpdir_factory):
+def test_detection_trainer(tmpdir_factory, monkeypatch):
+    monkeypatch.setattr(
+        "holocron.trainer.detection.detection_average_precision",
+        lambda *_: {"ap50": 1.0, "ap50_95": 1.0},
+    )
     folder = tmpdir_factory.mktemp("checkpoints")
     file_path = str(folder.join("tmp.pt"))
 

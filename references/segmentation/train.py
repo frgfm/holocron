@@ -14,8 +14,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 import torch.utils.data
-import wandb
-from codecarbon import track_emissions
 from torch import nn
 from torch.utils.data import RandomSampler, SequentialSampler
 from torchvision.datasets import VOCSegmentation
@@ -108,16 +106,24 @@ def plot_predictions(images, preds, targets, ignore_index=None):
     plt.show()
 
 
-@track_emissions()
 def main(args):
+    from codecarbon import track_emissions  # noqa: PLC0415 - keep parser importable without training extras
+
+    return track_emissions()(_main)(args)
+
+
+def _main(args):
+    import wandb  # noqa: PLC0415 - keep parser importable without training extras
+
     print(args)
 
+    torch.manual_seed(args.seed)
     torch.backends.cudnn.benchmark = True
 
     # Data loading
     normalize = T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-    base_size = 320
-    crop_size = 256
+    crop_size = args.img_size
+    base_size = round(1.25 * crop_size)
     min_size, max_size = int(0.5 * base_size), int(2.0 * base_size)
 
     interpolation_mode = InterpolationMode.BILINEAR
@@ -239,7 +245,7 @@ def main(args):
     )
     if args.resume:
         print(f"Resuming {args.resume}")
-        checkpoint = torch.load(args.resume, map_location="cpu")
+        checkpoint = torch.load(args.resume, map_location="cpu", weights_only=True)
         trainer.load(checkpoint)
 
     if args.show_preds:
@@ -288,16 +294,24 @@ def main(args):
                 "batch_size": args.batch_size,
                 "architecture": args.arch,
                 "source": args.source,
-                "input_size": 256,
+                "input_size": args.img_size,
                 "optimizer": args.opt,
                 "dataset": "Pascal VOC2012 Segmentation",
                 "loss": args.loss,
+                "seed": args.seed,
             },
         )
 
     print("Start training")
     start_time = time.time()
-    trainer.fit_n_epochs(args.epochs, args.lr, args.freeze_until, args.sched, norm_weight_decay=args.norm_weight_decay)
+    trainer.fit_n_epochs(
+        args.epochs,
+        args.lr,
+        args.freeze_until,
+        args.sched,
+        norm_weight_decay=args.norm_weight_decay,
+        run_dir=args.run_dir,
+    )
     total_time_str = str(datetime.timedelta(seconds=int(time.time() - start_time)))
     print(f"Training time {total_time_str}")
 
@@ -311,11 +325,13 @@ def get_parser():
     # Data & model
     group = parser.add_argument_group("Data & model")
     group.add_argument("data_path", type=str, help="path to dataset folder")
-    group.add_argument("--arch", default="yolov2", type=str, help="architecture to use")
+    group.add_argument("--arch", default="unet3p", type=str, help="architecture to use")
     group.add_argument("--source", type=str, default="holocron", help="where should the architecture be taken from")
     group.add_argument("--pretrained", action="store_true", help="Use pre-trained models from the modelzoo")
     group.add_argument("--output-file", default="./checkpoints/model.pth", help="path where to save")
+    group.add_argument("--run-dir", default=None, help="optional run bundle directory")
     group.add_argument("--resume", default="", help="resume from checkpoint")
+    group.add_argument("--seed", default=0, type=int, help="random seed")
     # Hardware
     group = parser.add_argument_group("Hardware")
     group.add_argument("--device", default=None, type=int, help="device")
@@ -328,7 +344,7 @@ def get_parser():
     )
     # Transformations
     group = parser.add_argument_group("Transformations")
-    group.add_argument("--img-size", default=416, type=int, help="image size")
+    group.add_argument("--img-size", default=256, type=int, help="image size")
     # Optimization
     group = parser.add_argument_group("Optimization")
     group.add_argument("--epochs", default=20, type=int, help="number of total epochs to run")

@@ -15,6 +15,7 @@ from holocron.nn import GlobalAvgPool2d
 
 from ..checkpoints import Checkpoint, _handle_legacy_pretrained
 from ..utils import _configure_model, fuse_conv_bn
+from ._features import _ClassifierMixin
 
 __all__ = ["RepViT", "repvit_m0_9", "repvit_m1_0", "repvit_m1_1"]
 
@@ -184,7 +185,7 @@ class _RepViTBlock(nn.Module):
         channel_mixer[-1] = cast(_ConvNorm, channel_mixer[-1]).reparametrize()
 
 
-class RepViT(nn.Sequential):
+class RepViT(_ClassifierMixin, nn.Sequential):
     """Implements RepViT as described in
     ["RepViT: Revisiting Mobile CNN From ViT Perspective"](https://arxiv.org/abs/2307.09283).
 

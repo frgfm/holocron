@@ -17,6 +17,7 @@ from holocron.nn.init import init_module
 from ..checkpoints import Checkpoint, _handle_legacy_pretrained
 from ..presets import IMAGENETTE
 from ..utils import _checkpoint, _configure_model, conv_sequence
+from ._features import _ClassifierMixin
 from .darknetv3 import ResBlock
 
 __all__ = ["CSPDarknet53_Checkpoint", "CSPDarknet53_Mish_Checkpoint", "DarknetV4", "cspdarknet53", "cspdarknet53_mish"]
@@ -183,7 +184,7 @@ class DarknetBodyV4(nn.Sequential):
         return features
 
 
-class DarknetV4(nn.Sequential):
+class DarknetV4(_ClassifierMixin, nn.Sequential):
     def __init__(
         self,
         layout: list[tuple[int, int]],

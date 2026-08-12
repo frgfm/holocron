@@ -17,6 +17,7 @@ from holocron.nn import GlobalAvgPool2d
 
 from ..checkpoints import Checkpoint, _handle_legacy_pretrained
 from ..utils import _checkpoint, _configure_model, conv_sequence
+from ._features import _ClassifierMixin
 from .resnet import _ResBlock
 
 __all__ = [
@@ -113,7 +114,7 @@ class Bottlenext(_ResBlock):
         )
 
 
-class ConvNeXt(nn.Sequential):
+class ConvNeXt(_ClassifierMixin, nn.Sequential):
     def __init__(
         self,
         num_blocks: list[int],

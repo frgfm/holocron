@@ -15,6 +15,7 @@ from holocron.nn import GlobalAvgPool2d, init
 
 from ..checkpoints import Checkpoint, _handle_legacy_pretrained
 from ..utils import _checkpoint, _configure_model, conv_sequence, fuse_conv_bn
+from ._features import _ClassifierMixin
 
 __all__ = [
     "RepBlock",
@@ -111,7 +112,7 @@ class RepBlock(nn.Module):
         self.branches = rep
 
 
-class RepVGG(nn.Sequential):
+class RepVGG(_ClassifierMixin, nn.Sequential):
     """Implements a reparametrized version of VGG as described in
     `"RepVGG: Making VGG-style ConvNets Great Again" <https://arxiv.org/pdf/2101.03697.pdf>`_
 

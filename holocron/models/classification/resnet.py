@@ -15,6 +15,7 @@ from holocron.nn import GlobalAvgPool2d, init
 from ..checkpoints import Checkpoint, _handle_legacy_pretrained
 from ..presets import IMAGENET, IMAGENETTE
 from ..utils import _checkpoint, _configure_model, conv_sequence
+from ._features import _ClassifierMixin
 
 __all__ = [
     "BasicBlock",
@@ -221,7 +222,7 @@ class ChannelRepeat(nn.Module):
         return x.repeat(*repeats)
 
 
-class ResNet(nn.Sequential):
+class ResNet(_ClassifierMixin, nn.Sequential):
     def __init__(  # noqa: PLR0912
         self,
         block: type[BasicBlock | Bottleneck],

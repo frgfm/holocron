@@ -6,15 +6,21 @@ on:
     paths:
       - '.github/workflows/package.yml'
       - 'holocron/**'
+      - 'scripts/**'
       - 'tests/**'
+      - 'README.md'
       - 'pyproject.toml'
+      - 'uv.lock'
   pull_request:
     branches: main
     paths:
       - '.github/workflows/package.yml'
       - 'holocron/**'
+      - 'scripts/**'
       - 'tests/**'
+      - 'README.md'
       - 'pyproject.toml'
+      - 'uv.lock'
   release:
     types: [published]
 
@@ -30,10 +36,12 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        python: ['3.11', '3.12', '3.13']
+        python: ['3.11', '3.12', '3.13', '3.14']
         exclude:
           - os: windows-latest
             python: '3.13'
+          - os: windows-latest
+            python: '3.14'
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
@@ -49,8 +57,7 @@ jobs:
           UV_TORCH_BACKEND: cpu
         run: make install
       - name: Check that we can import the engine
-        run: |
-          python -c "import holocron; print(holocron.__version__)"
+        run: python -c "import holocron; print(holocron.__version__)"
 
   test:
     if: github.event_name != 'release'
@@ -98,38 +105,10 @@ jobs:
           fail_ci_if_error: true
 
   build:
-    if: github.event_name == 'pull_request'
-    needs: install
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        python: ['3.11', '3.12', '3.13']
-        exclude:
-          - os: windows-latest
-            python: '3.13'
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-python@v7
-        with:
-          python-version: ${{ matrix.python }}
-          architecture: x64
-      - uses: astral-sh/setup-uv@v7
-        with:
-          version: ${{ env.UV_VERSION }}
-      - name: Build the package
-        env:
-          UV_TORCH_BACKEND: cpu
-        run: make build
-
-  publish:
-    if: github.event_name == 'release'
+    if: github.event_name == 'pull_request' || github.event_name == 'release'
     runs-on: ubuntu-latest
-    permissions:
-      # For PyPI's trusted publishing.
-      id-token: write
     outputs:
-      package_version: ${{ steps.set_version.outputs.package_version }}
+      package_version: ${{ steps.set-version.outputs.package_version }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
@@ -140,34 +119,45 @@ jobs:
         with:
           version: ${{ env.UV_VERSION }}
       - name: Set package version
-        id: set_version
+        id: set-version
+        shell: bash
         run: |
-          RELEASE_TAG=${{ github.ref_name }}
-          # Strip "v" prefix
-          BUILD_VERSION=${RELEASE_TAG#v}
-          # Replace SemVer pre-release separators with PEP440 compatible ones
-          BUILD_VERSION=${BUILD_VERSION//-alpha./a}
-          BUILD_VERSION=${BUILD_VERSION//-beta./b}
-          BUILD_VERSION=${BUILD_VERSION//-rc./rc}
-          echo "package_version=${BUILD_VERSION}" >> $GITHUB_OUTPUT
-          echo "BUILD_VERSION=${BUILD_VERSION}" >> $GITHUB_ENV
-      - name: Publish to PyPI
+          if [ "${{ github.event_name }}" = "release" ]; then
+            RELEASE_TAG=${{ github.ref_name }}
+            BUILD_VERSION=${RELEASE_TAG#v}
+            BUILD_VERSION=${BUILD_VERSION//-alpha./a}
+            BUILD_VERSION=${BUILD_VERSION//-beta./b}
+            BUILD_VERSION=${BUILD_VERSION//-rc./rc}
+            echo "BUILD_VERSION=${BUILD_VERSION}" >> "$GITHUB_ENV"
+          else
+            BUILD_VERSION=$(python -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")
+          fi
+          echo "package_version=${BUILD_VERSION}" >> "$GITHUB_OUTPUT"
+      - name: Apply release version
+        if: github.event_name == 'release'
+        run: make set-version
+      - name: Build distributions once
         env:
           UV_TORCH_BACKEND: cpu
-        run: |
-          make set-version
-          make build && make publish
+        run: make build
+      - uses: actions/upload-artifact@v7
+        with:
+          name: python-package-distributions
+          path: dist/
+          if-no-files-found: error
 
-  verify-publish:
+  test-wheel:
+    needs: build
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        python: ['3.11', '3.12', '3.13']
+        python: ['3.11', '3.12', '3.13', '3.14']
         exclude:
           - os: windows-latest
             python: '3.13'
-    needs: publish
+          - os: windows-latest
+            python: '3.14'
     steps:
       - uses: actions/setup-python@v7
         with:
@@ -176,7 +166,80 @@ jobs:
       - uses: astral-sh/setup-uv@v7
         with:
           version: ${{ env.UV_VERSION }}
-      - name: Install package
+      - uses: actions/download-artifact@v8
+        with:
+          name: python-package-distributions
+          path: dist
+      - name: Install exact wheel
+        env:
+          UV_TORCH_BACKEND: cpu
+        run: python -c "from glob import glob; import subprocess; subprocess.check_call(['uv', 'pip', 'install', '--system', glob('dist/*.whl')[0]])"
+      - name: Verify wheel contents
+        run: python -c "from importlib.resources import files; import holocron; assert files('holocron').joinpath('py.typed').is_file(); print(holocron.__version__)"
+
+  test-sdist:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          architecture: x64
+      - uses: astral-sh/setup-uv@v7
+        with:
+          version: ${{ env.UV_VERSION }}
+      - uses: actions/download-artifact@v8
+        with:
+          name: python-package-distributions
+          path: dist
+      - name: Install exact source distribution
+        env:
+          UV_TORCH_BACKEND: cpu
+        run: python -c "from glob import glob; import subprocess; subprocess.check_call(['uv', 'pip', 'install', '--system', glob('dist/*.tar.gz')[0]])"
+      - name: Verify source distribution contents
+        run: python -c "from importlib.resources import files; import holocron; assert files('holocron').joinpath('py.typed').is_file(); print(holocron.__version__)"
+
+  publish:
+    if: github.event_name == 'release'
+    needs: [build, test-wheel, test-sdist]
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    outputs:
+      package_version: ${{ needs.build.outputs.package_version }}
+    steps:
+      - uses: astral-sh/setup-uv@v7
+        with:
+          version: ${{ env.UV_VERSION }}
+      - uses: actions/download-artifact@v8
+        with:
+          name: python-package-distributions
+          path: dist
+      - name: Publish tested distributions to PyPI
+        run: uv publish --trusted-publishing always dist/*
+
+  verify-publish:
+    if: github.event_name == 'release'
+    needs: publish
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python: ['3.11', '3.12', '3.13', '3.14']
+        exclude:
+          - os: windows-latest
+            python: '3.13'
+          - os: windows-latest
+            python: '3.14'
+    steps:
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python }}
+          architecture: x64
+      - uses: astral-sh/setup-uv@v7
+        with:
+          version: ${{ env.UV_VERSION }}
+      - name: Install package from PyPI
         env:
           UV_TORCH_BACKEND: cpu
         run: |

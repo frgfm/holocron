@@ -15,6 +15,7 @@ from holocron.nn import GlobalAvgPool2d, init
 
 from ..checkpoints import Checkpoint, _handle_legacy_pretrained
 from ..utils import _checkpoint, _configure_model, conv_sequence, fuse_conv_bn
+from ._features import _ClassifierMixin
 
 __all__ = [
     "MobileOne",
@@ -179,7 +180,7 @@ class MobileOneBlock(nn.Sequential):
         self[2] = self[2].reparametrize()
 
 
-class MobileOne(nn.Sequential):
+class MobileOne(_ClassifierMixin, nn.Sequential):
     def __init__(
         self,
         num_blocks: list[int],
