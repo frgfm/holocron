@@ -182,21 +182,28 @@ def fuse_conv_bn(conv: nn.Conv2d, bn: nn.BatchNorm2d) -> tuple[torch.Tensor, tor
     return fused_kernel, fused_bias
 
 
-def model_from_hf_hub(repo_id: str, **kwargs: Any) -> nn.Module:
+def model_from_hf_hub(repo_id: str, *, revision: str, **kwargs: Any) -> nn.Module:
     """Instantiate & load a pretrained model from HF hub.
 
     from holocron.models.utils import model_from_hf_hub
-    model = model_from_hf_hub("frgfm/rexnet1_0x")
+    model = model_from_hf_hub("frgfm/rexnet1_0x", revision="<commit SHA>")
 
     Args:
         repo_id: HuggingFace model hub repo
+        revision: immutable Hub commit revision
         kwargs: kwargs of `hf_hub_download`
 
     Returns:
         Model loaded with the checkpoint
+
+    Raises:
+        ValueError: if revision is not an immutable commit SHA
     """
+    if len(revision) != 40 or set(revision.lower()) - set("0123456789abcdef"):
+        raise ValueError("revision must be a 40-character commit SHA")
+
     # Get the config
-    with Path(hf_hub_download(repo_id, filename="config.json", **kwargs)).open("rb") as f:
+    with Path(hf_hub_download(repo_id, filename="config.json", revision=revision, **kwargs)).open("rb") as f:
         cfg = json.load(f)
 
     model = get_model(cfg["arch"], num_classes=len(cfg["classes"]), pretrained=False)
@@ -210,7 +217,9 @@ def model_from_hf_hub(repo_id: str, **kwargs: Any) -> nn.Module:
 
     # Load the checkpoint
     state_dict = torch.load(
-        hf_hub_download(repo_id, filename="pytorch_model.bin", **kwargs), map_location="cpu", weights_only=True
+        hf_hub_download(repo_id, filename="pytorch_model.bin", revision=revision, **kwargs),
+        map_location="cpu",
+        weights_only=True,
     )
     model.load_state_dict(state_dict)
 

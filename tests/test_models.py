@@ -111,12 +111,17 @@ def test_pretrained_checkpoint_rejects_invalid_hash():
 
 
 def test_model_from_hf_hub():
-    model = utils.model_from_hf_hub("frgfm/repvgg_a0")
+    model = utils.model_from_hf_hub("frgfm/repvgg_a0", revision="ab1c8cc7cd9dcc49c60352791c799fbda90cf2e8")
     # Check model type
     assert isinstance(model, RepVGG)
 
     # Check num of params
     assert sum(p.data.numel() for p in model.parameters()) == 24741642
+
+
+def test_model_from_hf_hub_requires_commit_revision():
+    with pytest.raises(ValueError, match="40-character commit SHA"):
+        utils.model_from_hf_hub("frgfm/repvgg_a0", revision="main")
 
 
 def test_model_catalog():
