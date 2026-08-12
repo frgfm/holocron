@@ -68,8 +68,8 @@ def detection_average_precision(  # noqa: PLR0912, PLR0915
         return {"ap50": 0.0, "ap50_95": 0.0}
 
     try:
-        from pycocotools.coco import COCO  # noqa: PLC0415
-        from pycocotools.cocoeval import COCOeval  # noqa: PLC0415
+        from pycocotools.coco import COCO  # ty: ignore[unresolved-import]  # noqa: PLC0415
+        from pycocotools.cocoeval import COCOeval  # ty: ignore[unresolved-import]  # noqa: PLC0415
     except ImportError as exc:
         raise ImportError(
             "COCO AP evaluation requires pycocotools; install the evaluation extra with "
