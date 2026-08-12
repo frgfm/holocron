@@ -196,6 +196,7 @@ nav:
         - reference/models/classification/repvgg.md
         - reference/models/classification/mobileone.md
         - reference/models/classification/repvit.md
+        - reference/models/classification/iformer.md
     - Layers: reference/nn.md
     - Operators: reference/ops.md
     - Optimizers: reference/optim.md

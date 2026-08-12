@@ -122,7 +122,7 @@ def test_model_from_hf_hub():
 def test_model_catalog():
     names = list_models()
     assert names == sorted(names)
-    assert len(names) == len(set(names)) == 59
+    assert len(names) == len(set(names)) == 62
     assert set(names) == set(list_models(task="classification")) | set(list_models(task="detection")) | set(
         list_models(task="segmentation")
     )
@@ -130,6 +130,7 @@ def test_model_catalog():
     assert list_models(maturity="validated") == []
     assert "convnext_atto" in list_models(maturity="preview", pretrained=True)
     assert "repvit_m0_9" in list_models(maturity="preview", pretrained=False)
+    assert "iformer_t" in list_models(task="classification", maturity="preview", pretrained=False)
     assert get_model_info("unet_rexnet13").pretrained
 
     with pytest.raises(ValueError, match="unknown task"):
@@ -142,6 +143,7 @@ def test_model_catalog():
     ("name", "kwargs"),
     [
         ("repvit_m0_9", {"num_classes": 7}),
+        ("iformer_t", {"num_classes": 7}),
         ("yolov1", {"num_classes": 7, "pretrained_backbone": False}),
         ("unet", {"num_classes": 7}),
     ],
@@ -155,6 +157,7 @@ def test_model_checkpoints():
     assert checkpoint.meta.arch == "convnext_atto"
     assert checkpoint.maturity is Maturity.PREVIEW
     assert list_checkpoints("repvit_m0_9") == ()
+    assert list_checkpoints("iformer_t") == ()
 
     with pytest.raises(ValueError, match="does not match"):
         get_model("resnet18", checkpoint=checkpoint)

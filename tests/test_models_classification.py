@@ -6,6 +6,7 @@ from torch import nn
 
 from holocron.models import classification
 from holocron.models.classification.repvit import _RepVGGDW  # noqa: PLC2701
+from scripts.export_to_onnx import export_model
 
 
 def _test_classification_model(name, num_classes, pretrained):
@@ -99,6 +100,31 @@ def test_repvit_reparametrize(arch, training_params, deployment_params):
 
 
 @pytest.mark.parametrize(
+    ("arch", "num_params"),
+    [
+        ("iformer_t", 2_886_456),
+        ("iformer_s", 6_563_368),
+        ("iformer_m", 8_907_424),
+    ],
+)
+def test_iformer(arch, num_params):
+    model = classification.__dict__[arch](pretrained=False, num_classes=1000)
+    assert sum(param.numel() for param in model.parameters()) == num_params
+
+    x = torch.rand((2, 3, 64, 64), requires_grad=True)
+    output = model(x)
+    assert output.shape == (x.shape[0], 1000)
+    output.sum().backward()
+    assert x.grad is not None
+
+
+def test_iformer_dynamo_onnx_export(tmp_path):
+    model = classification.iformer_t(pretrained=False, num_classes=10).eval()
+    export_model(model, torch.rand((1, 3, 64, 64)), tmp_path / "iformer_t.onnx")
+    assert (tmp_path / "iformer_t.onnx").is_file()
+
+
+@pytest.mark.parametrize(
     ("arch", "pretrained"),
     [
         ("darknet24", True),
@@ -168,6 +194,7 @@ def test_classification_model(arch, pretrained):
         "convnext_atto",
         "mobileone_s0",
         "repvit_m0_9",
+        "iformer_t",
     ],
 )
 def test_classification_feature_interface(arch):
