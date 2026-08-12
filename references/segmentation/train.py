@@ -245,7 +245,7 @@ def _main(args):
     )
     if args.resume:
         print(f"Resuming {args.resume}")
-        checkpoint = torch.load(args.resume, map_location="cpu")
+        checkpoint = torch.load(args.resume, map_location="cpu", weights_only=True)
         trainer.load(checkpoint)
 
     if args.show_preds:

@@ -209,7 +209,9 @@ def model_from_hf_hub(repo_id: str, **kwargs: Any) -> nn.Module:
         model.default_cfg.update(cfg)
 
     # Load the checkpoint
-    state_dict = torch.load(hf_hub_download(repo_id, filename="pytorch_model.bin", **kwargs), map_location="cpu")
+    state_dict = torch.load(
+        hf_hub_download(repo_id, filename="pytorch_model.bin", **kwargs), map_location="cpu", weights_only=True
+    )
     model.load_state_dict(state_dict)
 
     return model
