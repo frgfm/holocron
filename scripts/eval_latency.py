@@ -67,10 +67,10 @@ def _format_measurement(name: str, result: dict[str, float | int]) -> str:
 
 @torch.inference_mode()
 def main(args: argparse.Namespace) -> dict[str, Any]:
-    factory = getattr(models, args.arch, None)
-    if not callable(factory):
-        raise TypeError(f"unknown architecture: {args.arch}")
-    model = factory(pretrained=args.pretrained).eval()
+    try:
+        model = models.get_model(args.arch, pretrained=args.pretrained).eval()
+    except ValueError as exc:
+        raise TypeError(f"unknown architecture: {args.arch}") from exc
     if hasattr(model, "reparametrize"):
         model.reparametrize()
 

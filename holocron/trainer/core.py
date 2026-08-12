@@ -136,7 +136,10 @@ class Trainer:
                 self.criterion = self.criterion.cuda()
 
     def save(self, output_file: str) -> None:
-        """Save a trainer checkpoint
+        """Save the latest resumable trainer state.
+
+        ``best_metric`` records the best validation metric observed so far; the
+        model state is always from the latest completed epoch.
 
         Args:
             output_file: destination file path
@@ -480,13 +483,14 @@ class Trainer:
 
             if eval_metrics["val_loss"] < self.min_loss:
                 print(  # noqa: T201
-                    f"Validation loss decreased {self.min_loss:.4} --> {eval_metrics['val_loss']:.4}: saving state..."
+                    f"Validation loss decreased {self.min_loss:.4} --> {eval_metrics['val_loss']:.4}"
                 )
                 self.min_loss = eval_metrics["val_loss"]
-            self.save(self.output_file)
 
-            if self.on_epoch_end is not None:
-                self.on_epoch_end(eval_metrics)
+            try:
+                (self.on_epoch_end or (lambda _: None))(eval_metrics)
+            finally:
+                self.save(self.output_file)
 
         checkpoint = str(Path(self.output_file)) if Path(self.output_file).is_file() else None
         result = RunResult(

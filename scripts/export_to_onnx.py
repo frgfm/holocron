@@ -25,11 +25,11 @@ def load_model(arch: str, *, pretrained: bool = False, checkpoint: str | Path | 
     Raises:
         TypeError: If the architecture or checkpoint has an invalid type.
     """
-    factory = getattr(models, arch, None)
-    if not callable(factory):
-        raise TypeError(f"unknown architecture: {arch}")
+    try:
+        model = models.get_model(arch, pretrained=pretrained and checkpoint is None)
+    except ValueError as exc:
+        raise TypeError(f"unknown architecture: {arch}") from exc
 
-    model = factory(pretrained=pretrained and checkpoint is None)
     if checkpoint is not None:
         saved = torch.load(checkpoint, map_location="cpu", weights_only=True)
         state_dict = saved["model"] if isinstance(saved, Mapping) and isinstance(saved.get("model"), Mapping) else saved

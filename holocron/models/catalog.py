@@ -86,12 +86,12 @@ def get_model_info(name: str) -> ModelInfo:
     configs = getattr(import_module(factory.__module__), "default_cfgs", {})
     config = configs.get(name, {}) if isinstance(configs, dict) else {}
     pretrained = bool(checkpoints) or (isinstance(config, dict) and bool(config.get("url")))
-    if task == "detection":
-        maturity = Maturity.EXPERIMENTAL
-    elif task == "segmentation" or not checkpoints:
-        maturity = Maturity.PREVIEW
-    else:
+    if checkpoints:
         maturity = min(checkpoints, key=lambda checkpoint: list(Maturity).index(checkpoint.maturity)).maturity
+    elif task == "detection":
+        maturity = Maturity.EXPERIMENTAL
+    else:
+        maturity = Maturity.PREVIEW
     return ModelInfo(name=name, task=task, maturity=maturity, pretrained=pretrained)
 
 

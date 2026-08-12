@@ -294,6 +294,7 @@ def _main(args):
         args.freeze_until,
         args.sched,
         norm_weight_decay=args.norm_wd,
+        run_dir=args.run_dir,
         div_factor=100,
         pct_start=0.1,
     )
@@ -316,6 +317,7 @@ def get_parser():
     group.add_argument("--arch", default="darknet19", type=str, help="architecture to use")
     group.add_argument("--pretrained", action="store_true", help="Use pre-trained models from the modelzoo")
     group.add_argument("--output-file", default="./checkpoints/checkpoint.pth", help="path where to save")
+    group.add_argument("--run-dir", default=None, help="optional run bundle directory")
     group.add_argument("--resume", default="", help="resume from checkpoint")
     group.add_argument("--seed", default=0, type=int, help="random seed")
     # Hardware

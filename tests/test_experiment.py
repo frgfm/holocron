@@ -52,13 +52,17 @@ def _assert_optimizer_equal(left: torch.optim.Optimizer, right: torch.optim.Opti
 
 @pytest.mark.parametrize("sched_type", ["cosine", "onecycle"])
 def test_interrupted_run_resumes_exactly(tmp_path: Path, sched_type: str) -> None:
+    def consume_rng(_metrics):
+        torch.rand(())
+
     torch.manual_seed(0)
-    baseline = _make_trainer(tmp_path / "baseline.pth")
+    baseline = _make_trainer(tmp_path / "baseline.pth", consume_rng)
     initial_state = deepcopy(baseline.model.state_dict())
     training_rng = torch.get_rng_state()
     baseline_result = baseline.fit_n_epochs(2, 0.05, sched_type=sched_type)
 
     def stop_after_first_epoch(_metrics):
+        torch.rand(())
         raise RuntimeError("stop")
 
     torch.manual_seed(999)
@@ -69,7 +73,7 @@ def test_interrupted_run_resumes_exactly(tmp_path: Path, sched_type: str) -> Non
         interrupted.fit_n_epochs(2, 0.05, sched_type=sched_type)
 
     resumed = _make_trainer(tmp_path / "resumed.pth")
-    resumed.load(torch.load(interrupted.output_file, map_location="cpu", weights_only=False))
+    resumed.load(torch.load(interrupted.output_file, map_location="cpu", weights_only=True))
     resumed.output_file = str(tmp_path / "resumed.pth")
     run_dir = tmp_path / "run"
     resumed_result = resumed.fit_n_epochs(1, 0.05, sched_type=sched_type, run_dir=str(run_dir))
@@ -86,7 +90,7 @@ def test_interrupted_run_resumes_exactly(tmp_path: Path, sched_type: str) -> Non
 def test_checkpoint_v2_is_atomic_and_legacy_loads(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     learner = _make_trainer(tmp_path / "checkpoint.pth")
     learner.save(learner.output_file)
-    state = torch.load(learner.output_file, map_location="cpu", weights_only=False)
+    state = torch.load(learner.output_file, map_location="cpu", weights_only=True)
     assert state["schema_version"] == 2
     assert {"model", "optimizer", "scheduler", "scaler", "rng_state", "config"} <= state.keys()
 

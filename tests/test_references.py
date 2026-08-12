@@ -45,16 +45,26 @@ def test_reference_parser_defaults(task: str, expected_arch: str, expected_size:
 
     assert args.arch == expected_arch
     assert args.seed == 0
+    assert args.run_dir is None
     if expected_size is not None:
         assert args.img_size == expected_size
 
 
 @pytest.mark.parametrize("task", ["detection", "segmentation"])
 def test_reference_parser_reproducibility_options(task: str):
-    args = _get_parser(task).parse_args([DATA_PATHS[task], "--seed", "7", "--img-size", "128"])
+    args = _get_parser(task).parse_args([
+        DATA_PATHS[task],
+        "--seed",
+        "7",
+        "--img-size",
+        "128",
+        "--run-dir",
+        "runs/test",
+    ])
 
     assert args.seed == 7
     assert args.img_size == 128
+    assert args.run_dir == "runs/test"
 
 
 @pytest.mark.parametrize("task", DATA_PATHS)

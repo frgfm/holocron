@@ -14,11 +14,12 @@ def test_load_model_checkpoint(monkeypatch, tmp_path, bundle):
     checkpoint_path = tmp_path / "checkpoint.pt"
     torch.save(checkpoint, checkpoint_path)
 
-    def tiny_factory(*, pretrained):
+    def fake_get_model(arch, *, pretrained):
+        assert arch == "tiny"
         assert pretrained is False
         return torch.nn.Linear(2, 1)
 
-    monkeypatch.setattr(export_to_onnx.models, "tiny", tiny_factory, raising=False)
+    monkeypatch.setattr(export_to_onnx.models, "get_model", fake_get_model)
     restored = export_to_onnx.load_model("tiny", checkpoint=checkpoint_path)
 
     for name, value in restored.state_dict().items():

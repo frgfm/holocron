@@ -8,7 +8,7 @@ Ensure that you have holocron installed
 
 ```bash
 git clone https://github.com/frgfm/Holocron.git
-pip install -e "Holocron/.[training]"
+pip install -e "Holocron/.[training,evaluation]"
 ```
 
 No need to download the dataset, torchvision will handle [this](https://pytorch.org/docs/stable/torchvision/datasets.html#torchvision.datasets.VOCDetection) for you! From there, you can run your training with the following command

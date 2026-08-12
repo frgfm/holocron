@@ -304,7 +304,14 @@ def _main(args):
 
     print("Start training")
     start_time = time.time()
-    trainer.fit_n_epochs(args.epochs, args.lr, args.freeze_until, args.sched, norm_weight_decay=args.norm_weight_decay)
+    trainer.fit_n_epochs(
+        args.epochs,
+        args.lr,
+        args.freeze_until,
+        args.sched,
+        norm_weight_decay=args.norm_weight_decay,
+        run_dir=args.run_dir,
+    )
     total_time_str = str(datetime.timedelta(seconds=int(time.time() - start_time)))
     print(f"Training time {total_time_str}")
 
@@ -322,6 +329,7 @@ def get_parser():
     group.add_argument("--source", type=str, default="holocron", help="where should the architecture be taken from")
     group.add_argument("--pretrained", action="store_true", help="Use pre-trained models from the modelzoo")
     group.add_argument("--output-file", default="./checkpoints/model.pth", help="path where to save")
+    group.add_argument("--run-dir", default=None, help="optional run bundle directory")
     group.add_argument("--resume", default="", help="resume from checkpoint")
     group.add_argument("--seed", default=0, type=int, help="random seed")
     # Hardware
