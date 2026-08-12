@@ -87,6 +87,7 @@ plugins:
         - reference/utils.md
         - reference/utils.data.md
       Notes:
+        - notes/v0.3-migration.md
         - notes/changelog.md
   mkdocstrings:
     handlers:
@@ -204,4 +205,5 @@ nav:
       - reference/utils.md
       - Data: reference/utils.data.md
   - Notes:
+    - notes/v0.3-migration.md
     - notes/changelog.md

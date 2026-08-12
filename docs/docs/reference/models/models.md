@@ -12,29 +12,31 @@ and applications do not need to inspect module internals:
 ```python
 from holocron.models import Maturity, get_model, get_model_info, list_checkpoints, list_models
 
-names = list_models(task="classification", maturity=Maturity.VALIDATED, pretrained=True)
+names = list_models(task="classification", maturity=Maturity.PREVIEW, pretrained=True)
 checkpoint = list_checkpoints(names[0])[0]
 model = get_model(names[0], checkpoint=checkpoint)
 info = get_model_info(names[0])
 ```
 
-Maturity is assigned to each model from its available evidence. Classification
-models with typed evaluation-backed checkpoints are `validated`; other
-classification models and segmentation models are `preview`; detection models
-remain `experimental` until standard benchmark evidence is published.
+Maturity is assigned to each model and typed checkpoint from its available
+evidence. Historical classification checkpoints are `preview`: they include
+published metrics and hashes but predate completed schema-v1 run manifests and
+verified export reports. Detection remains `experimental` until a reproducible
+standard benchmark is published.
 
 ## Support status
 
 | Task | Architectures | Published checkpoints | Training | ONNX | Status |
 |---|---|---|---|---|---|
-| Classification | 15 families | Imagenette checkpoints with top-1/top-5 metrics; selected ReXNet ImageNet-1K checkpoints | [Reference script](https://github.com/frgfm/holocron/blob/main/references/classification/train.py) | [Classification export](https://github.com/frgfm/holocron/blob/main/scripts/export_to_onnx.py) | **Validated** |
-| Semantic segmentation | U-Net, U-Net++, UNet3+ | Only the legacy `unet_rexnet13` weights; dataset and metric are not documented | [Reference script](https://github.com/frgfm/holocron/blob/main/references/segmentation/train.py) | Not documented | **Unbenchmarked** |
+| Classification | 15 families | Imagenette checkpoints with top-1/top-5 metrics; selected ReXNet ImageNet-1K checkpoints | [Reference script](https://github.com/frgfm/holocron/blob/main/references/classification/train.py) | [Verified export tool](https://github.com/frgfm/holocron/blob/main/scripts/export_to_onnx.py) | **Preview** |
+| Semantic segmentation | U-Net, U-Net++, UNet3+ | Only the legacy `unet_rexnet13` weights; dataset and metric are not documented | [Reference script](https://github.com/frgfm/holocron/blob/main/references/segmentation/train.py) | Not documented | **Preview** |
 | Object detection | YOLOv1, YOLOv2, YOLOv4 | None | [Reference script](https://github.com/frgfm/holocron/blob/main/references/detection/train.py) | Not documented | **Experimental** ([#110](https://github.com/frgfm/holocron/issues/110), [#253](https://github.com/frgfm/holocron/issues/253), [discussion #230](https://github.com/frgfm/holocron/discussions/230)) |
 
-**Validated** means published task checkpoints and metrics are available.
-**Unbenchmarked** means an implementation or legacy weight exists without a
-documented evaluation dataset and metric. **Experimental** means the API is
-available, but published task weights and a confirmed benchmark are not.
+**Validated** requires a published checkpoint, exact provenance, reproducible
+recipe, standard task metrics, completed run manifest and verified export.
+**Preview** means an implementation or historical checkpoint exists but one of
+those gates is missing. **Experimental** means the API is available without a
+confirmed reproducible task benchmark.
 
 
 ## Classification

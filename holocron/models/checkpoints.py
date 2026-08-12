@@ -14,12 +14,21 @@ __all__ = [
     "Dataset",
     "Evaluation",
     "LoadingMeta",
+    "Maturity",
     "Metric",
     "PreProcessing",
     "TrainingRecipe",
 ]
 
 logger = logging.getLogger(__name__)
+
+
+class Maturity(StrEnum):
+    """Evidence available for a model or checkpoint."""
+
+    VALIDATED = "validated"
+    PREVIEW = "preview"
+    EXPERIMENTAL = "experimental"
 
 
 @dataclass
@@ -93,6 +102,8 @@ class Checkpoint:
     pre_processing: PreProcessing
     # How to reproduce
     recipe: TrainingRecipe
+    # Strength of the recorded evidence
+    maturity: Maturity = Maturity.PREVIEW
 
 
 def _handle_legacy_pretrained(

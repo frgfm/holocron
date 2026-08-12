@@ -42,7 +42,7 @@ def test_generate_model_card_is_deterministic() -> None:
         "pipeline_tag: image-classification",
         "license: apache-2.0",
         "datasets:\n  - imagenette",
-        "| Maturity | validated |",
+        "| Maturity | preview |",
         f"`{checkpoint.meta.sha256}`",
         "## Intended use",
         "## Limitations",

@@ -6,7 +6,7 @@
 import inspect
 from collections.abc import Callable
 from dataclasses import dataclass
-from enum import Enum, StrEnum
+from enum import Enum
 from functools import cache
 from importlib import import_module
 from types import ModuleType
@@ -14,17 +14,9 @@ from typing import Any
 
 from torch import nn
 
-from .checkpoints import Checkpoint
+from .checkpoints import Checkpoint, Maturity
 
 __all__ = ["Maturity", "ModelInfo", "get_model", "get_model_info", "list_checkpoints", "list_models"]
-
-
-class Maturity(StrEnum):
-    """Evidence available for a model and its checkpoints."""
-
-    VALIDATED = "validated"
-    PREVIEW = "preview"
-    EXPERIMENTAL = "experimental"
 
 
 @dataclass(frozen=True)
@@ -108,7 +100,7 @@ def get_model_info(name: str) -> ModelInfo:
     elif task == "segmentation" or not checkpoints:
         maturity = Maturity.PREVIEW
     else:
-        maturity = Maturity.VALIDATED
+        maturity = min(checkpoints, key=lambda checkpoint: list(Maturity).index(checkpoint.maturity)).maturity
     return ModelInfo(name=name, task=task, maturity=maturity, pretrained=pretrained)
 
 

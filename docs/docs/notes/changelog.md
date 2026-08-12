@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.3.0 (unreleased)
+
+Holocron becomes a reproducible CV research workbench: programmatic model
+discovery and maturity, checkpoint-v2 exact resume, manifest-last run bundles,
+classifier feature extraction, repaired YOLOv4 training, COCO AP, verified
+ONNX export, structured latency reports, provenance model cards and
+artifact-first publishing. See the [v0.3 migration guide](v0.3-migration.md).
+
 ## v0.2.1 (2022-07-16)
 Release note: [v0.2.1](https://github.com/frgfm/Holocron/releases/tag/v0.2.1)
 

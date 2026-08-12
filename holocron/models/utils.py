@@ -3,16 +3,20 @@
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
+import hashlib
 import json
 import logging
+import os
+import tempfile
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any, TypeVar
+from urllib.parse import urlparse
 
 import torch
 from huggingface_hub.file_download import hf_hub_download
 from torch import nn
-from torch.hub import load_state_dict_from_url
+from torch.hub import download_url_to_file, get_dir, load_state_dict_from_url
 
 from holocron.nn import BlurPool2d
 
@@ -93,20 +97,50 @@ def load_pretrained_params(
     progress: bool = True,
     key_replacement: tuple[str, str] | None = None,
     key_filter: str | None = None,
+    *,
+    sha256: str | None = None,
 ) -> None:
     """Loads a checkpoint on a model given its URL.
 
     Args:
         model: PyTorch model
         url: the URL of the checkpoint to download
-        progress: whether a progress br should be displayed when downloading the checkpoint
+        sha256: expected full SHA-256 digest
+        progress: whether a progress bar should be displayed when downloading the checkpoint
         key_replacement: a mapping to replace keys in the checkpoint before loading them
         key_filter: prefix of the checkpoint keys to be loaded
+
+    Raises:
+        ValueError: if the expected digest or checkpoint URL is invalid
     """
     if url is None:
         logger.warning("Invalid model URL, using default initialization.")
     else:
-        state_dict = load_state_dict_from_url(url, progress=progress, map_location="cpu")
+        if sha256 is None:
+            state_dict = load_state_dict_from_url(url, progress=progress, map_location="cpu")
+        else:
+            if len(sha256) != 64 or any(char not in "0123456789abcdef" for char in sha256.lower()):
+                raise ValueError("sha256 must be a 64-character hexadecimal digest")
+            filename = Path(urlparse(url).path).name
+            if not filename:
+                raise ValueError("checkpoint URL has no file name")
+            checkpoint_dir = Path(get_dir()) / "checkpoints"
+            checkpoint_dir.mkdir(parents=True, exist_ok=True)
+            checkpoint_path = checkpoint_dir / filename
+
+            digest = None
+            if checkpoint_path.is_file():
+                with checkpoint_path.open("rb") as file:
+                    digest = hashlib.file_digest(file, "sha256").hexdigest()
+            if digest != sha256.lower():
+                fd, tmp_name = tempfile.mkstemp(prefix=f".{filename}.", suffix=".tmp", dir=checkpoint_dir)
+                os.close(fd)
+                try:
+                    download_url_to_file(url, tmp_name, hash_prefix=sha256.lower(), progress=progress)
+                    Path(tmp_name).replace(checkpoint_path)
+                finally:
+                    Path(tmp_name).unlink(missing_ok=True)
+            state_dict = torch.load(checkpoint_path, map_location="cpu", weights_only=True)
         if isinstance(key_filter, str):
             state_dict = {k: v for k, v in state_dict.items() if k.startswith(key_filter)}
         if isinstance(key_replacement, tuple):
@@ -189,7 +223,7 @@ def _configure_model(
     model.default_cfg = checkpoint  # type: ignore[assignment]
     # Load pretrained parameters
     if isinstance(checkpoint, Checkpoint):
-        load_pretrained_params(model, checkpoint.meta.url, **kwargs)
+        load_pretrained_params(model, checkpoint.meta.url, sha256=checkpoint.meta.sha256, **kwargs)
 
     return model
 

@@ -1,3 +1,6 @@
+import hashlib
+from pathlib import Path
+
 import pytest
 import torch
 from torch import nn
@@ -83,6 +86,30 @@ def test_fuse_conv_bn():
         assert torch.allclose(bn(conv(x)), fused_conv(x), atol=1e-6)
 
 
+def test_pretrained_checkpoint_full_hash(monkeypatch, tmp_path):
+    model = nn.Linear(2, 1)
+    state_path = tmp_path / "source.pth"
+    torch.save(model.state_dict(), state_path)
+    digest = hashlib.sha256(state_path.read_bytes()).hexdigest()
+    downloads = []
+
+    def _download(url, destination, hash_prefix, progress):
+        downloads.append((url, hash_prefix, progress))
+        Path(destination).write_bytes(state_path.read_bytes())
+
+    monkeypatch.setattr(utils, "get_dir", lambda: str(tmp_path / "hub"))
+    monkeypatch.setattr(utils, "download_url_to_file", _download)
+    utils.load_pretrained_params(model, "https://example.org/weights.pth", progress=False, sha256=digest)
+    utils.load_pretrained_params(model, "https://example.org/weights.pth", progress=False, sha256=digest)
+
+    assert downloads == [("https://example.org/weights.pth", digest, False)]
+
+
+def test_pretrained_checkpoint_rejects_invalid_hash():
+    with pytest.raises(ValueError, match="64-character hexadecimal"):
+        utils.load_pretrained_params(nn.Linear(2, 1), "https://example.org/weights.pth", sha256="invalid")
+
+
 def test_model_from_hf_hub():
     model = utils.model_from_hf_hub("frgfm/repvgg_a0")
     # Check model type
@@ -100,7 +127,8 @@ def test_model_catalog():
         list_models(task="segmentation")
     )
     assert list_models(maturity=Maturity.EXPERIMENTAL) == ["yolov1", "yolov2", "yolov4"]
-    assert "convnext_atto" in list_models(maturity="validated", pretrained=True)
+    assert list_models(maturity="validated") == []
+    assert "convnext_atto" in list_models(maturity="preview", pretrained=True)
     assert "repvit_m0_9" in list_models(maturity="preview", pretrained=False)
     assert get_model_info("unet_rexnet13").pretrained
 
@@ -125,6 +153,7 @@ def test_get_model(name, kwargs):
 def test_model_checkpoints():
     checkpoint = list_checkpoints("convnext_atto")[0]
     assert checkpoint.meta.arch == "convnext_atto"
+    assert checkpoint.maturity is Maturity.PREVIEW
     assert list_checkpoints("repvit_m0_9") == ()
 
     with pytest.raises(ValueError, match="does not match"):

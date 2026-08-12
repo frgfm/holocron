@@ -1,6 +1,6 @@
 [project]
 name = "holocron"
-version = "0.2.2.dev0"
+version = "0.3.0.dev0"
 description = "Backend template for your Vision API with Holocron"
 requires-python = ">=3.11,<4.0"
 license = { text = "Apache-2.0" }
