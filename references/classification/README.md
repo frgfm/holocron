@@ -67,6 +67,8 @@ uv run --python 3.12 --extra training \
 
 `--render-size` controls glyph rasterization resolution; `--image-size` controls the final model input resolution. To expand the corpus, prepare another local manifest and directory and pass those paths to the same script—no Python changes are needed. Training itself never downloads data or fonts.
 
+`--arch alexnet` reuses TorchVision's AlexNet feature stack with a compact task head; use image size 64 or larger.
+
 ## Personal leaderboard
 
 The updated list of available checkpoints can be found in the [documentation](https://frgfm.github.io/Holocron/latest/models.html#classification).

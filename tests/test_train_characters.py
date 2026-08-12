@@ -249,6 +249,31 @@ def test_manifest_checksum_is_verified(tmp_path):
         characters.resolve_font_records("A", font_dir, manifest)
 
 
+def test_alexnet_requires_supported_image_size():
+    args = characters.get_parser().parse_args(["--arch", "alexnet", "--image-size", "32"])
+    with pytest.raises(ValueError, match="at least 63"):
+        characters.main(args)
+
+
+def test_alexnet_dispatch(monkeypatch):
+    model = nn.Module()
+    kwargs = {}
+
+    def fake_alexnet(**values):
+        kwargs.update(values)
+        return model
+
+    monkeypatch.setattr(characters, "alexnet", fake_alexnet)
+
+    result = characters.build_model("alexnet", 62)
+
+    assert result is model
+    assert kwargs == {"weights": None, "num_classes": 62}
+    assert result.avgpool.output_size == 1
+    assert result.classifier.in_features == 256
+    assert result.classifier.out_features == 62
+
+
 def test_unmanifested_font_hashes_are_deferred(monkeypatch, tmp_path):
     font_dir = tmp_path / "fonts"
     font_dir.mkdir()

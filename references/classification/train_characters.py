@@ -25,6 +25,7 @@ from matplotlib.ft2font import FT2Font
 from PIL import Image, ImageFont
 from torch import Tensor, nn
 from torch.utils.data import DataLoader, Dataset, RandomSampler, Sampler, SequentialSampler
+from torchvision.models import alexnet
 from torchvision.transforms import v2 as T
 from torchvision.transforms.v2 import functional as F
 from torchvision.transforms.v2.functional import InterpolationMode, to_pil_image
@@ -35,12 +36,13 @@ from holocron.utils import find_fonts, render_text
 
 DEFAULT_ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 FONT_EXTENSIONS = {".otf", ".ttc", ".ttf"}
-MODEL_NAMES = tuple(
-    sorted(
+MODEL_NAMES = (
+    "alexnet",
+    *sorted(
         name
         for name, value in vars(classification).items()
         if name.islower() and not name.startswith("_") and callable(value)
-    )
+    ),
 )
 
 
@@ -420,6 +422,15 @@ def resolve_device(device: str) -> int | None:
     return index
 
 
+def build_model(name: str, num_classes: int) -> nn.Module:
+    if name == "alexnet":
+        model = alexnet(weights=None, num_classes=num_classes)
+        model.avgpool = nn.AdaptiveAvgPool2d(1)
+        model.classifier = nn.Linear(256, num_classes)
+        return model
+    return getattr(classification, name)(False, num_classes=num_classes)
+
+
 def _json_value(value: Any) -> Any:
     return str(value) if isinstance(value, Path) else value
 
@@ -566,6 +577,8 @@ def get_parser() -> argparse.ArgumentParser:
 def main(args: argparse.Namespace) -> None:
     if args.render_size < args.image_size:
         raise ValueError("--render-size must be at least --image-size")
+    if args.arch == "alexnet" and args.image_size < 63:
+        raise ValueError("AlexNet requires --image-size of at least 63")
     torch.manual_seed(args.seed)
     gpu = resolve_device(args.device)
     if args.amp and gpu is None:
@@ -609,7 +622,7 @@ def main(args: argparse.Namespace) -> None:
         pin_memory=gpu is not None,
     )
 
-    model = getattr(classification, args.arch)(False, num_classes=len(alphabet))
+    model = build_model(args.arch, len(alphabet))
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
     checkpoint_path = args.output_dir / "checkpoint.pth"
