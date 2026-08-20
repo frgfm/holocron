@@ -73,7 +73,6 @@
     - api/Dockerfile
     - api/pyproject.toml
     - api/*.lock
-    - api/docker-compose.*
 
 'topic: style':
 - changed-files:

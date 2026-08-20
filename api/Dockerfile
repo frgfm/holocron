@@ -11,10 +11,9 @@ ENV UV_LINK_MODE=copy
 # cf. https://github.com/astral-sh/uv/issues/8085#issuecomment-2438256688
 ENV UV_PROJECT_ENVIRONMENT="/opt/venv"
 
-RUN apt-get update && apt-get install -y --no-install-recommends gcc python3-dev && rm -rf /var/lib/apt/lists/*
 # Install the project's dependencies using the lockfile and settings
 # https://docs.astral.sh/uv/guides/integration/docker/#using-uv-temporarily
-RUN --mount=from=ghcr.io/astral-sh/uv:0.12.0,source=/uv,target=/bin/uv \
+RUN --mount=from=ghcr.io/astral-sh/uv:0.12.5,source=/uv,target=/bin/uv \
     --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=uv.lock,target=uv.lock \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
@@ -30,12 +29,8 @@ ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH="/app"
 # Set the path to use our installed packages
 ENV PATH="/opt/venv/bin:$PATH"
-ENV PYTHON_PATH="/opt/venv/lib/python3.11/site-packages"
 
 LABEL maintainer="F-G Fernandez <fg-feedback@protonmail.com>"
-
-# Install only curl for healthcheck
-RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
 
 # Copy installed dependencies from builder
 COPY --from=builder /opt/venv /opt/venv
@@ -46,5 +41,5 @@ COPY app /app/app
 
 # Entrypoint
 EXPOSE 8080
-HEALTHCHECK --interval=10s --timeout=3s --retries=5 CMD ["curl", "-f", "http://localhost:8080/health", "--max-time", "3"]
+HEALTHCHECK --interval=10s --timeout=3s --retries=5 CMD ["python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/health', timeout=3).close()"]
 CMD ["uvicorn", "app.main:app", "--host=0.0.0.0", "--port=8080", "--proxy-headers", "--use-colors", "--log-level=info"]
