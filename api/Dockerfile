@@ -32,6 +32,9 @@ ENV PATH="/opt/venv/bin:$PATH"
 
 LABEL maintainer="F-G Fernandez <fg-feedback@protonmail.com>"
 
+# Install curl for the health check
+RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
+
 # Copy installed dependencies from builder
 COPY --from=builder /opt/venv /opt/venv
 
@@ -41,5 +44,5 @@ COPY app /app/app
 
 # Entrypoint
 EXPOSE 8080
-HEALTHCHECK --interval=10s --timeout=3s --retries=5 CMD ["python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/health', timeout=3).close()"]
+HEALTHCHECK --interval=10s --timeout=3s --start-period=30s --retries=5 CMD ["curl", "--fail", "--silent", "--show-error", "--max-time", "3", "http://localhost:8080/health"]
 CMD ["uvicorn", "app.main:app", "--host=0.0.0.0", "--port=8080", "--proxy-headers", "--use-colors", "--log-level=info"]
