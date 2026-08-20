@@ -140,6 +140,7 @@ def main(args):
             sampler=RandomSampler(train_set),
             num_workers=args.workers,
             pin_memory=True,
+            persistent_workers=args.workers > 0,
             worker_init_fn=worker_init_fn,
             collate_fn=collate_fn,
         )
@@ -183,6 +184,7 @@ def main(args):
             sampler=SequentialSampler(val_set),
             num_workers=args.workers,
             pin_memory=True,
+            persistent_workers=args.workers > 0,
             worker_init_fn=worker_init_fn,
         )
 

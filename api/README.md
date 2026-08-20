@@ -2,7 +2,7 @@
 
 ## Installation
 
-You will only need to install [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git), [Docker](https://docs.docker.com/get-docker/) and [poetry](https://python-poetry.org/docs/#installation). The container environment will be self-sufficient and install the remaining dependencies on its own.
+Install [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git), [uv](https://docs.astral.sh/uv/), and optionally [Docker](https://docs.docker.com/get-docker/). The locked environment installs the remaining dependencies.
 
 ## Usage
 
@@ -11,18 +11,21 @@ You will only need to install [Git](https://git-scm.com/book/en/v2/Getting-Start
 You will need to clone the repository first:
 ```shell
 git clone https://github.com/frgfm/Holocron.git
+cd Holocron
 ```
-then from the repo root folder, you can start your container:
+Then start the development server from the repository root:
 
 ```shell
-make lock
-make run
+make lock-backend
+make uvicorn-backend
 ```
 Once completed, your [FastAPI](https://fastapi.tiangolo.com/) server should be running on port 8080.
 
+To build and run the container instead, use `make start-backend`. Run the API tests with `make test-backend`.
+
 ### Documentation and swagger
 
-FastAPI comes with many advantages including speed and OpenAPI features. For instance, once your server is running, you can access the automatically built documentation and swagger in your browser at: http://api.localhost:8050/docs
+FastAPI comes with many advantages including speed and OpenAPI features. Once the server is running, open the generated documentation at: http://localhost:8080/docs
 
 
 ### Using the routes
@@ -40,11 +43,10 @@ with this snippet:
 import requests
 
 with open("/path/to/your/img.jpg", "rb") as f:
-    data = f.read()
-print(requests.post("http://api.localhost:8050/classification", files={"file": data}).json())
+    print(requests.post("http://localhost:8080/classification", files={"file": f}).json())
 ```
 
 should yield
-```
-{'value': 'French horn', 'confidence': 0.9685316681861877}
+```json
+{"value": "French horn", "confidence": 0.9685316681861877}
 ```
