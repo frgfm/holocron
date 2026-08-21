@@ -63,7 +63,7 @@ precommit: ${PYPROJECT_FILE} .pre-commit-config.yaml ## Run pre-commit hooks
 	prek run --all-files
 
 typing-check: ${PYPROJECT_FILE} ## Check type annotations
-	uv run ty check .
+	uv run --no-sync ty check .
 
 deps-check: .github/verify_deps_sync.py ## Check dependency synchronization
 	uv run --script .github/verify_deps_sync.py
@@ -91,7 +91,7 @@ install-test: ${PY_DIR} ${PYPROJECT_FILE} ## Install with test dependencies
 	uv pip install -e '${PY_DIR}[test]'
 
 test: ${PYPROJECT_FILE} ## Run the tests
-	uv run pytest --cov-report xml
+	uv run --no-sync pytest --cov-report xml
 
 ########################################################
 # Scripts
@@ -101,7 +101,7 @@ install-scripts: ${PY_DIR} ${PYPROJECT_FILE} ## Install with test dependencies
 	uv pip install -e '${PY_DIR}[scripts]'
 
 bench-latency: ${PYPROJECT_FILE} ${LATENCY_SCRIPT} ## Run the tests
-	uv run python ${LATENCY_SCRIPT} rexnet1_0x
+	uv run --no-sync python ${LATENCY_SCRIPT} rexnet1_0x
 
 
 ########################################################
@@ -117,7 +117,7 @@ serve-docs: ${DOCS_DIR}
 
 # Check that docs can build
 build-docs: ${DOCS_DIR}
-	DYLD_FALLBACK_LIBRARY_PATH=/opt/homebrew/lib uv run mkdocs build -f ${DOCS_DIR}/mkdocs.yml
+	DYLD_FALLBACK_LIBRARY_PATH=/opt/homebrew/lib uv run --no-sync mkdocs build -f ${DOCS_DIR}/mkdocs.yml
 
 push-docs: ${DOCS_DIR}
 	DYLD_FALLBACK_LIBRARY_PATH=/opt/homebrew/lib uv run mkdocs gh-deploy -f ${DOCS_DIR}/mkdocs.yml --force

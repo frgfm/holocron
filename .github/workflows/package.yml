@@ -18,6 +18,10 @@ on:
   release:
     types: [published]
 
+concurrency:
+  group: package-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
 env:
   UV_VERSION: "0.12.5"
   PYTHON_VERSION: "3.11"
@@ -44,6 +48,8 @@ jobs:
         with:
           version: ${{ env.UV_VERSION }}
           activate-environment: true
+      - name: Build the package
+        run: make build
       - name: Install the engine
         env:
           UV_TORCH_BACKEND: cpu
@@ -65,62 +71,18 @@ jobs:
         with:
           version: ${{ env.UV_VERSION }}
           activate-environment: true
-      - uses: actions/cache@v6
-        with:
-          path: ~/.cache/uv
-          key: uv-${{ runner.os }}-${{ hashFiles('pyproject.toml') }}-test
       - name: Run tests
         env:
           UV_TORCH_BACKEND: cpu
         run: |
           UV_TORCH_BACKEND='cpu' make install-test
           UV_TORCH_BACKEND='cpu' make test
-      - uses: actions/upload-artifact@v7
-        with:
-          path: ./coverage.xml
-          name: coverage-reports
-
-  codecov-upload:
-    runs-on: ubuntu-latest
-    needs: test
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          persist-credentials: false
-      - uses: actions/download-artifact@v8
-        with:
-          name: coverage-reports
       - uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: unittests
           files: ./coverage.xml
           fail_ci_if_error: true
-
-  build:
-    if: github.event_name == 'pull_request'
-    needs: install
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        python: ['3.11', '3.12', '3.13']
-        exclude:
-          - os: windows-latest
-            python: '3.13'
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-python@v7
-        with:
-          python-version: ${{ matrix.python }}
-          architecture: x64
-      - uses: astral-sh/setup-uv@v7
-        with:
-          version: ${{ env.UV_VERSION }}
-      - name: Build the package
-        env:
-          UV_TORCH_BACKEND: cpu
-        run: make build
 
   publish:
     if: github.event_name == 'release'
