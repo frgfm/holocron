@@ -344,7 +344,7 @@ def __init__(
 Adan(params: Iterable[Parameter], lr: float = 0.001, betas: tuple[float, float, float] = (0.98, 0.92, 0.99), eps: float = 1e-08, weight_decay: float = 0.0, amsgrad: bool = False)
 ```
 
-Bases: `Adam`
+Bases: `Optimizer`
 
 Implements the Adan optimizer from ["Adan: Adaptive Nesterov Momentum Algorithm for Faster Optimizing Deep Models"](https://arxiv.org/pdf/2208.06677.pdf).
 
@@ -385,7 +385,19 @@ def __init__(
     weight_decay: float = 0.0,
     amsgrad: bool = False,
 ) -> None:
-    super().__init__(params, lr, betas, eps, weight_decay, amsgrad)  # type: ignore[arg-type]
+    if not lr >= 0.0:
+        raise ValueError(f"Invalid learning rate: {lr}")
+    if not eps >= 0.0:
+        raise ValueError(f"Invalid epsilon value: {eps}")
+    if len(betas) != 3:
+        raise ValueError("Adan requires three beta parameters")
+    for idx, beta in enumerate(betas):
+        if not 0.0 <= beta < 1.0:
+            raise ValueError(f"Invalid beta parameter at index {idx}: {beta}")
+    if not weight_decay >= 0.0:
+        raise ValueError(f"Invalid weight_decay value: {weight_decay}")
+    defaults = {"lr": lr, "betas": betas, "eps": eps, "weight_decay": weight_decay, "amsgrad": amsgrad}
+    super().__init__(params, defaults)
 ```
 
 ### AdEMAMix
