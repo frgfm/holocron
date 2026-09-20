@@ -53,7 +53,7 @@ test = [
     "pytest==9.1.1",
     "pytest-cov==7.1.0",
     "pytest-pretty==1.3.0",
-    "onnx>=1.13.0,<2.0.0",
+    "onnx>=1.22.0,<2.0.0",
     "onnxscript>=0.5.0,<1.0.0",
 ]
 training = [
@@ -68,6 +68,7 @@ quality = [
     "prek==0.5.0",
 ]
 scripts = [
+    "onnx>=1.22.0,<2.0.0",
     "onnxruntime>=1.22.0,<2.0.0",
     "onnxscript>=0.5.0,<1.0.0",
 ]
