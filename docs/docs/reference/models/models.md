@@ -51,37 +51,37 @@ in the table for reference but use a different evaluation dataset.
 
 | **Checkpoint** | **Acc@1** | **Acc@5** | **Params** | **Size (MB)** |
 |---|---|---|---|---|
-| [`CSPDarknet53_Checkpoint.IMAGENETTE`][holocron.models.classification.CSPDarknet53_Checkpoint.IMAGENETTE] | 94.50% | 99.64% | 26.6M | 101.8 |
-| [`CSPDarknet53_Mish_Checkpoint.IMAGENETTE`][holocron.models.classification.CSPDarknet53_Mish_Checkpoint.IMAGENETTE] | 94.65% | 99.69% | 26.6M | 101.8 |
-| [`ConvNeXt_Atto_Checkpoint.IMAGENETTE`][holocron.models.classification.ConvNeXt_Atto_Checkpoint.IMAGENETTE] | 87.59% | 98.32% | 3.4M | 12.9 |
-| [`Darknet19_Checkpoint.IMAGENETTE`][holocron.models.classification.Darknet19_Checkpoint.IMAGENETTE] | 93.86% | 99.36% | 19.8M | 75.7 |
-| [`Darknet53_Checkpoint.IMAGENETTE`][holocron.models.classification.Darknet53_Checkpoint.IMAGENETTE] | 94.17% | 99.57% | 40.6M | 155.1 |
-| [`MobileOne_S0_Checkpoint.IMAGENETTE`][holocron.models.classification.MobileOne_S0_Checkpoint.IMAGENETTE] | 88.08% | 98.83% | 4.3M | 16.9 |
-| [`MobileOne_S1_Checkpoint.IMAGENETTE`][holocron.models.classification.MobileOne_S1_Checkpoint.IMAGENETTE] | 91.26% | 99.18% | 3.6M | 13.9 |
-| [`MobileOne_S2_Checkpoint.IMAGENETTE`][holocron.models.classification.MobileOne_S2_Checkpoint.IMAGENETTE] | 91.31% | 99.21% | 5.9M | 22.8 |
-| [`MobileOne_S3_Checkpoint.IMAGENETTE`][holocron.models.classification.MobileOne_S3_Checkpoint.IMAGENETTE] | 91.06% | 99.31% | 8.1M | 31.5 |
-| [`ReXNet1_0x_Checkpoint.IMAGENET1K`][holocron.models.classification.ReXNet1_0x_Checkpoint.IMAGENET1K] | 77.86% | 93.87% | 4.8M | 13.7 |
-| [`ReXNet1_0x_Checkpoint.IMAGENETTE`][holocron.models.classification.ReXNet1_0x_Checkpoint.IMAGENETTE] | 94.39% | 99.62% | 3.5M | 13.7 |
-| [`ReXNet1_3x_Checkpoint.IMAGENET1K`][holocron.models.classification.ReXNet1_3x_Checkpoint.IMAGENET1K] | 79.50% | 94.68% | 7.6M | 13.7 |
-| [`ReXNet1_3x_Checkpoint.IMAGENETTE`][holocron.models.classification.ReXNet1_3x_Checkpoint.IMAGENETTE] | 94.88% | 99.39% | 5.9M | 22.8 |
-| [`ReXNet1_5x_Checkpoint.IMAGENET1K`][holocron.models.classification.ReXNet1_5x_Checkpoint.IMAGENET1K] | 80.31% | 95.17% | 9.7M | 13.7 |
-| [`ReXNet1_5x_Checkpoint.IMAGENETTE`][holocron.models.classification.ReXNet1_5x_Checkpoint.IMAGENETTE] | 94.47% | 99.62% | 7.8M | 30.2 |
-| [`ReXNet2_0x_Checkpoint.IMAGENET1K`][holocron.models.classification.ReXNet2_0x_Checkpoint.IMAGENET1K] | 80.31% | 95.17% | 16.4M | 13.7 |
-| [`ReXNet2_0x_Checkpoint.IMAGENETTE`][holocron.models.classification.ReXNet2_0x_Checkpoint.IMAGENETTE] | 95.24% | 99.57% | 13.8M | 53.1 |
-| [`ReXNet2_2x_Checkpoint.IMAGENETTE`][holocron.models.classification.ReXNet2_2x_Checkpoint.IMAGENETTE] | 95.44% | 99.46% | 16.7M | 64.1 |
-| [`RepVGG_A0_Checkpoint.IMAGENETTE`][holocron.models.classification.RepVGG_A0_Checkpoint.IMAGENETTE] | 92.92% | 99.46% | 24.7M | 94.6 |
-| [`RepVGG_A1_Checkpoint.IMAGENETTE`][holocron.models.classification.RepVGG_A1_Checkpoint.IMAGENETTE] | 93.78% | 99.18% | 30.1M | 115.1 |
-| [`RepVGG_A2_Checkpoint.IMAGENETTE`][holocron.models.classification.RepVGG_A2_Checkpoint.IMAGENETTE] | 93.63% | 99.39% | 48.6M | 185.8 |
-| [`RepVGG_B0_Checkpoint.IMAGENETTE`][holocron.models.classification.RepVGG_B0_Checkpoint.IMAGENETTE] | 92.69% | 99.21% | 31.8M | 121.8 |
-| [`RepVGG_B1_Checkpoint.IMAGENETTE`][holocron.models.classification.RepVGG_B1_Checkpoint.IMAGENETTE] | 93.96% | 99.39% | 100.8M | 385.1 |
-| [`RepVGG_B2_Checkpoint.IMAGENETTE`][holocron.models.classification.RepVGG_B2_Checkpoint.IMAGENETTE] | 94.14% | 99.57% | 157.5M | 601.2 |
-| [`Res2Net50_26w_4s_Checkpoint.IMAGENETTE`][holocron.models.classification.Res2Net50_26w_4s_Checkpoint.IMAGENETTE] | 93.94% | 99.41% | 23.7M | 90.6 |
-| [`ResNeXt50_32x4d_Checkpoint.IMAGENETTE`][holocron.models.classification.ResNeXt50_32x4d_Checkpoint.IMAGENETTE] | 94.55% | 99.49% | 23.0M | 88.1 |
-| [`ResNet18_Checkpoint.IMAGENETTE`][holocron.models.classification.ResNet18_Checkpoint.IMAGENETTE] | 93.61% | 99.46% | 11.2M | 42.7 |
-| [`ResNet34_Checkpoint.IMAGENETTE`][holocron.models.classification.ResNet34_Checkpoint.IMAGENETTE] | 93.81% | 99.49% | 21.3M | 81.3 |
-| [`ResNet50D_Checkpoint.IMAGENETTE`][holocron.models.classification.ResNet50D_Checkpoint.IMAGENETTE] | 94.65% | 99.52% | 23.5M | 90.1 |
-| [`ResNet50_Checkpoint.IMAGENETTE`][holocron.models.classification.ResNet50_Checkpoint.IMAGENETTE] | 93.78% | 99.54% | 23.5M | 90 |
-| [`SKNet50_Checkpoint.IMAGENETTE`][holocron.models.classification.SKNet50_Checkpoint.IMAGENETTE] | 94.37% | 99.54% | 35.2M | 134.7 |
+| [`CSPDarknet53_Checkpoint.IMAGENETTE`][holocron.models.CSPDarknet53_Checkpoint.IMAGENETTE] | 94.50% | 99.64% | 26.6M | 101.8 |
+| [`CSPDarknet53_Mish_Checkpoint.IMAGENETTE`][holocron.models.CSPDarknet53_Mish_Checkpoint.IMAGENETTE] | 94.65% | 99.69% | 26.6M | 101.8 |
+| [`ConvNeXt_Atto_Checkpoint.IMAGENETTE`][holocron.models.ConvNeXt_Atto_Checkpoint.IMAGENETTE] | 87.59% | 98.32% | 3.4M | 12.9 |
+| [`Darknet19_Checkpoint.IMAGENETTE`][holocron.models.Darknet19_Checkpoint.IMAGENETTE] | 93.86% | 99.36% | 19.8M | 75.7 |
+| [`Darknet53_Checkpoint.IMAGENETTE`][holocron.models.Darknet53_Checkpoint.IMAGENETTE] | 94.17% | 99.57% | 40.6M | 155.1 |
+| [`MobileOne_S0_Checkpoint.IMAGENETTE`][holocron.models.MobileOne_S0_Checkpoint.IMAGENETTE] | 88.08% | 98.83% | 4.3M | 16.9 |
+| [`MobileOne_S1_Checkpoint.IMAGENETTE`][holocron.models.MobileOne_S1_Checkpoint.IMAGENETTE] | 91.26% | 99.18% | 3.6M | 13.9 |
+| [`MobileOne_S2_Checkpoint.IMAGENETTE`][holocron.models.MobileOne_S2_Checkpoint.IMAGENETTE] | 91.31% | 99.21% | 5.9M | 22.8 |
+| [`MobileOne_S3_Checkpoint.IMAGENETTE`][holocron.models.MobileOne_S3_Checkpoint.IMAGENETTE] | 91.06% | 99.31% | 8.1M | 31.5 |
+| [`ReXNet1_0x_Checkpoint.IMAGENET1K`][holocron.models.ReXNet1_0x_Checkpoint.IMAGENET1K] | 77.86% | 93.87% | 4.8M | 13.7 |
+| [`ReXNet1_0x_Checkpoint.IMAGENETTE`][holocron.models.ReXNet1_0x_Checkpoint.IMAGENETTE] | 94.39% | 99.62% | 3.5M | 13.7 |
+| [`ReXNet1_3x_Checkpoint.IMAGENET1K`][holocron.models.ReXNet1_3x_Checkpoint.IMAGENET1K] | 79.50% | 94.68% | 7.6M | 13.7 |
+| [`ReXNet1_3x_Checkpoint.IMAGENETTE`][holocron.models.ReXNet1_3x_Checkpoint.IMAGENETTE] | 94.88% | 99.39% | 5.9M | 22.8 |
+| [`ReXNet1_5x_Checkpoint.IMAGENET1K`][holocron.models.ReXNet1_5x_Checkpoint.IMAGENET1K] | 80.31% | 95.17% | 9.7M | 13.7 |
+| [`ReXNet1_5x_Checkpoint.IMAGENETTE`][holocron.models.ReXNet1_5x_Checkpoint.IMAGENETTE] | 94.47% | 99.62% | 7.8M | 30.2 |
+| [`ReXNet2_0x_Checkpoint.IMAGENET1K`][holocron.models.ReXNet2_0x_Checkpoint.IMAGENET1K] | 80.31% | 95.17% | 16.4M | 13.7 |
+| [`ReXNet2_0x_Checkpoint.IMAGENETTE`][holocron.models.ReXNet2_0x_Checkpoint.IMAGENETTE] | 95.24% | 99.57% | 13.8M | 53.1 |
+| [`ReXNet2_2x_Checkpoint.IMAGENETTE`][holocron.models.ReXNet2_2x_Checkpoint.IMAGENETTE] | 95.44% | 99.46% | 16.7M | 64.1 |
+| [`RepVGG_A0_Checkpoint.IMAGENETTE`][holocron.models.RepVGG_A0_Checkpoint.IMAGENETTE] | 92.92% | 99.46% | 24.7M | 94.6 |
+| [`RepVGG_A1_Checkpoint.IMAGENETTE`][holocron.models.RepVGG_A1_Checkpoint.IMAGENETTE] | 93.78% | 99.18% | 30.1M | 115.1 |
+| [`RepVGG_A2_Checkpoint.IMAGENETTE`][holocron.models.RepVGG_A2_Checkpoint.IMAGENETTE] | 93.63% | 99.39% | 48.6M | 185.8 |
+| [`RepVGG_B0_Checkpoint.IMAGENETTE`][holocron.models.RepVGG_B0_Checkpoint.IMAGENETTE] | 92.69% | 99.21% | 31.8M | 121.8 |
+| [`RepVGG_B1_Checkpoint.IMAGENETTE`][holocron.models.RepVGG_B1_Checkpoint.IMAGENETTE] | 93.96% | 99.39% | 100.8M | 385.1 |
+| [`RepVGG_B2_Checkpoint.IMAGENETTE`][holocron.models.RepVGG_B2_Checkpoint.IMAGENETTE] | 94.14% | 99.57% | 157.5M | 601.2 |
+| [`Res2Net50_26w_4s_Checkpoint.IMAGENETTE`][holocron.models.Res2Net50_26w_4s_Checkpoint.IMAGENETTE] | 93.94% | 99.41% | 23.7M | 90.6 |
+| [`ResNeXt50_32x4d_Checkpoint.IMAGENETTE`][holocron.models.ResNeXt50_32x4d_Checkpoint.IMAGENETTE] | 94.55% | 99.49% | 23.0M | 88.1 |
+| [`ResNet18_Checkpoint.IMAGENETTE`][holocron.models.ResNet18_Checkpoint.IMAGENETTE] | 93.61% | 99.46% | 11.2M | 42.7 |
+| [`ResNet34_Checkpoint.IMAGENETTE`][holocron.models.ResNet34_Checkpoint.IMAGENETTE] | 93.81% | 99.49% | 21.3M | 81.3 |
+| [`ResNet50D_Checkpoint.IMAGENETTE`][holocron.models.ResNet50D_Checkpoint.IMAGENETTE] | 94.65% | 99.52% | 23.5M | 90.1 |
+| [`ResNet50_Checkpoint.IMAGENETTE`][holocron.models.ResNet50_Checkpoint.IMAGENETTE] | 93.78% | 99.54% | 23.5M | 90 |
+| [`SKNet50_Checkpoint.IMAGENETTE`][holocron.models.SKNet50_Checkpoint.IMAGENETTE] | 94.37% | 99.54% | 35.2M | 134.7 |
 
 
 
