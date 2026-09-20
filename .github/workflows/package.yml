@@ -8,6 +8,7 @@ on:
       - 'holocron/**'
       - 'tests/**'
       - 'pyproject.toml'
+      - 'uv.lock'
   pull_request:
     branches: main
     paths:
@@ -15,6 +16,7 @@ on:
       - 'holocron/**'
       - 'tests/**'
       - 'pyproject.toml'
+      - 'uv.lock'
   release:
     types: [published]
 
