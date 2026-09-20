@@ -37,7 +37,7 @@ venv:
 	uv venv --python 3.11
 
 install: ${PY_DIR} ${PYPROJECT_FILE} ## Install the core library
-	uv pip install -e ${PY_DIR}
+	uv sync --locked --no-dev
 
 set-version: ${GLOBAL_PYPROJECT} ${BACKEND_PYPROJECT} ## Set the version in the pyproject.toml file
 	uv version --frozen --no-build ${BUILD_VERSION}
@@ -49,7 +49,7 @@ set-version: ${GLOBAL_PYPROJECT} ${BACKEND_PYPROJECT} ## Set the version in the 
 
 
 install-quality: ${PY_DIR} ${PYPROJECT_FILE} ## Install with quality dependencies
-	uv pip install -e '${PY_DIR}[quality]'
+	uv sync --locked --extra quality
 
 lint-check: ${PYPROJECT_FILE} ## Check code formatting and linting
 	ruff check . --config ${PYPROJECT_FILE}
@@ -88,7 +88,7 @@ publish: ${PY_DIR} ## Publish the package to PyPI
 ########################################################
 
 install-test: ${PY_DIR} ${PYPROJECT_FILE} ## Install with test dependencies
-	uv pip install -e '${PY_DIR}[test]'
+	uv sync --locked --extra test
 
 test: ${PYPROJECT_FILE} ## Run the tests
 	uv run --no-sync pytest --cov-report xml
@@ -98,7 +98,7 @@ test: ${PYPROJECT_FILE} ## Run the tests
 ########################################################
 
 install-scripts: ${PY_DIR} ${PYPROJECT_FILE} ## Install with test dependencies
-	uv pip install -e '${PY_DIR}[scripts]'
+	uv sync --locked --extra scripts
 
 bench-latency: ${PYPROJECT_FILE} ${LATENCY_SCRIPT} ## Run the tests
 	uv run --no-sync python ${LATENCY_SCRIPT} rexnet1_0x
@@ -109,7 +109,7 @@ bench-latency: ${PYPROJECT_FILE} ${LATENCY_SCRIPT} ## Run the tests
 ########################################################
 
 install-docs: ${PYPROJECT_FILE}
-	uv pip install -e ".[docs]"
+	uv sync --locked --extra docs
 
 # Build documentation for current version
 serve-docs: ${DOCS_DIR}

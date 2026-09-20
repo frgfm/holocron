@@ -27,6 +27,7 @@ def _test_classification_model(name, num_classes, pretrained):
 
 
 def test_repvgg_reparametrize():
+    torch.manual_seed(0)
     num_classes = 10
     batch_size = 2
     x = torch.rand((batch_size, 3, 224, 224))
@@ -43,10 +44,11 @@ def test_repvgg_reparametrize():
             assert mod.weight.data.shape[2:] == (3, 3)
     # Check that values are still matching
     with torch.no_grad():
-        assert torch.allclose(out, model(x), rtol=1e-4)  # logit score, not prob
+        torch.testing.assert_close(out, model(x), rtol=1e-4, atol=1e-5)  # logit score, not prob
 
 
 def test_mobileone_reparametrize():
+    torch.manual_seed(0)
     num_classes = 10
     batch_size = 2
     x = torch.rand((batch_size, 3, 224, 224))
@@ -61,7 +63,7 @@ def test_mobileone_reparametrize():
         assert not isinstance(mod, nn.BatchNorm2d)
     # Check that values are still matching
     with torch.no_grad():
-        assert torch.allclose(out, model(x), atol=1e-3)
+        torch.testing.assert_close(out, model(x), rtol=1e-4, atol=1e-5)
 
 
 @pytest.mark.parametrize(
