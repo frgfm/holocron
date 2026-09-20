@@ -7,10 +7,10 @@ import json
 import logging
 from collections.abc import Callable
 from pathlib import Path
-from typing import Any, TypeVar
+from typing import Any, TypeVar, cast
 
 import torch
-from huggingface_hub.file_download import hf_hub_download
+from huggingface_hub import DryRunFileInfo, hf_hub_download
 from torch import nn
 from torch.hub import load_state_dict_from_url
 
@@ -106,7 +106,7 @@ def load_pretrained_params(
     if url is None:
         logger.warning("Invalid model URL, using default initialization.")
     else:
-        state_dict = load_state_dict_from_url(url, progress=progress, map_location="cpu")
+        state_dict = load_state_dict_from_url(url, progress=progress, map_location="cpu", weights_only=True)
         if isinstance(key_filter, str):
             state_dict = {k: v for k, v in state_dict.items() if k.startswith(key_filter)}
         if isinstance(key_replacement, tuple):
@@ -161,8 +161,16 @@ def model_from_hf_hub(repo_id: str, **kwargs: Any) -> nn.Module:
     Returns:
         Model loaded with the checkpoint
     """
+    # Pin the config and checkpoint to the same immutable revision.
+    requested_revision = kwargs.pop("revision", None)
+    info = cast(
+        DryRunFileInfo,
+        hf_hub_download(repo_id, filename="config.json", revision=requested_revision, **{**kwargs, "dry_run": True}),
+    )
+    kwargs.pop("dry_run", None)
+
     # Get the config
-    with Path(hf_hub_download(repo_id, filename="config.json", **kwargs)).open("rb") as f:
+    with Path(hf_hub_download(repo_id, filename="config.json", revision=info.commit_hash, **kwargs)).open("rb") as f:
         cfg = json.load(f)
 
     model = models.__dict__[cfg["arch"]](num_classes=len(cfg["classes"]), pretrained=False)
@@ -175,7 +183,11 @@ def model_from_hf_hub(repo_id: str, **kwargs: Any) -> nn.Module:
         model.default_cfg.update(cfg)
 
     # Load the checkpoint
-    state_dict = torch.load(hf_hub_download(repo_id, filename="pytorch_model.bin", **kwargs), map_location="cpu")
+    state_dict = torch.load(
+        hf_hub_download(repo_id, filename="pytorch_model.bin", revision=info.commit_hash, **kwargs),
+        map_location="cpu",
+        weights_only=True,
+    )
     model.load_state_dict(state_dict)
 
     return model
