@@ -42,13 +42,9 @@ repos:
     hooks:
       - id: lmh
         name: Lint My Headers
-        entry: lmh check
-        language: python
-        types: [python]
+        entry: make headers-check
+        language: system
         pass_filenames: false
-        additional_dependencies:
-          - --only-binary=lint-my-headers
-          - lint-my-headers==0.6.0
       - id: deps-check
         name: check deps version sync
         entry: make deps-check
