@@ -63,6 +63,7 @@ training = [
 quality = [
     "ruff==0.16.5",
     "ty==0.0.75",
+    "lint-my-headers==0.6.0",
     "types-tqdm",
     "types-Pillow",
     "prek==0.5.0",
@@ -101,6 +102,14 @@ explicit = true
 [tool.pytest.ini_options]
 testpaths = ["tests/"]
 addopts = "--cov=holocron"
+
+[tool.lint-my-headers]
+owner = "François-Guillaume Fernandez"
+starting-year = 2019
+license = "Apache-2.0"
+paths = ["holocron", "scripts", "references", "api/app", "demo", "docs", ".github"]
+ignore-files = ["__init__.py"]
+ignore-folders = [".github"]
 
 [tool.ruff]
 line-length = 120

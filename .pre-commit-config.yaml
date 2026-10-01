@@ -40,6 +40,11 @@ repos:
         args: ["./pyproject.toml", "./api/pyproject.toml"]
   - repo: local
     hooks:
+      - id: lmh
+        name: Lint My Headers
+        entry: make headers-check
+        language: system
+        pass_filenames: false
       - id: deps-check
         name: check deps version sync
         entry: make deps-check

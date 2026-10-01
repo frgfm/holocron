@@ -1054,6 +1054,22 @@ wheels = [
 ]
 
 [[package]]
+name = "lint-my-headers"
+version = "0.6.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/49/a8/205433f3092f753900d9bf09ad0bdc4167ff31be7df749f020e7c896d137/lint_my_headers-0.6.0.tar.gz", hash = "sha256:9c329cf612a5f938364c7e1919bfcc6bebd056e9a28e8c8d9945d172aebf7485", size = 117719, upload-time = "2026-10-01T13:52:13.219Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ad/eb/b9ebe442e2cb317cf8c526aeebf4b9d4084d0db88e98b4c11c2fb4f651e6/lint_my_headers-0.6.0-py3-none-macosx_10_12_x86_64.whl", hash = "sha256:12704c3e3c3d74999b78b17346a6f8b3ba1de358cd291c00d98c19934c2940cc", size = 2700392, upload-time = "2026-10-01T13:52:01.617Z" },
+    { url = "https://files.pythonhosted.org/packages/d3/2a/e26af1bb5f820633e81beaad752598c577c4db67b64264aa5b871d4318c4/lint_my_headers-0.6.0-py3-none-macosx_11_0_arm64.whl", hash = "sha256:cae18db044984ac496cdc908f12c56fa7919cb1ef961817be07bd168372dffce", size = 2555017, upload-time = "2026-10-01T13:52:03.62Z" },
+    { url = "https://files.pythonhosted.org/packages/86/51/d5ab37561b64727042111ab9e73dcdfaa80bf73b5658bb729a0fa75a8d9c/lint_my_headers-0.6.0-py3-none-manylinux_2_28_aarch64.whl", hash = "sha256:84ff1ee57703906099983db14c9bc837e6d24c13474c1e95b25e63863c4ba228", size = 2656562, upload-time = "2026-10-01T13:52:04.941Z" },
+    { url = "https://files.pythonhosted.org/packages/a3/e8/bed4dcc40a18d57a71bdb8e48124e0c5f722b6108d308996514113aebab8/lint_my_headers-0.6.0-py3-none-manylinux_2_28_x86_64.whl", hash = "sha256:46ff642e749049067caedd3f8753b8a0ef2b56e01b14f42e982aae5e783b2c96", size = 2839944, upload-time = "2026-10-01T13:52:06.295Z" },
+    { url = "https://files.pythonhosted.org/packages/a9/01/85375b66c7f48b29a4716ddf2349440b7c3cf96ab10125cbd8db3f79b9d4/lint_my_headers-0.6.0-py3-none-musllinux_1_2_aarch64.whl", hash = "sha256:04b869ffce53c87f333e14bc44b151445636c819db01ef4a6d7ecdf626cac133", size = 2666424, upload-time = "2026-10-01T13:52:07.703Z" },
+    { url = "https://files.pythonhosted.org/packages/d2/68/46badc53ef00efdce96d38f90be0f2b8dff145b46bf4ffaa8a9ce9f42d51/lint_my_headers-0.6.0-py3-none-musllinux_1_2_x86_64.whl", hash = "sha256:1c923334054b2261aceff5d599ac06fd1b695fa252a60eb2be37b8a7506c9abc", size = 2984057, upload-time = "2026-10-01T13:52:09.122Z" },
+    { url = "https://files.pythonhosted.org/packages/81/4a/ba02e30657bfb8d7a609fd4e6dd0689db31cb454bcc88fcf445cb7ab4cbd/lint_my_headers-0.6.0-py3-none-win_amd64.whl", hash = "sha256:b31461d4340b1703a0c2b7ba5f816a7e705aed239c19877060ce95f6730f98d5", size = 2638030, upload-time = "2026-10-01T13:52:10.448Z" },
+    { url = "https://files.pythonhosted.org/packages/75/b8/8ea1c63ea9d57c0e81c5c13039e6bf8ca4ad67d44a655ae7f8b24bfc7d90/lint_my_headers-0.6.0-py3-none-win_arm64.whl", hash = "sha256:335fef147996f065fb418277b633c4e6bf7583542a1480d1034fb5237b206a84", size = 2453758, upload-time = "2026-10-01T13:52:11.77Z" },
+]
+
+[[package]]
 name = "markdown"
 version = "3.9"
 source = { registry = "https://pypi.org/simple" }
@@ -2330,6 +2346,7 @@ docs = [
     { name = "mkdocstrings", extra = ["python"] },
 ]
 quality = [
+    { name = "lint-my-headers" },
     { name = "prek" },
     { name = "ruff" },
     { name = "ty" },
@@ -2359,6 +2376,7 @@ requires-dist = [
     { name = "fastprogress", specifier = ">=1.0.0,<2.0.0" },
     { name = "griffe-typingdoc", marker = "extra == 'docs'", specifier = "==0.3.1" },
     { name = "huggingface-hub", specifier = ">=1.0.0,<2.0.0" },
+    { name = "lint-my-headers", marker = "extra == 'quality'", specifier = "==0.6.0" },
     { name = "matplotlib", specifier = ">=3.0.0,<4.0.0" },
     { name = "mkdocs", marker = "extra == 'docs'", specifier = "==1.6.1" },
     { name = "mkdocs-llmstxt", marker = "extra == 'docs'", specifier = "==0.4.0" },
