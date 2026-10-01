@@ -23,7 +23,7 @@ DOCKER_TAG ?= latest
 DOCKER_PLATFORM ?= linux/amd64
 PYTHON_REQ_FILE = /tmp/requirements.txt
 
-.PHONY: help install install-quality lint-check lint-format headers-check precommit typing-check deps-check quality style init-gh-labels init-gh-settings install-mintlify start-mintlify
+.PHONY: help install install-quality lint-check lint-format headers-check headers-fix precommit typing-check deps-check quality style init-gh-labels init-gh-settings install-mintlify start-mintlify
 
 help: ## Show this help message
 	@echo "Available commands:"
@@ -67,6 +67,9 @@ typing-check: ${PYPROJECT_FILE} ## Check type annotations
 
 headers-check: ${PYPROJECT_FILE} ## Check Python copyright and license headers
 	uv run --no-sync lmh check
+
+headers-fix: ${PYPROJECT_FILE} ## Refresh recognized stale copyright years
+	uv run --locked --extra quality lmh fix
 
 deps-check: .github/verify_deps_sync.py ## Check dependency synchronization
 	uv run --script .github/verify_deps_sync.py
