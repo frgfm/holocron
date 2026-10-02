@@ -223,11 +223,11 @@ The models subpackage contains definitions of models for addressing different ta
 
 ## Support status
 
-| Task                  | Architectures          | Published checkpoints                                                                    | Training                                                                                           | ONNX                                                                                           | Status                                                                                                                                                                                              |
-| --------------------- | ---------------------- | ---------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Classification        | 15 families            | Imagenette checkpoints with top-1/top-5 metrics; selected ReXNet ImageNet-1K checkpoints | [Reference script](https://github.com/frgfm/holocron/blob/main/references/classification/train.py) | [Classification export](https://github.com/frgfm/holocron/blob/main/scripts/export_to_onnx.py) | **Validated**                                                                                                                                                                                       |
-| Semantic segmentation | U-Net, U-Net++, UNet3+ | Only the legacy `unet_rexnet13` weights; dataset and metric are not documented           | [Reference script](https://github.com/frgfm/holocron/blob/main/references/segmentation/train.py)   | Not documented                                                                                 | **Unbenchmarked**                                                                                                                                                                                   |
-| Object detection      | YOLOv1, YOLOv2, YOLOv4 | None                                                                                     | [Reference script](https://github.com/frgfm/holocron/blob/main/references/detection/train.py)      | Not documented                                                                                 | **Experimental** ([#110](https://github.com/frgfm/holocron/issues/110), [#253](https://github.com/frgfm/holocron/issues/253), [discussion #230](https://github.com/frgfm/holocron/discussions/230)) |
+| Task                  | Architectures          | Published checkpoints                                                                    | Training                                                                                           | ONNX                                                                                                                       | Status                                                                        |
+| --------------------- | ---------------------- | ---------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| Classification        | 15 families            | Imagenette checkpoints with top-1/top-5 metrics; selected ReXNet ImageNet-1K checkpoints | [Reference script](https://github.com/frgfm/holocron/blob/main/references/classification/train.py) | [Classification export](https://github.com/frgfm/holocron/blob/main/scripts/export_to_onnx.py)                             | **Validated**                                                                 |
+| Semantic segmentation | U-Net, U-Net++, UNet3+ | Only the legacy `unet_rexnet13` weights; dataset and metric are not documented           | [Reference script](https://github.com/frgfm/holocron/blob/main/references/segmentation/train.py)   | Not documented                                                                                                             | **Unbenchmarked**                                                             |
+| Object detection      | YOLOv1, YOLOv2, YOLOv4 | None                                                                                     | [Reference script](https://github.com/frgfm/holocron/blob/main/references/detection/train.py)      | [Export tests](https://github.com/frgfm/holocron/blob/main/tests/test_models_detection.py); runtime parity not benchmarked | **Experimental**; [YOLOv4 learning check verified](#yolo-training-validation) |
 
 **Validated** means published task checkpoints and metrics are available. **Unbenchmarked** means an implementation or legacy weight exists without a documented evaluation dataset and metric. **Experimental** means the API is available, but published task weights and a confirmed benchmark are not.
 
@@ -297,15 +297,32 @@ The chart compares only the 27 Imagenette checkpoints. ImageNet-1K rows remain i
 
 Experimental
 
-YOLOv1, YOLOv2 and YOLOv4 have a reference training script but no published detection weights. Known training and benchmark gaps are tracked in [#110](https://github.com/frgfm/holocron/issues/110), [#253](https://github.com/frgfm/holocron/issues/253) and [discussion #230](https://github.com/frgfm/holocron/discussions/230).
+YOLOv4's corrected implementation passes regression tests and a CPU fixed-batch learning check. Full CUDA/VOC training on the repaired implementation remains pending. No pretrained detection checkpoints or paper-level accuracy results are published.
 
-Object detection models expect a 4D image tensor as an input (N x C x H x W) and returns a list of dictionaries. Each dictionary has 3 keys: box coordinates, classification probability, classification label.
+Object detection models expect a 4D image tensor as an input (N x C x H x W) and returns a list of dictionaries. In evaluation mode, each dictionary has three keys: `boxes` (normalized xmin, ymin, xmax, ymax coordinates), `scores` (objectness multiplied by the top class probability), and `labels` (class indices). In training mode, pass a list of target dictionaries with normalized `boxes` and integer `labels`; the model returns a loss dictionary.
 
 ```python
 import holocron.models as models
 
 yolov2 = models.yolov2(num_classes=10)
 ```
+
+### YOLO training validation
+
+YOLOv4 uses a CSPDarknet53-Mish backbone with an SPP/PAN neck and three detection scales. Its corrected training uses global and additional anchor matches, constant objectness BCE targets, summed classification BCE, and area-weighted differentiable CIoU. Box geometry is computed in FP32 under AMP, and every scale is decoded before combined-confidence filtering and class-aware NMS.
+
+The default `yolov4(num_classes=20)` loads a pretrained **Imagenette backbone**, even without `pretrained=True`. The detector head starts from scratch. The reference script's `--freeze-until backbone` freezes the pretrained weights; `--pretrained` should not be used to request unavailable detection weights.
+
+The [CPU learning diagnostic](https://github.com/frgfm/holocron/blob/main/references/detection/check_yolov4.py) trains the actual neck and head for 500 SGD updates on two synthetic 96-pixel rectangle images, repeated to a batch of eight. It caches the frozen backbone features and disables DropBlock only for this memorization check. Normal evaluation and default NMS give one correctly labeled detection per image, with IoUs **0.8113 / 0.7945**, no false positives, and finite losses and parameter gradients. The pretrained backbone weights remain unchanged, and a trainer checkpoint is saved.
+
+| Validation                                    | Result                                                                                                         |
+| --------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| YOLOv4 fixed-batch learning                   | Verified; detection error 99.43% with the old initialization restored, versus 0% with corrected initialization |
+| YOLOv1/v2 losses and shared inference         | Loss behavior preserved; regression coverage for combined confidence and class-aware NMS                       |
+| YOLOv1/v2/v4 ONNX                             | Export tested; inference parity and accuracy not benchmarked                                                   |
+| Full CUDA/VOC training of the repaired YOLOv4 | Pending; synthetic results do not establish validation-set accuracy                                            |
+
+YOLOv3 is not implemented as a detector. Its Darknet-53 classification backbone is available. The [detection guide](https://github.com/frgfm/holocron/blob/main/references/detection/README.md) contains the matched-control results, reproducible commands, learning-rate finder options, metric definitions, and the five-epoch CUDA/VOC acceptance gate.
 
 ### YOLO family
 
@@ -787,9 +804,6 @@ def __init__(
     self.neck = Neck([1024, 512, 256], act_layer, norm_layer, drop_layer, conv_layer)
     # head
     self.head = Yolov4Head(num_classes, anchors, act_layer, norm_layer, drop_layer, conv_layer)
-
-    init_module(self.neck, "leaky_relu")
-    init_module(self.head, "leaky_relu")
 ```
 
 #### yolov4
@@ -800,26 +814,14 @@ yolov4(pretrained: bool = False, progress: bool = True, pretrained_backbone: boo
 
 YOLOv4 model from ["YOLOv4: Optimal Speed and Accuracy of Object Detection"](https://arxiv.org/pdf/2004.10934.pdf).
 
-The architecture improves upon YOLOv3 by including: the usage of [DropBlock](https://arxiv.org/pdf/1810.12890.pdf) regularization, [Mish](https://arxiv.org/pdf/1908.08681.pdf) activation, [CSP](https://arxiv.org/pdf/2004.10934.pdf) and [SAM](https://arxiv.org/pdf/1807.06521.pdf) in the backbone, [SPP](https://arxiv.org/pdf/1406.4729.pdf) and [PAN](https://arxiv.org/pdf/1803.01534.pdf) in the neck.
+The implementation combines a CSPDarknet53-Mish backbone with an SPP/PAN neck and three detection scales. Training uses the YOLOv4 anchor masks and multi-anchor assignment, binary cross-entropy for objectness and classification, and area-weighted Complete IoU for matched boxes.
 
-For training, YOLOv4 uses the same multi-part loss as YOLOv3 apart from its box coordinate loss:
-
-\[ \\mathcal{L}_{coords} = \\sum\\limits_{i=0}^{S^2} \\sum\\limits\_{j=0}^{B} \\min\\limits\_{k \\in [1, M]} C\_{IoU}(\\hat{loc}\_{ij}, loc^{GT}\_k) \]
-
-where:
-
-- (S) is size of the output feature map (13 for an input size ((416, 416))),
-- (B) is the number of anchor boxes per grid cell (default: 3),
-- (M) is the number of ground truth boxes,
-- (C\_{IoU}) is the complete IoU loss,
-- (\\hat{loc}\_{ij}) is the predicted bounding box for grid cell (i) at anchor (j), and (loc^{GT}\_k) is the k-th ground truth bounding box.
-
-| PARAMETER             | DESCRIPTION                                                                                               |
-| --------------------- | --------------------------------------------------------------------------------------------------------- |
-| `pretrained`          | If True, returns a model pre-trained on ImageNet **TYPE:** `bool` **DEFAULT:** `False`                    |
-| `progress`            | If True, displays a progress bar of the download to stderr **TYPE:** `bool` **DEFAULT:** `True`           |
-| `pretrained_backbone` | If True, backbone parameters will have been pretrained on Imagenette **TYPE:** `bool` **DEFAULT:** `True` |
-| `kwargs`              | keyword args of YOLOv4 **TYPE:** `Any` **DEFAULT:** `{}`                                                  |
+| PARAMETER             | DESCRIPTION                                                                                                       |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `pretrained`          | Whether to request pretrained detector parameters (not currently available) **TYPE:** `bool` **DEFAULT:** `False` |
+| `progress`            | If True, displays a progress bar of the download to stderr **TYPE:** `bool` **DEFAULT:** `True`                   |
+| `pretrained_backbone` | If True, backbone parameters will have been pretrained on Imagenette **TYPE:** `bool` **DEFAULT:** `True`         |
+| `kwargs`              | keyword args of YOLOv4 **TYPE:** `Any` **DEFAULT:** `{}`                                                          |
 
 | RETURNS  | DESCRIPTION      |
 | -------- | ---------------- |
@@ -832,27 +834,12 @@ def yolov4(pretrained: bool = False, progress: bool = True, pretrained_backbone:
     r"""YOLOv4 model from
     ["YOLOv4: Optimal Speed and Accuracy of Object Detection"](https://arxiv.org/pdf/2004.10934.pdf).
 
-    The architecture improves upon YOLOv3 by including: the usage of [DropBlock](https://arxiv.org/pdf/1810.12890.pdf) regularization, [Mish](https://arxiv.org/pdf/1908.08681.pdf) activation, [CSP](https://arxiv.org/pdf/2004.10934.pdf) and [SAM](https://arxiv.org/pdf/1807.06521.pdf) in the
-    backbone, [SPP](https://arxiv.org/pdf/1406.4729.pdf) and [PAN](https://arxiv.org/pdf/1803.01534.pdf) in the
-    neck.
-
-    For training, YOLOv4 uses the same multi-part loss as YOLOv3 apart from its box coordinate loss:
-
-    $$
-        \mathcal{L}_{coords} = \sum\limits_{i=0}^{S^2}  \sum\limits_{j=0}^{B}
-        \min\limits_{k \in [1, M]} C_{IoU}(\hat{loc}_{ij}, loc^{GT}_k)
-    $$
-
-    where:
-    - $S$ is size of the output feature map (13 for an input size $(416, 416)$),
-    - $B$ is the number of anchor boxes per grid cell (default: 3),
-    - $M$ is the number of ground truth boxes,
-    - $C_{IoU}$ is the complete IoU loss,
-    - $\hat{loc}_{ij}$ is the predicted bounding box for grid cell $i$ at anchor $j$,
-    and $loc^{GT}_k$ is the k-th ground truth bounding box.
+    The implementation combines a CSPDarknet53-Mish backbone with an SPP/PAN neck and three detection scales.
+    Training uses the YOLOv4 anchor masks and multi-anchor assignment, binary cross-entropy for objectness and
+    classification, and area-weighted Complete IoU for matched boxes.
 
     Args:
-        pretrained: If True, returns a model pre-trained on ImageNet
+        pretrained: Whether to request pretrained detector parameters (not currently available)
         progress: If True, displays a progress bar of the download to stderr
         pretrained_backbone: If True, backbone parameters will have been pretrained on Imagenette
         kwargs: keyword args of [`YOLOv4`][holocron.models.detection.yolov4.YOLOv4]
@@ -2787,16 +2774,16 @@ def ciou_loss(boxes1: Tensor, boxes2: Tensor) -> Tensor:
         box_ciou(boxes1, boxes2)
         ```
     """
+    # Keep normalized-box geometry and its gradients safe under AMP.
+    if boxes1.dtype in {torch.float16, torch.bfloat16}:
+        boxes1 = boxes1.float()
+    if boxes2.dtype in {torch.float16, torch.bfloat16}:
+        boxes2 = boxes2.float()
     iou = box_iou(boxes1, boxes2)
     v = aspect_ratio_consistency(boxes1, boxes2)
 
-    ciou_loss = 1 - iou + iou_penalty(boxes1, boxes2)
-
-    # Check
-    filter_ = (v != 0) & (iou != 0)
-    ciou_loss[filter_].addcdiv_(v[filter_], 1 - iou[filter_] + v[filter_])
-
-    return ciou_loss
+    aspect_denominator = (1 - iou + v).clamp_min(torch.finfo(v.dtype).tiny)
+    return 1 - iou + iou_penalty(boxes1, boxes2) + v.square() / aspect_denominator
 ````
 
 # holocron.optim
@@ -3676,17 +3663,18 @@ find_lr(freeze_until: str | None = None, start_lr: float = 1e-07, end_lr: float 
 
 Gridsearch the optimal learning rate for the training as described in ["Cyclical Learning Rates for Training Neural Networks"](https://arxiv.org/pdf/1506.01186.pdf).
 
-| PARAMETER           | DESCRIPTION                                                                  |
-| ------------------- | ---------------------------------------------------------------------------- |
-| `freeze_until`      | last layer to freeze **TYPE:** \`str                                         |
-| `start_lr`          | initial learning rate **TYPE:** `float` **DEFAULT:** `1e-07`                 |
-| `end_lr`            | final learning rate **TYPE:** `float` **DEFAULT:** `1`                       |
-| `norm_weight_decay` | weight decay to apply to normalization parameters **TYPE:** \`float          |
-| `num_it`            | maximum number of microbatches to consume **TYPE:** `int` **DEFAULT:** `100` |
+| PARAMETER           | DESCRIPTION                                                                                                               |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `freeze_until`      | last layer to freeze **TYPE:** \`str                                                                                      |
+| `start_lr`          | initial learning rate **TYPE:** `float` **DEFAULT:** `1e-07`                                                              |
+| `end_lr`            | final learning rate **TYPE:** `float` **DEFAULT:** `1`                                                                    |
+| `norm_weight_decay` | weight decay to apply to normalization parameters **TYPE:** \`float                                                       |
+| `num_it`            | number of microbatches represented by the sweep; AMP overflow retries may consume more **TYPE:** `int` **DEFAULT:** `100` |
 
-| RAISES       | DESCRIPTION                                                                 |
-| ------------ | --------------------------------------------------------------------------- |
-| `ValueError` | if the number of iterations is greater than the number of available batches |
+| RAISES         | DESCRIPTION                                                                 |
+| -------------- | --------------------------------------------------------------------------- |
+| `ValueError`   | if the number of iterations is greater than the number of available batches |
+| `RuntimeError` | if AMP overflows exhaust the available batches before the sweep completes   |
 
 Source code in `holocron/trainer/core.py`
 
@@ -3707,10 +3695,11 @@ def find_lr(
        start_lr: initial learning rate
        end_lr: final learning rate
        norm_weight_decay: weight decay to apply to normalization parameters
-       num_it: maximum number of microbatches to consume
+       num_it: number of microbatches represented by the sweep; AMP overflow retries may consume more
 
     Raises:
         ValueError: if the number of iterations is greater than the number of available batches
+        RuntimeError: if AMP overflows exhaust the available batches before the sweep completes
     """
     if num_it > len(self.train_loader):
         raise ValueError("the value of `num_it` needs to be lower than the number of available batches")
@@ -3724,36 +3713,38 @@ def find_lr(
 
     self.lr_recorder = []
     self.loss_recorder = []
-    accumulated_loss = 0.0
-    accumulated_batches = 0
 
     if self.amp:
         self.scaler = GradScaler("cuda")
 
-    for batch_idx, (x, target) in enumerate(self.train_loader):
-        x, target = self.to_cuda(x, target)
+    batch_iter = iter(self.train_loader)
+    final_step_batches = num_it - self.gradient_acc * (num_steps - 1)
+    for step_idx in progress_bar(range(num_steps), total=num_steps):
+        step_batches = final_step_batches if step_idx == num_steps - 1 else self.gradient_acc
+        stepped = False
+        while not stepped:
+            accumulated_loss = 0.0
+            for batch_idx in range(step_batches):
+                try:
+                    x, target = next(batch_iter)
+                except StopIteration as exc:
+                    raise RuntimeError("LR finder ran out of batches while recovering from AMP overflow") from exc
+                x, target = self.to_cuda(x, target)
 
-        # Forward
-        batch_loss: Tensor = self._get_loss(x, target)  # type: ignore[assignment]
-        if torch.isnan(batch_loss) or torch.isinf(batch_loss):
-            if batch_idx == 0:
-                raise ValueError("loss value is NaN or inf.")
-            break
+                # Forward
+                batch_loss: Tensor = self._get_loss(x, target)  # type: ignore[assignment]
+                if torch.isnan(batch_loss) or torch.isinf(batch_loss):
+                    if len(self.loss_recorder) == 0:
+                        raise ValueError("loss value is NaN or inf.")
+                    return
 
-        accumulated_loss += batch_loss.item()
-        accumulated_batches += 1
-        is_last_batch = batch_idx + 1 == num_it
-        stepped = self._backprop_step(batch_loss, force=is_last_batch)
-        if self._grad_count == 0:
+                accumulated_loss += batch_loss.item()
+                stepped = self._backprop_step(batch_loss, force=batch_idx == step_batches - 1)
+
             if stepped:
                 self.lr_recorder.append(float(self.optimizer.param_groups[0]["lr"]))
-                self.loss_recorder.append(accumulated_loss / accumulated_batches)
+                self.loss_recorder.append(accumulated_loss / step_batches)
                 scheduler.step()
-            accumulated_loss = 0.0
-            accumulated_batches = 0
-
-        if is_last_batch:
-            break
 ```
 
 #### plot_recorder
@@ -3796,21 +3787,10 @@ def plot_recorder(self, beta: float = 0.95, **kwargs: Any) -> None:
         avg_loss = beta * avg_loss + (1 - beta) * loss
         smoothed_losses.append(avg_loss / (1 - beta ** (idx + 1)))
 
-    # Properly rescale Y-axis
-    data_slice = slice(
-        min(len(self.loss_recorder) // 10, 10),
-        -min(len(self.loss_recorder) // 20, 5) if len(self.loss_recorder) >= 20 else len(self.loss_recorder),
-    )
-    vals: np.ndarray = np.array(smoothed_losses[data_slice])
-    min_idx = vals.argmin()
-    max_val = vals.max() if min_idx is None else vals[: min_idx + 1].max()
-    delta = max_val - vals[min_idx]
-
-    plt.plot(self.lr_recorder[data_slice], smoothed_losses[data_slice])
+    plt.plot(self.lr_recorder, smoothed_losses)
     plt.xscale("log")
     plt.xlabel("Learning Rate")
     plt.ylabel("Training loss")
-    plt.ylim(vals[min_idx] - 0.1 * delta, max_val + 0.2 * delta)
     plt.grid(True, linestyle="--", axis="x")
     plt.show(**kwargs)
 ```
@@ -3870,11 +3850,11 @@ def check_setup(
     if self.amp:
         self.scaler = GradScaler("cuda")
 
-    for _ in range(num_it):
+    for idx in range(num_it):
         # Forward
         batch_loss: Tensor = self._get_loss(x, target)  # type: ignore[assignment]
         # Backprop
-        self._backprop_step(batch_loss)
+        self._backprop_step(batch_loss, force=idx + 1 == num_it)
 
         if torch.isnan(batch_loss) or torch.isinf(batch_loss):
             raise ValueError("loss value is NaN or inf.")
@@ -5053,6 +5033,13 @@ def __init__(self, num_classes: int, alpha: float = 0.2) -> None:
 # Notes
 
 # Changelog
+
+## Unreleased
+
+- Repair YOLOv4 target assignment, BCE/CIoU losses, prediction initialization, AMP box geometry, and custom-anchor checkpoint loading.
+- Correct shared confidence filtering, class-aware NMS, and detection evaluation matching while preserving YOLOv1/v2 loss behavior.
+- Add a reproducible YOLOv4 CPU learning diagnostic with a frozen pretrained backbone, finite-gradient checks, normal-inference acceptance, and a saved checkpoint. Full CUDA/VOC training of the repaired implementation remains pending; YOLOv3 remains unimplemented as a detector.
+- Expose detection LR finder bounds and progress, plot the complete recorded range, and make CodeCarbon quiet by default with `--verbose-codecarbon` available.
 
 ## v0.2.1 (2022-07-16)
 
