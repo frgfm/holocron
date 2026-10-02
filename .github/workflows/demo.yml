@@ -15,7 +15,7 @@ on:
 
 env:
   PYTHON_VERSION: "3.11"
-  UV_VERSION: "0.12.0"
+  UV_VERSION: "0.12.5"
 
 jobs:
   build:
@@ -36,4 +36,4 @@ jobs:
         run: |
           make install-demo
           screen -dm make run-demo
-          sleep 10 && nc -vz localhost 3000
+          timeout 60 sh -c 'until nc -z localhost 3000; do sleep 1; done'

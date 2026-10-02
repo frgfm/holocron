@@ -5,15 +5,16 @@
 
 import math
 from collections.abc import Callable, Iterable
+from typing import Any
 
 import torch
 from torch import Tensor
-from torch.optim import Adam
+from torch.optim import Optimizer
 
 __all__ = ["Adan", "adan"]
 
 
-class Adan(Adam):
+class Adan(Optimizer):
     r"""Implements the Adan optimizer from ["Adan: Adaptive Nesterov Momentum Algorithm for Faster Optimizing Deep
     Models"](https://arxiv.org/pdf/2208.06677.pdf).
 
@@ -65,7 +66,24 @@ class Adan(Adam):
         weight_decay: float = 0.0,
         amsgrad: bool = False,
     ) -> None:
-        super().__init__(params, lr, betas, eps, weight_decay, amsgrad)  # type: ignore[arg-type]
+        if not lr >= 0.0:
+            raise ValueError(f"Invalid learning rate: {lr}")
+        if not eps >= 0.0:
+            raise ValueError(f"Invalid epsilon value: {eps}")
+        if len(betas) != 3:
+            raise ValueError("Adan requires three beta parameters")
+        for idx, beta in enumerate(betas):
+            if not 0.0 <= beta < 1.0:
+                raise ValueError(f"Invalid beta parameter at index {idx}: {beta}")
+        if not weight_decay >= 0.0:
+            raise ValueError(f"Invalid weight_decay value: {weight_decay}")
+        defaults = {"lr": lr, "betas": betas, "eps": eps, "weight_decay": weight_decay, "amsgrad": amsgrad}
+        super().__init__(params, defaults)
+
+    def __setstate__(self, state: dict[str, Any]) -> None:
+        super().__setstate__(state)
+        for group in self.param_groups:
+            group.setdefault("amsgrad", False)
 
     @torch.no_grad()
     def step(self, closure: Callable[[], float] | None = None) -> float | None:  # type: ignore[override]

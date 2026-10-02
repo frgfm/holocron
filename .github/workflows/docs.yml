@@ -7,16 +7,18 @@ on:
       - '.github/workflows/docs.yml'
       - 'docs/**'
       - 'pyproject.toml'
+      - 'uv.lock'
   pull_request:
     branches: main
     paths:
       - '.github/workflows/docs.yml'
       - 'docs/**'
       - 'pyproject.toml'
+      - 'uv.lock'
 
 env:
   PYTHON_VERSION: "3.11"
-  UV_VERSION: "0.12.0"
+  UV_VERSION: "0.12.5"
 
 jobs:
   build:
@@ -69,7 +71,7 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_DEPLOY_KEY }}
       - name: Deploy to Github Pages
-        uses: JamesIves/github-pages-deploy-action@v4.8.0
+        uses: JamesIves/github-pages-deploy-action@v4.9.0
         with:
           branch: gh-pages
           folder: 'docs/site'

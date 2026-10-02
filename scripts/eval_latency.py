@@ -61,7 +61,7 @@ def main(args):
     # Pretrained imagenet model
     model = models.__dict__[args.arch](pretrained=args.pretrained).eval()
     # Reparametrizable models
-    if args.arch.startswith("repvgg") or args.arch.startswith("mobileone"):
+    if hasattr(model, "reparametrize"):
         model.reparametrize()
 
     # Input

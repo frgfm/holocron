@@ -192,6 +192,7 @@ nav:
         - reference/models/classification/darknetv4.md
         - reference/models/classification/repvgg.md
         - reference/models/classification/mobileone.md
+        - reference/models/classification/repvit.md
     - Layers: reference/nn.md
     - Operators: reference/ops.md
     - Optimizers: reference/optim.md

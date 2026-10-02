@@ -6,6 +6,7 @@
 import math
 from collections import defaultdict
 from collections.abc import Callable, Sequence
+from pathlib import Path
 from typing import Any, cast
 
 import matplotlib.pyplot as plt
@@ -115,6 +116,7 @@ class Trainer:
         Args:
             output_file: destination file path
         """
+        Path(output_file).parent.mkdir(parents=True, exist_ok=True)
         torch.save(
             {
                 "epoch": self.epoch,
@@ -231,7 +233,7 @@ class Trainer:
         else:
             self.optimizer.step()
             stepped = True
-        self.optimizer.zero_grad()
+        self.optimizer.zero_grad(set_to_none=True)
         self._grad_count = 0
         return stepped
 
@@ -277,7 +279,7 @@ class Trainer:
             for params, wd in zip(self._params, wd_groups, strict=True):
                 if len(params) > 0:
                     self.optimizer.add_param_group({"params": params, "weight_decay": wd})
-        self.optimizer.zero_grad()
+        self.optimizer.zero_grad(set_to_none=True)
         self._grad_count = 0
 
     @torch.inference_mode()

@@ -1,9 +1,10 @@
+from types import SimpleNamespace
+
 import pytest
 import torch
 from torch import nn
 
 from holocron.models import utils
-from holocron.models.classification.repvgg import RepVGG
 from holocron.nn import SAM, BlurPool2d, DropBlock2d
 
 
@@ -83,10 +84,45 @@ def test_fuse_conv_bn():
         assert torch.allclose(bn(conv(x)), fused_conv(x), atol=1e-6)
 
 
-def test_model_from_hf_hub():
-    model = utils.model_from_hf_hub("frgfm/repvgg_a0")
-    # Check model type
-    assert isinstance(model, RepVGG)
+def test_remote_checkpoint_loading_is_safe(monkeypatch, tmp_path):
+    model = nn.Linear(2, 2)
+    model.default_cfg = None
+    config_path = tmp_path / "config.json"
+    config_path.write_text('{"arch": "test_model", "classes": ["a", "b"]}')
+    checkpoint_path = tmp_path / "pytorch_model.bin"
+    torch.save(model.state_dict(), checkpoint_path)
 
-    # Check num of params
-    assert sum(p.data.numel() for p in model.parameters()) == 24741642
+    url_kwargs = {}
+
+    def load_url(_url, **kwargs):
+        url_kwargs.update(kwargs)
+        return model.state_dict()
+
+    monkeypatch.setattr(utils, "load_state_dict_from_url", load_url)
+    utils.load_pretrained_params(model, "https://example.org/model.pth")
+    assert url_kwargs["weights_only"] is True
+
+    downloads = []
+
+    def download(_repo_id, filename, **kwargs):
+        downloads.append((filename, kwargs.get("revision"), kwargs.get("dry_run", False)))
+        if kwargs.get("dry_run"):
+            return SimpleNamespace(commit_hash="resolved-sha")
+        return config_path if filename == "config.json" else checkpoint_path
+
+    torch_load = torch.load
+
+    def load_checkpoint(path, **kwargs):
+        assert kwargs["weights_only"] is True
+        return torch_load(path, **kwargs)
+
+    monkeypatch.setitem(utils.models.__dict__, "test_model", lambda **_kwargs: model)
+    monkeypatch.setattr(utils, "hf_hub_download", download)
+    monkeypatch.setattr(utils.torch, "load", load_checkpoint)
+
+    assert utils.model_from_hf_hub("owner/model", revision="main") is model
+    assert downloads == [
+        ("config.json", "main", True),
+        ("config.json", "resolved-sha", False),
+        ("pytorch_model.bin", "resolved-sha", False),
+    ]
