@@ -43,15 +43,17 @@ class FSAggreg(nn.Module):
         projection = nn.Conv2d if conv_layer is None else conv_layer
         # Downsample = max pooling + conv for channel reduction
         self.downsamples = nn.ModuleList([
-            nn.Sequential(nn.MaxPool2d(2 ** (len(e_chans) - idx)), projection(e_chan, base_chan, 3, padding=1))
+            nn.Sequential(
+                nn.MaxPool2d(2 ** (len(e_chans) - idx)), projection(e_chan, base_chan, kernel_size=3, padding=1)
+            )
             for idx, e_chan in enumerate(e_chans)
         ])
-        self.skip = projection(skip_chan, base_chan, 3, padding=1) if len(e_chans) > 0 else nn.Identity()
+        self.skip = projection(skip_chan, base_chan, kernel_size=3, padding=1) if len(e_chans) > 0 else nn.Identity()
         # Upsample = bilinear interpolation + conv for channel reduction
         self.upsamples = nn.ModuleList([
             nn.Sequential(
                 nn.Upsample(scale_factor=2 ** (idx + 1), mode="bilinear", align_corners=True),
-                projection(d_chan, base_chan, 3, padding=1),
+                projection(d_chan, base_chan, kernel_size=3, padding=1),
             )
             for idx, d_chan in enumerate(d_chans)
         ])

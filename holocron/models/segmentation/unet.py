@@ -465,7 +465,7 @@ def unet2(pretrained: bool = False, progress: bool = True, in_channels: int = 3,
         semantic segmentation model
     """
     backbone = UNetBackbone(default_cfgs["unet2"]["encoder_layout"], in_channels=in_channels).features
-    kwargs.setdefault("input_shape", (in_channels, 256, 256))
+    kwargs["input_shape"] = kwargs.get("input_shape") or (in_channels, 256, 256)
 
     return _dynamic_unet("unet2", backbone, pretrained, progress, **kwargs)  # ty: ignore[invalid-argument-type]
 
@@ -537,7 +537,7 @@ def unet_rexnet13(
         semantic segmentation model
     """
     backbone = rexnet1_3x(pretrained=pretrained_backbone and not pretrained, in_channels=in_channels).features
-    kwargs.setdefault("input_shape", (in_channels, 256, 256))
+    kwargs["input_shape"] = kwargs.get("input_shape") or (in_channels, 256, 256)
     kwargs["final_upsampling"] = kwargs.get("final_upsampling", True)
     kwargs["act_layer"] = kwargs.get("act_layer", nn.SiLU(inplace=True))
     # hotfix of https://github.com/pytorch/vision/issues/3802

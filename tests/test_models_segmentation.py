@@ -1,3 +1,4 @@
+from functools import partial
 from pathlib import Path
 
 import pytest
@@ -115,11 +116,13 @@ def test_dynamic_unet_preserves_encoder_weights_and_stats():
     output.mean().backward()
 
 
-def test_unet3p_uses_custom_convolution_for_projections():
+@pytest.mark.parametrize("factory", [False, True])
+def test_unet3p_uses_custom_convolution_for_projections(factory):
     class CustomConv(torch.nn.Conv2d):
         pass
 
-    model = segmentation.UNet3p([4, 8, 16], conv_layer=CustomConv)
+    conv_layer = partial(CustomConv, kernel_size=3) if factory else CustomConv
+    model = segmentation.UNet3p([4, 8, 16], conv_layer=conv_layer)
     convolutions = [module for module in model.modules() if isinstance(module, torch.nn.Conv2d)]
     assert all(isinstance(module, CustomConv) for module in convolutions if module is not model.classifier)
 
@@ -127,7 +130,9 @@ def test_unet3p_uses_custom_convolution_for_projections():
 @pytest.mark.parametrize("arch", ["unet2", "unet_rexnet13"], ids=["plain", "rexnet"])
 def test_dynamic_unet_grayscale_factory(arch):
     kwargs = {"pretrained_backbone": False} if arch == "unet_rexnet13" else {}
-    model = segmentation.__dict__[arch](pretrained=False, in_channels=1, num_classes=3, **kwargs).eval()
+    model = segmentation.__dict__[arch](
+        pretrained=False, in_channels=1, num_classes=3, input_shape=None, **kwargs
+    ).eval()
     with torch.no_grad():
         output = model(torch.rand(2, 1, 35, 39))
     assert output.shape == (2, 3, 35, 39)

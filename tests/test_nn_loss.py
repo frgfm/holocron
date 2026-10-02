@@ -203,6 +203,7 @@ def test_mc_loss_ignores_void_pixels_in_both_terms(reduction, all_ignored):
     target[:, :2] = 255
     if all_ignored:
         target.fill_(255)
+        logits = torch.full_like(logits, 3e38, requires_grad=True)
     loss = F.mutual_channel_loss(logits, target, ignore_index=255, xi=3, reduction=reduction)
     assert torch.isfinite(loss).all()
     if all_ignored:

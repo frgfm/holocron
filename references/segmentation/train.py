@@ -149,13 +149,14 @@ def main(args):
         # Suggest size
         if args.find_size:
             print("Looking for optimal image size")
+            train_set.transforms = None
             find_image_size(train_set)
             return
 
         train_loader = torch.utils.data.DataLoader(
             train_set,
             batch_size=args.batch_size,
-            drop_last=False,
+            drop_last=args.source == "torchvision",
             sampler=RandomSampler(train_set),
             num_workers=args.workers,
             pin_memory=isinstance(args.device, int),

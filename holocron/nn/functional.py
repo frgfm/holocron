@@ -324,7 +324,7 @@ def mutual_channel_loss(
     if valid.any():
         discr_loss = F.cross_entropy(discr_out, target, weight, ignore_index=ignore_index, reduction=reduction)
     else:
-        discr_loss = discr_out.sum(dim=1) * 0
+        discr_loss = (discr_out * 0).sum(dim=1)
         if reduction != "none":
             discr_loss = discr_loss.sum()
 

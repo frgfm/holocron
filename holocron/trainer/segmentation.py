@@ -34,10 +34,18 @@ class SegmentationTrainer(Trainer):
             outputs = self.model(x)
             outputs = outputs if isinstance(outputs, dict) else {"out": outputs}
             valid = target != getattr(self.criterion, "ignore_index", 255)
-            losses = {
-                name: cast(Tensor, self.criterion(logits, target)) if valid.any() else logits.sum() * 0
-                for name, logits in outputs.items()
-            }
+            losses = {}
+            for name, logits in outputs.items():
+                if not valid.any():
+                    losses[name] = (logits * 0).sum()
+                elif self.model.training:
+                    losses[name] = cast(Tensor, self.criterion(logits, target))
+                else:
+                    # Average labelled images independently of validation batch grouping.
+                    losses[name] = torch.stack([
+                        cast(Tensor, self.criterion(logits[idx : idx + 1], target[idx : idx + 1]))
+                        for idx in valid.flatten(1).any(1).nonzero().flatten().tolist()
+                    ]).mean()
             loss = losses["out"]
             if "aux" in losses:
                 loss += 0.5 * losses["aux"]
@@ -54,30 +62,28 @@ class SegmentationTrainer(Trainer):
             ignore_index: target value to exclude from metrics; defaults to the criterion's ignore_index
 
         Returns:
-            evaluation metrics (validation loss, global accuracy, mean IoU)
+            evaluation metrics (mean loss per labelled image, global accuracy, mean IoU)
 
         Raises:
-            ValueError: if validation has no batches or no finite loss
+            ValueError: if validation has no labelled images with a finite loss
         """
         self.model.eval()
 
         ignore_index = getattr(self.criterion, "ignore_index", 255) if ignore_index is None else ignore_index
-        val_loss, num_valid_samples, num_batches, num_labeled_batches = 0.0, 0, 0, 0
+        val_loss, num_valid_samples = 0.0, 0
         conf_mat = torch.zeros(
             (self.num_classes, self.num_classes), dtype=torch.int64, device=next(self.model.parameters()).device
         )
         for x, target in self.val_loader:
-            num_batches += 1
             x, target = self.to_cuda(x, target)
 
             loss, out = self._get_loss(x, target, return_logits=True)  # ty: ignore[invalid-argument-type]
-            labeled = (target != getattr(self.criterion, "ignore_index", 255)).any()
-            num_labeled_batches += int(labeled)
+            labeled = int((target != getattr(self.criterion, "ignore_index", 255)).flatten(1).any(1).sum())
 
             # Safeguard for NaN loss
             if torch.isfinite(loss) and labeled:
-                val_loss += loss.item() * x.shape[0]
-                num_valid_samples += x.shape[0]
+                val_loss += loss.item() * labeled
+                num_valid_samples += labeled
 
             # borrowed from https://github.com/pytorch/vision/blob/master/references/segmentation/train.py
             pred = out.argmax(dim=1).flatten()
@@ -87,9 +93,9 @@ class SegmentationTrainer(Trainer):
             nc = self.num_classes
             conf_mat += torch.bincount(inds, minlength=nc**2).reshape(nc, nc)
 
-        if num_batches == 0 or (num_labeled_batches > 0 and num_valid_samples == 0):
-            raise ValueError("Validation requires at least one batch with a finite loss")
-        val_loss /= max(1, num_valid_samples)
+        if num_valid_samples == 0:
+            raise ValueError("Validation requires at least one batch with labelled pixels and a finite loss")
+        val_loss /= num_valid_samples
         true_positive = torch.diag(conf_mat)
         union = conf_mat.sum(1) + conf_mat.sum(0) - true_positive
         present = union > 0
