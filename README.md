@@ -152,6 +152,12 @@ Reference scripts are provided to train your models using holocron on famous pub
 - [Object detection](references/detection)
 - [Semantic segmentation](references/segmentation)
 
+### YOLO training status
+
+YOLOv4's training implementation has been repaired and verified with regression tests and a reproducible CPU fixed-batch learning check. With a frozen pretrained Imagenette CSPDarknet53-Mish backbone, it produces correctly labeled detections with IoUs of 0.81 and 0.79 on two synthetic examples, with finite losses and gradients and a saved checkpoint. See the [detection guide](references/detection/README.md) for the command, matched control, and CUDA/VOC smoke recipe.
+
+Full CUDA/VOC training on the repaired implementation remains pending; the synthetic result does not establish dataset accuracy or reproduce the paper. YOLOv1/v2 loss behavior is unchanged, with regression coverage for shared inference changes. YOLOv3 is not implemented as a detector; the Darknet-53 classification backbone is available. No pretrained detection checkpoints are published.
+
 ### Latency benchmark
 
 You crave for SOTA performances, but you don't know whether it fits your needs in terms of latency?

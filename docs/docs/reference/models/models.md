@@ -10,7 +10,7 @@ segmentation and object detection.
 |---|---|---|---|---|---|
 | Classification | 15 families | Imagenette checkpoints with top-1/top-5 metrics; selected ReXNet ImageNet-1K checkpoints | [Reference script](https://github.com/frgfm/holocron/blob/main/references/classification/train.py) | [Classification export](https://github.com/frgfm/holocron/blob/main/scripts/export_to_onnx.py) | **Validated** |
 | Semantic segmentation | U-Net, U-Net++, UNet3+ | Only the legacy `unet_rexnet13` weights; dataset and metric are not documented | [Reference script](https://github.com/frgfm/holocron/blob/main/references/segmentation/train.py) | Not documented | **Unbenchmarked** |
-| Object detection | YOLOv1, YOLOv2, YOLOv4 | None | [Reference script](https://github.com/frgfm/holocron/blob/main/references/detection/train.py) | Not documented | **Experimental** ([#110](https://github.com/frgfm/holocron/issues/110), [#253](https://github.com/frgfm/holocron/issues/253), [discussion #230](https://github.com/frgfm/holocron/discussions/230)) |
+| Object detection | YOLOv1, YOLOv2, YOLOv4 | None | [Reference script](https://github.com/frgfm/holocron/blob/main/references/detection/train.py) | [Export tests](https://github.com/frgfm/holocron/blob/main/tests/test_models_detection.py); runtime parity not benchmarked | **Experimental**; [YOLOv4 learning check verified](#yolo-training-validation) |
 
 **Validated** means published task checkpoints and metrics are available.
 **Unbenchmarked** means an implementation or legacy weight exists without a
@@ -89,20 +89,53 @@ in the table for reference but use a different evaluation dataset.
 ## Object Detection
 
 !!! warning "Experimental"
-    YOLOv1, YOLOv2 and YOLOv4 have a reference training script but no
-    published detection weights. Known training and benchmark gaps are tracked
-    in [#110](https://github.com/frgfm/holocron/issues/110),
-    [#253](https://github.com/frgfm/holocron/issues/253) and
-    [discussion #230](https://github.com/frgfm/holocron/discussions/230).
+    YOLOv4's corrected implementation passes regression tests and a CPU
+    fixed-batch learning check. Full CUDA/VOC training on the repaired
+    implementation remains pending. No pretrained detection checkpoints or
+    paper-level accuracy results are published.
 
 Object detection models expect a 4D image tensor as an input (N x C x H x W) and returns a list of dictionaries.
-Each dictionary has 3 keys: box coordinates, classification probability, classification label.
+In evaluation mode, each dictionary has three keys: `boxes` (normalized xmin, ymin, xmax, ymax coordinates),
+`scores` (objectness multiplied by the top class probability), and `labels` (class indices).
+In training mode, pass a list of target dictionaries with normalized `boxes` and integer `labels`;
+the model returns a loss dictionary.
 
 ```python
 import holocron.models as models
 
 yolov2 = models.yolov2(num_classes=10)
 ```
+
+### YOLO training validation
+
+YOLOv4 uses a CSPDarknet53-Mish backbone with an SPP/PAN neck and three detection scales.
+Its corrected training uses global and additional anchor matches, constant objectness BCE targets,
+summed classification BCE, and area-weighted differentiable CIoU. Box geometry is computed in
+FP32 under AMP, and every scale is decoded before combined-confidence filtering and class-aware NMS.
+
+The default `yolov4(num_classes=20)` loads a pretrained **Imagenette backbone**, even without
+`pretrained=True`. The detector head starts from scratch. The reference script's
+`--freeze-until backbone` freezes the pretrained weights; `--pretrained` should not be used to
+request unavailable detection weights.
+
+The [CPU learning diagnostic](https://github.com/frgfm/holocron/blob/main/references/detection/check_yolov4.py)
+trains the actual neck and head for 500 SGD updates on two synthetic 96-pixel rectangle images,
+repeated to a batch of eight. It caches the frozen backbone features and disables DropBlock
+only for this memorization check. Normal evaluation and default NMS give one correctly labeled
+detection per image, with IoUs **0.8113 / 0.7945**, no false positives, and finite losses and
+parameter gradients. The pretrained backbone weights remain unchanged, and a trainer checkpoint is saved.
+
+| Validation | Result |
+| --- | --- |
+| YOLOv4 fixed-batch learning | Verified; detection error 99.43% with the old initialization restored, versus 0% with corrected initialization |
+| YOLOv1/v2 losses and shared inference | Loss behavior preserved; regression coverage for combined confidence and class-aware NMS |
+| YOLOv1/v2/v4 ONNX | Export tested; inference parity and accuracy not benchmarked |
+| Full CUDA/VOC training of the repaired YOLOv4 | Pending; synthetic results do not establish validation-set accuracy |
+
+YOLOv3 is not implemented as a detector. Its Darknet-53 classification backbone is available.
+The [detection guide](https://github.com/frgfm/holocron/blob/main/references/detection/README.md)
+contains the matched-control results, reproducible commands, learning-rate finder options,
+metric definitions, and the five-epoch CUDA/VOC acceptance gate.
 
 ### YOLO family
 

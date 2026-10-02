@@ -2,6 +2,12 @@
 
 The sample training script was made to train object detection models on [PASCAL VOC 2012](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/).
 
+## Validation status
+
+YOLOv4's corrected training implementation is verified by regression tests and the CPU learning check below: finite losses and gradients, correct localization and labels under normal inference, and a saved checkpoint. The matched synthetic control reaches 0% detection error with corrected initialization, versus 99.43% when the old initialization is restored.
+
+Full CUDA/VOC training on the final repaired implementation remains pending. This does not claim validation-set convergence or paper-level accuracy. YOLOv1/v2 loss behavior is preserved, and their shared inference changes have regression coverage. YOLOv3 is not implemented as a detector. There are no published pretrained detection checkpoints; YOLOv4 uses a pretrained Imagenette backbone by default.
+
 ## Getting started
 
 Ensure that you have holocron installed
@@ -21,7 +27,7 @@ uv run --project ../.. --no-sync python train.py VOC2012 --arch yolov2 --lr 1e-5
 
 ### YOLOv4 smoke gate
 
-Run this five-epoch correctness smoke from `references/detection`:
+This is the pending hardware acceptance gate. Run the five-epoch correctness smoke from `references/detection`:
 
 ```bash
 uv run --project ../.. --no-sync python train.py VOC2012 --arch yolov4 --img-size 608 --lr 1.3e-3 -b 8 --grad-acc 8 -j 2 --epochs 5 --opt sgd --momentum 0.949 --wd 5e-4 --sched onecycle --freeze-until backbone --amp --device 0 --output-file ./checkpoints/yolov4-voc-smoke.pth
