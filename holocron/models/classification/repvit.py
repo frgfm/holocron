@@ -20,8 +20,8 @@ __all__ = ["RepViT", "repvit_m0_9", "repvit_m1_0", "repvit_m1_1"]
 
 
 def _make_divisible(value: float, divisor: int = 8) -> int:
-    rounded = max(divisor, int(value + divisor / 2) // divisor * divisor)
-    return rounded + divisor if rounded < 0.9 * value else rounded
+    # Match timm's SE reduction with round_limit=0 in the official implementation.
+    return max(divisor, int(value + divisor / 2) // divisor * divisor)
 
 
 class _ConvNorm(nn.Sequential):
@@ -71,7 +71,7 @@ class _ConvNorm(nn.Sequential):
         )
         fused.weight.copy_(kernel)
         cast(Tensor, fused.bias).copy_(bias)
-        return fused
+        return fused.train(self.training)
 
 
 class _BatchNormLinear(nn.Sequential):
@@ -103,7 +103,7 @@ class _BatchNormLinear(nn.Sequential):
         fused_bias.copy_(linear.weight @ shift)
         if linear.bias is not None:
             fused_bias.add_(linear.bias)
-        return fused
+        return fused.train(self.training)
 
 
 class _Residual(nn.Module):
@@ -139,7 +139,7 @@ class _RepVGGDW(nn.Module):
         scale = norm_weight / torch.sqrt(running_var + self.norm.eps)
         conv3.weight.mul_(scale.view(-1, 1, 1, 1))
         conv3_bias.sub_(running_mean).mul_(scale).add_(norm_bias)
-        return conv3
+        return conv3.train(self.training)
 
 
 class _RepViTBlock(nn.Module):
@@ -231,7 +231,17 @@ class RepViT(nn.Sequential):
         )
 
     def reparametrize(self) -> None:
-        """Fuse training-time branches and batch-normalization layers for deployment."""
+        """Fuse training-time branches and batch-normalization layers in place for deployment.
+
+        Call `eval()` before conversion. Repeated calls leave the deployment model unchanged.
+
+        Raises:
+            ValueError: if the model or any batch-normalization layer is in training mode
+        """
+        if self.training or any(
+            mod.training for mod in self.modules() if isinstance(mod, (nn.BatchNorm1d, nn.BatchNorm2d))
+        ):
+            raise ValueError("call eval() before reparametrizing RepViT")
         self.features: nn.Sequential
         patch_embed = cast(nn.Sequential, self.features[0])
         if not isinstance(patch_embed[0], _ConvNorm):
