@@ -262,6 +262,13 @@ def _yolov4_layers(num_classes=4):
     ]
 
 
+def test_yolov4_factory_preserves_prediction_initialization():
+    model = detection.yolov4(num_classes=2, pretrained_backbone=False)
+    for output_layer in (model.head.head1[-1], model.head.head2_2[-1], model.head.head3[-1]):
+        assert torch.count_nonzero(output_layer.weight) == 0
+        assert torch.count_nonzero(output_layer.bias) == 0
+
+
 def test_yolov4_global_anchor_assignment():
     layers = _yolov4_layers()
     pred_boxes = torch.zeros((1, 4, 4, 3, 4))
@@ -338,6 +345,37 @@ def test_yolov4_extreme_box_logits_are_finite(wh_logit):
     assert torch.isfinite(output.grad).all()
 
 
+@pytest.mark.parametrize("dtype", [torch.float16, torch.bfloat16])
+def test_yolov4_half_precision_geometry_and_backward(dtype):
+    layer = YoloLayer(torch.tensor([[0.1, 0.1]]), num_classes=2).train()
+    output = torch.tensor([0, 0, 2, -4, 0, 0, 0], dtype=dtype).reshape(1, 7, 1, 1).requires_grad_()
+    target = [{"boxes": torch.tensor([[0.4, 0.4, 0.6, 0.6]]), "labels": torch.tensor([1])}]
+
+    boxes, objectness, scores = layer._format_outputs(output)
+    assert boxes.dtype == torch.float32
+    target_boxes, _, obj_mask, _ = layer._build_targets(boxes, objectness, scores, target)
+    assert torch.equal(target_boxes[obj_mask], target[0]["boxes"])
+
+    loss = sum(layer(output, target).values())
+    assert torch.isfinite(loss)
+    loss.backward()
+    assert torch.isfinite(output.grad).all()
+    assert output.grad[:, 2:4].abs().sum() > 0
+
+
+def test_yolov4_empty_target_box_loss_does_not_overflow():
+    layer = _yolov4_layers()[0]
+    boxes = torch.ones((1, 76, 76, 3, 4), dtype=torch.float16, requires_grad=True)
+    objectness = torch.zeros((1, 76, 76, 3), requires_grad=True)
+    scores = torch.zeros((1, 76, 76, 3, 4), requires_grad=True)
+    target = [{"boxes": torch.zeros((0, 4)), "labels": torch.zeros(0, dtype=torch.long)}]
+
+    loss = layer._compute_losses(boxes, objectness, scores, target)["bbox_loss"]
+    assert loss.item() == 0
+    loss.backward()
+    assert torch.count_nonzero(boxes.grad) == 0
+
+
 @torch.inference_mode()
 def test_yolo_post_process_combined_confidence_and_class_aware_nms():
     low_objectness = _post_process(
@@ -356,6 +394,22 @@ def test_yolo_post_process_combined_confidence_and_class_aware_nms():
     )
     assert detections[0]["boxes"].shape[0] == 2
     assert set(detections[0]["labels"].tolist()) == {0, 1}
+
+
+@pytest.mark.parametrize("dtype", [torch.float16, torch.bfloat16])
+@pytest.mark.parametrize("box_dtype", [torch.float32, torch.float16])
+@torch.inference_mode()
+def test_yolo_post_process_half_precision(dtype, box_dtype):
+    boxes = torch.tensor([[[0, 0, 1, 1], [0, 0, 1, 1]]], dtype=box_dtype)
+    detections = _post_process(
+        boxes,
+        torch.tensor([[0.9, 0.8]], dtype=dtype),
+        torch.tensor([[[0.9, 0.1], [0.8, 0.2]]], dtype=dtype),
+    )
+
+    assert detections[0]["boxes"].dtype == torch.float32
+    assert detections[0]["scores"].dtype == torch.float32
+    assert detections[0]["boxes"].shape[0] == 1
 
 
 @torch.inference_mode()
@@ -379,3 +433,33 @@ def test_yolov4_cross_scale_nms():
 
     detections = head([torch.zeros((1, 128, 1, 1)), torch.zeros((1, 256, 1, 1)), torch.zeros((1, 512, 1, 1))])
     assert detections[0]["boxes"].shape[0] == 1
+
+
+def test_yolov4_custom_anchor_checkpoint_after_dtype_conversion():
+    head = Yolov4Head(num_classes=2).double()
+    anchors = torch.tensor(
+        [
+            [[0.01, 0.01], [0.02, 0.02], [0.03, 0.03]],
+            [[0.04, 0.04], [0.05, 0.05], [0.06, 0.06]],
+            [[0.1, 0.1], [0.2, 0.2], [0.3, 0.3]],
+        ],
+        dtype=torch.float64,
+    )
+    checkpoint = head.state_dict()
+    for idx in range(3):
+        checkpoint[f"yolo{idx + 1}.anchors"] = anchors[idx]
+    head.load_state_dict(checkpoint)
+
+    assert set(head.state_dict()) == set(checkpoint)
+    assert not any("all_anchors" in key or "anchor_mask" in key for key in checkpoint)
+    boxes = torch.zeros((1, 2, 2, 3, 4), dtype=torch.float64)
+    objectness = torch.zeros((1, 2, 2, 3), dtype=torch.float64)
+    scores = torch.zeros((1, 2, 2, 3, 2), dtype=torch.float64)
+    target = [{"boxes": torch.tensor([[0.47, 0.47, 0.53, 0.53]], dtype=torch.float64), "labels": torch.tensor([1])}]
+    expected = [[False, False, True], [True, True, True], [True, False, False]]
+
+    for layer, expected_mask in zip((head.yolo1, head.yolo2, head.yolo3), expected, strict=True):
+        torch.testing.assert_close(layer.all_anchors, anchors.flatten(0, 1))
+        _, _, mask, _ = layer._build_targets(boxes, objectness, scores, target)
+        assert mask[0, 1, 1].tolist() == expected_mask
+        assert mask.sum().item() == sum(expected_mask)

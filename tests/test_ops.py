@@ -89,3 +89,16 @@ def test_ciou_loss_aspect_ratio_term():
     assert loss.item() > ops.boxes.diou_loss(boxes1, boxes2).item()
     loss.backward()
     assert torch.isfinite(boxes1.grad).all()
+
+
+@pytest.mark.parametrize("dtype", [torch.float16, torch.bfloat16])
+def test_ciou_loss_half_precision_small_rectangles(dtype):
+    boxes1 = torch.tensor([[0, 0, 0.1, 0.001]], dtype=dtype, requires_grad=True)
+    boxes2 = torch.tensor([[0, 0, 0.2, 0.1]], dtype=dtype)
+
+    loss = ops.boxes.ciou_loss(boxes1, boxes2)
+    expected = ops.boxes.ciou_loss(boxes1.detach().float(), boxes2.float())
+    assert loss.dtype == torch.float32
+    assert torch.equal(loss, expected)
+    loss.sum().backward()
+    assert torch.isfinite(boxes1.grad).all()

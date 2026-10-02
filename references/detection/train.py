@@ -189,7 +189,7 @@ def main(args):
     if args.opt == "sgd":
         optimizer = torch.optim.SGD(model_params, args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
     elif args.opt == "radam":
-        optimizer = holocron.optim.RAdam(
+        optimizer = torch.optim.RAdam(
             model_params, args.lr, betas=(0.95, 0.99), eps=1e-6, weight_decay=args.weight_decay
         )
     elif args.opt == "adamp":

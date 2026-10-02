@@ -200,6 +200,10 @@ def _post_process(
     rpn_nms_thresh: float = 0.7,
     box_score_thresh: float = 0.05,
 ) -> list[dict[str, Tensor]]:
+    if boxes.dtype in {torch.float16, torch.bfloat16}:
+        boxes = boxes.float()
+    b_o = b_o.to(dtype=boxes.dtype)
+    b_scores = b_scores.to(dtype=boxes.dtype)
     detections: list[dict[str, Tensor]] = []
     for idx in range(boxes.shape[0]):
         scores, labels = b_scores[idx].max(dim=-1)

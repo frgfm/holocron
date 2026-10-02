@@ -35,9 +35,10 @@ def assign_iou(gt_boxes: Tensor, pred_boxes: Tensor, iou_threshold: float = 0.5)
 
     gt_indices, pred_indices = [], []
     for pred_idx in assign_unique:
-        selection = iou.values[gt_kept][iou.indices[gt_kept] == pred_idx].argmax()
+        candidates = (iou.indices[gt_kept] == pred_idx).nonzero().flatten()
+        selection = candidates[iou.values[gt_kept][candidates].argmax()]
         gt_indices.append(kept_gt_indices[selection].item())
-        pred_indices.append(iou.indices[gt_kept][selection].item())
+        pred_indices.append(pred_idx.item())
     return gt_indices, pred_indices  # type: ignore[return-value]
 
 

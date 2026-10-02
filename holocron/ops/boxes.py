@@ -209,6 +209,11 @@ def ciou_loss(boxes1: Tensor, boxes2: Tensor) -> Tensor:
         box_ciou(boxes1, boxes2)
         ```
     """
+    # Keep normalized-box geometry and its gradients safe under AMP.
+    if boxes1.dtype in {torch.float16, torch.bfloat16}:
+        boxes1 = boxes1.float()
+    if boxes2.dtype in {torch.float16, torch.bfloat16}:
+        boxes2 = boxes2.float()
     iou = box_iou(boxes1, boxes2)
     v = aspect_ratio_consistency(boxes1, boxes2)
 

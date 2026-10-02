@@ -92,6 +92,36 @@ def test_assign_iou_device(device):
     torch.testing.assert_close(pred_indices, torch.tensor([0, 1], device=device))
 
 
+@pytest.mark.parametrize(
+    "device",
+    ["cpu", pytest.param("cuda", marks=pytest.mark.skipif(not torch.cuda.is_available(), reason="CUDA unavailable"))],
+)
+def test_assign_iou_duplicate_matches(device):
+    gt_boxes = torch.tensor(
+        [[4, 4, 5, 5], [0, 0, 1, 1], [2, 2, 2.8, 2.8], [2, 2, 3, 3]], dtype=torch.float32, device=device
+    )
+    pred_boxes = gt_boxes[[1, 3]]
+
+    gt_indices, pred_indices = assign_iou(gt_boxes, pred_boxes)
+
+    assert gt_indices == [1, 3]
+    assert pred_indices == [0, 1]
+
+
+def test_detection_evaluation_duplicate_matches(monkeypatch):
+    boxes = torch.tensor([[0, 0, 1, 1], [2, 2, 2.8, 2.8], [2, 2, 3, 3]], dtype=torch.float32)
+    target = {"boxes": boxes, "labels": torch.tensor([0, 0, 1])}
+    detections = {"boxes": boxes[[0, 2]], "labels": torch.tensor([0, 1])}
+    loader = DataLoader([(torch.zeros(3, 8, 8), target)], collate_fn=collate_fn)
+    model = nn.Linear(1, 1)
+    monkeypatch.setattr(model, "forward", lambda _x: [detections])
+    learner = trainer.DetectionTrainer(model, loader, loader, None, torch.optim.SGD(model.parameters(), lr=0.1))
+
+    metrics = learner.evaluate()
+
+    assert metrics == pytest.approx({"loc_err": 0.2, "clf_err": 0.0, "det_err": 0.2, "val_loss": 0.2})
+
+
 def collate_fn(batch):
     imgs, target = zip(*batch, strict=False)
     return imgs, target

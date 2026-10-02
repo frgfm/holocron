@@ -283,20 +283,24 @@ class YoloLayer(nn.Module):
         output = output.reshape(b, len(self.anchors), 5 + self.num_classes, h, w).permute(0, 3, 4, 1, 2)
 
         # Box center
+        # Half precision can overflow CIoU gradients for small, elongated boxes.
+        box_logits = output[..., :4]
+        if box_logits.dtype in {torch.float16, torch.bfloat16}:
+            box_logits = box_logits.float()
         c_x = torch.arange(w, dtype=torch.float32, device=output.device).reshape(1, 1, -1, 1)
         c_y = torch.arange(h, dtype=torch.float32, device=output.device).reshape(1, -1, 1, 1)
 
-        b_xy = self.scale_xy * torch.sigmoid(output[..., :2]) - 0.5 * (self.scale_xy - 1)
+        b_xy = self.scale_xy * torch.sigmoid(box_logits[..., :2]) - 0.5 * (self.scale_xy - 1)
         b_xy[..., 0].add_(c_x)
         b_xy[..., 1].add_(c_y)
         b_xy[..., 0].div_(w)
         b_xy[..., 1].div_(h)
 
         # Box dimension
-        anchors = self.anchors.to(dtype=output.dtype).view(1, 1, 1, -1, 2)
+        anchors = self.anchors.to(dtype=box_logits.dtype).view(1, 1, 1, -1, 2)
         max_wh_logits = torch.log(2 / anchors)
-        wh_logits = torch.minimum(output[..., 2:4], max_wh_logits)
-        b_wh = (torch.exp(wh_logits) * anchors).clamp_min_(2 * torch.finfo(output.dtype).eps)
+        wh_logits = torch.minimum(box_logits[..., 2:4], max_wh_logits)
+        b_wh = (torch.exp(wh_logits) * anchors).clamp_min_(2 * torch.finfo(box_logits.dtype).eps)
 
         top_left = b_xy - 0.5 * b_wh
         bot_right = top_left + b_wh
@@ -373,7 +377,7 @@ class YoloLayer(nn.Module):
     ) -> dict[str, Tensor]:
         target_boxes, target_scores, obj_mask, noobj_mask = self._build_targets(pred_boxes, b_o, b_scores, target)
 
-        bbox_loss = pred_boxes.sum() * 0
+        bbox_loss = pred_boxes.flatten()[:0].sum()
         if torch.any(obj_mask):
             matched_boxes = target_boxes[obj_mask]
             areas = (matched_boxes[:, 2] - matched_boxes[:, 0]) * (matched_boxes[:, 3] - matched_boxes[:, 1])
@@ -605,6 +609,13 @@ class Yolov4Head(nn.Module):
         self.head2_2[-1].bias.data.zero_()
         self.head3[-1].weight.data.zero_()
         self.head3[-1].bias.data.zero_()
+        self.register_load_state_dict_post_hook(self._sync_anchors)
+
+    def _sync_anchors(self, _module: nn.Module, _incompatible_keys: Any) -> None:
+        layers = (self.yolo1, self.yolo2, self.yolo3)
+        all_anchors = torch.cat([layer.anchors for layer in layers])
+        for layer in layers:
+            layer.all_anchors = all_anchors
 
     def forward(
         self, feats: list[Tensor], target: list[dict[str, Tensor]] | None = None
@@ -679,9 +690,6 @@ class YOLOv4(nn.Module):
         # head
         self.head = Yolov4Head(num_classes, anchors, act_layer, norm_layer, drop_layer, conv_layer)
 
-        init_module(self.neck, "leaky_relu")
-        init_module(self.head, "leaky_relu")
-
     def forward(
         self, x: Tensor, target: list[dict[str, Tensor]] | None = None
     ) -> list[dict[str, Tensor]] | dict[str, Tensor]:
@@ -733,7 +741,7 @@ def yolov4(pretrained: bool = False, progress: bool = True, pretrained_backbone:
     classification, and area-weighted Complete IoU for matched boxes.
 
     Args:
-        pretrained: If True, returns a model pre-trained on ImageNet
+        pretrained: Whether to request pretrained detector parameters (not currently available)
         progress: If True, displays a progress bar of the download to stderr
         pretrained_backbone: If True, backbone parameters will have been pretrained on Imagenette
         kwargs: keyword args of [`YOLOv4`][holocron.models.detection.yolov4.YOLOv4]
