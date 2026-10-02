@@ -108,7 +108,7 @@ def split_normalization_params(
     norm_params: list[nn.Parameter] = []
     other_params: list[nn.Parameter] = []
     for module in model.modules():
-        if next(module.children(), None):
+        if next(module.children(), None) is not None:
             other_params.extend(p for p in module.parameters(recurse=False) if p.requires_grad)
         elif isinstance(module, classes):
             norm_params.extend(p for p in module.parameters() if p.requires_grad)

@@ -9,6 +9,7 @@ from typing import Any
 
 import torch
 from torch import Tensor, nn
+from torch.nn import functional as F
 
 from ...nn.init import init_module
 from ..utils import conv_sequence, load_pretrained_params
@@ -39,17 +40,18 @@ class FSAggreg(nn.Module):
         base_chan = e_chans[0] if len(e_chans) > 0 else skip_chan
         # Get UNet depth
         depth = len(e_chans) + 1 + len(d_chans)
+        projection = nn.Conv2d if conv_layer is None else conv_layer
         # Downsample = max pooling + conv for channel reduction
         self.downsamples = nn.ModuleList([
-            nn.Sequential(nn.MaxPool2d(2 ** (len(e_chans) - idx)), nn.Conv2d(e_chan, base_chan, 3, padding=1))
+            nn.Sequential(nn.MaxPool2d(2 ** (len(e_chans) - idx)), projection(e_chan, base_chan, 3, padding=1))
             for idx, e_chan in enumerate(e_chans)
         ])
-        self.skip = nn.Conv2d(skip_chan, base_chan, 3, padding=1) if len(e_chans) > 0 else nn.Identity()
+        self.skip = projection(skip_chan, base_chan, 3, padding=1) if len(e_chans) > 0 else nn.Identity()
         # Upsample = bilinear interpolation + conv for channel reduction
         self.upsamples = nn.ModuleList([
             nn.Sequential(
                 nn.Upsample(scale_factor=2 ** (idx + 1), mode="bilinear", align_corners=True),
-                nn.Conv2d(d_chan, base_chan, 3, padding=1),
+                projection(d_chan, base_chan, 3, padding=1),
             )
             for idx, d_chan in enumerate(d_chans)
         ])
@@ -79,7 +81,10 @@ class FSAggreg(nn.Module):
             (
                 *[downsample(downfeat) for downsample, downfeat in zip(self.downsamples, downfeats, strict=True)],
                 self.skip(feat),
-                *[upsample(upfeat) for upsample, upfeat in zip(self.upsamples, upfeats, strict=True)],
+                *[
+                    upsample[1](F.interpolate(upfeat, size=feat.shape[-2:], mode="bilinear", align_corners=True))
+                    for upsample, upfeat in zip(self.upsamples, upfeats, strict=True)
+                ],
             ),
             dim=1,
         )
@@ -144,6 +149,8 @@ class UNet3p(nn.Module):
         self.classifier = nn.Conv2d(len(layout) * layout[0], num_classes, 1)
 
         init_module(self, "relu")
+        # The classifier has no ReLU; keep logit variance independent of the number of classes.
+        nn.init.kaiming_normal_(self.classifier.weight, mode="fan_in", nonlinearity="linear")
 
     def forward(self, x: Tensor) -> Tensor:
         xs: list[Tensor] = []
