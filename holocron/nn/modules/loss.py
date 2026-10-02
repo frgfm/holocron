@@ -194,7 +194,9 @@ class MutualChannelLoss(Loss):
         self.alpha: float = alpha
 
     def forward(self, x: Tensor, target: Tensor) -> Tensor:
-        return F.mutual_channel_loss(x, target, self.weight, self.ignore_index, self.reduction, self.xi, self.alpha)
+        return F.mutual_channel_loss(
+            x, target, self.weight, self.ignore_index, self.reduction, self.xi, self.alpha, training=self.training
+        )
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(reduction='{self.reduction}', xi={self.xi}, alpha={self.alpha})"

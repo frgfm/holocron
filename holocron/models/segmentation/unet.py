@@ -67,14 +67,19 @@ class UpPath(nn.Module):
         norm_layer: Callable[[int], nn.Module] | None = None,
         drop_layer: Callable[..., nn.Module] | None = None,
         conv_layer: Callable[..., nn.Module] | None = None,
+        up_chan: int | None = None,
     ) -> None:
         super().__init__()
 
+        self.padding = padding
+        self.bilinear_upsampling = bilinear_upsampling
         self.upsample: nn.Module
         if bilinear_upsampling:
             self.upsample = nn.Upsample(scale_factor=2, mode="bilinear", align_corners=True)
         else:
-            self.upsample = nn.ConvTranspose2d(in_chan, out_chan, 2, stride=2)
+            up_chan = in_chan // 2 if up_chan is None else up_chan
+            self.upsample = nn.ConvTranspose2d(up_chan, out_chan, 2, stride=2)
+            in_chan = in_chan - up_chan + out_chan
 
         self.block = nn.Sequential(
             *conv_sequence(
@@ -86,17 +91,23 @@ class UpPath(nn.Module):
         )
 
     def forward(self, downfeats: Tensor | list[Tensor], upfeat: Tensor) -> Tensor:
-        if not isinstance(downfeats, list):
-            downfeats = [downfeats]
+        downfeats = list(downfeats) if isinstance(downfeats, list) else [downfeats]
         # Upsample expansive features
-        upfeat_ = self.upsample(upfeat)
+        if self.padding > 0 and self.bilinear_upsampling:
+            upfeat_ = F.interpolate(upfeat, size=downfeats[0].shape[-2:], mode="bilinear", align_corners=True)
+        else:
+            upfeat_ = self.upsample(upfeat)
+        if self.padding > 0 and downfeats[0].shape[-2:] != upfeat_.shape[-2:]:
+            delta_h = downfeats[0].shape[-2] - upfeat_.shape[-2]
+            delta_w = downfeats[0].shape[-1] - upfeat_.shape[-1]
+            upfeat_ = F.pad(upfeat_, (delta_w // 2, delta_w - delta_w // 2, delta_h // 2, delta_h - delta_h // 2))
         # Crop contracting path features
         for idx, downfeat in enumerate(downfeats):
-            if downfeat.shape != upfeat_.shape:
+            if downfeat.shape[-2:] != upfeat_.shape[-2:]:
                 delta_w = downfeat.shape[-1] - upfeat_.shape[-1]
-                w_slice = slice(delta_w // 2, -(delta_w // 2) if delta_w > 0 else downfeat.shape[-1])
                 delta_h = downfeat.shape[-2] - upfeat_.shape[-2]
-                h_slice = slice(delta_h // 2, -(delta_h // 2) if delta_h > 0 else downfeat.shape[-2])
+                w_slice = slice(delta_w // 2, delta_w // 2 + upfeat_.shape[-1])
+                h_slice = slice(delta_h // 2, delta_h // 2 + upfeat_.shape[-2])
                 downfeats[idx] = downfeat[..., h_slice, w_slice]
         # Concatenate both feature maps and forward them
         return self.block(torch.cat((*downfeats, upfeat_), dim=1))
@@ -183,20 +194,35 @@ class UNet(nn.Module):
         self.bridge = nn.Sequential(
             nn.MaxPool2d((2, 2)),
             *conv_sequence(
-                layout[-1], 2 * layout[-1], act_layer, norm_layer, drop_layer, conv_layer, kernel_size=3, padding=1
+                layout[-1],
+                2 * layout[-1],
+                act_layer,
+                norm_layer,
+                drop_layer,
+                conv_layer,
+                kernel_size=3,
+                padding=int(same_padding),
             ),
             *conv_sequence(
-                2 * layout[-1], layout[-1], act_layer, norm_layer, drop_layer, conv_layer, kernel_size=3, padding=1
+                2 * layout[-1],
+                layout[-1],
+                act_layer,
+                norm_layer,
+                drop_layer,
+                conv_layer,
+                kernel_size=3,
+                padding=int(same_padding),
             ),
         )
 
         # Expansive path
         self.decoder = nn.ModuleList([])
         layout_ = [chan // 2 if bilinear_upsampling else chan for chan in layout[::-1][:-1]] + [layout[0]]
-        for in_chan, out_chan in zip([2 * layout[-1], *layout[::-1][:-1]], layout_, strict=True):
+        up_chan = layout[-1]
+        for left_chan, out_chan in zip(layout[::-1], layout_, strict=True):
             self.decoder.append(
                 UpPath(
-                    in_chan,
+                    left_chan + up_chan,
                     out_chan,
                     bilinear_upsampling,
                     int(same_padding),
@@ -204,8 +230,10 @@ class UNet(nn.Module):
                     norm_layer,
                     drop_layer,
                     conv_layer,
+                    up_chan=up_chan,
                 )
             )
+            up_chan = out_chan
 
         # Classifier
         self.classifier = nn.Conv2d(layout[0], num_classes, 1)
@@ -281,7 +309,7 @@ class UBlock(nn.Module):
 
 
 class DynamicUNet(nn.Module):
-    """Implements a dymanic U-Net architecture
+    """Implements a dynamic U-Net architecture
 
     Args:
         encoder: feature extractor used for encoding
@@ -292,7 +320,7 @@ class DynamicUNet(nn.Module):
         conv_layer: convolutional layer
         same_padding: enforces same padding in convolutions
         input_shape: shape of the input tensor
-        final_upsampling: if True, replaces transposed conv by bilinear interpolation for upsampling
+        final_upsampling: whether to upsample final decoder features to the input resolution
     """
 
     def __init__(
@@ -354,9 +382,12 @@ class DynamicUNet(nn.Module):
         # Classifier
         self.classifier = nn.Conv2d(chans[0], num_classes, 1)
 
-        init_module(self, "relu")
+        for module in (self.bridge, self.decoder, self.upsample, self.classifier):
+            if module is not None:
+                init_module(module, "relu")
 
     def forward(self, x: Tensor) -> Tensor:
+        input_size = x.shape[-2:]
         # Contracting path
         xs: list[Tensor] = list(self.encoder(x).values())
         x = self.bridge(xs[-1])
@@ -367,6 +398,8 @@ class DynamicUNet(nn.Module):
 
         if self.upsample is not None:
             x = self.upsample(x)
+            if x.shape[-2:] != input_size:
+                x = F.interpolate(x, size=input_size, mode="bilinear", align_corners=True)
 
         # Classifier
         return self.classifier(x)
@@ -432,6 +465,7 @@ def unet2(pretrained: bool = False, progress: bool = True, in_channels: int = 3,
         semantic segmentation model
     """
     backbone = UNetBackbone(default_cfgs["unet2"]["encoder_layout"], in_channels=in_channels).features
+    kwargs["input_shape"] = kwargs.get("input_shape") or (in_channels, 256, 256)
 
     return _dynamic_unet("unet2", backbone, pretrained, progress, **kwargs)  # ty: ignore[invalid-argument-type]
 
@@ -503,6 +537,7 @@ def unet_rexnet13(
         semantic segmentation model
     """
     backbone = rexnet1_3x(pretrained=pretrained_backbone and not pretrained, in_channels=in_channels).features
+    kwargs["input_shape"] = kwargs.get("input_shape") or (in_channels, 256, 256)
     kwargs["final_upsampling"] = kwargs.get("final_upsampling", True)
     kwargs["act_layer"] = kwargs.get("act_layer", nn.SiLU(inplace=True))
     # hotfix of https://github.com/pytorch/vision/issues/3802

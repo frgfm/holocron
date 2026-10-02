@@ -7,7 +7,8 @@
 
 import numpy as np
 import torch
-from torchvision.transforms.v2 import InterpolationMode, transforms
+from torchvision.transforms import v2 as transforms
+from torchvision.transforms.v2 import InterpolationMode
 from torchvision.transforms.v2 import functional as F
 
 
@@ -98,9 +99,9 @@ class RandomCrop:
         return f"{self.__class__.__name__}(size={self.size})"
 
 
-class ToTensor(transforms.ToTensor):
+class ToTensor:
     def __call__(self, img, target):
-        img = super().__call__(img)
+        img = F.to_dtype(F.to_image(img), torch.float32, scale=True)
         target = torch.as_tensor(np.array(target), dtype=torch.int64)
 
         return img, target
