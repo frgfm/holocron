@@ -93,7 +93,6 @@ def plot_samples(images, targets, num_samples=8):
     plt.show()
 
 
-@track_emissions()
 def main(args):
     print(args)
 
@@ -188,9 +187,9 @@ def main(args):
 
     model_params = [p for p in model.parameters() if p.requires_grad]
     if args.opt == "sgd":
-        optimizer = torch.optim.SGD(model_params, args.lr, momentum=0.9, weight_decay=args.weight_decay)
+        optimizer = torch.optim.SGD(model_params, args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
     elif args.opt == "radam":
-        optimizer = holocron.optim.RAdam(
+        optimizer = torch.optim.RAdam(
             model_params, args.lr, betas=(0.95, 0.99), eps=1e-6, weight_decay=args.weight_decay
         )
     elif args.opt == "adamp":
@@ -231,7 +230,13 @@ def main(args):
 
     if args.find_lr:
         print("Looking for optimal LR")
-        trainer.find_lr(args.freeze_until, norm_weight_decay=args.norm_wd, num_it=min(len(train_loader), 100))
+        trainer.find_lr(
+            args.freeze_until,
+            start_lr=args.find_lr_start,
+            end_lr=args.find_lr_end,
+            norm_weight_decay=args.norm_wd,
+            num_it=min(len(train_loader), 100),
+        )
         trainer.plot_recorder()
         return
 
@@ -306,12 +311,15 @@ def get_parser():
     group.add_argument("--freeze-until", default=None, type=str, help="Last layer to freeze")
     group.add_argument("--grad-acc", default=1, type=int, help="Number of batches to accumulate the gradient of")
     group.add_argument("--opt", default="adamp", type=str, help="optimizer")
+    group.add_argument("--momentum", default=0.9, type=float, help="SGD momentum")
     group.add_argument("--sched", default="onecycle", type=str, help="Scheduler to be used")
     group.add_argument("--wd", "--weight-decay", default=0, type=float, help="weight decay", dest="weight_decay")
     group.add_argument("--norm-wd", default=None, type=float, help="weight decay of norm parameters")
     # Actions
     group = parser.add_argument_group("Actions")
     group.add_argument("--find-lr", action="store_true", help="Should you run LR Finder")
+    group.add_argument("--find-lr-start", default=1e-7, type=float, help="initial LR for LR Finder")
+    group.add_argument("--find-lr-end", default=1, type=float, help="final LR for LR Finder")
     group.add_argument("--find-size", dest="find_size", action="store_true", help="Should you run Image size Finder")
     group.add_argument("--check-setup", action="store_true", help="Check your training setup")
     group.add_argument("--show-samples", action="store_true", help="Whether training samples should be displayed")
@@ -320,10 +328,11 @@ def get_parser():
     group = parser.add_argument_group("Experiment tracking")
     group.add_argument("--wb", action="store_true", help="Log to Weights & Biases")
     group.add_argument("--name", type=str, default=None, help="Name of your training experiment")
+    group.add_argument("--verbose-codecarbon", action="store_true", help="Show CodeCarbon informational logs")
 
     return parser
 
 
 if __name__ == "__main__":
     args = get_parser().parse_args()
-    main(args)
+    track_emissions(log_level="info" if args.verbose_codecarbon else "error")(main)(args)

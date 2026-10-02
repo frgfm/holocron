@@ -9,6 +9,7 @@ from torchvision.models import get_model, get_model_weights
 
 from holocron import trainer
 from holocron.nn import GlobalAvgPool2d
+from holocron.trainer.detection import assign_iou
 
 
 class MockClassificationDataset(Dataset):
@@ -73,6 +74,52 @@ class MockDetDataset(Dataset):
 
     def __len__(self):
         return self.n
+
+
+@pytest.mark.parametrize(
+    "device",
+    ["cpu", pytest.param("cuda", marks=pytest.mark.skipif(not torch.cuda.is_available(), reason="CUDA unavailable"))],
+)
+def test_assign_iou_device(device):
+    gt_boxes = torch.tensor([[0, 0, 1, 1], [2, 2, 3, 3]], dtype=torch.float32, device=device)
+    pred_boxes = gt_boxes.clone()
+
+    gt_indices, pred_indices = assign_iou(gt_boxes, pred_boxes)
+
+    assert gt_indices.device == gt_boxes.device
+    assert pred_indices.device == gt_boxes.device
+    torch.testing.assert_close(gt_indices, torch.tensor([0, 1], device=device))
+    torch.testing.assert_close(pred_indices, torch.tensor([0, 1], device=device))
+
+
+@pytest.mark.parametrize(
+    "device",
+    ["cpu", pytest.param("cuda", marks=pytest.mark.skipif(not torch.cuda.is_available(), reason="CUDA unavailable"))],
+)
+def test_assign_iou_duplicate_matches(device):
+    gt_boxes = torch.tensor(
+        [[4, 4, 5, 5], [0, 0, 1, 1], [2, 2, 2.8, 2.8], [2, 2, 3, 3]], dtype=torch.float32, device=device
+    )
+    pred_boxes = gt_boxes[[1, 3]]
+
+    gt_indices, pred_indices = assign_iou(gt_boxes, pred_boxes)
+
+    assert gt_indices == [1, 3]
+    assert pred_indices == [0, 1]
+
+
+def test_detection_evaluation_duplicate_matches(monkeypatch):
+    boxes = torch.tensor([[0, 0, 1, 1], [2, 2, 2.8, 2.8], [2, 2, 3, 3]], dtype=torch.float32)
+    target = {"boxes": boxes, "labels": torch.tensor([0, 0, 1])}
+    detections = {"boxes": boxes[[0, 2]], "labels": torch.tensor([0, 1])}
+    loader = DataLoader([(torch.zeros(3, 8, 8), target)], collate_fn=collate_fn)
+    model = nn.Linear(1, 1)
+    monkeypatch.setattr(model, "forward", lambda _x: [detections])
+    learner = trainer.DetectionTrainer(model, loader, loader, None, torch.optim.SGD(model.parameters(), lr=0.1))
+
+    metrics = learner.evaluate()
+
+    assert metrics == pytest.approx({"loc_err": 0.2, "clf_err": 0.0, "det_err": 0.2, "val_loss": 0.2})
 
 
 def collate_fn(batch):
@@ -165,6 +212,8 @@ def test_find_lr_gradient_accumulation(monkeypatch, gradient_acc, num_it, expect
     loss_iter = iter(losses)
     learner._get_loss = lambda *_args: learner.model.weight.sum() * 0 + next(loss_iter)
     monkeypatch.setattr("holocron.trainer.core.MultiplicativeLR", _CountingScheduler)
+    progress_totals = []
+    monkeypatch.setattr("holocron.trainer.core.progress_bar", lambda data, total: progress_totals.append(total) or data)
 
     with warnings.catch_warnings(record=True) as caught:
         warnings.simplefilter("always")
@@ -179,10 +228,14 @@ def test_find_lr_gradient_accumulation(monkeypatch, gradient_acc, num_it, expect
     assert learner.loss_recorder == pytest.approx(expected_losses)
     assert learner.lr_recorder[0] == pytest.approx(1e-3)
     assert learner.lr_recorder[-1] == pytest.approx(1e-1 if expected_steps > 1 else 1e-3)
+    assert progress_totals == [expected_steps]
     assert learner._grad_count == 0
     assert not any("lr_scheduler.step() before optimizer.step()" in str(warning.message) for warning in caught)
     if expected_steps > 1:
+        plotted_lrs = []
+        monkeypatch.setattr("holocron.trainer.core.plt.plot", lambda lrs, _losses: plotted_lrs.extend(lrs))
         learner.plot_recorder(block=False)
+        assert plotted_lrs == pytest.approx(learner.lr_recorder)
 
 
 def test_find_lr_ignores_amp_overflow(monkeypatch):
@@ -210,20 +263,21 @@ def test_find_lr_ignores_amp_overflow(monkeypatch):
         def get_scale(self):
             return self.current_scale
 
-    x = torch.tensor([[1.0], [2.0]])
+    x = torch.tensor([[1.0], [2.0], [3.0]])
     learner = _linear_trainer(x, torch.zeros_like(x), gradient_acc=1, optimizer_cls=_CountingSGD)
-    losses = iter([1.0, 2.0])
+    losses = iter([1.0, 2.0, 3.0])
     learner._get_loss = lambda *_args: learner.model.weight.sum() * 0 + next(losses)
     learner.amp = True
     monkeypatch.setattr("holocron.trainer.core.GradScaler", SkipFirstGradScaler)
     monkeypatch.setattr("holocron.trainer.core.MultiplicativeLR", _CountingScheduler)
+    monkeypatch.setattr("holocron.trainer.core.progress_bar", lambda data, **_kwargs: data)
 
     learner.find_lr(start_lr=1e-3, end_lr=1e-1, num_it=2)
 
-    assert learner.optimizer.used_lrs == pytest.approx([1e-3])
-    assert _CountingScheduler.instance.steps == 1
-    assert learner.lr_recorder == pytest.approx([1e-3])
-    assert learner.loss_recorder == pytest.approx([2.0])
+    assert learner.optimizer.used_lrs == pytest.approx([1e-3, 1e-1])
+    assert _CountingScheduler.instance.steps == 2
+    assert learner.lr_recorder == pytest.approx([1e-3, 1e-1])
+    assert learner.loss_recorder == pytest.approx([2.0, 3.0])
     assert learner._grad_count == 0
 
 

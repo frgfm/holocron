@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Repair YOLOv4 target assignment, BCE/CIoU losses, prediction initialization, AMP box geometry, and custom-anchor checkpoint loading.
+- Correct shared confidence filtering, class-aware NMS, and detection evaluation matching while preserving YOLOv1/v2 loss behavior.
+- Add a reproducible YOLOv4 CPU learning diagnostic with a frozen pretrained backbone, finite-gradient checks, normal-inference acceptance, and a saved checkpoint. Full CUDA/VOC training of the repaired implementation remains pending; YOLOv3 remains unimplemented as a detector.
+- Expose detection LR finder bounds and progress, plot the complete recorded range, and make CodeCarbon quiet by default with `--verbose-codecarbon` available.
+
 ## v0.2.1 (2022-07-16)
 Release note: [v0.2.1](https://github.com/frgfm/Holocron/releases/tag/v0.2.1)
 
