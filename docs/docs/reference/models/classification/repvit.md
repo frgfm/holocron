@@ -12,7 +12,9 @@ mixing, uses squeeze-excitation selectively, and can fuse its training-time
 depthwise branches for deployment.
 
 Call `model.eval()` and then `model.reparametrize()` before exporting or
-benchmarking the deployment form.
+benchmarking the deployment form. Conversion preserves evaluation mode, removes
+all batch-normalization layers, and can be called repeatedly. Calling it while
+the model or a batch-normalization layer is in training mode raises `ValueError`.
 
 ## Paper evidence
 
@@ -38,12 +40,33 @@ from local CPU or MPS checks.
 
 | Model | Parameters before/after fusion | MACs | Top-1 | Top-5 | Status |
 |---|---:|---:|---:|---:|---|
-| RepViT-M0.9 | 5,103,560 / 5,067,056 | Pending | Pending | Pending | CUDA run required |
-| RepViT-M1.0 | 6,852,900 / 6,810,312 | Pending | Pending | Pending | CUDA run required |
-| RepViT-M1.1 | 8,288,888 / 8,244,312 | Pending | Pending | Pending | CUDA run required |
+| RepViT-M0.9 | 4,722,410 / 4,685,906 | Pending | Pending | Pending | CUDA run required |
+| RepViT-M1.0 | 6,408,390 / 6,365,802 | Pending | Pending | Pending | CUDA run required |
+| RepViT-M1.1 | 7,781,018 / 7,736,442 | Pending | Pending | Pending | CUDA run required |
 | MobileOne-S2 | Pending rerun | Pending | Pending | Pending | CUDA run required |
 
+These parameter counts use Imagenette's 10 classes. The paper's counts use
+an ImageNet-1K classifier with 1,000 classes.
+
 No pretrained RepViT checkpoint is published with this implementation.
+
+## Short training verification
+
+All three variants passed two CPU training epochs on 64 synthetic training
+images and 16 separate `FakeData` validation images at 176px/224px, with AdamP
+at `1e-3`, OneCycle, Mixup `0.2`, label smoothing `0.1`, and effective batch size
+32 (batch size 4, gradient accumulation 8). Feature weights updated, checkpoints
+reloaded, and fused outputs matched within `rtol=1e-4`, `atol=1e-5`.
+
+| Model | Validation loss before/after | Elapsed | Maximum fusion error |
+|---|---:|---:|---:|
+| RepViT-M0.9 | 2.3407 / 2.3082 | 6.16s | 1.19e-7 |
+| RepViT-M1.0 | 2.4447 / 2.3063 | 7.65s | 1.34e-7 |
+| RepViT-M1.1 | 2.4379 / 2.2930 | 7.40s | 2.10e-7 |
+
+Measured on an AMD EPYC 9V74 with four CPU threads, Python 3.11.16,
+PyTorch 2.13.0, and TorchVision 0.28.0. Synthetic results do not measure
+Imagenette accuracy; the controlled CUDA benchmark remains pending.
 
 ## Model builders
 
