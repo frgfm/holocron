@@ -671,6 +671,8 @@
       
         
       
+        
+      
     
     
     
@@ -1113,6 +1115,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#yolo26-family" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        YOLO26 family
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1150,6 +1163,96 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_1_3" id="__nav_3_1_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semantic segmentation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_1_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Semantic segmentation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../segmentation/yolo26/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    YOLO26 nano semantic segmentation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -1205,10 +1308,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1_4" >
         
           
-          <label class="md-nav__link" for="__nav_3_1_3" id="__nav_3_1_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3_1_4" id="__nav_3_1_4_label" tabindex="0">
             
   
   
@@ -1226,8 +1329,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_1_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_1_3">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_1_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1_4">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -2388,6 +2491,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#yolo26-family" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        YOLO26 family
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2514,11 +2628,11 @@ segmentation, object detection, and text recognition.</p>
 </tr>
 <tr>
 <td>Semantic segmentation</td>
-<td>U-Net, U-Net++, UNet3+</td>
+<td>U-Net, U-Net++, UNet3+, <a href="../segmentation/yolo26/">YOLO26 nano</a></td>
 <td>Only the legacy <code>unet_rexnet13</code> weights; dataset and metric are not documented</td>
 <td><a href="https://github.com/frgfm/holocron/blob/main/references/segmentation/train.py">Reference script</a></td>
-<td>Not documented</td>
-<td><strong>Unbenchmarked</strong></td>
+<td>YOLO26 export and CPU reference parity tested</td>
+<td><strong>Unbenchmarked</strong> on standard benchmarks; YOLO26 small-data learning checks available</td>
 </tr>
 <tr>
 <td>Object detection</td>
@@ -7427,7 +7541,9 @@ with a ReXNet-1.3x backbone used as encoder, and more advanced upscaling blocks 
             </details>
     </div>
 
-</div>
+</div><h3 id="yolo26-family">YOLO26 family<a class="headerlink" href="#yolo26-family" title="Permanent link">&para;</a></h3>
+<p>See <a href="../segmentation/yolo26/">YOLO26 nano semantic segmentation</a> for the model
+API, training output, parameter counts, and deployment limits.</p>
 
 
 
