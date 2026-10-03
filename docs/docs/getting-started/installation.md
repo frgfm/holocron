@@ -1,8 +1,8 @@
 # Installation
 
-!!! warning "Choose the matching version"
-    Development commands match these pages. PyPI `0.2.1` predates them, so
-    some APIs differ.
+!!! info "Choose the matching version"
+    PyPI `0.3.0` includes the APIs documented here. Development installations
+    follow the `main` branch and include subsequent changes.
 
 ## Virtual environment
 
@@ -14,16 +14,16 @@ Create a virtual environment with your preferred Python version (3.11 or higher 
 $ uv venv --python 3.11
 ```
 
-=== "Development (this documentation)"
+=== "Development (main branch)"
 
     ```bash
     $ uv pip install "pylocron @ git+https://github.com/frgfm/holocron.git"
     ```
 
-=== "Stable v0.2.1"
+=== "Stable v0.3.0"
 
     ```bash
-    $ uv pip install pylocron
+    $ uv pip install pylocron==0.3.0
     ```
 
 ## System installation
@@ -36,10 +36,10 @@ You'll need [Python](https://www.python.org/downloads/) 3.11 or higher, and a pa
     $ uv pip install --system "pylocron @ git+https://github.com/frgfm/holocron.git"
     ```
 
-=== "Stable v0.2.1 (uv)"
+=== "Stable v0.3.0 (uv)"
 
     ```bash
-    $ uv pip install --system pylocron
+    $ uv pip install --system pylocron==0.3.0
     ```
 
 === "Development (pip)"
@@ -48,10 +48,10 @@ You'll need [Python](https://www.python.org/downloads/) 3.11 or higher, and a pa
     $ pip install "pylocron @ git+https://github.com/frgfm/holocron.git"
     ```
 
-=== "Stable v0.2.1 (pip)"
+=== "Stable v0.3.0 (pip)"
 
     ```bash
-    $ pip install pylocron
+    $ pip install pylocron==0.3.0
     ```
 
 !!! info
