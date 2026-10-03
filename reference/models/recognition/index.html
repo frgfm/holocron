@@ -12,31 +12,31 @@
         <meta name="author" content="François-Guillaume Fernandez">
       
       
-        <link rel="canonical" href="https://frgfm.github.io/holocron/reference/utils.data/">
+        <link rel="canonical" href="https://frgfm.github.io/holocron/reference/models/recognition/">
       
       
-        <link rel="prev" href="../utils/">
+        <link rel="prev" href="../models/">
       
       
-        <link rel="next" href="../../notes/changelog/">
+        <link rel="next" href="../classification/resnet/">
       
       
         
       
       
-      <link rel="icon" href="../../img/favicon.svg">
+      <link rel="icon" href="../../../img/favicon.svg">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
-        <title>Data - Holocron — development documentation</title>
+        <title>Text recognition - Holocron — development documentation</title>
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -55,11 +55,11 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
     
       <link rel="stylesheet" href="https://unpkg.com/katex@0/dist/katex.min.css">
     
-    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
   
@@ -77,17 +77,17 @@
     
   
 <meta property="og:type" content="website" />
-<meta property="og:title" content="Data - Holocron — development documentation" />
+<meta property="og:title" content="Text recognition - Holocron — development documentation" />
 <meta property="og:description" content="PyTorch implementations of recent Computer Vision tricks (ReXNet, RepVGG, Unet3p, YOLOv4, CIoU loss, AdaBelief, PolyLoss, MobileOne)." />
-<meta property="og:image" content="https://frgfm.github.io/holocron/assets/images/social/reference/utils.data.png" />
+<meta property="og:image" content="https://frgfm.github.io/holocron/assets/images/social/reference/models/recognition.png" />
 <meta property="og:image:type" content="image/png" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
-<meta property="og:url" content="https://frgfm.github.io/holocron/reference/utils.data/" />
+<meta property="og:url" content="https://frgfm.github.io/holocron/reference/models/recognition/" />
 <meta property="twitter:card" content="summary_large_image" />
-<meta property="twitter:title" content="Data - Holocron — development documentation" />
+<meta property="twitter:title" content="Text recognition - Holocron — development documentation" />
 <meta property="twitter:description" content="PyTorch implementations of recent Computer Vision tricks (ReXNet, RepVGG, Unet3p, YOLOv4, CIoU loss, AdaBelief, PolyLoss, MobileOne)." />
-<meta property="twitter:image" content="https://frgfm.github.io/holocron/assets/images/social/reference/utils.data.png" />
+<meta property="twitter:image" content="https://frgfm.github.io/holocron/assets/images/social/reference/models/recognition.png" />
 </head>
   
   
@@ -107,7 +107,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#holocronutilsdata" class="md-skip">
+        <a href="#text-recognition" class="md-skip">
           Skip to content
         </a>
       
@@ -123,9 +123,9 @@
 
 <header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Holocron — development documentation" class="md-header__button md-logo" aria-label="Holocron — development documentation" data-md-component="logo">
+    <a href="../../.." title="Holocron — development documentation" class="md-header__button md-logo" aria-label="Holocron — development documentation" data-md-component="logo">
       
-  <img src="../../img/logo.svg" alt="logo">
+  <img src="../../../img/logo.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -142,7 +142,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Data
+              Text recognition
             
           </span>
         </div>
@@ -264,7 +264,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../.." class="md-tabs__link">
+      <a href="../../.." class="md-tabs__link">
         
   
   
@@ -285,7 +285,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../getting-started/installation/" class="md-tabs__link">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
           
   
   
@@ -318,7 +318,7 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="../models/models/" class="md-tabs__link">
+        <a href="../models/" class="md-tabs__link">
           
   
   
@@ -343,7 +343,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../notes/changelog/" class="md-tabs__link">
+        <a href="../../../notes/changelog/" class="md-tabs__link">
           
   
   
@@ -385,9 +385,9 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Holocron — development documentation" class="md-nav__button md-logo" aria-label="Holocron — development documentation" data-md-component="logo">
+    <a href="../../.." title="Holocron — development documentation" class="md-nav__button md-logo" aria-label="Holocron — development documentation" data-md-component="logo">
       
-  <img src="../../img/logo.svg" alt="logo">
+  <img src="../../../img/logo.svg" alt="logo">
 
     </a>
     Holocron — development documentation
@@ -414,7 +414,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../.." class="md-nav__link">
+      <a href="../../.." class="md-nav__link">
         
   
   
@@ -499,7 +499,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../getting-started/installation/" class="md-nav__link">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
         
   
   
@@ -527,7 +527,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../getting-started/classification/" class="md-nav__link">
+      <a href="../../../getting-started/classification/" class="md-nav__link">
         
   
   
@@ -555,7 +555,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../getting-started/notebooks/" class="md-nav__link">
+      <a href="../../../getting-started/notebooks/" class="md-nav__link">
         
   
   
@@ -658,8 +658,10 @@
                 
   
   
+    
   
   
+  
     
     
       
@@ -676,11 +678,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" checked>
         
           
           <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
@@ -701,7 +703,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3_1">
             <span class="md-nav__icon md-icon"></span>
             
@@ -719,7 +721,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../models/models/" class="md-nav__link">
+      <a href="../models/" class="md-nav__link">
         
   
   
@@ -744,10 +746,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../models/recognition/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Text recognition
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -763,6 +792,59 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#holocron.models.recognition.crnn.CharacterBackbone" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;CharacterBackbone
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#holocron.models.recognition.crnn.CharacterClassifier" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;CharacterClassifier
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#holocron.models.recognition.crnn.CTCRecognizer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;CTCRecognizer
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -857,7 +939,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../models/classification/resnet/" class="md-nav__link">
+      <a href="../classification/resnet/" class="md-nav__link">
         
   
   
@@ -885,7 +967,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../models/classification/resnext/" class="md-nav__link">
+      <a href="../classification/resnext/" class="md-nav__link">
         
   
   
@@ -913,7 +995,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../models/classification/res2net/" class="md-nav__link">
+      <a href="../classification/res2net/" class="md-nav__link">
         
   
   
@@ -941,7 +1023,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../models/classification/tridentnet/" class="md-nav__link">
+      <a href="../classification/tridentnet/" class="md-nav__link">
         
   
   
@@ -969,7 +1051,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../models/classification/convnext/" class="md-nav__link">
+      <a href="../classification/convnext/" class="md-nav__link">
         
   
   
@@ -997,7 +1079,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../models/classification/pyconv_resnet/" class="md-nav__link">
+      <a href="../classification/pyconv_resnet/" class="md-nav__link">
         
   
   
@@ -1025,7 +1107,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../models/classification/rexnet/" class="md-nav__link">
+      <a href="../classification/rexnet/" class="md-nav__link">
         
   
   
@@ -1053,7 +1135,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../models/classification/sknet/" class="md-nav__link">
+      <a href="../classification/sknet/" class="md-nav__link">
         
   
   
@@ -1081,7 +1163,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../models/classification/darknet/" class="md-nav__link">
+      <a href="../classification/darknet/" class="md-nav__link">
         
   
   
@@ -1109,7 +1191,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../models/classification/darknetv2/" class="md-nav__link">
+      <a href="../classification/darknetv2/" class="md-nav__link">
         
   
   
@@ -1137,7 +1219,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../models/classification/darknetv3/" class="md-nav__link">
+      <a href="../classification/darknetv3/" class="md-nav__link">
         
   
   
@@ -1165,7 +1247,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../models/classification/darknetv4/" class="md-nav__link">
+      <a href="../classification/darknetv4/" class="md-nav__link">
         
   
   
@@ -1193,7 +1275,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../models/classification/repvgg/" class="md-nav__link">
+      <a href="../classification/repvgg/" class="md-nav__link">
         
   
   
@@ -1221,7 +1303,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../models/classification/mobileone/" class="md-nav__link">
+      <a href="../classification/mobileone/" class="md-nav__link">
         
   
   
@@ -1249,7 +1331,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../models/classification/repvit/" class="md-nav__link">
+      <a href="../classification/repvit/" class="md-nav__link">
         
   
   
@@ -1293,7 +1375,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../nn/" class="md-nav__link">
+      <a href="../../nn/" class="md-nav__link">
         
   
   
@@ -1321,7 +1403,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ops/" class="md-nav__link">
+      <a href="../../ops/" class="md-nav__link">
         
   
   
@@ -1349,7 +1431,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../optim/" class="md-nav__link">
+      <a href="../../optim/" class="md-nav__link">
         
   
   
@@ -1377,7 +1459,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../trainer/" class="md-nav__link">
+      <a href="../../trainer/" class="md-nav__link">
         
   
   
@@ -1405,7 +1487,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../transforms/" class="md-nav__link">
+      <a href="../../transforms/" class="md-nav__link">
         
   
   
@@ -1430,10 +1512,8 @@
                 
   
   
-    
   
   
-  
     
     
       
@@ -1448,11 +1528,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_7" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_7" >
         
           
           <label class="md-nav__link" for="__nav_3_7" id="__nav_3_7_label" tabindex="0">
@@ -1473,7 +1553,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_7_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_7_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3_7">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1491,7 +1571,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../utils/" class="md-nav__link">
+      <a href="../../utils/" class="md-nav__link">
         
   
   
@@ -1516,37 +1596,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Data
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../utils.data/" class="md-nav__link">
         
   
   
@@ -1562,54 +1615,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#batch-collate" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Batch collate
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Batch collate">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#holocron.utils.data.Mixup" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;Mixup
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1691,7 +1696,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../notes/changelog/" class="md-nav__link">
+      <a href="../../../notes/changelog/" class="md-nav__link">
         
   
   
@@ -1746,30 +1751,35 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#batch-collate" class="md-nav__link">
+  <a href="#holocron.models.recognition.crnn.CharacterBackbone" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Batch collate
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Batch collate">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#holocron.utils.data.Mixup" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;Mixup
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;CharacterBackbone
       
     </span>
   </a>
   
 </li>
-        
-      </ul>
-    </nav>
+      
+        <li class="md-nav__item">
+  <a href="#holocron.models.recognition.crnn.CharacterClassifier" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;CharacterClassifier
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#holocron.models.recognition.crnn.CTCRecognizer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;CTCRecognizer
+      
+    </span>
+  </a>
   
 </li>
       
@@ -1798,7 +1808,7 @@
   
   
     <li class="md-path__item">
-      <a href="../.." class="md-path__link">
+      <a href="../../.." class="md-path__link">
         
   <span class="md-ellipsis">
     Home
@@ -1821,7 +1831,7 @@
     
     
       <li class="md-path__item">
-        <a href="../models/models/" class="md-path__link">
+        <a href="../models/" class="md-path__link">
           
   <span class="md-ellipsis">
     Package Reference
@@ -1842,10 +1852,10 @@
     
     
       <li class="md-path__item">
-        <a href="../utils/" class="md-path__link">
+        <a href="../models/" class="md-path__link">
           
   <span class="md-ellipsis">
-    Utils
+    Models
   </span>
 
         </a>
@@ -1867,114 +1877,72 @@
   
 
 
-<h1 id="holocronutilsdata">holocron.utils.data<a class="headerlink" href="#holocronutilsdata" title="Permanent link">&para;</a></h1>
-<h2 id="batch-collate">Batch collate<a class="headerlink" href="#batch-collate" title="Permanent link">&para;</a></h2>
-
-
-<div class="doc doc-object doc-module">
-
-
-
-
-    <div class="doc doc-contents first">
-
-
-
-
-
-
-
-
-
-
-<div class="doc doc-children">
-
-
-
-
-
-
-
+<h1 id="text-recognition">Text recognition<a class="headerlink" href="#text-recognition" title="Permanent link">&para;</a></h1>
+<p>Holocron provides an experimental shared character backbone, glyph classifier,
+and CNN/BiGRU recognizer trained with connectionist temporal classification
+(CTC). Import them from <code>holocron.models.recognition</code>; training and synthetic
+benchmark generation are provided by the
+<a href="https://github.com/frgfm/holocron/tree/main/references/recognition">recognition reference</a>.</p>
+<p>The models accept grayscale tensors of shape <code>(N, 1, 32, W)</code>, normalized to
+<code>[-1, 1]</code>, with white padding equal to <code>+1</code> and width divisible by four.
+<code>lengths</code> contains each image's unpadded width divided by four. The recognizer
+returns log probabilities of shape <code>(W // 4, N, alphabet_size + 1)</code> with CTC
+blank at index zero. Loss and decoding must use the true lengths.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">holocron.models.recognition</span><span class="w"> </span><span class="kn">import</span> <span class="n">CharacterClassifier</span><span class="p">,</span> <span class="n">CTCRecognizer</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">holocron.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">CTCCodec</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="n">codec</span> <span class="o">=</span> <span class="n">CTCCodec</span><span class="p">(</span><span class="s2">&quot;AB12 .&quot;</span><span class="p">)</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="n">classifier</span> <span class="o">=</span> <span class="n">CharacterClassifier</span><span class="p">(</span><span class="n">num_classes</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">codec</span><span class="o">.</span><span class="n">alphabet</span><span class="p">))</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="n">reader</span> <span class="o">=</span> <span class="n">CTCRecognizer</span><span class="p">(</span><span class="n">num_classes</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">codec</span><span class="o">.</span><span class="n">alphabet</span><span class="p">))</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="c1"># After glyph pretraining, transfer the visual encoder into the line model.</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="n">reader</span><span class="o">.</span><span class="n">backbone</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">classifier</span><span class="o">.</span><span class="n">backbone</span><span class="o">.</span><span class="n">state_dict</span><span class="p">())</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="c1"># Example input contract; train or load weights before using predictions.</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="n">images</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">80</span><span class="p">)</span>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="n">lengths</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mi">20</span><span class="p">,</span> <span class="mi">12</span><span class="p">])</span>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="n">reader</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">inference_mode</span><span class="p">():</span>
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>    <span class="n">log_probabilities</span> <span class="o">=</span> <span class="n">reader</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">lengths</span><span class="p">)</span>
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>    <span class="n">labels</span> <span class="o">=</span> <span class="n">log_probabilities</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>    <span class="n">transcripts</span> <span class="o">=</span> <span class="p">[</span><span class="n">codec</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">row</span><span class="p">[:</span><span class="n">length</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span> <span class="k">for</span> <span class="n">row</span><span class="p">,</span> <span class="n">length</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">lengths</span><span class="p">)]</span>
+</span></code></pre></div>
+<p><code>CTCCodec</code> accepts a custom printable Unicode alphabet, including ordinary
+space. It preserves predicted punctuation and repeats separated by blanks.
+<code>holocron.utils.prefix_beam_decode</code> optionally sums alternative alignments;
+it uses no dictionary or language model. Greedy decoding remains the measured
+default.</p>
+<p>The synthetic curriculum benchmarks 83 symbols across ten font families,
+holding two families out of every training stage. Its final degraded-page CER
+is 1.06% on both seen and held-out families, with 64% and 53% exact pages.
+The <a href="https://github.com/frgfm/holocron/blob/main/references/recognition/RESULTS.md">full report</a>
+includes the control, training budgets, seeds, and residual errors. No public
+pretrained checkpoint is downloaded. These measurements cover separated,
+horizontal, single-column synthetic pages; real scans and general layouts
+remain unvalidated. Page detection and synthetic rendering remain experimental
+reference code.</p>
 
 
 <div class="doc doc-object doc-class">
 
 
 
-<h3 id="holocron.utils.data.Mixup" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">Mixup</span>
+<h2 id="holocron.models.recognition.crnn.CharacterBackbone" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">CharacterBackbone</span>
 
 
-<a href="#holocron.utils.data.Mixup" class="headerlink" title="Permanent link">&para;</a></h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">Mixup</span><span class="p">(</span><span class="n">num_classes</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/functions.html#int">int</a></span><span class="p">,</span> <span class="n">alpha</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/functions.html#float">float</a></span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">)</span>
+<a href="#holocron.models.recognition.crnn.CharacterBackbone" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">CharacterBackbone</span><span class="p">()</span>
 </span></code></pre></div>
 
-    <div class="doc doc-contents ">
-            <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-external" title="&lt;code&gt;torch.nn.Module&lt;/code&gt;" href="https://docs.pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module">Module</a></code></p>
+    <div class="doc doc-contents first">
 
 
 
-        <p>Implements a batch collate function with MixUp strategy from
-<a href="https://arxiv.org/pdf/1710.09412.pdf">"mixup: Beyond Empirical Risk Minimization"</a>.</p>
-
-
-<details class="example" open>
-  <summary>Example</summary>
-  <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">torch.utils.data._utils.collate</span><span class="w"> </span><span class="kn">import</span> <span class="n">default_collate</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">holocron.utils.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mixup</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">mix</span> <span class="o">=</span> <span class="n">Mixup</span><span class="p">(</span><span class="n">num_classes</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.4</span><span class="p">)</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="n">loader</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">collate_fn</span><span class="o">=</span><span class="k">lambda</span> <span class="n">b</span><span class="p">:</span> <span class="n">mix</span><span class="p">(</span><span class="o">*</span><span class="n">default_collate</span><span class="p">(</span><span class="n">b</span><span class="p">)))</span>
-</span></code></pre></div>
-</details>
-
-<table>
-      <thead>
-        <tr>
-          <th><span class="doc-section-title">PARAMETER</span></th>
-          <th><span>DESCRIPTION</span></th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>num_classes</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                <p>number of expected classes</p>
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/functions.html#int">int</a></code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>alpha</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                <p>mixup factor</p>
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/functions.html#float">float</a></code>
-                  </span>
-                  <span class="doc-param-default">
-                    <b>DEFAULT:</b>
-                      <code>0.2</code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-      </tbody>
-    </table>
+        <p>Shared grayscale encoder for glyph classification and line recognition.</p>
+<p>Input images have shape <code>(N, 1, 32, W)</code> with widths divisible by four.
+The output has shape <code>(N, 96, 4, W // 4)</code>. Normalize grayscale images
+to [-1, 1], using +1 for white padding.</p>
 
 
 
@@ -1984,18 +1952,26 @@
 
 
                   <details class="mkdocstrings-source">
-                    <summary>Source code in <code>holocron/utils/data/collate.py</code></summary>
-                    <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-33">33</a></span>
-<span class="normal"><a href="#__codelineno-0-34">34</a></span>
-<span class="normal"><a href="#__codelineno-0-35">35</a></span>
-<span class="normal"><a href="#__codelineno-0-36">36</a></span>
-<span class="normal"><a href="#__codelineno-0-37">37</a></span>
-<span class="normal"><a href="#__codelineno-0-38">38</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-33"><a id="__codelineno-0-33" name="__codelineno-0-33"></a><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-0-34"><a id="__codelineno-0-34" name="__codelineno-0-34"></a>    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-</span><span id="__span-0-35"><a id="__codelineno-0-35" name="__codelineno-0-35"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">num_classes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">num_classes</span>
-</span><span id="__span-0-36"><a id="__codelineno-0-36" name="__codelineno-0-36"></a>    <span class="k">if</span> <span class="n">alpha</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-</span><span id="__span-0-37"><a id="__codelineno-0-37" name="__codelineno-0-37"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`alpha` only takes positive values&quot;</span><span class="p">)</span>
-</span><span id="__span-0-38"><a id="__codelineno-0-38" name="__codelineno-0-38"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">alpha</span>
+                    <summary>Source code in <code>holocron/models/recognition/crnn.py</code></summary>
+                    <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-23">23</a></span>
+<span class="normal"><a href="#__codelineno-0-24">24</a></span>
+<span class="normal"><a href="#__codelineno-0-25">25</a></span>
+<span class="normal"><a href="#__codelineno-0-26">26</a></span>
+<span class="normal"><a href="#__codelineno-0-27">27</a></span>
+<span class="normal"><a href="#__codelineno-0-28">28</a></span>
+<span class="normal"><a href="#__codelineno-0-29">29</a></span>
+<span class="normal"><a href="#__codelineno-0-30">30</a></span>
+<span class="normal"><a href="#__codelineno-0-31">31</a></span>
+<span class="normal"><a href="#__codelineno-0-32">32</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23"></a><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24"></a>    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25"></a>    <span class="n">layers</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26"></a>    <span class="n">channels</span> <span class="o">=</span> <span class="mi">1</span>
+</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27"></a>    <span class="k">for</span> <span class="n">output</span><span class="p">,</span> <span class="n">pool</span> <span class="ow">in</span> <span class="p">[(</span><span class="mi">24</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)),</span> <span class="p">(</span><span class="mi">48</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)),</span> <span class="p">(</span><span class="mi">96</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span> <span class="p">(</span><span class="mi">96</span><span class="p">,</span> <span class="kc">None</span><span class="p">)]:</span>
+</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28"></a>        <span class="n">layers</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="n">channels</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span> <span class="n">nn</span><span class="o">.</span><span class="n">BatchNorm2d</span><span class="p">(</span><span class="n">output</span><span class="p">),</span> <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">()])</span>
+</span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29"></a>        <span class="k">if</span> <span class="n">pool</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30"></a>            <span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">MaxPool2d</span><span class="p">(</span><span class="n">pool</span><span class="p">))</span>
+</span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31"></a>        <span class="n">channels</span> <span class="o">=</span> <span class="n">output</span>
+</span><span id="__span-0-32"><a id="__codelineno-0-32" name="__codelineno-0-32"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">features</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span><span class="o">*</span><span class="n">layers</span><span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
                   </details>
 
@@ -2019,6 +1995,191 @@
     </div>
 
 </div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="holocron.models.recognition.crnn.CharacterClassifier" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">CharacterClassifier</span>
+
+
+<a href="#holocron.models.recognition.crnn.CharacterClassifier" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">CharacterClassifier</span><span class="p">(</span><span class="n">num_classes</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/functions.html#int">int</a></span><span class="p">)</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents first">
+
+
+
+        <p>Classify glyphs while retaining their vertical baseline position.</p>
+
+
+<table>
+      <thead>
+        <tr>
+          <th><span class="doc-section-title">PARAMETER</span></th>
+          <th><span>DESCRIPTION</span></th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>num_classes</code>
+            </td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>number of output character classes</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/functions.html#int">int</a></code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+        <p>The input contract matches :class:<code>CharacterBackbone</code>. <code>lengths</code> is a
+one-dimensional integer tensor containing each image's unpadded width
+divided by four. Returns logits of shape <code>(N, num_classes)</code>.
+Transfer <code>backbone.state_dict()</code> directly to :class:<code>CTCRecognizer</code>.</p>
+
+
+
+
+
+
+
+
+                  <details class="mkdocstrings-source">
+                    <summary>Source code in <code>holocron/models/recognition/crnn.py</code></summary>
+                    <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-54">54</a></span>
+<span class="normal"><a href="#__codelineno-0-55">55</a></span>
+<span class="normal"><a href="#__codelineno-0-56">56</a></span>
+<span class="normal"><a href="#__codelineno-0-57">57</a></span>
+<span class="normal"><a href="#__codelineno-0-58">58</a></span>
+<span class="normal"><a href="#__codelineno-0-59">59</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-54"><a id="__codelineno-0-54" name="__codelineno-0-54"></a><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-0-55"><a id="__codelineno-0-55" name="__codelineno-0-55"></a>    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+</span><span id="__span-0-56"><a id="__codelineno-0-56" name="__codelineno-0-56"></a>    <span class="k">if</span> <span class="n">num_classes</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+</span><span id="__span-0-57"><a id="__codelineno-0-57" name="__codelineno-0-57"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;num_classes must be positive&quot;</span><span class="p">)</span>
+</span><span id="__span-0-58"><a id="__codelineno-0-58" name="__codelineno-0-58"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span> <span class="o">=</span> <span class="n">CharacterBackbone</span><span class="p">()</span>
+</span><span id="__span-0-59"><a id="__codelineno-0-59" name="__codelineno-0-59"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">head</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">384</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">)</span>
+</span></code></pre></div></td></tr></table></div>
+                  </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="holocron.models.recognition.crnn.CTCRecognizer" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">CTCRecognizer</span>
+
+
+<a href="#holocron.models.recognition.crnn.CTCRecognizer" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">CTCRecognizer</span><span class="p">(</span><span class="n">num_classes</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/functions.html#int">int</a></span><span class="p">)</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents first">
+
+
+
+        <p>Compact CNN/BiGRU recognizer for variable-width text lines.</p>
+
+
+<table>
+      <thead>
+        <tr>
+          <th><span class="doc-section-title">PARAMETER</span></th>
+          <th><span>DESCRIPTION</span></th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>num_classes</code>
+            </td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>alphabet size excluding the CTC blank</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/functions.html#int">int</a></code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+        <p>The input contract matches :class:<code>CharacterBackbone</code>. <code>lengths</code> is a
+one-dimensional integer tensor of unpadded widths divided by four.
+Packed recurrence excludes padding from bidirectional context. Returns
+log probabilities of shape <code>(W // 4, N, num_classes + 1)</code> with blank at
+index zero. Ignore frames beyond each length during loss and decoding.
+The architecture is experimental; no pretrained weights are downloaded.</p>
+
+
+
+
+
+
+
+
+                  <details class="mkdocstrings-source">
+                    <summary>Source code in <code>holocron/models/recognition/crnn.py</code></summary>
+                    <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-83">83</a></span>
+<span class="normal"><a href="#__codelineno-0-84">84</a></span>
+<span class="normal"><a href="#__codelineno-0-85">85</a></span>
+<span class="normal"><a href="#__codelineno-0-86">86</a></span>
+<span class="normal"><a href="#__codelineno-0-87">87</a></span>
+<span class="normal"><a href="#__codelineno-0-88">88</a></span>
+<span class="normal"><a href="#__codelineno-0-89">89</a></span>
+<span class="normal"><a href="#__codelineno-0-90">90</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-83"><a id="__codelineno-0-83" name="__codelineno-0-83"></a><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-0-84"><a id="__codelineno-0-84" name="__codelineno-0-84"></a>    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+</span><span id="__span-0-85"><a id="__codelineno-0-85" name="__codelineno-0-85"></a>    <span class="k">if</span> <span class="n">num_classes</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+</span><span id="__span-0-86"><a id="__codelineno-0-86" name="__codelineno-0-86"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;num_classes must be positive&quot;</span><span class="p">)</span>
+</span><span id="__span-0-87"><a id="__codelineno-0-87" name="__codelineno-0-87"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span> <span class="o">=</span> <span class="n">CharacterBackbone</span><span class="p">()</span>
+</span><span id="__span-0-88"><a id="__codelineno-0-88" name="__codelineno-0-88"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">projection</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">384</span><span class="p">,</span> <span class="mi">128</span><span class="p">),</span> <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">())</span>
+</span><span id="__span-0-89"><a id="__codelineno-0-89" name="__codelineno-0-89"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">context</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">GRU</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="mi">96</span><span class="p">,</span> <span class="n">num_layers</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">batch_first</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">bidirectional</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dropout</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+</span><span id="__span-0-90"><a id="__codelineno-0-90" name="__codelineno-0-90"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">head</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">192</span><span class="p">,</span> <span class="n">num_classes</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+</span></code></pre></div></td></tr></table></div>
+                  </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
 
 
 
@@ -2067,7 +2228,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../utils/" class="md-footer__link md-footer__link--prev" aria-label="Previous: holocron.utils">
+          <a href="../models/" class="md-footer__link md-footer__link--prev" aria-label="Previous: holocron.models">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -2077,20 +2238,20 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                holocron.utils
+                holocron.models
               </div>
             </div>
           </a>
         
         
           
-          <a href="../../notes/changelog/" class="md-footer__link md-footer__link--next" aria-label="Next: Changelog">
+          <a href="../classification/resnet/" class="md-footer__link md-footer__link--next" aria-label="Next: ResNet">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Changelog
+                ResNet
               </div>
             </div>
             <div class="md-footer__button md-icon">
@@ -2193,12 +2354,12 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.annotate", "content.code.copy", "content.footnote.tooltips", "content.tabs.link", "content.tooltips", "navigation.footer", "navigation.indexes", "navigation.instant", "navigation.instant.prefetch", "navigation.instant.progress", "navigation.path", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "navigation.tracking", "search.highlight", "search.share", "search.suggest", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["content.code.annotate", "content.code.copy", "content.footnote.tooltips", "content.tabs.link", "content.tooltips", "navigation.footer", "navigation.indexes", "navigation.instant", "navigation.instant.prefetch", "navigation.instant.progress", "navigation.path", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "navigation.tracking", "search.highlight", "search.share", "search.suggest", "toc.follow"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
-        <script src="../../js/katex.js"></script>
+        <script src="../../../js/katex.js"></script>
       
         <script src="https://unpkg.com/katex@0/dist/katex.min.js"></script>
       

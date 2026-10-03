@@ -889,35 +889,43 @@ def __init__(self, *args: Any, num_classes: int = 10, **kwargs: Any) -> None:
 #### evaluate
 
 ```python
-evaluate(ignore_index: int = 255) -> dict[str, float]
+evaluate(ignore_index: int | None = None) -> dict[str, float]
 ```
 
 Evaluate the model on the validation set
 
-| PARAMETER      | DESCRIPTION                                                                   |
-| -------------- | ----------------------------------------------------------------------------- |
-| `ignore_index` | index of the class to ignore in evaluation **TYPE:** `int` **DEFAULT:** `255` |
+| PARAMETER      | DESCRIPTION                                                                                    |
+| -------------- | ---------------------------------------------------------------------------------------------- |
+| `ignore_index` | target value to exclude from metrics; defaults to the criterion's ignore_index **TYPE:** \`int |
 
-| RETURNS            | DESCRIPTION                                                     |
-| ------------------ | --------------------------------------------------------------- |
-| `dict[str, float]` | evaluation metrics (validation loss, global accuracy, mean IoU) |
+| RETURNS            | DESCRIPTION                                                                  |
+| ------------------ | ---------------------------------------------------------------------------- |
+| `dict[str, float]` | evaluation metrics (mean loss per labelled image, global accuracy, mean IoU) |
+
+| RAISES       | DESCRIPTION                                             |
+| ------------ | ------------------------------------------------------- |
+| `ValueError` | if validation has no labelled images with a finite loss |
 
 Source code in `holocron/trainer/segmentation.py`
 
 ```python
 @torch.inference_mode()
-def evaluate(self, ignore_index: int = 255) -> dict[str, float]:
+def evaluate(self, ignore_index: int | None = None) -> dict[str, float]:
     """Evaluate the model on the validation set
 
     Args:
-        ignore_index: index of the class to ignore in evaluation
+        ignore_index: target value to exclude from metrics; defaults to the criterion's ignore_index
 
     Returns:
-        evaluation metrics (validation loss, global accuracy, mean IoU)
+        evaluation metrics (mean loss per labelled image, global accuracy, mean IoU)
+
+    Raises:
+        ValueError: if validation has no labelled images with a finite loss
     """
     self.model.eval()
 
-    val_loss, mean_iou, num_valid_batches = 0.0, 0.0, 0
+    ignore_index = getattr(self.criterion, "ignore_index", 255) if ignore_index is None else ignore_index
+    val_loss, num_valid_samples = 0.0, 0
     conf_mat = torch.zeros(
         (self.num_classes, self.num_classes), dtype=torch.int64, device=next(self.model.parameters()).device
     )
@@ -925,23 +933,29 @@ def evaluate(self, ignore_index: int = 255) -> dict[str, float]:
         x, target = self.to_cuda(x, target)
 
         loss, out = self._get_loss(x, target, return_logits=True)  # ty: ignore[invalid-argument-type]
+        labeled = int((target != getattr(self.criterion, "ignore_index", 255)).flatten(1).any(1).sum())
 
         # Safeguard for NaN loss
-        if not torch.isnan(loss) and not torch.isinf(loss):
-            val_loss += loss.item()
-            num_valid_batches += 1
+        if torch.isfinite(loss) and labeled:
+            val_loss += loss.item() * labeled
+            num_valid_samples += labeled
 
         # borrowed from https://github.com/pytorch/vision/blob/master/references/segmentation/train.py
         pred = out.argmax(dim=1).flatten()
         target = target.flatten()
-        k = (target >= 0) & (target < self.num_classes)
+        k = (target >= 0) & (target < self.num_classes) & (target != ignore_index)
         inds = self.num_classes * target[k].to(torch.int64) + pred[k]
         nc = self.num_classes
         conf_mat += torch.bincount(inds, minlength=nc**2).reshape(nc, nc)
 
-    val_loss /= num_valid_batches
-    acc_global = (torch.diag(conf_mat).sum() / conf_mat.sum()).item()
-    mean_iou = (torch.diag(conf_mat) / (conf_mat.sum(1) + conf_mat.sum(0) - torch.diag(conf_mat))).mean().item()
+    if num_valid_samples == 0:
+        raise ValueError("Validation requires at least one batch with labelled pixels and a finite loss")
+    val_loss /= num_valid_samples
+    true_positive = torch.diag(conf_mat)
+    union = conf_mat.sum(1) + conf_mat.sum(0) - true_positive
+    present = union > 0
+    acc_global = (true_positive.sum() / conf_mat.sum().clamp_min(1)).item()
+    mean_iou = (true_positive[present] / union[present]).mean().item() if present.any() else 0.0
 
     return {"val_loss": val_loss, "acc_global": acc_global, "mean_iou": mean_iou}
 ```

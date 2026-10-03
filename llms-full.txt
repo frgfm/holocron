@@ -219,15 +219,16 @@ Here are some notebooks compiled for users to better leverage the library capabi
 
 # holocron.models
 
-The models subpackage contains definitions of models for addressing different tasks, including: image classification, pixelwise semantic segmentation and object detection.
+The models subpackage contains definitions of models for addressing different tasks, including: image classification, pixelwise semantic segmentation, object detection, and text recognition.
 
 ## Support status
 
-| Task                  | Architectures          | Published checkpoints                                                                    | Training                                                                                           | ONNX                                                                                                                       | Status                                                                        |
-| --------------------- | ---------------------- | ---------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
-| Classification        | 15 families            | Imagenette checkpoints with top-1/top-5 metrics; selected ReXNet ImageNet-1K checkpoints | [Reference script](https://github.com/frgfm/holocron/blob/main/references/classification/train.py) | [Classification export](https://github.com/frgfm/holocron/blob/main/scripts/export_to_onnx.py)                             | **Validated**                                                                 |
-| Semantic segmentation | U-Net, U-Net++, UNet3+ | Only the legacy `unet_rexnet13` weights; dataset and metric are not documented           | [Reference script](https://github.com/frgfm/holocron/blob/main/references/segmentation/train.py)   | Not documented                                                                                                             | **Unbenchmarked**                                                             |
-| Object detection      | YOLOv1, YOLOv2, YOLOv4 | None                                                                                     | [Reference script](https://github.com/frgfm/holocron/blob/main/references/detection/train.py)      | [Export tests](https://github.com/frgfm/holocron/blob/main/tests/test_models_detection.py); runtime parity not benchmarked | **Experimental**; [YOLOv4 learning check verified](#yolo-training-validation) |
+| Task                                | Architectures               | Published checkpoints                                                                    | Training                                                                                           | ONNX                                                                                                                       | Status                                                                        |
+| ----------------------------------- | --------------------------- | ---------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| Classification                      | 15 families                 | Imagenette checkpoints with top-1/top-5 metrics; selected ReXNet ImageNet-1K checkpoints | [Reference script](https://github.com/frgfm/holocron/blob/main/references/classification/train.py) | [Classification export](https://github.com/frgfm/holocron/blob/main/scripts/export_to_onnx.py)                             | **Validated**                                                                 |
+| Semantic segmentation               | U-Net, U-Net++, UNet3+      | Only the legacy `unet_rexnet13` weights; dataset and metric are not documented           | [Reference script](https://github.com/frgfm/holocron/blob/main/references/segmentation/train.py)   | Not documented                                                                                                             | **Unbenchmarked**                                                             |
+| Object detection                    | YOLOv1, YOLOv2, YOLOv4      | None                                                                                     | [Reference script](https://github.com/frgfm/holocron/blob/main/references/detection/train.py)      | [Export tests](https://github.com/frgfm/holocron/blob/main/tests/test_models_detection.py); runtime parity not benchmarked | **Experimental**; [YOLOv4 learning check verified](#yolo-training-validation) |
+| [Text recognition](../recognition/) | Shared glyph CNN, BiGRU/CTC | None; training produces local checkpoints                                                | [Synthetic curriculum](https://github.com/frgfm/holocron/tree/main/references/recognition)         | Not validated                                                                                                              | **Experimental**; synthetic CPU benchmark                                     |
 
 **Validated** means published task checkpoints and metrics are available. **Unbenchmarked** means an implementation or legacy weight exists without a documented evaluation dataset and metric. **Experimental** means the API is available, but published task weights and a confirmed benchmark are not.
 
@@ -929,20 +930,35 @@ def __init__(
     self.bridge = nn.Sequential(
         nn.MaxPool2d((2, 2)),
         *conv_sequence(
-            layout[-1], 2 * layout[-1], act_layer, norm_layer, drop_layer, conv_layer, kernel_size=3, padding=1
+            layout[-1],
+            2 * layout[-1],
+            act_layer,
+            norm_layer,
+            drop_layer,
+            conv_layer,
+            kernel_size=3,
+            padding=int(same_padding),
         ),
         *conv_sequence(
-            2 * layout[-1], layout[-1], act_layer, norm_layer, drop_layer, conv_layer, kernel_size=3, padding=1
+            2 * layout[-1],
+            layout[-1],
+            act_layer,
+            norm_layer,
+            drop_layer,
+            conv_layer,
+            kernel_size=3,
+            padding=int(same_padding),
         ),
     )
 
     # Expansive path
     self.decoder = nn.ModuleList([])
     layout_ = [chan // 2 if bilinear_upsampling else chan for chan in layout[::-1][:-1]] + [layout[0]]
-    for in_chan, out_chan in zip([2 * layout[-1], *layout[::-1][:-1]], layout_, strict=True):
+    up_chan = layout[-1]
+    for left_chan, out_chan in zip(layout[::-1], layout_, strict=True):
         self.decoder.append(
             UpPath(
-                in_chan,
+                left_chan + up_chan,
                 out_chan,
                 bilinear_upsampling,
                 int(same_padding),
@@ -950,8 +966,10 @@ def __init__(
                 norm_layer,
                 drop_layer,
                 conv_layer,
+                up_chan=up_chan,
             )
         )
+        up_chan = out_chan
 
     # Classifier
     self.classifier = nn.Conv2d(layout[0], num_classes, 1)
@@ -1003,19 +1021,19 @@ def unet(pretrained: bool = False, progress: bool = True, **kwargs: Any) -> UNet
 DynamicUNet(encoder: IntermediateLayerGetter, num_classes: int = 10, act_layer: Module | None = None, norm_layer: Callable[[int], Module] | None = None, drop_layer: Callable[..., Module] | None = None, conv_layer: Callable[..., Module] | None = None, same_padding: bool = True, input_shape: tuple[int, int, int] | None = None, final_upsampling: bool = False)
 ```
 
-Implements a dymanic U-Net architecture
+Implements a dynamic U-Net architecture
 
-| PARAMETER          | DESCRIPTION                                                                                                      |
-| ------------------ | ---------------------------------------------------------------------------------------------------------------- |
-| `encoder`          | feature extractor used for encoding **TYPE:** `IntermediateLayerGetter`                                          |
-| `num_classes`      | number of output classes **TYPE:** `int` **DEFAULT:** `10`                                                       |
-| `act_layer`        | activation layer **TYPE:** \`Module                                                                              |
-| `norm_layer`       | normalization layer **TYPE:** \`Callable\[[int], Module\]                                                        |
-| `drop_layer`       | dropout layer **TYPE:** \`Callable[..., Module]                                                                  |
-| `conv_layer`       | convolutional layer **TYPE:** \`Callable[..., Module]                                                            |
-| `same_padding`     | enforces same padding in convolutions **TYPE:** `bool` **DEFAULT:** `True`                                       |
-| `input_shape`      | shape of the input tensor **TYPE:** \`tuple[int, int, int]                                                       |
-| `final_upsampling` | if True, replaces transposed conv by bilinear interpolation for upsampling **TYPE:** `bool` **DEFAULT:** `False` |
+| PARAMETER          | DESCRIPTION                                                                                              |
+| ------------------ | -------------------------------------------------------------------------------------------------------- |
+| `encoder`          | feature extractor used for encoding **TYPE:** `IntermediateLayerGetter`                                  |
+| `num_classes`      | number of output classes **TYPE:** `int` **DEFAULT:** `10`                                               |
+| `act_layer`        | activation layer **TYPE:** \`Module                                                                      |
+| `norm_layer`       | normalization layer **TYPE:** \`Callable\[[int], Module\]                                                |
+| `drop_layer`       | dropout layer **TYPE:** \`Callable[..., Module]                                                          |
+| `conv_layer`       | convolutional layer **TYPE:** \`Callable[..., Module]                                                    |
+| `same_padding`     | enforces same padding in convolutions **TYPE:** `bool` **DEFAULT:** `True`                               |
+| `input_shape`      | shape of the input tensor **TYPE:** \`tuple[int, int, int]                                               |
+| `final_upsampling` | whether to upsample final decoder features to the input resolution **TYPE:** `bool` **DEFAULT:** `False` |
 
 Source code in `holocron/models/segmentation/unet.py`
 
@@ -1079,7 +1097,9 @@ def __init__(
     # Classifier
     self.classifier = nn.Conv2d(chans[0], num_classes, 1)
 
-    init_module(self, "relu")
+    for module in (self.bridge, self.decoder, self.upsample, self.classifier):
+        if module is not None:
+            init_module(module, "relu")
 ```
 
 #### unet2
@@ -1121,6 +1141,7 @@ def unet2(pretrained: bool = False, progress: bool = True, in_channels: int = 3,
         semantic segmentation model
     """
     backbone = UNetBackbone(default_cfgs["unet2"]["encoder_layout"], in_channels=in_channels).features
+    kwargs["input_shape"] = kwargs.get("input_shape") or (in_channels, 256, 256)
 
     return _dynamic_unet("unet2", backbone, pretrained, progress, **kwargs)  # ty: ignore[invalid-argument-type]
 ```
@@ -1259,6 +1280,7 @@ def unet_rexnet13(
         semantic segmentation model
     """
     backbone = rexnet1_3x(pretrained=pretrained_backbone and not pretrained, in_channels=in_channels).features
+    kwargs["input_shape"] = kwargs.get("input_shape") or (in_channels, 256, 256)
     kwargs["final_upsampling"] = kwargs.get("final_upsampling", True)
     kwargs["act_layer"] = kwargs.get("act_layer", nn.SiLU(inplace=True))
     # hotfix of https://github.com/pytorch/vision/issues/3802
@@ -1557,6 +1579,8 @@ def __init__(
     self.classifier = nn.Conv2d(len(layout) * layout[0], num_classes, 1)
 
     init_module(self, "relu")
+    # The classifier has no ReLU; keep logit variance independent of the number of classes.
+    nn.init.kaiming_normal_(self.classifier.weight, mode="fan_in", nonlinearity="linear")
 ```
 
 #### unet3p
@@ -1595,6 +1619,114 @@ def unet3p(pretrained: bool = False, progress: bool = True, **kwargs: Any) -> UN
         semantic segmentation model
     """
     return _unet("unet3p", pretrained, progress, **kwargs)  # type: ignore[return-value]
+```
+
+# Text recognition
+
+Holocron provides an experimental shared character backbone, glyph classifier, and CNN/BiGRU recognizer trained with connectionist temporal classification (CTC). Import them from `holocron.models.recognition`; training and synthetic benchmark generation are provided by the [recognition reference](https://github.com/frgfm/holocron/tree/main/references/recognition).
+
+The models accept grayscale tensors of shape `(N, 1, 32, W)`, normalized to `[-1, 1]`, with white padding equal to `+1` and width divisible by four. `lengths` contains each image's unpadded width divided by four. The recognizer returns log probabilities of shape `(W // 4, N, alphabet_size + 1)` with CTC blank at index zero. Loss and decoding must use the true lengths.
+
+```python
+import torch
+from holocron.models.recognition import CharacterClassifier, CTCRecognizer
+from holocron.utils import CTCCodec
+
+codec = CTCCodec("AB12 .")
+classifier = CharacterClassifier(num_classes=len(codec.alphabet))
+reader = CTCRecognizer(num_classes=len(codec.alphabet))
+# After glyph pretraining, transfer the visual encoder into the line model.
+reader.backbone.load_state_dict(classifier.backbone.state_dict())
+
+# Example input contract; train or load weights before using predictions.
+images = torch.ones(2, 1, 32, 80)
+lengths = torch.tensor([20, 12])
+reader.eval()
+with torch.inference_mode():
+    log_probabilities = reader(images, lengths)
+    labels = log_probabilities.argmax(-1).transpose(0, 1)
+    transcripts = [codec.decode(row[:length].tolist()) for row, length in zip(labels, lengths)]
+```
+
+`CTCCodec` accepts a custom printable Unicode alphabet, including ordinary space. It preserves predicted punctuation and repeats separated by blanks. `holocron.utils.prefix_beam_decode` optionally sums alternative alignments; it uses no dictionary or language model. Greedy decoding remains the measured default.
+
+The synthetic curriculum benchmarks 83 symbols across ten font families, holding two families out of every training stage. Its final degraded-page CER is 1.06% on both seen and held-out families, with 64% and 53% exact pages. The [full report](https://github.com/frgfm/holocron/blob/main/references/recognition/RESULTS.md) includes the control, training budgets, seeds, and residual errors. No public pretrained checkpoint is downloaded. These measurements cover separated, horizontal, single-column synthetic pages; real scans and general layouts remain unvalidated. Page detection and synthetic rendering remain experimental reference code.
+
+## CharacterBackbone
+
+```python
+CharacterBackbone()
+```
+
+Shared grayscale encoder for glyph classification and line recognition.
+
+Input images have shape `(N, 1, 32, W)` with widths divisible by four. The output has shape `(N, 96, 4, W // 4)`. Normalize grayscale images to [-1, 1], using +1 for white padding.
+
+Source code in `holocron/models/recognition/crnn.py`
+
+```python
+def __init__(self) -> None:
+    super().__init__()
+    layers: list[nn.Module] = []
+    channels = 1
+    for output, pool in [(24, (2, 2)), (48, (2, 2)), (96, (2, 1)), (96, None)]:
+        layers.extend([nn.Conv2d(channels, output, 3, padding=1, bias=False), nn.BatchNorm2d(output), nn.ReLU()])
+        if pool is not None:
+            layers.append(nn.MaxPool2d(pool))
+        channels = output
+    self.features = nn.Sequential(*layers)
+```
+
+## CharacterClassifier
+
+```python
+CharacterClassifier(num_classes: int)
+```
+
+Classify glyphs while retaining their vertical baseline position.
+
+| PARAMETER     | DESCRIPTION                                        |
+| ------------- | -------------------------------------------------- |
+| `num_classes` | number of output character classes **TYPE:** `int` |
+
+The input contract matches :class:`CharacterBackbone`. `lengths` is a one-dimensional integer tensor containing each image's unpadded width divided by four. Returns logits of shape `(N, num_classes)`. Transfer `backbone.state_dict()` directly to :class:`CTCRecognizer`.
+
+Source code in `holocron/models/recognition/crnn.py`
+
+```python
+def __init__(self, num_classes: int) -> None:
+    super().__init__()
+    if num_classes <= 0:
+        raise ValueError("num_classes must be positive")
+    self.backbone = CharacterBackbone()
+    self.head = nn.Linear(384, num_classes)
+```
+
+## CTCRecognizer
+
+```python
+CTCRecognizer(num_classes: int)
+```
+
+Compact CNN/BiGRU recognizer for variable-width text lines.
+
+| PARAMETER     | DESCRIPTION                                           |
+| ------------- | ----------------------------------------------------- |
+| `num_classes` | alphabet size excluding the CTC blank **TYPE:** `int` |
+
+The input contract matches :class:`CharacterBackbone`. `lengths` is a one-dimensional integer tensor of unpadded widths divided by four. Packed recurrence excludes padding from bidirectional context. Returns log probabilities of shape `(W // 4, N, num_classes + 1)` with blank at index zero. Ignore frames beyond each length during loss and decoding. The architecture is experimental; no pretrained weights are downloaded.
+
+Source code in `holocron/models/recognition/crnn.py`
+
+```python
+def __init__(self, num_classes: int) -> None:
+    super().__init__()
+    if num_classes <= 0:
+        raise ValueError("num_classes must be positive")
+    self.backbone = CharacterBackbone()
+    self.projection = nn.Sequential(nn.Linear(384, 128), nn.ReLU())
+    self.context = nn.GRU(128, 96, num_layers=2, batch_first=True, bidirectional=True, dropout=0.1)
+    self.head = nn.Linear(192, num_classes + 1)
 ```
 
 # holocron.nn
@@ -4252,35 +4384,43 @@ def __init__(self, *args: Any, num_classes: int = 10, **kwargs: Any) -> None:
 #### evaluate
 
 ```python
-evaluate(ignore_index: int = 255) -> dict[str, float]
+evaluate(ignore_index: int | None = None) -> dict[str, float]
 ```
 
 Evaluate the model on the validation set
 
-| PARAMETER      | DESCRIPTION                                                                   |
-| -------------- | ----------------------------------------------------------------------------- |
-| `ignore_index` | index of the class to ignore in evaluation **TYPE:** `int` **DEFAULT:** `255` |
+| PARAMETER      | DESCRIPTION                                                                                    |
+| -------------- | ---------------------------------------------------------------------------------------------- |
+| `ignore_index` | target value to exclude from metrics; defaults to the criterion's ignore_index **TYPE:** \`int |
 
-| RETURNS            | DESCRIPTION                                                     |
-| ------------------ | --------------------------------------------------------------- |
-| `dict[str, float]` | evaluation metrics (validation loss, global accuracy, mean IoU) |
+| RETURNS            | DESCRIPTION                                                                  |
+| ------------------ | ---------------------------------------------------------------------------- |
+| `dict[str, float]` | evaluation metrics (mean loss per labelled image, global accuracy, mean IoU) |
+
+| RAISES       | DESCRIPTION                                             |
+| ------------ | ------------------------------------------------------- |
+| `ValueError` | if validation has no labelled images with a finite loss |
 
 Source code in `holocron/trainer/segmentation.py`
 
 ```python
 @torch.inference_mode()
-def evaluate(self, ignore_index: int = 255) -> dict[str, float]:
+def evaluate(self, ignore_index: int | None = None) -> dict[str, float]:
     """Evaluate the model on the validation set
 
     Args:
-        ignore_index: index of the class to ignore in evaluation
+        ignore_index: target value to exclude from metrics; defaults to the criterion's ignore_index
 
     Returns:
-        evaluation metrics (validation loss, global accuracy, mean IoU)
+        evaluation metrics (mean loss per labelled image, global accuracy, mean IoU)
+
+    Raises:
+        ValueError: if validation has no labelled images with a finite loss
     """
     self.model.eval()
 
-    val_loss, mean_iou, num_valid_batches = 0.0, 0.0, 0
+    ignore_index = getattr(self.criterion, "ignore_index", 255) if ignore_index is None else ignore_index
+    val_loss, num_valid_samples = 0.0, 0
     conf_mat = torch.zeros(
         (self.num_classes, self.num_classes), dtype=torch.int64, device=next(self.model.parameters()).device
     )
@@ -4288,23 +4428,29 @@ def evaluate(self, ignore_index: int = 255) -> dict[str, float]:
         x, target = self.to_cuda(x, target)
 
         loss, out = self._get_loss(x, target, return_logits=True)  # ty: ignore[invalid-argument-type]
+        labeled = int((target != getattr(self.criterion, "ignore_index", 255)).flatten(1).any(1).sum())
 
         # Safeguard for NaN loss
-        if not torch.isnan(loss) and not torch.isinf(loss):
-            val_loss += loss.item()
-            num_valid_batches += 1
+        if torch.isfinite(loss) and labeled:
+            val_loss += loss.item() * labeled
+            num_valid_samples += labeled
 
         # borrowed from https://github.com/pytorch/vision/blob/master/references/segmentation/train.py
         pred = out.argmax(dim=1).flatten()
         target = target.flatten()
-        k = (target >= 0) & (target < self.num_classes)
+        k = (target >= 0) & (target < self.num_classes) & (target != ignore_index)
         inds = self.num_classes * target[k].to(torch.int64) + pred[k]
         nc = self.num_classes
         conf_mat += torch.bincount(inds, minlength=nc**2).reshape(nc, nc)
 
-    val_loss /= num_valid_batches
-    acc_global = (torch.diag(conf_mat).sum() / conf_mat.sum()).item()
-    mean_iou = (torch.diag(conf_mat) / (conf_mat.sum(1) + conf_mat.sum(0) - torch.diag(conf_mat))).mean().item()
+    if num_valid_samples == 0:
+        raise ValueError("Validation requires at least one batch with labelled pixels and a finite loss")
+    val_loss /= num_valid_samples
+    true_positive = torch.diag(conf_mat)
+    union = conf_mat.sum(1) + conf_mat.sum(0) - true_positive
+    present = union > 0
+    acc_global = (true_positive.sum() / conf_mat.sum().clamp_min(1)).item()
+    mean_iou = (true_positive[present] / union[present]).mean().item() if present.any() else 0.0
 
     return {"val_loss": val_loss, "acc_global": acc_global, "mean_iou": mean_iou}
 ```
@@ -4871,6 +5017,198 @@ def find_fonts(text: str | None = None) -> tuple[str, ...]:
             continue
         available.append(font_path)
     return tuple(available)
+```
+
+## CTC decoding
+
+Encode target characters and decode line-model predictions using an explicit alphabet. See the [recognition models](../models/recognition/) for the image and sequence-length contract.
+
+### recognition
+
+Alphabet encoding and lexicon-free CTC transcript decoding.
+
+#### CTCCodec
+
+```python
+CTCCodec(alphabet: str)
+```
+
+Map an ordered alphabet to CTC labels, reserving index zero for blank.
+
+| PARAMETER  | DESCRIPTION                                                                    |
+| ---------- | ------------------------------------------------------------------------------ |
+| `alphabet` | unique printable Unicode characters; ordinary space is allowed **TYPE:** `str` |
+
+| RAISES       | DESCRIPTION                                                              |
+| ------------ | ------------------------------------------------------------------------ |
+| `ValueError` | if the alphabet is empty, duplicated, or contains unsupported whitespace |
+
+Source code in `holocron/utils/recognition.py`
+
+```python
+def __init__(self, alphabet: str) -> None:
+    if not alphabet or len(set(alphabet)) != len(alphabet):
+        raise ValueError("alphabet must be nonempty with unique characters")
+    if any(not char.isprintable() or (char.isspace() and char != " ") for char in alphabet):
+        raise ValueError("only printable characters and ordinary spaces are supported")
+    if not alphabet.replace(" ", ""):
+        raise ValueError("alphabet must contain a visible character")
+    self.alphabet = alphabet
+    self.indices = {char: index + 1 for index, char in enumerate(alphabet)}
+```
+
+##### encode
+
+```python
+encode(text: str) -> Tensor
+```
+
+Encode text without inserting CTC blanks.
+
+| PARAMETER | DESCRIPTION                                                 |
+| --------- | ----------------------------------------------------------- |
+| `text`    | characters drawn from this codec's alphabet **TYPE:** `str` |
+
+| RETURNS  | DESCRIPTION                                       |
+| -------- | ------------------------------------------------- |
+| `Tensor` | one-dimensional CPU int64 tensor of target labels |
+
+| RAISES       | DESCRIPTION                                |
+| ------------ | ------------------------------------------ |
+| `ValueError` | if a character is absent from the alphabet |
+
+Source code in `holocron/utils/recognition.py`
+
+```python
+def encode(self, text: str) -> Tensor:
+    """Encode text without inserting CTC blanks.
+
+    Args:
+        text: characters drawn from this codec's alphabet
+
+    Returns:
+        one-dimensional CPU int64 tensor of target labels
+
+    Raises:
+        ValueError: if a character is absent from the alphabet
+    """
+    if any(char not in self.indices for char in text):
+        raise ValueError("text contains a character outside the alphabet")
+    return torch.tensor([self.indices[char] for char in text], dtype=torch.long)
+```
+
+##### decode
+
+```python
+decode(indices: Iterable[int]) -> str
+```
+
+Collapse a greedy CTC alignment, preserving repeats separated by blanks.
+
+| PARAMETER | DESCRIPTION                                                                               |
+| --------- | ----------------------------------------------------------------------------------------- |
+| `indices` | consecutive frame labels, truncated to the true sequence length **TYPE:** `Iterable[int]` |
+
+| RETURNS | DESCRIPTION                                                    |
+| ------- | -------------------------------------------------------------- |
+| `str`   | decoded transcript, including predicted spaces and punctuation |
+
+| RAISES       | DESCRIPTION                                           |
+| ------------ | ----------------------------------------------------- |
+| `ValueError` | if an index is outside the blank/alphabet label range |
+
+Source code in `holocron/utils/recognition.py`
+
+```python
+def decode(self, indices: Iterable[int]) -> str:
+    """Collapse a greedy CTC alignment, preserving repeats separated by blanks.
+
+    Args:
+        indices: consecutive frame labels, truncated to the true sequence length
+
+    Returns:
+        decoded transcript, including predicted spaces and punctuation
+
+    Raises:
+        ValueError: if an index is outside the blank/alphabet label range
+    """
+    result = []
+    previous = 0
+    for index in indices:
+        if not 0 <= index <= len(self.alphabet):
+            raise ValueError("CTC indices must lie between zero and the alphabet size")
+        if index and index != previous:
+            result.append(self.alphabet[index - 1])
+        previous = index
+    return "".join(result)
+```
+
+#### prefix_beam_decode
+
+```python
+prefix_beam_decode(log_probabilities: ndarray, codec: CTCCodec, beam_width: int = 5, token_topk: int = 8) -> str
+```
+
+Approximate the most probable transcript, respecting blanks and repeated letters.
+
+| PARAMETER           | DESCRIPTION                                                                                         |
+| ------------------- | --------------------------------------------------------------------------------------------------- |
+| `log_probabilities` | frame log probabilities of shape (T, alphabet size + 1) **TYPE:** `ndarray`                         |
+| `codec`             | alphabet whose blank index is zero **TYPE:** `CTCCodec`                                             |
+| `beam_width`        | number of transcript prefixes retained per frame **TYPE:** `int` **DEFAULT:** `5`                   |
+| `token_topk`        | maximum nonblank frame labels considered; blank is always included **TYPE:** `int` **DEFAULT:** `8` |
+
+| RETURNS | DESCRIPTION                                                          |
+| ------- | -------------------------------------------------------------------- |
+| `str`   | the best prefix after summing blank/nonblank alignment probabilities |
+
+| RAISES       | DESCRIPTION                                                 |
+| ------------ | ----------------------------------------------------------- |
+| `ValueError` | if beam width, token count, or probability shape is invalid |
+
+Source code in `holocron/utils/recognition.py`
+
+```python
+def prefix_beam_decode(log_probabilities: np.ndarray, codec: CTCCodec, beam_width: int = 5, token_topk: int = 8) -> str:
+    """Approximate the most probable transcript, respecting blanks and repeated letters.
+
+    Args:
+        log_probabilities: frame log probabilities of shape (T, alphabet size + 1)
+        codec: alphabet whose blank index is zero
+        beam_width: number of transcript prefixes retained per frame
+        token_topk: maximum nonblank frame labels considered; blank is always included
+
+    Returns:
+        the best prefix after summing blank/nonblank alignment probabilities
+
+    Raises:
+        ValueError: if beam width, token count, or probability shape is invalid
+    """
+    if beam_width <= 0 or token_topk <= 0:
+        raise ValueError("beam_width and token_topk must be positive")
+    if log_probabilities.ndim != 2 or log_probabilities.shape[1] != len(codec.alphabet) + 1:
+        raise ValueError("log_probabilities must have shape (T, alphabet size + 1)")
+    beams: dict[tuple[int, ...], tuple[float, float]] = {(): (0.0, -math.inf)}
+    for frame in log_probabilities:
+        top = np.argsort(frame[1:])[-token_topk:] + 1
+        candidates: dict[tuple[int, ...], tuple[float, float]] = {}
+        for prefix, (blank, nonblank) in beams.items():
+            total = _logadd(blank, nonblank)
+            old_blank, old_nonblank = candidates.get(prefix, (-math.inf, -math.inf))
+            candidates[prefix] = (_logadd(old_blank, total + float(frame[0])), old_nonblank)
+            for raw_token in top:
+                token = int(raw_token)
+                score = float(frame[token])
+                repeated = bool(prefix) and prefix[-1] == token
+                if repeated:
+                    old_blank, old_nonblank = candidates[prefix]
+                    candidates[prefix] = (old_blank, _logadd(old_nonblank, nonblank + score))
+                extended = (*prefix, token)
+                old_blank, old_nonblank = candidates.get(extended, (-math.inf, -math.inf))
+                candidates[extended] = (old_blank, _logadd(old_nonblank, (blank if repeated else total) + score))
+        beams = dict(sorted(candidates.items(), key=lambda pair: _logadd(*pair[1]), reverse=True)[:beam_width])
+    prefix = max(beams, key=lambda prefix: _logadd(*beams[prefix]))
+    return "".join(codec.alphabet[index - 1] for index in prefix)
 ```
 
 ## Miscellaneous

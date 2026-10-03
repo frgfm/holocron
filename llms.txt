@@ -11,6 +11,7 @@
 ## Package Reference
 
 - [holocron.models](https://frgfm.github.io/holocron/reference/models/models/index.md)
+- [Text recognition](https://frgfm.github.io/holocron/reference/models/recognition/index.md)
 - [Layers](https://frgfm.github.io/holocron/reference/nn/index.md)
 - [Operators](https://frgfm.github.io/holocron/reference/ops/index.md)
 - [Optimizers](https://frgfm.github.io/holocron/reference/optim/index.md)

@@ -1,14 +1,15 @@
 # holocron.models
 
-The models subpackage contains definitions of models for addressing different tasks, including: image classification, pixelwise semantic segmentation and object detection.
+The models subpackage contains definitions of models for addressing different tasks, including: image classification, pixelwise semantic segmentation, object detection, and text recognition.
 
 ## Support status
 
-| Task                  | Architectures          | Published checkpoints                                                                    | Training                                                                                           | ONNX                                                                                                                       | Status                                                                        |
-| --------------------- | ---------------------- | ---------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
-| Classification        | 15 families            | Imagenette checkpoints with top-1/top-5 metrics; selected ReXNet ImageNet-1K checkpoints | [Reference script](https://github.com/frgfm/holocron/blob/main/references/classification/train.py) | [Classification export](https://github.com/frgfm/holocron/blob/main/scripts/export_to_onnx.py)                             | **Validated**                                                                 |
-| Semantic segmentation | U-Net, U-Net++, UNet3+ | Only the legacy `unet_rexnet13` weights; dataset and metric are not documented           | [Reference script](https://github.com/frgfm/holocron/blob/main/references/segmentation/train.py)   | Not documented                                                                                                             | **Unbenchmarked**                                                             |
-| Object detection      | YOLOv1, YOLOv2, YOLOv4 | None                                                                                     | [Reference script](https://github.com/frgfm/holocron/blob/main/references/detection/train.py)      | [Export tests](https://github.com/frgfm/holocron/blob/main/tests/test_models_detection.py); runtime parity not benchmarked | **Experimental**; [YOLOv4 learning check verified](#yolo-training-validation) |
+| Task                                | Architectures               | Published checkpoints                                                                    | Training                                                                                           | ONNX                                                                                                                       | Status                                                                        |
+| ----------------------------------- | --------------------------- | ---------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| Classification                      | 15 families                 | Imagenette checkpoints with top-1/top-5 metrics; selected ReXNet ImageNet-1K checkpoints | [Reference script](https://github.com/frgfm/holocron/blob/main/references/classification/train.py) | [Classification export](https://github.com/frgfm/holocron/blob/main/scripts/export_to_onnx.py)                             | **Validated**                                                                 |
+| Semantic segmentation               | U-Net, U-Net++, UNet3+      | Only the legacy `unet_rexnet13` weights; dataset and metric are not documented           | [Reference script](https://github.com/frgfm/holocron/blob/main/references/segmentation/train.py)   | Not documented                                                                                                             | **Unbenchmarked**                                                             |
+| Object detection                    | YOLOv1, YOLOv2, YOLOv4      | None                                                                                     | [Reference script](https://github.com/frgfm/holocron/blob/main/references/detection/train.py)      | [Export tests](https://github.com/frgfm/holocron/blob/main/tests/test_models_detection.py); runtime parity not benchmarked | **Experimental**; [YOLOv4 learning check verified](#yolo-training-validation) |
+| [Text recognition](../recognition/) | Shared glyph CNN, BiGRU/CTC | None; training produces local checkpoints                                                | [Synthetic curriculum](https://github.com/frgfm/holocron/tree/main/references/recognition)         | Not validated                                                                                                              | **Experimental**; synthetic CPU benchmark                                     |
 
 **Validated** means published task checkpoints and metrics are available. **Unbenchmarked** means an implementation or legacy weight exists without a documented evaluation dataset and metric. **Experimental** means the API is available, but published task weights and a confirmed benchmark are not.
 
@@ -710,20 +711,35 @@ def __init__(
     self.bridge = nn.Sequential(
         nn.MaxPool2d((2, 2)),
         *conv_sequence(
-            layout[-1], 2 * layout[-1], act_layer, norm_layer, drop_layer, conv_layer, kernel_size=3, padding=1
+            layout[-1],
+            2 * layout[-1],
+            act_layer,
+            norm_layer,
+            drop_layer,
+            conv_layer,
+            kernel_size=3,
+            padding=int(same_padding),
         ),
         *conv_sequence(
-            2 * layout[-1], layout[-1], act_layer, norm_layer, drop_layer, conv_layer, kernel_size=3, padding=1
+            2 * layout[-1],
+            layout[-1],
+            act_layer,
+            norm_layer,
+            drop_layer,
+            conv_layer,
+            kernel_size=3,
+            padding=int(same_padding),
         ),
     )
 
     # Expansive path
     self.decoder = nn.ModuleList([])
     layout_ = [chan // 2 if bilinear_upsampling else chan for chan in layout[::-1][:-1]] + [layout[0]]
-    for in_chan, out_chan in zip([2 * layout[-1], *layout[::-1][:-1]], layout_, strict=True):
+    up_chan = layout[-1]
+    for left_chan, out_chan in zip(layout[::-1], layout_, strict=True):
         self.decoder.append(
             UpPath(
-                in_chan,
+                left_chan + up_chan,
                 out_chan,
                 bilinear_upsampling,
                 int(same_padding),
@@ -731,8 +747,10 @@ def __init__(
                 norm_layer,
                 drop_layer,
                 conv_layer,
+                up_chan=up_chan,
             )
         )
+        up_chan = out_chan
 
     # Classifier
     self.classifier = nn.Conv2d(layout[0], num_classes, 1)
@@ -784,19 +802,19 @@ def unet(pretrained: bool = False, progress: bool = True, **kwargs: Any) -> UNet
 DynamicUNet(encoder: IntermediateLayerGetter, num_classes: int = 10, act_layer: Module | None = None, norm_layer: Callable[[int], Module] | None = None, drop_layer: Callable[..., Module] | None = None, conv_layer: Callable[..., Module] | None = None, same_padding: bool = True, input_shape: tuple[int, int, int] | None = None, final_upsampling: bool = False)
 ```
 
-Implements a dymanic U-Net architecture
+Implements a dynamic U-Net architecture
 
-| PARAMETER          | DESCRIPTION                                                                                                      |
-| ------------------ | ---------------------------------------------------------------------------------------------------------------- |
-| `encoder`          | feature extractor used for encoding **TYPE:** `IntermediateLayerGetter`                                          |
-| `num_classes`      | number of output classes **TYPE:** `int` **DEFAULT:** `10`                                                       |
-| `act_layer`        | activation layer **TYPE:** \`Module                                                                              |
-| `norm_layer`       | normalization layer **TYPE:** \`Callable\[[int], Module\]                                                        |
-| `drop_layer`       | dropout layer **TYPE:** \`Callable[..., Module]                                                                  |
-| `conv_layer`       | convolutional layer **TYPE:** \`Callable[..., Module]                                                            |
-| `same_padding`     | enforces same padding in convolutions **TYPE:** `bool` **DEFAULT:** `True`                                       |
-| `input_shape`      | shape of the input tensor **TYPE:** \`tuple[int, int, int]                                                       |
-| `final_upsampling` | if True, replaces transposed conv by bilinear interpolation for upsampling **TYPE:** `bool` **DEFAULT:** `False` |
+| PARAMETER          | DESCRIPTION                                                                                              |
+| ------------------ | -------------------------------------------------------------------------------------------------------- |
+| `encoder`          | feature extractor used for encoding **TYPE:** `IntermediateLayerGetter`                                  |
+| `num_classes`      | number of output classes **TYPE:** `int` **DEFAULT:** `10`                                               |
+| `act_layer`        | activation layer **TYPE:** \`Module                                                                      |
+| `norm_layer`       | normalization layer **TYPE:** \`Callable\[[int], Module\]                                                |
+| `drop_layer`       | dropout layer **TYPE:** \`Callable[..., Module]                                                          |
+| `conv_layer`       | convolutional layer **TYPE:** \`Callable[..., Module]                                                    |
+| `same_padding`     | enforces same padding in convolutions **TYPE:** `bool` **DEFAULT:** `True`                               |
+| `input_shape`      | shape of the input tensor **TYPE:** \`tuple[int, int, int]                                               |
+| `final_upsampling` | whether to upsample final decoder features to the input resolution **TYPE:** `bool` **DEFAULT:** `False` |
 
 Source code in `holocron/models/segmentation/unet.py`
 
@@ -860,7 +878,9 @@ def __init__(
     # Classifier
     self.classifier = nn.Conv2d(chans[0], num_classes, 1)
 
-    init_module(self, "relu")
+    for module in (self.bridge, self.decoder, self.upsample, self.classifier):
+        if module is not None:
+            init_module(module, "relu")
 ```
 
 #### unet2
@@ -902,6 +922,7 @@ def unet2(pretrained: bool = False, progress: bool = True, in_channels: int = 3,
         semantic segmentation model
     """
     backbone = UNetBackbone(default_cfgs["unet2"]["encoder_layout"], in_channels=in_channels).features
+    kwargs["input_shape"] = kwargs.get("input_shape") or (in_channels, 256, 256)
 
     return _dynamic_unet("unet2", backbone, pretrained, progress, **kwargs)  # ty: ignore[invalid-argument-type]
 ```
@@ -1040,6 +1061,7 @@ def unet_rexnet13(
         semantic segmentation model
     """
     backbone = rexnet1_3x(pretrained=pretrained_backbone and not pretrained, in_channels=in_channels).features
+    kwargs["input_shape"] = kwargs.get("input_shape") or (in_channels, 256, 256)
     kwargs["final_upsampling"] = kwargs.get("final_upsampling", True)
     kwargs["act_layer"] = kwargs.get("act_layer", nn.SiLU(inplace=True))
     # hotfix of https://github.com/pytorch/vision/issues/3802
@@ -1338,6 +1360,8 @@ def __init__(
     self.classifier = nn.Conv2d(len(layout) * layout[0], num_classes, 1)
 
     init_module(self, "relu")
+    # The classifier has no ReLU; keep logit variance independent of the number of classes.
+    nn.init.kaiming_normal_(self.classifier.weight, mode="fan_in", nonlinearity="linear")
 ```
 
 #### unet3p
