@@ -1681,6 +1681,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#v030-2026-10-03" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.3.0 (2026-10-03)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v021-2022-07-16" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1793,6 +1804,17 @@
     <span class="md-ellipsis">
       
         Unreleased
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v030-2026-10-03" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.3.0 (2026-10-03)
       
     </span>
   </a>
@@ -1935,7 +1957,13 @@
 
 <h1 id="changelog">Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h1>
 <h2 id="unreleased">Unreleased<a class="headerlink" href="#unreleased" title="Permanent link">&para;</a></h2>
+<h2 id="v030-2026-10-03">v0.3.0 (2026-10-03)<a class="headerlink" href="#v030-2026-10-03" title="Permanent link">&para;</a></h2>
+<p>Release note: <a href="https://github.com/frgfm/Holocron/releases/tag/v0.3.0">v0.3.0</a></p>
 <ul>
+<li>Require Python 3.11 or newer and update the PyTorch, torchvision, Hugging Face Hub, and Pillow requirements.</li>
+<li>Add ConvNeXt, MobileOne, RepViT, character classifiers, and CTC text recognition, with expanded classification checkpoints and reference training tools.</li>
+<li>Add Adan and AdEMAMix, gradient accumulation, dataset analysis, and ONNX export and latency utilities.</li>
+<li>Secure remote checkpoint loading and restore UNet-family segmentation training and RepViT deployment conversion correctness.</li>
 <li>Repair YOLOv4 target assignment, BCE/CIoU losses, prediction initialization, AMP box geometry, and custom-anchor checkpoint loading.</li>
 <li>Correct shared confidence filtering, class-aware NMS, and detection evaluation matching while preserving YOLOv1/v2 loss behavior.</li>
 <li>Add a reproducible YOLOv4 CPU learning diagnostic with a frozen pretrained backbone, finite-gradient checks, normal-inference acceptance, and a saved checkpoint. Full CUDA/VOC training of the repaired implementation remains pending; YOLOv3 remains unimplemented as a detector.</li>

@@ -2,7 +2,7 @@
 
 Choose the matching version
 
-Development commands match these pages. PyPI `0.2.1` predates them, so some APIs differ.
+These pages follow the `main` branch. The latest PyPI release may not include recent changes. Install from source to use unreleased APIs.
 
 ## Virtual environment
 
@@ -17,11 +17,11 @@ $ uv venv --python 3.11
 ```
 
 ```bash
-$ uv pip install "pylocron @ git+https://github.com/frgfm/holocron.git"
+$ uv pip install pylocron
 ```
 
 ```bash
-$ uv pip install pylocron
+$ uv pip install "pylocron @ git+https://github.com/frgfm/holocron.git"
 ```
 
 ## System installation
@@ -29,19 +29,19 @@ $ uv pip install pylocron
 You'll need [Python](https://www.python.org/downloads/) 3.11 or higher, and a package installer like [uv](https://docs.astral.sh/uv/getting-started/installation/) or [pip](https://packaging.python.org/en/latest/tutorials/installing-packages/).
 
 ```bash
-$ uv pip install --system "pylocron @ git+https://github.com/frgfm/holocron.git"
-```
-
-```bash
 $ uv pip install --system pylocron
 ```
 
 ```bash
-$ pip install "pylocron @ git+https://github.com/frgfm/holocron.git"
+$ uv pip install --system "pylocron @ git+https://github.com/frgfm/holocron.git"
 ```
 
 ```bash
 $ pip install pylocron
+```
+
+```bash
+$ pip install "pylocron @ git+https://github.com/frgfm/holocron.git"
 ```
 
 Info
