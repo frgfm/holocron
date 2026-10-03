@@ -10,14 +10,7 @@ Full CUDA/VOC training on the final repaired implementation remains pending. Thi
 
 ## Getting started
 
-Ensure that you have holocron installed
-
-```bash
-git clone https://github.com/frgfm/Holocron.git
-cd Holocron
-uv sync --locked --extra training
-cd references/detection
-```
+Follow the [shared installation instructions](../README.md#installation), then run the training commands from `references/detection`.
 
 No need to download the dataset, torchvision will handle [this](https://pytorch.org/docs/stable/torchvision/datasets.html#torchvision.datasets.VOCDetection) for you! From there, you can run your training with the following command
 

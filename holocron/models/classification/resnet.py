@@ -14,7 +14,7 @@ from holocron.nn import GlobalAvgPool2d, init
 
 from ..checkpoints import Checkpoint, _handle_legacy_pretrained
 from ..presets import IMAGENET, IMAGENETTE
-from ..utils import _checkpoint, _configure_model, conv_sequence
+from ..utils import _checkpoint, _configure_model, _imagenette_recipe, conv_sequence
 
 __all__ = [
     "BasicBlock",
@@ -460,11 +460,7 @@ class ResNet18_Checkpoint(Enum):
         size=44787043,
         num_params=11181642,
         commit="6e32c5b578711a2ef3731a8f8c61760ed9f03e58",
-        train_args=(
-            "./imagenette2-320/ --arch resnet18 --batch-size 64 --mixup-alpha 0.2 --amp --device 0 --epochs 100"
-            " --lr 1e-3 --label-smoothing 0.1 --random-erase 0.1 --train-crop-size 176 --val-resize-size 232"
-            " --opt adamw --weight-decay 5e-2"
-        ),
+        train_args=_imagenette_recipe("resnet18"),
     )
     DEFAULT = IMAGENETTE
 
@@ -510,11 +506,7 @@ class ResNet34_Checkpoint(Enum):
         size=85267035,
         num_params=21289802,
         commit="6e32c5b578711a2ef3731a8f8c61760ed9f03e58",
-        train_args=(
-            "./imagenette2-320/ --arch resnet34 --batch-size 64 --mixup-alpha 0.2 --amp --device 0 --epochs 100"
-            " --lr 1e-3 --label-smoothing 0.1 --random-erase 0.1 --train-crop-size 176 --val-resize-size 232"
-            " --opt adamw --weight-decay 5e-2"
-        ),
+        train_args=_imagenette_recipe("resnet34"),
     )
     DEFAULT = IMAGENETTE
 
@@ -555,11 +547,7 @@ class ResNet50_Checkpoint(Enum):
         size=94384682,
         num_params=23528522,
         commit="6e32c5b578711a2ef3731a8f8c61760ed9f03e58",
-        train_args=(
-            "./imagenette2-320/ --arch resnet50 --batch-size 64 --mixup-alpha 0.2 --amp --device 0 --epochs 100"
-            " --lr 1e-3 --label-smoothing 0.1 --random-erase 0.1 --train-crop-size 176 --val-resize-size 232"
-            " --opt adamw --weight-decay 5e-2"
-        ),
+        train_args=_imagenette_recipe("resnet50"),
     )
     DEFAULT = IMAGENETTE
 
@@ -605,11 +593,7 @@ class ResNet50D_Checkpoint(Enum):
         size=94464810,
         num_params=23547754,
         commit="6e32c5b578711a2ef3731a8f8c61760ed9f03e58",
-        train_args=(
-            "./imagenette2-320/ --arch resnet50d --batch-size 64 --mixup-alpha 0.2 --amp --device 0 --epochs 100"
-            " --lr 1e-3 --label-smoothing 0.1 --random-erase 0.1 --train-crop-size 176 --val-resize-size 232"
-            " --opt adamw --weight-decay 5e-2"
-        ),
+        train_args=_imagenette_recipe("resnet50d"),
     )
     DEFAULT = IMAGENETTE
 
@@ -702,11 +686,7 @@ class ResNeXt50_32x4d_Checkpoint(Enum):
         size=92332638,
         num_params=23000394,
         commit="6e32c5b578711a2ef3731a8f8c61760ed9f03e58",
-        train_args=(
-            "./imagenette2-320/ --arch resnext50_32x4d --batch-size 64 --mixup-alpha 0.2 --amp --device 0 --epochs 100"
-            " --lr 1e-3 --label-smoothing 0.1 --random-erase 0.1 --train-crop-size 176 --val-resize-size 232"
-            " --opt adamw --weight-decay 5e-2"
-        ),
+        train_args=_imagenette_recipe("resnext50_32x4d"),
     )
     DEFAULT = IMAGENETTE
 

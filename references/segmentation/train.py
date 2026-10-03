@@ -6,16 +6,13 @@
 """Training script for semantic segmentation"""
 
 import datetime
-import os
 import time
 from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 from pathlib import Path
 
 import matplotlib.pyplot as plt
 import torch
-import torch.utils.data
 from torch import nn
-from torch.utils.data import RandomSampler, SequentialSampler
 from torchvision.datasets import VOCSegmentation
 from torchvision.models import segmentation as tv_segmentation
 from torchvision.transforms import v2 as T
@@ -29,6 +26,7 @@ else:
 import holocron
 from holocron.models import segmentation
 from holocron.trainer import SegmentationTrainer
+from holocron.trainer._reference import add_loading_args, create_loader, create_optimizer
 from holocron.utils.misc import find_image_size
 
 VOC_CLASSES = [
@@ -153,14 +151,12 @@ def main(args):
             find_image_size(train_set)
             return
 
-        train_loader = torch.utils.data.DataLoader(
+        train_loader = create_loader(
             train_set,
-            batch_size=args.batch_size,
+            args,
+            training=True,
             drop_last=args.source == "torchvision",
-            sampler=RandomSampler(train_set),
-            num_workers=args.workers,
             pin_memory=isinstance(args.device, int),
-            persistent_workers=args.workers > 0,
         )
 
         print(
@@ -185,14 +181,8 @@ def main(args):
             ]),
         )
 
-        val_loader = torch.utils.data.DataLoader(
-            val_set,
-            batch_size=args.batch_size,
-            drop_last=False,
-            sampler=SequentialSampler(val_set),
-            num_workers=args.workers,
-            pin_memory=isinstance(args.device, int),
-            persistent_workers=args.workers > 0,
+        val_loader = create_loader(
+            val_set, args, training=False, drop_last=False, pin_memory=isinstance(args.device, int)
         )
 
         print(f"Validation set loaded in {time.time() - st:.2f}s ({len(val_set)} samples in {len(val_loader)} batches)")
@@ -220,21 +210,7 @@ def main(args):
         criterion = holocron.nn.MutualChannelLoss(weight=loss_weight, ignore_index=255, xi=3)
 
     # Optimizer setup
-    model_params = [p for p in model.parameters() if p.requires_grad]
-    if args.opt == "sgd":
-        optimizer = torch.optim.SGD(model_params, args.lr, momentum=0.9, weight_decay=args.weight_decay)
-    elif args.opt == "radam":
-        optimizer = holocron.optim.RAdam(
-            model_params, args.lr, betas=(0.95, 0.99), eps=1e-6, weight_decay=args.weight_decay
-        )
-    elif args.opt == "adamp":
-        optimizer = holocron.optim.AdamP(
-            model_params, args.lr, betas=(0.95, 0.99), eps=1e-6, weight_decay=args.weight_decay
-        )
-    elif args.opt == "adabelief":
-        optimizer = holocron.optim.AdaBelief(
-            model_params, args.lr, betas=(0.95, 0.99), eps=1e-6, weight_decay=args.weight_decay
-        )
+    optimizer = create_optimizer(model, args)
 
     log_wb = wandb.log if args.wb else None
     trainer = SegmentationTrainer(
@@ -326,16 +302,7 @@ def get_parser():
     group.add_argument("--pretrained", action="store_true", help="Use pre-trained models from the modelzoo")
     group.add_argument("--output-file", default="./checkpoints/model.pth", help="path where to save")
     group.add_argument("--resume", default="", help="resume from checkpoint")
-    # Hardware
-    group = parser.add_argument_group("Hardware")
-    group.add_argument("--device", default=None, type=int, help="device")
-    group.add_argument("--amp", help="Use Automatic Mixed Precision", action="store_true")
-    # Data loading
-    group = parser.add_argument_group("Data loading")
-    group.add_argument("-b", "--batch-size", default=32, type=int, help="batch size")
-    group.add_argument(
-        "-j", "--workers", default=min(os.cpu_count(), 16), type=int, help="number of data loading workers"
-    )
+    add_loading_args(parser)
     # Transformations
     group = parser.add_argument_group("Transformations")
     group.add_argument("--img-size", default=256, type=int, help="training crop and validation image size")

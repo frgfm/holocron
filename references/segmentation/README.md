@@ -4,20 +4,15 @@ The sample training script trains semantic segmentation models on [PASCAL VOC 20
 
 ## Getting started
 
-Ensure that you have holocron installed
-
-```bash
-git clone https://github.com/frgfm/Holocron.git
-pip install -e "Holocron/.[training]"
-```
+Follow the [shared installation instructions](../README.md#installation). Run the commands below from the repository root.
 
 No need to download the dataset, torchvision will handle [this](https://pytorch.org/docs/stable/torchvision/datasets.html#torchvision.datasets.VOCSegmentation) for you! From there, you can run your training with the following command
 
 ```bash
-python references/segmentation/train.py VOC2012 --arch unet3p -b 4 -j 4 --opt radam --lr 1e-3 --sched onecycle --epochs 20 --img-size 256
+uv run --no-sync python references/segmentation/train.py VOC2012 --arch unet3p -b 4 -j 4 --opt radam --lr 1e-3 --sched onecycle --epochs 20 --img-size 256
 ```
 
-Run from the repository root. `--arch unet` and `--arch unetpp` use the same pipeline. Existing `VOCdevkit/VOC2012` directories are reused without downloading.
+`--arch unet` and `--arch unetpp` use the same pipeline. Existing `VOCdevkit/VOC2012` directories are reused without downloading.
 
 `--img-size` controls the training crop and validation resolution. `--norm-wd` sets normalization weight decay, and `--grad-acc` accumulates microbatches, including partial batches at epoch end. Holocron retains partial training batches; torchvision drops them to avoid singleton BatchNorm failures. Cross-entropy, focal, and mutual-channel losses support ignored labels (`255`); mutual-channel evaluation uses deterministic class scores. Validation loss averages labelled images independently of batch grouping and rejects entirely unlabelled datasets. Mean IoU excludes classes absent from both targets and predictions.
 

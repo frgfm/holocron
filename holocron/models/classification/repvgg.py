@@ -14,7 +14,7 @@ from torch import nn
 from holocron.nn import GlobalAvgPool2d, init
 
 from ..checkpoints import Checkpoint, _handle_legacy_pretrained
-from ..utils import _checkpoint, _configure_model, conv_sequence, fuse_conv_bn
+from ..utils import _checkpoint, _configure_model, _imagenette_recipe, conv_sequence, fuse_conv_bn
 
 __all__ = [
     "RepBlock",
@@ -198,11 +198,7 @@ class RepVGG_A0_Checkpoint(Enum):
         size=99183419,
         num_params=24741642,
         commit="d4a59999179b42fc0d3058ac6b76cc41f49dd56e",
-        train_args=(
-            "./imagenette2-320/ --arch repvgg_a0 --batch-size 64 --mixup-alpha 0.2 --amp --device 0 --epochs 100"
-            " --lr 1e-3 --label-smoothing 0.1 --random-erase 0.1 --train-crop-size 176 --val-resize-size 232"
-            " --opt adamw --weight-decay 5e-2"
-        ),
+        train_args=_imagenette_recipe("repvgg_a0"),
     )
     DEFAULT = IMAGENETTE
 
@@ -248,11 +244,7 @@ class RepVGG_A1_Checkpoint(Enum):
         size=120724868,
         num_params=30119946,
         commit="d4a59999179b42fc0d3058ac6b76cc41f49dd56e",
-        train_args=(
-            "./imagenette2-320/ --arch repvgg_a1 --batch-size 64 --mixup-alpha 0.2 --amp --device 0 --epochs 100"
-            " --lr 1e-3 --label-smoothing 0.1 --random-erase 0.1 --train-crop-size 176 --val-resize-size 232"
-            " --opt adamw --weight-decay 5e-2"
-        ),
+        train_args=_imagenette_recipe("repvgg_a1"),
     )
     DEFAULT = IMAGENETTE
 
@@ -298,11 +290,7 @@ class RepVGG_A2_Checkpoint(Enum):
         size=194822538,
         num_params=48629514,
         commit="d4a59999179b42fc0d3058ac6b76cc41f49dd56e",
-        train_args=(
-            "./imagenette2-320/ --arch repvgg_a2 --batch-size 64 --mixup-alpha 0.2 --amp --device 0 --epochs 100"
-            " --lr 1e-3 --label-smoothing 0.1 --random-erase 0.1 --train-crop-size 176 --val-resize-size 232"
-            " --opt adamw --weight-decay 5e-2"
-        ),
+        train_args=_imagenette_recipe("repvgg_a2"),
     )
     DEFAULT = IMAGENETTE
 
@@ -348,11 +336,7 @@ class RepVGG_B0_Checkpoint(Enum):
         size=127668600,
         num_params=31845642,
         commit="d4a59999179b42fc0d3058ac6b76cc41f49dd56e",
-        train_args=(
-            "./imagenette2-320/ --arch repvgg_b0 --batch-size 64 --mixup-alpha 0.2 --amp --device 0 --epochs 100"
-            " --lr 1e-3 --label-smoothing 0.1 --random-erase 0.1 --train-crop-size 176 --val-resize-size 232"
-            " --opt adamw --weight-decay 5e-2"
-        ),
+        train_args=_imagenette_recipe("repvgg_b0"),
     )
     DEFAULT = IMAGENETTE
 
@@ -398,11 +382,7 @@ class RepVGG_B1_Checkpoint(Enum):
         size=403763795,
         num_params=100829194,
         commit="d4a59999179b42fc0d3058ac6b76cc41f49dd56e",
-        train_args=(
-            "./imagenette2-320/ --arch repvgg_b1 --batch-size 64 --mixup-alpha 0.2 --amp --device 0 --epochs 100"
-            " --lr 1e-3 --label-smoothing 0.1 --random-erase 0.1 --train-crop-size 176 --val-resize-size 232"
-            " --opt adamw --weight-decay 5e-2"
-        ),
+        train_args=_imagenette_recipe("repvgg_b1"),
     )
     DEFAULT = IMAGENETTE
 
@@ -448,11 +428,7 @@ class RepVGG_B2_Checkpoint(Enum):
         size=630382163,
         num_params=157462410,
         commit="d4a59999179b42fc0d3058ac6b76cc41f49dd56e",
-        train_args=(
-            "./imagenette2-320/ --arch repvgg_b2 --batch-size 32 --grad-acc 2 --mixup-alpha 0.2 --amp --device 0"
-            " --epochs 100 --lr 1e-3 --label-smoothing 0.1 --random-erase 0.1 --train-crop-size 176"
-            " --val-resize-size 232 --opt adamw --weight-decay 5e-2"
-        ),
+        train_args=_imagenette_recipe("repvgg_b2", batch_size=32),
     )
     DEFAULT = IMAGENETTE
 

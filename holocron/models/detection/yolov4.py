@@ -4,6 +4,7 @@
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
 from collections.abc import Callable
+from functools import partial
 from typing import Any
 
 import torch
@@ -50,86 +51,21 @@ class PAN(nn.Module):
     ) -> None:
         super().__init__()
 
-        self.conv1 = nn.Sequential(
-            *conv_sequence(
-                in_channels,
-                in_channels // 2,
-                act_layer,
-                norm_layer,
-                drop_layer,
-                conv_layer,
-                kernel_size=1,
-                bias=(norm_layer is None),
-            )
+        conv = partial(
+            conv_sequence, act_layer=act_layer, norm_layer=norm_layer, drop_layer=drop_layer, conv_layer=conv_layer
         )
+
+        self.conv1 = nn.Sequential(*conv(in_channels, in_channels // 2, kernel_size=1))
         self.up = nn.Upsample(scale_factor=2, mode="nearest")
 
-        self.conv2 = nn.Sequential(
-            *conv_sequence(
-                in_channels,
-                in_channels // 2,
-                act_layer,
-                norm_layer,
-                drop_layer,
-                conv_layer,
-                kernel_size=1,
-                bias=(norm_layer is None),
-            )
-        )
+        self.conv2 = nn.Sequential(*conv(in_channels, in_channels // 2, kernel_size=1))
 
         self.convs = nn.Sequential(
-            *conv_sequence(
-                in_channels,
-                in_channels // 2,
-                act_layer,
-                norm_layer,
-                drop_layer,
-                conv_layer,
-                kernel_size=1,
-                bias=(norm_layer is None),
-            ),
-            *conv_sequence(
-                in_channels // 2,
-                in_channels,
-                act_layer,
-                norm_layer,
-                drop_layer,
-                conv_layer,
-                kernel_size=3,
-                padding=1,
-                bias=(norm_layer is None),
-            ),
-            *conv_sequence(
-                in_channels,
-                in_channels // 2,
-                act_layer,
-                norm_layer,
-                drop_layer,
-                conv_layer,
-                kernel_size=1,
-                bias=(norm_layer is None),
-            ),
-            *conv_sequence(
-                in_channels // 2,
-                in_channels,
-                act_layer,
-                norm_layer,
-                drop_layer,
-                conv_layer,
-                kernel_size=3,
-                padding=1,
-                bias=(norm_layer is None),
-            ),
-            *conv_sequence(
-                in_channels,
-                in_channels // 2,
-                act_layer,
-                norm_layer,
-                drop_layer,
-                conv_layer,
-                kernel_size=1,
-                bias=(norm_layer is None),
-            ),
+            *conv(in_channels, in_channels // 2, kernel_size=1),
+            *conv(in_channels // 2, in_channels, kernel_size=3, padding=1),
+            *conv(in_channels, in_channels // 2, kernel_size=1),
+            *conv(in_channels // 2, in_channels, kernel_size=3, padding=1),
+            *conv(in_channels, in_channels // 2, kernel_size=1),
         )
 
     def forward(self, x: Tensor, up: Tensor) -> Tensor:
@@ -151,70 +87,18 @@ class Neck(nn.Module):
     ) -> None:
         super().__init__()
 
+        conv = partial(
+            conv_sequence, act_layer=act_layer, norm_layer=norm_layer, drop_layer=drop_layer, conv_layer=conv_layer
+        )
+
         self.fpn = nn.Sequential(
-            *conv_sequence(
-                in_planes[0],
-                in_planes[0] // 2,
-                act_layer,
-                norm_layer,
-                drop_layer,
-                conv_layer,
-                kernel_size=1,
-                bias=(norm_layer is None),
-            ),
-            *conv_sequence(
-                in_planes[0] // 2,
-                in_planes[0],
-                act_layer,
-                norm_layer,
-                drop_layer,
-                conv_layer,
-                kernel_size=3,
-                padding=1,
-                bias=(norm_layer is None),
-            ),
-            *conv_sequence(
-                in_planes[0],
-                in_planes[0] // 2,
-                act_layer,
-                norm_layer,
-                drop_layer,
-                conv_layer,
-                kernel_size=1,
-                bias=(norm_layer is None),
-            ),
+            *conv(in_planes[0], in_planes[0] // 2, kernel_size=1),
+            *conv(in_planes[0] // 2, in_planes[0], kernel_size=3, padding=1),
+            *conv(in_planes[0], in_planes[0] // 2, kernel_size=1),
             SPP([5, 9, 13]),
-            *conv_sequence(
-                4 * in_planes[0] // 2,
-                in_planes[0] // 2,
-                act_layer,
-                norm_layer,
-                drop_layer,
-                conv_layer,
-                kernel_size=1,
-                bias=(norm_layer is None),
-            ),
-            *conv_sequence(
-                in_planes[0] // 2,
-                in_planes[0],
-                act_layer,
-                norm_layer,
-                drop_layer,
-                conv_layer,
-                kernel_size=3,
-                padding=1,
-                bias=(norm_layer is None),
-            ),
-            *conv_sequence(
-                in_planes[0],
-                in_planes[0] // 2,
-                act_layer,
-                norm_layer,
-                drop_layer,
-                conv_layer,
-                kernel_size=1,
-                bias=(norm_layer is None),
-            ),
+            *conv(4 * in_planes[0] // 2, in_planes[0] // 2, kernel_size=1),
+            *conv(in_planes[0] // 2, in_planes[0], kernel_size=3, padding=1),
+            *conv(in_planes[0], in_planes[0] // 2, kernel_size=1),
         )
 
         self.pan1 = PAN(in_planes[1], act_layer, norm_layer, drop_layer, conv_layer)
@@ -472,52 +356,17 @@ class Yolov4Head(nn.Module):
             anchor_mask=torch.arange(3),
         )
 
-        self.pre_head2 = nn.Sequential(
-            *conv_sequence(
-                128,
-                256,
-                act_layer,
-                norm_layer,
-                drop_layer,
-                conv_layer,
-                kernel_size=3,
-                padding=1,
-                stride=2,
-                bias=(norm_layer is None),
-            )
+        conv = partial(
+            conv_sequence, act_layer=act_layer, norm_layer=norm_layer, drop_layer=drop_layer, conv_layer=conv_layer
         )
+
+        self.pre_head2 = nn.Sequential(*conv(128, 256, kernel_size=3, padding=1, stride=2))
         self.head2_1 = nn.Sequential(
-            *conv_sequence(
-                512, 256, act_layer, norm_layer, drop_layer, conv_layer, kernel_size=1, bias=(norm_layer is None)
-            ),
-            *conv_sequence(
-                256,
-                512,
-                act_layer,
-                norm_layer,
-                drop_layer,
-                conv_layer,
-                kernel_size=3,
-                padding=1,
-                bias=(norm_layer is None),
-            ),
-            *conv_sequence(
-                512, 256, act_layer, norm_layer, drop_layer, conv_layer, kernel_size=1, bias=(norm_layer is None)
-            ),
-            *conv_sequence(
-                256,
-                512,
-                act_layer,
-                norm_layer,
-                drop_layer,
-                conv_layer,
-                kernel_size=3,
-                padding=1,
-                bias=(norm_layer is None),
-            ),
-            *conv_sequence(
-                512, 256, act_layer, norm_layer, drop_layer, conv_layer, kernel_size=1, bias=(norm_layer is None)
-            ),
+            *conv(512, 256, kernel_size=1),
+            *conv(256, 512, kernel_size=3, padding=1),
+            *conv(512, 256, kernel_size=1),
+            *conv(256, 512, kernel_size=3, padding=1),
+            *conv(512, 256, kernel_size=1),
         )
         self.head2_2 = nn.Sequential(
             *conv_sequence(
@@ -534,63 +383,14 @@ class Yolov4Head(nn.Module):
             anchor_mask=torch.arange(3, 6),
         )
 
-        self.pre_head3 = nn.Sequential(
-            *conv_sequence(
-                256,
-                512,
-                act_layer,
-                norm_layer,
-                drop_layer,
-                conv_layer,
-                kernel_size=3,
-                padding=1,
-                stride=2,
-                bias=(norm_layer is None),
-            )
-        )
+        self.pre_head3 = nn.Sequential(*conv(256, 512, kernel_size=3, padding=1, stride=2))
         self.head3 = nn.Sequential(
-            *conv_sequence(
-                1024, 512, act_layer, norm_layer, drop_layer, conv_layer, kernel_size=1, bias=(norm_layer is None)
-            ),
-            *conv_sequence(
-                512,
-                1024,
-                act_layer,
-                norm_layer,
-                drop_layer,
-                conv_layer,
-                kernel_size=3,
-                padding=1,
-                bias=(norm_layer is None),
-            ),
-            *conv_sequence(
-                1024, 512, act_layer, norm_layer, drop_layer, conv_layer, kernel_size=1, bias=(norm_layer is None)
-            ),
-            *conv_sequence(
-                512,
-                1024,
-                act_layer,
-                norm_layer,
-                drop_layer,
-                conv_layer,
-                kernel_size=3,
-                padding=1,
-                bias=(norm_layer is None),
-            ),
-            *conv_sequence(
-                1024, 512, act_layer, norm_layer, drop_layer, conv_layer, kernel_size=1, bias=(norm_layer is None)
-            ),
-            *conv_sequence(
-                512,
-                1024,
-                act_layer,
-                norm_layer,
-                drop_layer,
-                conv_layer,
-                kernel_size=3,
-                padding=1,
-                bias=(norm_layer is None),
-            ),
+            *conv(1024, 512, kernel_size=1),
+            *conv(512, 1024, kernel_size=3, padding=1),
+            *conv(1024, 512, kernel_size=1),
+            *conv(512, 1024, kernel_size=3, padding=1),
+            *conv(1024, 512, kernel_size=1),
+            *conv(512, 1024, kernel_size=3, padding=1),
             *conv_sequence(1024, (5 + num_classes) * 3, None, None, None, conv_layer, kernel_size=1, bias=True),
         )
 
