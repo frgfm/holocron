@@ -1107,21 +1107,8 @@ def __init__(
         act_layer = nn.ReLU(inplace=True)
 
     # Contracting path
-    self.encoder = nn.ModuleList([])
-    layout_ = [in_channels, *layout]
-    pool = False
-    for in_chan, out_chan in pairwise(layout_):
-        self.encoder.append(down_path(in_chan, out_chan, pool, 1, act_layer, norm_layer, drop_layer, conv_layer))
-        pool = True
-
-    self.bridge = nn.Sequential(
-        nn.MaxPool2d((2, 2)),
-        *conv_sequence(
-            layout[-1], 2 * layout[-1], act_layer, norm_layer, drop_layer, conv_layer, kernel_size=3, padding=1
-        ),
-        *conv_sequence(
-            2 * layout[-1], layout[-1], act_layer, norm_layer, drop_layer, conv_layer, kernel_size=3, padding=1
-        ),
+    self.encoder, self.bridge = _encoder_and_bridge(
+        layout, in_channels, act_layer, norm_layer, drop_layer, conv_layer
     )
 
     # Expansive path
@@ -1215,21 +1202,8 @@ def __init__(
         act_layer = nn.ReLU(inplace=True)
 
     # Contracting path
-    self.encoder = nn.ModuleList([])
-    layout_ = [in_channels, *layout]
-    pool = False
-    for in_chan, out_chan in pairwise(layout_):
-        self.encoder.append(down_path(in_chan, out_chan, pool, 1, act_layer, norm_layer, drop_layer, conv_layer))
-        pool = True
-
-    self.bridge = nn.Sequential(
-        nn.MaxPool2d((2, 2)),
-        *conv_sequence(
-            layout[-1], 2 * layout[-1], act_layer, norm_layer, drop_layer, conv_layer, kernel_size=3, padding=1
-        ),
-        *conv_sequence(
-            2 * layout[-1], layout[-1], act_layer, norm_layer, drop_layer, conv_layer, kernel_size=3, padding=1
-        ),
+    self.encoder, self.bridge = _encoder_and_bridge(
+        layout, in_channels, act_layer, norm_layer, drop_layer, conv_layer
     )
 
     # Expansive path
