@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+## v0.3.0 (2026-10-03)
+Release note: [v0.3.0](https://github.com/frgfm/Holocron/releases/tag/v0.3.0)
+
+- Require Python 3.11 or newer and update the PyTorch, torchvision, Hugging Face Hub, and Pillow requirements.
+- Add ConvNeXt, MobileOne, RepViT, character classifiers, and CTC text recognition, with expanded classification checkpoints and reference training tools.
+- Add Adan and AdEMAMix, gradient accumulation, dataset analysis, and ONNX export and latency utilities.
+- Secure remote checkpoint loading and restore UNet-family segmentation training and RepViT deployment conversion correctness.
 - Repair YOLOv4 target assignment, BCE/CIoU losses, prediction initialization, AMP box geometry, and custom-anchor checkpoint loading.
 - Correct shared confidence filtering, class-aware NMS, and detection evaluation matching while preserving YOLOv1/v2 loss behavior.
 - Add a reproducible YOLOv4 CPU learning diagnostic with a frozen pretrained backbone, finite-gradient checks, normal-inference acceptance, and a saved checkpoint. Full CUDA/VOC training of the repaired implementation remains pending; YOLOv3 remains unimplemented as a detector.

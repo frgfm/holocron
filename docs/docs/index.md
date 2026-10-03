@@ -6,10 +6,8 @@
 
 Holocron is meant to bridge the gap between [PyTorch](https://pytorch.org/) and latest research papers. It brings training components that are not available yet in PyTorch with a similar interface.
 
-!!! warning "Development documentation"
-    These pages follow the `main` branch and Holocron `0.2.2.dev0`. The stable
-    PyPI release is `0.2.1`, and some APIs differ. See the
-    [installation options](getting-started/installation.md).
+!!! info "Development documentation"
+    These pages follow the `main` branch. The latest PyPI release may not include recent changes.
 
 This project is meant for:
 
@@ -21,10 +19,10 @@ This project is meant for:
 Create and activate a virtual environment and then install Holocron:
 
 ```shell
-uv pip install "pylocron @ git+https://github.com/frgfm/holocron.git"
+uv pip install pylocron
 ```
 
-For stable `0.2.1` and system-wide options, see the
+For development and system-wide options, see the
 [installation guide](getting-started/installation.md).
 
 ## Quick start
