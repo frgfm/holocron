@@ -17,10 +17,11 @@ import torch
 from torch import nn
 from torch.utils.data import DataLoader
 
+from holocron.models.recognition import CharacterClassifier, CTCRecognizer
+from holocron.utils import CTCCodec
 from references.classification.train_characters import _sha256, resolve_font_records
-from references.recognition.data import ALPHABET, Codec, SyntheticTextDataset, collate_lines, inspect_fonts, split_fonts
+from references.recognition.data import ALPHABET, SyntheticTextDataset, collate_lines, inspect_fonts, split_fonts
 from references.recognition.evaluate import evaluate_characters, evaluate_lines
-from references.recognition.model import CharacterClassifier, CTCRecognizer
 
 
 def ctc_loss(probabilities, lengths, texts, codec):
@@ -86,7 +87,7 @@ def main(args):
         raise ValueError("--stop-after-epochs must be between one and --epochs")
     torch.set_num_threads(args.threads)
     torch.manual_seed(args.seed)
-    codec = Codec(args.alphabet)
+    codec = CTCCodec(args.alphabet)
     records, manifest = resolve_font_records(codec.alphabet.replace(" ", ""), args.font_dir, args.manifest)
     records = inspect_fonts(records, codec.alphabet)
     train_fonts, held_fonts = split_fonts(records, args.held_out)

@@ -18,18 +18,17 @@ from PIL import Image
 from PIL import __version__ as pillow_version
 from torch.utils.data import DataLoader
 
+from holocron.models.recognition import CharacterClassifier, CTCRecognizer
+from holocron.utils import CTCCodec, prefix_beam_decode
 from references.classification.train_characters import _sha256, resolve_font_records
 from references.recognition.data import (
     FIELD_NAMES,
-    Codec,
     SyntheticTextDataset,
     collate_lines,
     image_tensor,
     inspect_fonts,
     render_page,
 )
-from references.recognition.decoding import prefix_beam_decode
-from references.recognition.model import CharacterClassifier, CTCRecognizer
 
 
 def edit_distance(reference, prediction):
@@ -195,7 +194,7 @@ def transcribe_page(model, codec, image, device="cpu", batch_size=32, beam_width
 
 def load_checkpoint(path, device):
     checkpoint = torch.load(path, map_location="cpu", weights_only=True)
-    codec = Codec(checkpoint["alphabet"])
+    codec = CTCCodec(checkpoint["alphabet"])
     model = (
         CharacterClassifier(len(codec.alphabet))
         if checkpoint["task"] == "characters"

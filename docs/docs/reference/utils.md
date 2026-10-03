@@ -58,6 +58,19 @@ Font License.
             - render_text
             - find_fonts
 
+## CTC decoding
+
+Encode target characters and decode line-model predictions using an explicit
+alphabet. See the [recognition models](models/recognition.md) for the image and
+sequence-length contract.
+
+::: holocron.utils.recognition
+    options:
+        heading_level: 3
+        members:
+            - CTCCodec
+            - prefix_beam_decode
+
 ## Miscellaneous
 
 ::: holocron.utils

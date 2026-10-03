@@ -4,14 +4,8 @@
   "conditions": [
     {
       "by_content": {
-        "fields": {
-          "cer": 0.00511820619059225,
-          "exact": 0.928
-        },
-        "random": {
-          "cer": 0.06415384615384616,
-          "exact": 0.4961832061068702
-        }
+        "fields": {"cer": 0.00511820619059225, "exact": 0.928},
+        "random": {"cer": 0.06415384615384616, "exact": 0.4961832061068702}
       },
       "cer": 0.041309063472602096,
       "deskew": false,
@@ -20,14 +14,8 @@
     },
     {
       "by_content": {
-        "fields": {
-          "cer": 0.005849378503534,
-          "exact": 0.912
-        },
-        "random": {
-          "cer": 0.03353846153846154,
-          "exact": 0.6335877862595419
-        }
+        "fields": {"cer": 0.005849378503534, "exact": 0.912},
+        "random": {"cer": 0.03353846153846154, "exact": 0.6335877862595419}
       },
       "cer": 0.02282372913326417,
       "deskew": 4,
@@ -36,14 +24,8 @@
     },
     {
       "by_content": {
-        "fields": {
-          "cer": 0.004874482086278333,
-          "exact": 0.932
-        },
-        "random": {
-          "cer": 0.03353846153846154,
-          "exact": 0.6259541984732825
-        }
+        "fields": {"cer": 0.004874482086278333, "exact": 0.932},
+        "random": {"cer": 0.03353846153846154, "exact": 0.6259541984732825}
       },
       "cer": 0.022446477412053193,
       "deskew": 6,
@@ -52,14 +34,8 @@
     },
     {
       "by_content": {
-        "fields": {
-          "cer": 0.00511820619059225,
-          "exact": 0.928
-        },
-        "random": {
-          "cer": 0.03584615384615385,
-          "exact": 0.6068702290076335
-        }
+        "fields": {"cer": 0.00511820619059225, "exact": 0.928},
+        "random": {"cer": 0.03584615384615385, "exact": 0.6068702290076335}
       },
       "cer": 0.023955484296897103,
       "deskew": 8,
@@ -67,12 +43,6 @@
       "seconds": 6.943759964000037
     }
   ],
-  "dataset": {
-    "augment": true,
-    "font_split": "training families only",
-    "max_length": 48,
-    "samples": 512,
-    "seed": 100001
-  },
+  "dataset": {"augment": true, "font_split": "training families only", "max_length": 48, "samples": 512, "seed": 100001},
   "minimum_concentration_gain": 1.03
 }

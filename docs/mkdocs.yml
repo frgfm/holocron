@@ -78,6 +78,7 @@ plugins:
         - getting-started/notebooks.md
       Package Reference:
         - reference/models/models.md
+        - reference/models/recognition.md
         - reference/nn.md
         - reference/ops.md
         - reference/optim.md
@@ -177,6 +178,7 @@ nav:
   - Package Reference:
     - Models:
       - reference/models/models.md
+      - Text recognition: reference/models/recognition.md
       - Classification:
         - reference/models/classification/resnet.md
         - reference/models/classification/resnext.md

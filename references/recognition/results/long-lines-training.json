@@ -7,10 +7,7 @@
     "device": "cpu",
     "epochs": 24,
     "font_dir": "/workspace/ocr-fonts",
-    "held_out": [
-      "Noto Serif",
-      "Ubuntu"
-    ],
+    "held_out": ["Noto Serif", "Ubuntu"],
     "init": "/workspace/ocr-runs/transfer/best.pth",
     "lr": 0.0003,
     "manifest": "references/fonts/ocr-latin.json",
@@ -25,183 +22,41 @@
     "workers": 1
   },
   "fonts": [
-    {
-      "family": "Montserrat",
-      "file": "Montserrat.ttf",
-      "sha256": "0f7b311b2f3279e4eef9b2f968bcdbab6e28f4daeb1f049f4f278a902bcd82f7"
-    },
-    {
-      "family": "Lora",
-      "file": "Lora.ttf",
-      "sha256": "822a6621ccbe8d97d20ac88c1c41f5615c9c2c202eaa75f272cd452aac6475a7"
-    },
-    {
-      "family": "Roboto Mono",
-      "file": "RobotoMono.ttf",
-      "sha256": "66a80e79d17e4c7cabd162e2916578a4cc08fd19eef6e2a643305eae9c567b2b"
-    },
-    {
-      "family": "Noto Sans",
-      "file": "NotoSans.ttf",
-      "sha256": "bfb7bb691513f12e734dc346c03a03f784912432d7e3fa8e56efcf906fe86b3d"
-    },
-    {
-      "family": "Open Sans",
-      "file": "OpenSans.ttf",
-      "sha256": "36643644f318a812aab2d2ed3bb98f8cf0872527f835fe9398d95fe6b9adb878"
-    },
-    {
-      "family": "Source Sans 3",
-      "file": "SourceSans3.ttf",
-      "sha256": "042fe2cc0b933e328410d7acbd0aa6a1873dca5aef81875f4bc214b08825c7b9"
-    },
-    {
-      "family": "IBM Plex Mono",
-      "file": "IBMPlexMono.ttf",
-      "sha256": "6a3412f058c7d8dfd9170c41e85ade48e5156ecb89356110ca57a0a27734af46"
-    },
-    {
-      "family": "PT Serif",
-      "file": "PTSerif.ttf",
-      "sha256": "a4951fade06ff8f09b7673aa81ffb65a8cd409e24d3289a6dc670bc4dda2557a"
-    }
+    {"family": "Montserrat", "file": "Montserrat.ttf", "sha256": "0f7b311b2f3279e4eef9b2f968bcdbab6e28f4daeb1f049f4f278a902bcd82f7"},
+    {"family": "Lora", "file": "Lora.ttf", "sha256": "822a6621ccbe8d97d20ac88c1c41f5615c9c2c202eaa75f272cd452aac6475a7"},
+    {"family": "Roboto Mono", "file": "RobotoMono.ttf", "sha256": "66a80e79d17e4c7cabd162e2916578a4cc08fd19eef6e2a643305eae9c567b2b"},
+    {"family": "Noto Sans", "file": "NotoSans.ttf", "sha256": "bfb7bb691513f12e734dc346c03a03f784912432d7e3fa8e56efcf906fe86b3d"},
+    {"family": "Open Sans", "file": "OpenSans.ttf", "sha256": "36643644f318a812aab2d2ed3bb98f8cf0872527f835fe9398d95fe6b9adb878"},
+    {"family": "Source Sans 3", "file": "SourceSans3.ttf", "sha256": "042fe2cc0b933e328410d7acbd0aa6a1873dca5aef81875f4bc214b08825c7b9"},
+    {"family": "IBM Plex Mono", "file": "IBMPlexMono.ttf", "sha256": "6a3412f058c7d8dfd9170c41e85ade48e5156ecb89356110ca57a0a27734af46"},
+    {"family": "PT Serif", "file": "PTSerif.ttf", "sha256": "a4951fade06ff8f09b7673aa81ffb65a8cd409e24d3289a6dc670bc4dda2557a"}
   ],
   "held_out_fonts": [
-    {
-      "family": "Noto Serif",
-      "file": "NotoSerif.ttf",
-      "sha256": "4d8e6761424656867019081a1a01336f3cb086982682698714054fc33f782713"
-    },
-    {
-      "family": "Ubuntu",
-      "file": "Ubuntu.ttf",
-      "sha256": "3128df86a31805618436d0ae5651ba4285d0c9de0a39057d025f64ee33bceb64"
-    }
+    {"family": "Noto Serif", "file": "NotoSerif.ttf", "sha256": "4d8e6761424656867019081a1a01336f3cb086982682698714054fc33f782713"},
+    {"family": "Ubuntu", "file": "Ubuntu.ttf", "sha256": "3128df86a31805618436d0ae5651ba4285d0c9de0a39057d025f64ee33bceb64"}
   ],
   "history": [
-    {
-      "epoch": 1,
-      "lr": 0.0003,
-      "seconds": 37.30331215699994,
-      "train_loss": 0.19932940579019487,
-      "validation_cer": 0.06620767707252664,
-      "validation_exact_match": 0.65234375
-    },
-    {
-      "epoch": 2,
-      "lr": 0.0002988450562854644,
-      "seconds": 38.91689842799997,
-      "train_loss": 0.17867888777982444,
-      "validation_cer": 0.058945581439215314,
-      "validation_exact_match": 0.689453125
-    },
-    {
-      "epoch": 3,
-      "lr": 0.00029539998654902423,
-      "seconds": 38.677563271999816,
-      "train_loss": 0.1558840632205829,
-      "validation_cer": 0.05555031594831651,
-      "validation_exact_match": 0.6953125
-    },
-    {
-      "epoch": 4,
-      "lr": 0.00028972373688902374,
-      "seconds": 38.51144000600016,
-      "train_loss": 0.15554870828054845,
-      "validation_cer": 0.050928982363482034,
-      "validation_exact_match": 0.703125
-    },
-    {
-      "epoch": 5,
-      "lr": 0.00028191342951089924,
-      "seconds": 37.124051374000146,
-      "train_loss": 0.13216741860378534,
-      "validation_cer": 0.04800528152409696,
-      "validation_exact_match": 0.724609375
-    },
-    {
-      "epoch": 6,
-      "lr": 0.00027210270093931677,
-      "seconds": 36.746355169000026,
-      "train_loss": 0.12933048862032592,
-      "validation_cer": 0.05470149957559181,
-      "validation_exact_match": 0.6640625
-    },
-    {
-      "epoch": 7,
-      "lr": 0.00026045941546018394,
-      "seconds": 36.432956688000104,
-      "train_loss": 0.12219605565769598,
-      "validation_cer": 0.04253513156653777,
-      "validation_exact_match": 0.716796875
-    },
-    {
-      "epoch": 8,
-      "lr": 0.00024718279291617736,
-      "seconds": 36.06500548899999,
-      "train_loss": 0.1328900868538767,
-      "validation_cer": 0.04225219277562954,
-      "validation_exact_match": 0.7109375
-    },
-    {
-      "epoch": 9,
-      "lr": 0.00023250000000000007,
-      "seconds": 36.50497689000008,
-      "train_loss": 0.11817870842060074,
-      "validation_cer": 0.041309063472602096,
-      "validation_exact_match": 0.70703125
-    },
-    {
-      "epoch": 10,
-      "lr": 0.0002166622633692872,
-      "seconds": 34.49964159900014,
-      "train_loss": 0.11985988938249648,
-      "validation_cer": 0.04187494105441856,
-      "validation_exact_match": 0.708984375
-    },
-    {
-      "epoch": 11,
-      "lr": 0.00019994057108884035,
-      "seconds": 37.10123104500008,
-      "train_loss": 0.11123408918501809,
-      "validation_cer": 0.03913986607563897,
-      "validation_exact_match": 0.732421875
-    },
-    {
-      "epoch": 12,
-      "lr": 0.00018262103594970702,
-      "seconds": 38.10052321400008,
-      "train_loss": 0.1069877797854133,
-      "validation_cer": 0.03744223333018957,
-      "validation_exact_match": 0.7265625
-    },
-    {
-      "epoch": 13,
-      "lr": 0.00016500000000000003,
-      "seconds": 35.81364543200016,
-      "train_loss": 0.10056211258051917,
-      "validation_cer": 0.032915212675657834,
-      "validation_exact_match": 0.744140625
-    }
+    {"epoch": 1, "lr": 0.0003, "seconds": 37.30331215699994, "train_loss": 0.19932940579019487, "validation_cer": 0.06620767707252664, "validation_exact_match": 0.65234375},
+    {"epoch": 2, "lr": 0.0002988450562854644, "seconds": 38.91689842799997, "train_loss": 0.17867888777982444, "validation_cer": 0.058945581439215314, "validation_exact_match": 0.689453125},
+    {"epoch": 3, "lr": 0.00029539998654902423, "seconds": 38.677563271999816, "train_loss": 0.1558840632205829, "validation_cer": 0.05555031594831651, "validation_exact_match": 0.6953125},
+    {"epoch": 4, "lr": 0.00028972373688902374, "seconds": 38.51144000600016, "train_loss": 0.15554870828054845, "validation_cer": 0.050928982363482034, "validation_exact_match": 0.703125},
+    {"epoch": 5, "lr": 0.00028191342951089924, "seconds": 37.124051374000146, "train_loss": 0.13216741860378534, "validation_cer": 0.04800528152409696, "validation_exact_match": 0.724609375},
+    {"epoch": 6, "lr": 0.00027210270093931677, "seconds": 36.746355169000026, "train_loss": 0.12933048862032592, "validation_cer": 0.05470149957559181, "validation_exact_match": 0.6640625},
+    {"epoch": 7, "lr": 0.00026045941546018394, "seconds": 36.432956688000104, "train_loss": 0.12219605565769598, "validation_cer": 0.04253513156653777, "validation_exact_match": 0.716796875},
+    {"epoch": 8, "lr": 0.00024718279291617736, "seconds": 36.06500548899999, "train_loss": 0.1328900868538767, "validation_cer": 0.04225219277562954, "validation_exact_match": 0.7109375},
+    {"epoch": 9, "lr": 0.00023250000000000007, "seconds": 36.50497689000008, "train_loss": 0.11817870842060074, "validation_cer": 0.041309063472602096, "validation_exact_match": 0.70703125},
+    {"epoch": 10, "lr": 0.0002166622633692872, "seconds": 34.49964159900014, "train_loss": 0.11985988938249648, "validation_cer": 0.04187494105441856, "validation_exact_match": 0.708984375},
+    {"epoch": 11, "lr": 0.00019994057108884035, "seconds": 37.10123104500008, "train_loss": 0.11123408918501809, "validation_cer": 0.03913986607563897, "validation_exact_match": 0.732421875},
+    {"epoch": 12, "lr": 0.00018262103594970702, "seconds": 38.10052321400008, "train_loss": 0.1069877797854133, "validation_cer": 0.03744223333018957, "validation_exact_match": 0.7265625},
+    {"epoch": 13, "lr": 0.00016500000000000003, "seconds": 35.81364543200016, "train_loss": 0.10056211258051917, "validation_cer": 0.032915212675657834, "validation_exact_match": 0.744140625}
   ],
-  "initialized_from": {
-    "epoch": 17,
-    "sha256": "80e779b426cba1c8f665300e7918311f3559a3c817fecfc5ecf2ae60e5170e42",
-    "task": "lines"
-  },
+  "initialized_from": {"epoch": 17, "sha256": "80e779b426cba1c8f665300e7918311f3559a3c817fecfc5ecf2ae60e5170e42", "task": "lines"},
   "manifest": {
     "path": "/workspace/holocron/references/fonts/ocr-latin.json",
-    "source_revisions": {
-      "google-fonts": "038b637da7b3fd956a4ed93ffc607c3d5e4ce172"
-    },
+    "source_revisions": {"google-fonts": "038b637da7b3fd956a4ed93ffc607c3d5e4ce172"},
     "version": 1
   },
   "parameters": 498236,
-  "runtime": {
-    "device": "cpu",
-    "python": "3.11.16",
-    "threads": 3,
-    "torch": "2.13.0+cu130"
-  },
+  "runtime": {"device": "cpu", "python": "3.11.16", "threads": 3, "torch": "2.13.0+cu130"},
   "task": "lines"
 }

@@ -9,86 +9,11 @@
           "character_errors": 23,
           "characters": 16295,
           "errors": [
-            {
-              "prediction": "Amount: 0z2bu7J0lXP",
-              "reference": "Amount: Oz2bu7J0lXP"
-            },
-            {
-              "prediction": "Date: vqiBIAFclS",
-              "reference": "Date: vqiBJAFclS"
-            },
-            {
-              "prediction": "Total: 7560.771",
-              "reference": "Total: 7560.71"
-            },
-            {
-              "prediction": "Account: yEuzrdKzWyF",
-              "reference": "Account: yEuzrdKzVWyF"
-            },
-            {
-              "prediction": "Email: URqa8Amn",
-              "reference": "Email: URqa8An"
-            },
-            {
-              "prediction": "Invoice: M6DK9KPxs",
-              "reference": "Invoice: M6DK9KIPxs"
-            },
-            {
-              "prediction": "Email: gyPQ6WWI",
-              "reference": "Email: IgyPQ6WWI"
-            },
-            {
-              "prediction": "Account: f72zlamD5",
-              "reference": "Account: f72zIamD5"
-            },
-            {
-              "prediction": "Email: eRLlc2G",
-              "reference": "Email: eRLIc2G"
-            },
-            {
-              "prediction": "Reference: k1HjQ",
-              "reference": "Reference: kIHjQ"
-            },
-            {
-              "prediction": "Total: U1lwtUZdQgPTy",
-              "reference": "Total: UIwtUZdQgPTy"
-            },
-            {
-              "prediction": "Account: lU4gXx",
-              "reference": "Account: IU4gXx"
-            },
-            {
-              "prediction": "Date: Q6HQIUcCLs",
-              "reference": "Date: Q6HQIUcCls"
-            },
-            {
-              "prediction": "Date: V17EHfjks3",
-              "reference": "Date: V17EHfijks3"
-            },
-            {
-              "prediction": "Amount: UmwfG4d",
-              "reference": "Amount: JUmwfG4d"
-            },
-            {
-              "prediction": "Balance: GLJeolJ",
-              "reference": "Balance: GLJeoIJ"
-            },
-            {
-              "prediction": "Invoice: Eoqsj9yG",
-              "reference": "Invoice: EoqsJj9yG"
-            },
-            {
-              "prediction": "Email: 4006f",
-              "reference": "Email: 40O6f"
-            },
-            {
-              "prediction": "Date: uleCaigHU",
-              "reference": "Date: uIeCaigHU"
-            },
-            {
-              "prediction": "Email: E1VIVpcMI",
-              "reference": "Email: E1VlVpcMI"
-            }
+            {"prediction": "Amount: 0z2bu7J0lXP", "reference": "Amount: Oz2bu7J0lXP"},
+            {"prediction": "Date: vqiBIAFclS", "reference": "Date: vqiBJAFclS"},
+            {"prediction": "Total: 7560.771", "reference": "Total: 7560.71"},
+            {"prediction": "Account: yEuzrdKzWyF", "reference": "Account: yEuzrdKzVWyF"},
+            {"prediction": "Email: URqa8Amn", "reference": "Email: URqa8An"}
           ],
           "exact_match": 0.979,
           "samples": 1000,
@@ -101,86 +26,11 @@
           "character_errors": 182,
           "characters": 12217,
           "errors": [
-            {
-              "prediction": "9.K?h,dx5eG5@9Wwr:q0",
-              "reference": "9.K?h,dx5eG5@9WwrJq0"
-            },
-            {
-              "prediction": "y(,/1_l-1kRhw!_.\"AVr+",
-              "reference": "y(,/1_l-C1kRhw!_.\"AVr+"
-            },
-            {
-              "prediction": "XI?Y8Q",
-              "reference": "Xl?Y8Q"
-            },
-            {
-              "prediction": "FmyRqfFLB7Ap/&=C,y/J7,7",
-              "reference": "F'myRqfFLB7Ap/&=C,y/)7,7"
-            },
-            {
-              "prediction": "'",
-              "reference": "\""
-            },
-            {
-              "prediction": ",kE,+qjoQCV!Iq2E",
-              "reference": ",kE,+qjjoQCV!Iq2E"
-            },
-            {
-              "prediction": "QcOn\"Eu=!",
-              "reference": "QcOn\"Eu= !"
-            },
-            {
-              "prediction": "6XzCfbF'aQ$GY3Zu;aQdd,YB",
-              "reference": "8XzCfbF'aQ$GY3Zu;aQdd,YB"
-            },
-            {
-              "prediction": "8'XJ!fch\"?a,B",
-              "reference": "8'XJ!fch''?a,B"
-            },
-            {
-              "prediction": "uVVq+X",
-              "reference": "uWq+X"
-            },
-            {
-              "prediction": "cNRH#exu4:-ug4W=XoX:",
-              "reference": "cNRH#exu4+:-ug4W=XoX:"
-            },
-            {
-              "prediction": "iE#\"I;:'",
-              "reference": "iE##\"I;:'"
-            },
-            {
-              "prediction": "q;4(oU_pe=blN!v-?-H",
-              "reference": "q;4(o(_pe=blN!v-?-H"
-            },
-            {
-              "prediction": "#V(IZa!NNI+0u\"Sifm8j,",
-              "reference": "#V(1Za!NNl+0u\"Sifm8j,"
-            },
-            {
-              "prediction": "V2%t.!ng",
-              "reference": "V2%t!ng"
-            },
-            {
-              "prediction": "TP#VgxwO/g",
-              "reference": "TP#VgxwO/'g"
-            },
-            {
-              "prediction": ")NJ\"h",
-              "reference": ")NJ'\" h"
-            },
-            {
-              "prediction": "gOPgs\"'-H8 Qg",
-              "reference": "gOPgs\"-H8 Qg"
-            },
-            {
-              "prediction": "wtXfF#cP@iF.JiX4",
-              "reference": "wtXfF#cP@iFJiX4"
-            },
-            {
-              "prediction": "rlvRwr",
-              "reference": "rlvRwr'"
-            }
+            {"prediction": "9.K?h,dx5eG5@9Wwr:q0", "reference": "9.K?h,dx5eG5@9WwrJq0"},
+            {"prediction": "y(,/1_l-1kRhw!_.\"AVr+", "reference": "y(,/1_l-C1kRhw!_.\"AVr+"},
+            {"prediction": "XI?Y8Q", "reference": "Xl?Y8Q"},
+            {"prediction": "FmyRqfFLB7Ap/&=C,y/J7,7", "reference": "F'myRqfFLB7Ap/&=C,y/)7,7"},
+            {"prediction": "'", "reference": "\""}
           ],
           "exact_match": 0.854,
           "samples": 1000,
@@ -193,131 +43,23 @@
       "character_errors": 205,
       "characters": 28512,
       "errors": [
-        {
-          "prediction": "9.K?h,dx5eG5@9Wwr:q0",
-          "reference": "9.K?h,dx5eG5@9WwrJq0"
-        },
-        {
-          "prediction": "y(,/1_l-1kRhw!_.\"AVr+",
-          "reference": "y(,/1_l-C1kRhw!_.\"AVr+"
-        },
-        {
-          "prediction": "Amount: 0z2bu7J0lXP",
-          "reference": "Amount: Oz2bu7J0lXP"
-        },
-        {
-          "prediction": "XI?Y8Q",
-          "reference": "Xl?Y8Q"
-        },
-        {
-          "prediction": "FmyRqfFLB7Ap/&=C,y/J7,7",
-          "reference": "F'myRqfFLB7Ap/&=C,y/)7,7"
-        },
-        {
-          "prediction": "'",
-          "reference": "\""
-        },
-        {
-          "prediction": ",kE,+qjoQCV!Iq2E",
-          "reference": ",kE,+qjjoQCV!Iq2E"
-        },
-        {
-          "prediction": "QcOn\"Eu=!",
-          "reference": "QcOn\"Eu= !"
-        },
-        {
-          "prediction": "6XzCfbF'aQ$GY3Zu;aQdd,YB",
-          "reference": "8XzCfbF'aQ$GY3Zu;aQdd,YB"
-        },
-        {
-          "prediction": "8'XJ!fch\"?a,B",
-          "reference": "8'XJ!fch''?a,B"
-        },
-        {
-          "prediction": "uVVq+X",
-          "reference": "uWq+X"
-        },
-        {
-          "prediction": "cNRH#exu4:-ug4W=XoX:",
-          "reference": "cNRH#exu4+:-ug4W=XoX:"
-        },
-        {
-          "prediction": "iE#\"I;:'",
-          "reference": "iE##\"I;:'"
-        },
-        {
-          "prediction": "q;4(oU_pe=blN!v-?-H",
-          "reference": "q;4(o(_pe=blN!v-?-H"
-        },
-        {
-          "prediction": "#V(IZa!NNI+0u\"Sifm8j,",
-          "reference": "#V(1Za!NNl+0u\"Sifm8j,"
-        },
-        {
-          "prediction": "Date: vqiBIAFclS",
-          "reference": "Date: vqiBJAFclS"
-        },
-        {
-          "prediction": "V2%t.!ng",
-          "reference": "V2%t!ng"
-        },
-        {
-          "prediction": "TP#VgxwO/g",
-          "reference": "TP#VgxwO/'g"
-        },
-        {
-          "prediction": ")NJ\"h",
-          "reference": ")NJ'\" h"
-        },
-        {
-          "prediction": "gOPgs\"'-H8 Qg",
-          "reference": "gOPgs\"-H8 Qg"
-        }
+        {"prediction": "9.K?h,dx5eG5@9Wwr:q0", "reference": "9.K?h,dx5eG5@9WwrJq0"},
+        {"prediction": "y(,/1_l-1kRhw!_.\"AVr+", "reference": "y(,/1_l-C1kRhw!_.\"AVr+"},
+        {"prediction": "Amount: 0z2bu7J0lXP", "reference": "Amount: Oz2bu7J0lXP"},
+        {"prediction": "XI?Y8Q", "reference": "Xl?Y8Q"},
+        {"prediction": "FmyRqfFLB7Ap/&=C,y/J7,7", "reference": "F'myRqfFLB7Ap/&=C,y/)7,7"}
       ],
       "exact_match": 0.9165,
-      "families": [
-        "IBM Plex Mono",
-        "Lora",
-        "Montserrat",
-        "Noto Sans",
-        "Open Sans",
-        "PT Serif",
-        "Roboto Mono",
-        "Source Sans 3"
-      ],
+      "families": ["IBM Plex Mono", "Lora", "Montserrat", "Noto Sans", "Open Sans", "PT Serif", "Roboto Mono", "Source Sans 3"],
       "fonts": [
-        {
-          "file": "Montserrat.ttf",
-          "sha256": "0f7b311b2f3279e4eef9b2f968bcdbab6e28f4daeb1f049f4f278a902bcd82f7"
-        },
-        {
-          "file": "Lora.ttf",
-          "sha256": "822a6621ccbe8d97d20ac88c1c41f5615c9c2c202eaa75f272cd452aac6475a7"
-        },
-        {
-          "file": "RobotoMono.ttf",
-          "sha256": "66a80e79d17e4c7cabd162e2916578a4cc08fd19eef6e2a643305eae9c567b2b"
-        },
-        {
-          "file": "NotoSans.ttf",
-          "sha256": "bfb7bb691513f12e734dc346c03a03f784912432d7e3fa8e56efcf906fe86b3d"
-        },
-        {
-          "file": "OpenSans.ttf",
-          "sha256": "36643644f318a812aab2d2ed3bb98f8cf0872527f835fe9398d95fe6b9adb878"
-        },
-        {
-          "file": "SourceSans3.ttf",
-          "sha256": "042fe2cc0b933e328410d7acbd0aa6a1873dca5aef81875f4bc214b08825c7b9"
-        },
-        {
-          "file": "IBMPlexMono.ttf",
-          "sha256": "6a3412f058c7d8dfd9170c41e85ade48e5156ecb89356110ca57a0a27734af46"
-        },
-        {
-          "file": "PTSerif.ttf",
-          "sha256": "a4951fade06ff8f09b7673aa81ffb65a8cd409e24d3289a6dc670bc4dda2557a"
-        }
+        {"file": "Montserrat.ttf", "sha256": "0f7b311b2f3279e4eef9b2f968bcdbab6e28f4daeb1f049f4f278a902bcd82f7"},
+        {"file": "Lora.ttf", "sha256": "822a6621ccbe8d97d20ac88c1c41f5615c9c2c202eaa75f272cd452aac6475a7"},
+        {"file": "RobotoMono.ttf", "sha256": "66a80e79d17e4c7cabd162e2916578a4cc08fd19eef6e2a643305eae9c567b2b"},
+        {"file": "NotoSans.ttf", "sha256": "bfb7bb691513f12e734dc346c03a03f784912432d7e3fa8e56efcf906fe86b3d"},
+        {"file": "OpenSans.ttf", "sha256": "36643644f318a812aab2d2ed3bb98f8cf0872527f835fe9398d95fe6b9adb878"},
+        {"file": "SourceSans3.ttf", "sha256": "042fe2cc0b933e328410d7acbd0aa6a1873dca5aef81875f4bc214b08825c7b9"},
+        {"file": "IBMPlexMono.ttf", "sha256": "6a3412f058c7d8dfd9170c41e85ade48e5156ecb89356110ca57a0a27734af46"},
+        {"file": "PTSerif.ttf", "sha256": "a4951fade06ff8f09b7673aa81ffb65a8cd409e24d3289a6dc670bc4dda2557a"}
       ],
       "samples": 2000,
       "wer": 0.060460652591170824,
@@ -329,86 +71,11 @@
       "character_errors": 143,
       "characters": 13698,
       "errors": [
-        {
-          "prediction": "Balance: 8627.66\nTotal: 2028-01-08\nDate: bvXdV\ngMNaLp_0!wsMPMp'gz\"\nDate: d2ch8xgqXH",
-          "reference": "Balance: 8627.66\nTotal: 2028-01-08\nDate: bvXdV\ngMNaLp_O!wsMPMp'gz\"\nDate: d2ch8xgqXH"
-        },
-        {
-          "prediction": "Date: xBNOcLmfB\n'6RI%j3gh90\nEmail: bkaJ0cL9\nyv0?\nBalance: 23Cf1",
-          "reference": "Date: xBNOcLmfB\n'6RI%j3gh90\nEmail: bkaJ0cL9\nyv0?\nBalance: 23Cfl"
-        },
-        {
-          "prediction": "i83v\nAmount: j6EwgkiOUQ8f\nAccount: GpVGI\nZa\nEmail: t6amCYV3xaUl",
-          "reference": "i83v\nAmount: j6EwgkiOUQ8f\nAccount: GpVGI\nza\nEmail: t6amCYV3xaUl"
-        },
-        {
-          "prediction": "Amount: TwwII\n9_debqbyS\nH0nh2ZG3y f.oc\nAccount: 2021-02-27\nDate: RCwbAxekV0Jz\n1PDFUGf",
-          "reference": "Amount: TwwII\n9_debqbyS\nH0nh2ZG3y f.oc\nAccount: 2021-02-27\nDate: RCwbAxekVOJz\nIPDFGf"
-        },
-        {
-          "prediction": "Email: 0F1uczmw\n+GK@n-GxN\n-OqdYOWfz\nAccount: ar9\n5o1FtQ!O;tzo4yaw2z",
-          "reference": "Email: 0F1uczmw\n+GK@n-GxN\n-OqdYOWfz\nAccount: ar9\n5o1FtQ!O;t'zo4yaw2z"
-        },
-        {
-          "prediction": "Email: 2028-08-04\nrRnG-s953Q8!\"i )\nR_+@oxq\nTotal: YYqFPl2",
-          "reference": "Email: 2028-08-04\nrRnG-s953Q8!\"i)\nR_+@oxq\nTotal: YYqFPl2"
-        },
-        {
-          "prediction": "Account: 0wo2\nTotal: zJz\nF1t$/?3,$PI2g\nalS k9",
-          "reference": "Account: 0wo2\nTotal: zJz\nF1t$/?3,$PI2g\naIS k9"
-        },
-        {
-          "prediction": "=TK-r_Z1MJkLiQIa6G=_GRs\nReference: CjNRKQxHGCK\nRoD!",
-          "reference": "=TK-r_Z1MJkLiQIa6G=_GRs\nReference: CjNKQxHGCK\nRoD!"
-        },
-        {
-          "prediction": "ls1bQ=d!Gdj8c',t,k?IG+\ncD8p9&icw%n;WdFZX4\nAmount: 586\nTotal: rrb9b5Hv",
-          "reference": "ls1bQ=d!Gdj8o',t,,k?IG+\ncD8p9&icw%n;WdFZX4\nAmount: 586\nTotal: rrb9b5Hv"
-        },
-        {
-          "prediction": "Email: t6tLp70eVaiO\n000XD$)7Sim?rg(.1li1mM/A\nBalance: 8630.79\n#CAVbSsTQCZzg\niEpEa\n!;W",
-          "reference": "Email: t6tLp70eVaiO\n000XD$)7Sim?rg(.Ii1mM/A\nBalance: 8630.79\n#CAVbSsTQCZzg\niEpEa\n!;W"
-        },
-        {
-          "prediction": "Balance: Aic4n8Pq\nInvoice: 7983.62\nBalance: LgGdBv55\n)zRM,2gNS5Gl:%;s(C&1cc79\nwt%TkOY\nAccount: 1967.56",
-          "reference": "Balance: Aic4n8Pq\nInvoice: 7983.62\nBalance: LgGdBv55\n)zRM,2gNSGl:%;s(C&1cc79\nwt%TkOY\nAccount: 1967.56"
-        },
-        {
-          "prediction": "Balance: 4111.02\nTotal: sui03Z\nnN-&&'pBu(r?BCNl6C!\nAccount: 2023-06-23\nDate: bkr6lLj\nAmount: PGZrYCxdV",
-          "reference": "Balance: 4111.02\nTotal: sui03Z\nnN-&&'pBu(r?BCNI6C!\nAccount: 2023-06-23\nDate: bkr6lLj\nAmount: PGZrYCxdV"
-        },
-        {
-          "prediction": "Fa8u6uo,A)\nEmail: 3179.22\n-1bXS\nEmail: 2022-01-07\nTotal: 3auCCZc\nwA/Tu#QD",
-          "reference": "Fa8u6uo',A)\nEmail: 3179.22\n-1bXS\nEmail: 2022-01-07\nTotal: 3auCCZc\nwA/Tu#QD"
-        },
-        {
-          "prediction": "Email: 3768.30\nReference: D4Ga\nAccount: UFv\n%OREHp.-1-L_$pf",
-          "reference": "Email: 3768.30\nReference: DC4Ga\nAccount: UFv\n%OREHp.-1=L_'$pf"
-        },
-        {
-          "prediction": "d)1SmwH\n8X\nk+L;YUd+2'b?!u2_x?0?\nDate: o1HuZ1r19\ndxWGsmnFzFHIcIW,d\"mv0g\nBalance: 2026-01-19",
-          "reference": "d)1SmwH\n+gx\nk+L;YUd+2'b?!u2_x?0?\nDate: o1HuZ1r19\ndxWGsmnFzFHIcIW,d\"mv0g\nBalance: 2026-01-19"
-        },
-        {
-          "prediction": "Invoice: 2022-09-28\n',PRS-\"XSUgwnz%K#z\n8p%Ijw_z.5k&N-6XgF\nZ9IHWhC0yk%PJr\nBalance: 2028-03-03\naC4eInO=.Y.jlw(ho6I",
-          "reference": "Invoice: 2022-09-28\n',PRS-\"XSUgwnz%K#z\n8p%Ijw_z.5k&N-6XgF\nZ9IHWhC0yk%PJr\nBalance: 2028-03-03\naC4eInO=.Y;jlw(ho6I"
-        },
-        {
-          "prediction": "iFKRvGVRfW3bC@\nqM?BiQvjK'uKW23E_55n=\nBalance: 2028-03-04",
-          "reference": "iFKRvGVRfW3bC@\nqM?BiQvjK\"uKW23E__-55n=\nBalance: 2028-03-04"
-        },
-        {
-          "prediction": "?mgXhw$F\npgSb;%loMC6$S\nTotal: 2026-10-13\nEmail: 8Ljd\nTotal: 2029-10-06\nl.5vYfTv';wD'8JXfwZS@I",
-          "reference": "?mgXhw$F\npgSb;%loMC'6$S\nTotal: 2026-10-13\nEmail: 8Ljd\nTotal: 2029-10-06\nl.5vYfTv';wD'8JXfwZS@I"
-        },
-        {
-          "prediction": "Account: 2025-08-01\nReference: 2026-04-11\n\"p6U1 :o6\" oB\nuz.$1.J;#h@Im(5\ncZ",
-          "reference": "Account: 2025-08-01\nReference: 2026-04-11\n\"p6U1 :o6\" oB\nuz.$fJ;#h@lm(5\ncz"
-        },
-        {
-          "prediction": "Balance: 36o\niSVyZwB&ZBZ:q\nTotal: 2021-02-06",
-          "reference": "Balance: 36o\niSVyzwB&ZBZ:q\nTotal: 2021-02-06"
-        }
+        {"prediction": "Balance: 8627.66\nTotal: 2028-01-08\nDate: bvXdV\ngMNaLp_0!wsMPMp'gz\"\nDate: d2ch8xgqXH", "reference": "Balance: 8627.66\nTotal: 2028-01-08\nDate: bvXdV\ngMNaLp_O!wsMPMp'gz\"\nDate: d2ch8xgqXH"},
+        {"prediction": "Date: xBNOcLmfB\n'6RI%j3gh90\nEmail: bkaJ0cL9\nyv0?\nBalance: 23Cf1", "reference": "Date: xBNOcLmfB\n'6RI%j3gh90\nEmail: bkaJ0cL9\nyv0?\nBalance: 23Cfl"},
+        {"prediction": "i83v\nAmount: j6EwgkiOUQ8f\nAccount: GpVGI\nZa\nEmail: t6amCYV3xaUl", "reference": "i83v\nAmount: j6EwgkiOUQ8f\nAccount: GpVGI\nza\nEmail: t6amCYV3xaUl"},
+        {"prediction": "Amount: TwwII\n9_debqbyS\nH0nh2ZG3y f.oc\nAccount: 2021-02-27\nDate: RCwbAxekV0Jz\n1PDFUGf", "reference": "Amount: TwwII\n9_debqbyS\nH0nh2ZG3y f.oc\nAccount: 2021-02-27\nDate: RCwbAxekVOJz\nIPDFGf"},
+        {"prediction": "Email: 0F1uczmw\n+GK@n-GxN\n-OqdYOWfz\nAccount: ar9\n5o1FtQ!O;tzo4yaw2z", "reference": "Email: 0F1uczmw\n+GK@n-GxN\n-OqdYOWfz\nAccount: ar9\n5o1FtQ!O;t'zo4yaw2z"}
       ],
       "exact_match": 0.565,
       "line_count_errors": 0,
@@ -424,86 +91,11 @@
           "character_errors": 1066,
           "characters": 16295,
           "errors": [
-            {
-              "prediction": "Amount: 56224",
-              "reference": "Amount: 5642.24"
-            },
-            {
-              "prediction": "dtal: 2025-02-23",
-              "reference": "Total: 2025-02-23"
-            },
-            {
-              "prediction": "Invoice: egoq.iz",
-              "reference": "Invoice: 6908.12"
-            },
-            {
-              "prediction": "peference: 5723.03",
-              "reference": "Reference: 5723.03"
-            },
-            {
-              "prediction": "Account: t3zz.qq",
-              "reference": "Account: 1322.99"
-            },
-            {
-              "prediction": "Total: ot9ZfnY",
-              "reference": "Total: qt9ZfnYW"
-            },
-            {
-              "prediction": "Ealance: lggnx0M)j",
-              "reference": "Balance: lggnxDMyj"
-            },
-            {
-              "prediction": "mate: 5044.36",
-              "reference": "Date: 5044.36"
-            },
-            {
-              "prediction": "Amount: 0z2bu7J01X",
-              "reference": "Amount: Oz2bu7J0lXP"
-            },
-            {
-              "prediction": "nnvoice: mZyMK7O6",
-              "reference": "Invoice: mZyMK7O6"
-            },
-            {
-              "prediction": "Invoice: 4155.374",
-              "reference": "Invoice: 4155.34"
-            },
-            {
-              "prediction": "B=lance: uTUjfkuUN4",
-              "reference": "Balance: uTUjfkuUN4"
-            },
-            {
-              "prediction": "Invoice: s3AZKeSrNzb=",
-              "reference": "Invoice: s3AZKsSrM4Ba"
-            },
-            {
-              "prediction": "Reference: J4z=was",
-              "reference": "Reference: J4Zfwa3"
-            },
-            {
-              "prediction": "Reference: 2021-1-13",
-              "reference": "Reference: 2021-11-13"
-            },
-            {
-              "prediction": "Amount: rLC6V6",
-              "reference": "Amount: rLC6V9"
-            },
-            {
-              "prediction": "Enail: vTTPRiqqJ",
-              "reference": "Email: vfTPRiqqJ"
-            },
-            {
-              "prediction": "balance: ii8",
-              "reference": "Balance: ii8"
-            },
-            {
-              "prediction": "nate: 2021-11-08",
-              "reference": "Date: 2021-11-08"
-            },
-            {
-              "prediction": "Account: 4382.1",
-              "reference": "Account: 4382.17"
-            }
+            {"prediction": "Amount: 56224", "reference": "Amount: 5642.24"},
+            {"prediction": "dtal: 2025-02-23", "reference": "Total: 2025-02-23"},
+            {"prediction": "Invoice: egoq.iz", "reference": "Invoice: 6908.12"},
+            {"prediction": "peference: 5723.03", "reference": "Reference: 5723.03"},
+            {"prediction": "Account: t3zz.qq", "reference": "Account: 1322.99"}
           ],
           "exact_match": 0.535,
           "samples": 1000,
@@ -516,86 +108,11 @@
           "character_errors": 1498,
           "characters": 12217,
           "errors": [
-            {
-              "prediction": ":=",
-              "reference": ":=f"
-            },
-            {
-              "prediction": "1/%X?2bHkmUrU",
-              "reference": "I/%X?2bHkmUrUc"
-            },
-            {
-              "prediction": "s.pzh.dx5eG5@9WwrJq0",
-              "reference": "9.K?h,dx5eG5@9WwrJq0"
-            },
-            {
-              "prediction": "dpfv'\"3gA.PT?Aea%36pb",
-              "reference": "dPFW'\"3gA.PT?Aea%36pb"
-            },
-            {
-              "prediction": "y(/1_I-C1kRhw!_.\"AVr+",
-              "reference": "y(,/1_l-C1kRhw!_.\"AVr+"
-            },
-            {
-              "prediction": "tz8eeS.IUOE",
-              "reference": "tz8eeS.IUQE"
-            },
-            {
-              "prediction": "qvexej+kMs,Gb@#IDSA,&",
-              "reference": "mv6K6l+kMs,Gb@#lDSA,&I"
-            },
-            {
-              "prediction": "onb&sSbKBVnI$CAmHm",
-              "reference": "0DB&sSbKBVInI$CAmHm"
-            },
-            {
-              "prediction": "ZCImTbA\"TTh7W@",
-              "reference": "ZCImTbA\"TTh7WG"
-            },
-            {
-              "prediction": "0MF_%r0",
-              "reference": "0MF_%rQ"
-            },
-            {
-              "prediction": "e3sLW?x+72&uP4Z",
-              "reference": "e3sLW?x+?2&uP4Z"
-            },
-            {
-              "prediction": "385(RjUHnyE9G Qwpopmgb:p",
-              "reference": "585URjUHnyE9G QwpoRm&b'p"
-            },
-            {
-              "prediction": "&kqvHNcka+UAq",
-              "reference": "8AqxHNcka+L8G"
-            },
-            {
-              "prediction": "Ts0aLJk;zVjk4@0$SWiF#vs",
-              "reference": "TsOaLJk;zVjk4@O$SW1F#v3"
-            },
-            {
-              "prediction": "=/yHElgwI#uR'$u@'d:",
-              "reference": "=o/yHElgwI#uR'$uQ'd!"
-            },
-            {
-              "prediction": "Sdn70C,0s$QCy",
-              "reference": "Sdn70C,Os$QCy"
-            },
-            {
-              "prediction": "dsqulPI$#uB8zXQPU,X-",
-              "reference": "dsqulPI$#uB8zlXQDu,xz"
-            },
-            {
-              "prediction": "Th@N-5z)g7BPf7w42ummfuts",
-              "reference": "Th@N-5a)g7BPJ7w42umTuEs"
-            },
-            {
-              "prediction": "bs3@,iGG&VTm.JtK2hNQ#Q",
-              "reference": "Bs3@,iGG&VTm.JtK2hNQ#Q"
-            },
-            {
-              "prediction": "Mhmy?_?gZ'wgo",
-              "reference": "Mhmy!?_?gZ'wgO"
-            }
+            {"prediction": ":=", "reference": ":=f"},
+            {"prediction": "1/%X?2bHkmUrU", "reference": "I/%X?2bHkmUrUc"},
+            {"prediction": "s.pzh.dx5eG5@9WwrJq0", "reference": "9.K?h,dx5eG5@9WwrJq0"},
+            {"prediction": "dpfv'\"3gA.PT?Aea%36pb", "reference": "dPFW'\"3gA.PT?Aea%36pb"},
+            {"prediction": "y(/1_I-C1kRhw!_.\"AVr+", "reference": "y(,/1_l-C1kRhw!_.\"AVr+"}
           ],
           "exact_match": 0.494,
           "samples": 1000,
@@ -608,131 +125,23 @@
       "character_errors": 2564,
       "characters": 28512,
       "errors": [
-        {
-          "prediction": ":=",
-          "reference": ":=f"
-        },
-        {
-          "prediction": "Amount: 56224",
-          "reference": "Amount: 5642.24"
-        },
-        {
-          "prediction": "dtal: 2025-02-23",
-          "reference": "Total: 2025-02-23"
-        },
-        {
-          "prediction": "1/%X?2bHkmUrU",
-          "reference": "I/%X?2bHkmUrUc"
-        },
-        {
-          "prediction": "Invoice: egoq.iz",
-          "reference": "Invoice: 6908.12"
-        },
-        {
-          "prediction": "peference: 5723.03",
-          "reference": "Reference: 5723.03"
-        },
-        {
-          "prediction": "s.pzh.dx5eG5@9WwrJq0",
-          "reference": "9.K?h,dx5eG5@9WwrJq0"
-        },
-        {
-          "prediction": "dpfv'\"3gA.PT?Aea%36pb",
-          "reference": "dPFW'\"3gA.PT?Aea%36pb"
-        },
-        {
-          "prediction": "Account: t3zz.qq",
-          "reference": "Account: 1322.99"
-        },
-        {
-          "prediction": "y(/1_I-C1kRhw!_.\"AVr+",
-          "reference": "y(,/1_l-C1kRhw!_.\"AVr+"
-        },
-        {
-          "prediction": "Total: ot9ZfnY",
-          "reference": "Total: qt9ZfnYW"
-        },
-        {
-          "prediction": "tz8eeS.IUOE",
-          "reference": "tz8eeS.IUQE"
-        },
-        {
-          "prediction": "qvexej+kMs,Gb@#IDSA,&",
-          "reference": "mv6K6l+kMs,Gb@#lDSA,&I"
-        },
-        {
-          "prediction": "Ealance: lggnx0M)j",
-          "reference": "Balance: lggnxDMyj"
-        },
-        {
-          "prediction": "mate: 5044.36",
-          "reference": "Date: 5044.36"
-        },
-        {
-          "prediction": "Amount: 0z2bu7J01X",
-          "reference": "Amount: Oz2bu7J0lXP"
-        },
-        {
-          "prediction": "nnvoice: mZyMK7O6",
-          "reference": "Invoice: mZyMK7O6"
-        },
-        {
-          "prediction": "Invoice: 4155.374",
-          "reference": "Invoice: 4155.34"
-        },
-        {
-          "prediction": "onb&sSbKBVnI$CAmHm",
-          "reference": "0DB&sSbKBVInI$CAmHm"
-        },
-        {
-          "prediction": "ZCImTbA\"TTh7W@",
-          "reference": "ZCImTbA\"TTh7WG"
-        }
+        {"prediction": ":=", "reference": ":=f"},
+        {"prediction": "Amount: 56224", "reference": "Amount: 5642.24"},
+        {"prediction": "dtal: 2025-02-23", "reference": "Total: 2025-02-23"},
+        {"prediction": "1/%X?2bHkmUrU", "reference": "I/%X?2bHkmUrUc"},
+        {"prediction": "Invoice: egoq.iz", "reference": "Invoice: 6908.12"}
       ],
       "exact_match": 0.5145,
-      "families": [
-        "IBM Plex Mono",
-        "Lora",
-        "Montserrat",
-        "Noto Sans",
-        "Open Sans",
-        "PT Serif",
-        "Roboto Mono",
-        "Source Sans 3"
-      ],
+      "families": ["IBM Plex Mono", "Lora", "Montserrat", "Noto Sans", "Open Sans", "PT Serif", "Roboto Mono", "Source Sans 3"],
       "fonts": [
-        {
-          "file": "Montserrat.ttf",
-          "sha256": "0f7b311b2f3279e4eef9b2f968bcdbab6e28f4daeb1f049f4f278a902bcd82f7"
-        },
-        {
-          "file": "Lora.ttf",
-          "sha256": "822a6621ccbe8d97d20ac88c1c41f5615c9c2c202eaa75f272cd452aac6475a7"
-        },
-        {
-          "file": "RobotoMono.ttf",
-          "sha256": "66a80e79d17e4c7cabd162e2916578a4cc08fd19eef6e2a643305eae9c567b2b"
-        },
-        {
-          "file": "NotoSans.ttf",
-          "sha256": "bfb7bb691513f12e734dc346c03a03f784912432d7e3fa8e56efcf906fe86b3d"
-        },
-        {
-          "file": "OpenSans.ttf",
-          "sha256": "36643644f318a812aab2d2ed3bb98f8cf0872527f835fe9398d95fe6b9adb878"
-        },
-        {
-          "file": "SourceSans3.ttf",
-          "sha256": "042fe2cc0b933e328410d7acbd0aa6a1873dca5aef81875f4bc214b08825c7b9"
-        },
-        {
-          "file": "IBMPlexMono.ttf",
-          "sha256": "6a3412f058c7d8dfd9170c41e85ade48e5156ecb89356110ca57a0a27734af46"
-        },
-        {
-          "file": "PTSerif.ttf",
-          "sha256": "a4951fade06ff8f09b7673aa81ffb65a8cd409e24d3289a6dc670bc4dda2557a"
-        }
+        {"file": "Montserrat.ttf", "sha256": "0f7b311b2f3279e4eef9b2f968bcdbab6e28f4daeb1f049f4f278a902bcd82f7"},
+        {"file": "Lora.ttf", "sha256": "822a6621ccbe8d97d20ac88c1c41f5615c9c2c202eaa75f272cd452aac6475a7"},
+        {"file": "RobotoMono.ttf", "sha256": "66a80e79d17e4c7cabd162e2916578a4cc08fd19eef6e2a643305eae9c567b2b"},
+        {"file": "NotoSans.ttf", "sha256": "bfb7bb691513f12e734dc346c03a03f784912432d7e3fa8e56efcf906fe86b3d"},
+        {"file": "OpenSans.ttf", "sha256": "36643644f318a812aab2d2ed3bb98f8cf0872527f835fe9398d95fe6b9adb878"},
+        {"file": "SourceSans3.ttf", "sha256": "042fe2cc0b933e328410d7acbd0aa6a1873dca5aef81875f4bc214b08825c7b9"},
+        {"file": "IBMPlexMono.ttf", "sha256": "6a3412f058c7d8dfd9170c41e85ade48e5156ecb89356110ca57a0a27734af46"},
+        {"file": "PTSerif.ttf", "sha256": "a4951fade06ff8f09b7673aa81ffb65a8cd409e24d3289a6dc670bc4dda2557a"}
       ],
       "samples": 2000,
       "wer": 0.362763915547025,
@@ -744,86 +153,11 @@
       "character_errors": 1140,
       "characters": 13698,
       "errors": [
-        {
-          "prediction": "T0q(23\nm#r\nI7\"F)fx-J.tqPJJ/e@jLm;\n6&HH2S24\nh+v6m_I8df_.!8TsF_c\ny3@HBY92y",
-          "reference": "T0q(23\nm#r\nI7\"F)fxJJ.tqPJJ/e@jLm!\n6&HH2S24\nh+v6m_l8df_.!8f)sF_c\ny3@HBY92y"
-        },
-        {
-          "prediction": "mw'_pg=sa\n(T +tMq.1\"AOw/bm-2B2le@M\"\nAccount: 2025-0-nj",
-          "reference": "mw'_pg=sa\n(T+tMq.1\"AOw/bm-2B2le@M\"\nAccount: 2025-06-17"
-        },
-        {
-          "prediction": "Email: 172.75\nReference: 8551.00\npLgt)O",
-          "reference": "Email: 172.75\nReference: 8551.00\nplgt)Q"
-        },
-        {
-          "prediction": "k!?:=\"2@sBo_\nInvoice: BRRP\n'",
-          "reference": "k!?:=f!2@sBo_\nInvoice: BRRP\n'"
-        },
-        {
-          "prediction": "iK_KQgXUAw@BEK\nBalance: 2020-05-os\nR.HGTDtkaJB/sK\nAccount: 2028-08-16\nfmail: 2022-11-26\n/YD cF#-KI?",
-          "reference": "iK_KQgXUAw@BEK\nBalance: 2020-05-03\nR.HGTDtkaJB/sK\nAccount: 2028-08-16\nEmail: 2022-11-26\n/YD cF#-KI?"
-        },
-        {
-          "prediction": "Balance: 8627.66\notal: 2028-01-08\nDate: bvXdV\ngNNaLp_0!wsMPMp'gz\"\nDate: d2ch8xgqXH",
-          "reference": "Balance: 8627.66\nTotal: 2028-01-08\nDate: bvXdV\ngMNaLp_O!wsMPMp'gz\"\nDate: d2ch8xgqXH"
-        },
-        {
-          "prediction": "Date: xBNOcLmfB\n'6RI%j?gh%0\nEmail: bkaJ0cL9\nyv0?\nBalance: 230fl",
-          "reference": "Date: xBNOcLmfB\n'6RI%j3gh90\nEmail: bkaJ0cL9\nyv0?\nBalance: 23Cfl"
-        },
-        {
-          "prediction": "i83v\nAmount: j6EwgkiOUQ8f\nAccount: GnVGI\nZa\nEmail: t6amCY3xau1",
-          "reference": "i83v\nAmount: j6EwgkiOUQ8f\nAccount: GpVGI\nza\nEmail: t6amCYV3xaUl"
-        },
-        {
-          "prediction": "Date: 4370.50\nZv0F00HFuK?4\nAccount: 2026-09-27",
-          "reference": "Date: 4370.50\nZv0FOQHFuK?4\nAccount: 2026-09-27"
-        },
-        {
-          "prediction": "Amount: Twwrr\n9_dlebqbyS\nH0nh2ZG3y f:.oc\nAecdunt: 2021-02-27\nDate: RCwbAxekVojz\n1PDFGf",
-          "reference": "Amount: TwwII\n9_debqbyS\nH0nh2ZG3y f.oc\nAccount: 2021-02-27\nDate: RCwbAxekVOJz\nIPDFGf"
-        },
-        {
-          "prediction": "6V\nBalance: 2030-09-07\nbv_lQm;N",
-          "reference": "6V\nBalance: 2030-09-07\nbw_lQm;N"
-        },
-        {
-          "prediction": ",9\"yjk$XyGvt2KDe?2\nAmount: 2026-01-23\n7tqa,d!",
-          "reference": ",%\"yjk$XyGvt2KDe?2\nAmount: 2026-01-23\n7tqa,d!"
-        },
-        {
-          "prediction": "Date: WMk\n0J7&og4SjVjxq2C:_:#xo\nH_\nGFC\n8\n1!H)\"_XTq$8o:",
-          "reference": "Date: WMk\n(J7&og4SjVjxq2C_!#x@\nR_j\nGFJCti\n8\n1!H)\"_'XTq$8o:"
-        },
-        {
-          "prediction": "Email: 2028-08-04\nrRnG-s953Q8!\"i)\nH_@xq\nTotal: YYqFPI2",
-          "reference": "Email: 2028-08-04\nrRnG-s953Q8!\"i)\nR_+@oxq\nTotal: YYqFPl2"
-        },
-        {
-          "prediction": "IvyHxE-AF\niiJ5:\nDate: 9304.23\nmeference: 2022-10-27\nx!MVLv+(z F\"P\"-fGD9HLWH",
-          "reference": "IvyHxE-AF\nijJ5:\nDate: 9304.23\nReference: 2022-10-27\nx!MVLv+(z F\"P\"-fGD9HLWH"
-        },
-        {
-          "prediction": "Reference: 1498.04\nEmail: blMTrhgO1rDX\nDate: 2023-e4-zc\nmate: 2029-04-09",
-          "reference": "Reference: 1498.04\nEmail: blMTrhgO1rDX\nDate: 2023-04-20\nDate: 2029-04-09"
-        },
-        {
-          "prediction": "Acount: enG4jqFhVX4\nReference: 2026-06-09\nInvoice: 2021-05-zd",
-          "reference": "Account: enG4jqFhVX4\nReference: 2026-06-09\nInvoice: 2021-05-26"
-        },
-        {
-          "prediction": "Email: rKAVL4HdW\nkwzuBjx+;gLK1Df?\nTotal: 2023.07-qj\nJ4vhW67)d0z xxZV\nIMCyw\nrnvdice: 2023-11-19",
-          "reference": "Email: rKAVL4HdW\nkwzuBjx+;gLK1Df?\nTotal: 2023-07-07\nJ4vhW67)dOz xxzv\nIMCyw\nInvoice: 2023-11-19"
-        },
-        {
-          "prediction": "Total: hgnOYtu\nAccount: 2022-06-19\n1Z",
-          "reference": "Total: hgnOyYtu\nAccount: 2022-06-19\n1Z"
-        },
-        {
-          "prediction": "Invoice: 2021-os-zz\nAmount: 2022-04-ez\nT-#)lyxsyeg_0YjlKTB\na_M(jnNN?-",
-          "reference": "Invoice: 2021-03-24\nAmount: 2022-04-02\nT-#)lyxsyeg_0YjlKTB\na_M(jnNN?-"
-        }
+        {"prediction": "T0q(23\nm#r\nI7\"F)fx-J.tqPJJ/e@jLm;\n6&HH2S24\nh+v6m_I8df_.!8TsF_c\ny3@HBY92y", "reference": "T0q(23\nm#r\nI7\"F)fxJJ.tqPJJ/e@jLm!\n6&HH2S24\nh+v6m_l8df_.!8f)sF_c\ny3@HBY92y"},
+        {"prediction": "mw'_pg=sa\n(T +tMq.1\"AOw/bm-2B2le@M\"\nAccount: 2025-0-nj", "reference": "mw'_pg=sa\n(T+tMq.1\"AOw/bm-2B2le@M\"\nAccount: 2025-06-17"},
+        {"prediction": "Email: 172.75\nReference: 8551.00\npLgt)O", "reference": "Email: 172.75\nReference: 8551.00\nplgt)Q"},
+        {"prediction": "k!?:=\"2@sBo_\nInvoice: BRRP\n'", "reference": "k!?:=f!2@sBo_\nInvoice: BRRP\n'"},
+        {"prediction": "iK_KQgXUAw@BEK\nBalance: 2020-05-os\nR.HGTDtkaJB/sK\nAccount: 2028-08-16\nfmail: 2022-11-26\n/YD cF#-KI?", "reference": "iK_KQgXUAw@BEK\nBalance: 2020-05-03\nR.HGTDtkaJB/sK\nAccount: 2028-08-16\nEmail: 2022-11-26\n/YD cF#-KI?"}
       ],
       "exact_match": 0.075,
       "line_count_errors": 0,
@@ -839,86 +173,11 @@
           "character_errors": 240,
           "characters": 16295,
           "errors": [
-            {
-              "prediction": "Amount: UKW9IE1EEd4I",
-              "reference": "Amount: UKW9E1EEd4L"
-            },
-            {
-              "prediction": "Aount: 5642.24",
-              "reference": "Amount: 5642.24"
-            },
-            {
-              "prediction": "Total: qt9ZfYW",
-              "reference": "Total: qt9ZfnYW"
-            },
-            {
-              "prediction": "Amount: oz2bu7J0LXp",
-              "reference": "Amount: Oz2bu7J0lXP"
-            },
-            {
-              "prediction": "Aount: 2026-02-03",
-              "reference": "Amount: 2026-02-03"
-            },
-            {
-              "prediction": "Invoice: s3AZIsSrM4Ba",
-              "reference": "Invoice: s3AZKsSrM4Ba"
-            },
-            {
-              "prediction": "Total: ZTLf",
-              "reference": "Total: ZTkUf"
-            },
-            {
-              "prediction": "peference: rhRd6m1Xps",
-              "reference": "Reference: rhRd6m1XRs"
-            },
-            {
-              "prediction": "Amount: eCyOvHIH",
-              "reference": "Amount: eCyOvHIK"
-            },
-            {
-              "prediction": "Total: hAwk1YmR",
-              "reference": "Total: bAwk1YnR"
-            },
-            {
-              "prediction": "Aount: 2024-06-03",
-              "reference": "Amount: 2024-06-03"
-            },
-            {
-              "prediction": "Account: h8r0qjhJQW",
-              "reference": "Account: h8r0qhJQW"
-            },
-            {
-              "prediction": "Reference: DZGfhyf0",
-              "reference": "Reference: DZGfbyf0"
-            },
-            {
-              "prediction": "peference: 359.49",
-              "reference": "Reference: 359.49"
-            },
-            {
-              "prediction": "peference: xsMeTBGx",
-              "reference": "Reference: xsMeTBGx"
-            },
-            {
-              "prediction": "Balance: 2030-12-04",
-              "reference": "Balance: 2030-12-09"
-            },
-            {
-              "prediction": "peference: 1026.01",
-              "reference": "Reference: 1026.01"
-            },
-            {
-              "prediction": "Aount: 2029-03-25",
-              "reference": "Amount: 2029-03-25"
-            },
-            {
-              "prediction": "Date: BLVN9",
-              "reference": "Date: BLPVN9"
-            },
-            {
-              "prediction": "Email: 202-11-09",
-              "reference": "Email: 2020-11-09"
-            }
+            {"prediction": "Amount: UKW9IE1EEd4I", "reference": "Amount: UKW9E1EEd4L"},
+            {"prediction": "Aount: 5642.24", "reference": "Amount: 5642.24"},
+            {"prediction": "Total: qt9ZfYW", "reference": "Total: qt9ZfnYW"},
+            {"prediction": "Amount: oz2bu7J0LXp", "reference": "Amount: Oz2bu7J0lXP"},
+            {"prediction": "Aount: 2026-02-03", "reference": "Amount: 2026-02-03"}
           ],
           "exact_match": 0.787,
           "samples": 1000,
@@ -931,86 +190,11 @@
           "character_errors": 420,
           "characters": 12217,
           "errors": [
-            {
-              "prediction": "I/%X?2hHkmUrUc",
-              "reference": "I/%X?2bHkmUrUc"
-            },
-            {
-              "prediction": "9.H?h,dsx5eG5@9WwrJq0",
-              "reference": "9.K?h,dx5eG5@9WwrJq0"
-            },
-            {
-              "prediction": "dPFW\"3gA.PT?Aea%36pb",
-              "reference": "dPFW'\"3gA.PT?Aea%36pb"
-            },
-            {
-              "prediction": "wSbK&8Lhy/Q/og(-Z#h!2",
-              "reference": "wSbK&8lhy/Q/og(-Z#h!2"
-            },
-            {
-              "prediction": "y(,/1_l-C1kRhwJ_.'JAVr+",
-              "reference": "y(,/1_l-C1kRhw!_.\"AVr+"
-            },
-            {
-              "prediction": "tz8eeS.JUQE",
-              "reference": "tz8eeS.IUQE"
-            },
-            {
-              "prediction": "?YRW",
-              "reference": "?YKW"
-            },
-            {
-              "prediction": "mv6K6l+kMs,Gb@#lDSA,&",
-              "reference": "mv6K6l+kMs,Gb@#lDSA,&I"
-            },
-            {
-              "prediction": "\"T8pYFrsZvkfW7&Sm?rKV",
-              "reference": "'T8pYFrsZvkfW7&Sm?rKV"
-            },
-            {
-              "prediction": "0DB&sSbKBVInI$CAmJm",
-              "reference": "0DB&sSbKBVInI$CAmHm"
-            },
-            {
-              "prediction": "ZCImThA\"\"Th7WG",
-              "reference": "ZCImTbA\"TTh7WG"
-            },
-            {
-              "prediction": "e3sLW?s+?2&uP4Z",
-              "reference": "e3sLW?x+?2&uP4Z"
-            },
-            {
-              "prediction": "Sdn70C.Os$QCy",
-              "reference": "Sdn70C,Os$QCy"
-            },
-            {
-              "prediction": "dsqulLI$#uB8zlXQDu,xz",
-              "reference": "dsqulPI$#uB8zlXQDu,xz"
-            },
-            {
-              "prediction": "Th@N-5a)g7BPJ7w42mTuEs",
-              "reference": "Th@N-5a)g7BPJ7w42umTuEs"
-            },
-            {
-              "prediction": "X?Y8Q",
-              "reference": "Xl?Y8Q"
-            },
-            {
-              "prediction": "Y_&eTl0",
-              "reference": "Y_&eTI0"
-            },
-            {
-              "prediction": "%X.BP9-",
-              "reference": "%X!BP%-"
-            },
-            {
-              "prediction": "z,_EzTm.u$H8-mNU$",
-              "reference": "z,_EzTm.u$M8-nNU$"
-            },
-            {
-              "prediction": "h7L_fELB!oyECeyez!;_m",
-              "reference": "h7L_fElB!oyECeyez!;_n"
-            }
+            {"prediction": "I/%X?2hHkmUrUc", "reference": "I/%X?2bHkmUrUc"},
+            {"prediction": "9.H?h,dsx5eG5@9WwrJq0", "reference": "9.K?h,dx5eG5@9WwrJq0"},
+            {"prediction": "dPFW\"3gA.PT?Aea%36pb", "reference": "dPFW'\"3gA.PT?Aea%36pb"},
+            {"prediction": "wSbK&8Lhy/Q/og(-Z#h!2", "reference": "wSbK&8lhy/Q/og(-Z#h!2"},
+            {"prediction": "y(,/1_l-C1kRhwJ_.'JAVr+", "reference": "y(,/1_l-C1kRhw!_.\"AVr+"}
           ],
           "exact_match": 0.682,
           "samples": 1000,
@@ -1023,101 +207,17 @@
       "character_errors": 660,
       "characters": 28512,
       "errors": [
-        {
-          "prediction": "Amount: UKW9IE1EEd4I",
-          "reference": "Amount: UKW9E1EEd4L"
-        },
-        {
-          "prediction": "Aount: 5642.24",
-          "reference": "Amount: 5642.24"
-        },
-        {
-          "prediction": "I/%X?2hHkmUrUc",
-          "reference": "I/%X?2bHkmUrUc"
-        },
-        {
-          "prediction": "9.H?h,dsx5eG5@9WwrJq0",
-          "reference": "9.K?h,dx5eG5@9WwrJq0"
-        },
-        {
-          "prediction": "dPFW\"3gA.PT?Aea%36pb",
-          "reference": "dPFW'\"3gA.PT?Aea%36pb"
-        },
-        {
-          "prediction": "wSbK&8Lhy/Q/og(-Z#h!2",
-          "reference": "wSbK&8lhy/Q/og(-Z#h!2"
-        },
-        {
-          "prediction": "y(,/1_l-C1kRhwJ_.'JAVr+",
-          "reference": "y(,/1_l-C1kRhw!_.\"AVr+"
-        },
-        {
-          "prediction": "Total: qt9ZfYW",
-          "reference": "Total: qt9ZfnYW"
-        },
-        {
-          "prediction": "tz8eeS.JUQE",
-          "reference": "tz8eeS.IUQE"
-        },
-        {
-          "prediction": "?YRW",
-          "reference": "?YKW"
-        },
-        {
-          "prediction": "mv6K6l+kMs,Gb@#lDSA,&",
-          "reference": "mv6K6l+kMs,Gb@#lDSA,&I"
-        },
-        {
-          "prediction": "Amount: oz2bu7J0LXp",
-          "reference": "Amount: Oz2bu7J0lXP"
-        },
-        {
-          "prediction": "\"T8pYFrsZvkfW7&Sm?rKV",
-          "reference": "'T8pYFrsZvkfW7&Sm?rKV"
-        },
-        {
-          "prediction": "0DB&sSbKBVInI$CAmJm",
-          "reference": "0DB&sSbKBVInI$CAmHm"
-        },
-        {
-          "prediction": "ZCImThA\"\"Th7WG",
-          "reference": "ZCImTbA\"TTh7WG"
-        },
-        {
-          "prediction": "e3sLW?s+?2&uP4Z",
-          "reference": "e3sLW?x+?2&uP4Z"
-        },
-        {
-          "prediction": "Aount: 2026-02-03",
-          "reference": "Amount: 2026-02-03"
-        },
-        {
-          "prediction": "Invoice: s3AZIsSrM4Ba",
-          "reference": "Invoice: s3AZKsSrM4Ba"
-        },
-        {
-          "prediction": "Sdn70C.Os$QCy",
-          "reference": "Sdn70C,Os$QCy"
-        },
-        {
-          "prediction": "dsqulLI$#uB8zlXQDu,xz",
-          "reference": "dsqulPI$#uB8zlXQDu,xz"
-        }
+        {"prediction": "Amount: UKW9IE1EEd4I", "reference": "Amount: UKW9E1EEd4L"},
+        {"prediction": "Aount: 5642.24", "reference": "Amount: 5642.24"},
+        {"prediction": "I/%X?2hHkmUrUc", "reference": "I/%X?2bHkmUrUc"},
+        {"prediction": "9.H?h,dsx5eG5@9WwrJq0", "reference": "9.K?h,dx5eG5@9WwrJq0"},
+        {"prediction": "dPFW\"3gA.PT?Aea%36pb", "reference": "dPFW'\"3gA.PT?Aea%36pb"}
       ],
       "exact_match": 0.7345,
-      "families": [
-        "Noto Serif",
-        "Ubuntu"
-      ],
+      "families": ["Noto Serif", "Ubuntu"],
       "fonts": [
-        {
-          "file": "NotoSerif.ttf",
-          "sha256": "4d8e6761424656867019081a1a01336f3cb086982682698714054fc33f782713"
-        },
-        {
-          "file": "Ubuntu.ttf",
-          "sha256": "3128df86a31805618436d0ae5651ba4285d0c9de0a39057d025f64ee33bceb64"
-        }
+        {"file": "NotoSerif.ttf", "sha256": "4d8e6761424656867019081a1a01336f3cb086982682698714054fc33f782713"},
+        {"file": "Ubuntu.ttf", "sha256": "3128df86a31805618436d0ae5651ba4285d0c9de0a39057d025f64ee33bceb64"}
       ],
       "samples": 2000,
       "wer": 0.1852207293666027,
@@ -1129,86 +229,11 @@
       "character_errors": 320,
       "characters": 13698,
       "errors": [
-        {
-          "prediction": "b_FP_,(2tfL9\nAccount: 9170.18\nyOk_5ds895u5gO=OfvT0\nW4$b'81;;",
-          "reference": "b_FP_,(2tfL9\nAccount: 9170.18\nyOk_5ds895u5g0=OfvT0\nW4$b'81;;"
-        },
-        {
-          "prediction": "Balance: 8627.66\nTotal: 2028-01-08\nDate: hvXdV\ngMNaLp_O!wsMPMp'gz\"\nDate: c2ch8xgqXH",
-          "reference": "Balance: 8627.66\nTotal: 2028-01-08\nDate: bvXdV\ngMNaLp_O!wsMPMp'gz\"\nDate: d2ch8xgqXH"
-        },
-        {
-          "prediction": "Date: xBNOcLrfB\n'6Rl%j3gh90\nEmail: bkaJ0cL9\nyv0?\nBalance: 230fl",
-          "reference": "Date: xBNOcLmfB\n'6RI%j3gh90\nEmail: bkaJ0cL9\nyv0?\nBalance: 23Cfl"
-        },
-        {
-          "prediction": "i83v\nAmount: j6EwgkiOUQ8f\nAccount: GpVGl\nZa\nEmail: t6amCYV3xaUl",
-          "reference": "i83v\nAmount: j6EwgkiOUQ8f\nAccount: GpVGI\nza\nEmail: t6amCYV3xaUl"
-        },
-        {
-          "prediction": "Amount: TwwlI\n9_debqbyS\nHOnh2ZG3yf.oc\nAccount: 2021-02-27\nmate: pCwbAxekVoJz\nIIDFGf",
-          "reference": "Amount: TwwII\n9_debqbyS\nH0nh2ZG3y f.oc\nAccount: 2021-02-27\nDate: RCwbAxekVOJz\nIPDFGf"
-        },
-        {
-          "prediction": "6V\nBalance: 2030-0-07\nbw_lQm;N",
-          "reference": "6V\nBalance: 2030-09-07\nbw_lQm;N"
-        },
-        {
-          "prediction": ",%\"yjk$XyGvt2KDe?2\nAount: 2026-01-23\n7tqa,d!",
-          "reference": ",%\"yjk$XyGvt2KDe?2\nAmount: 2026-01-23\n7tqa,d!"
-        },
-        {
-          "prediction": "Email: 0I1uczmw\n+GK@n-GxN\n-OqdYOWfz\nAccount: ar9\n5o1FtQ!O;t'zo4yaw2z",
-          "reference": "Email: 0F1uczmw\n+GK@n-GxN\n-OqdYOWfz\nAccount: ar9\n5o1FtQ!O;t'zo4yaw2z"
-        },
-        {
-          "prediction": "mate: WMk\n(J7&og4SjVjxq2C_!#x@\nR_j\nGFJCti\n8\n1!H)\"_'XTq$8o:",
-          "reference": "Date: WMk\n(J7&og4SjVjxq2C_!#x@\nR_j\nGFJCti\n8\n1!H)\"_'XTq$8o:"
-        },
-        {
-          "prediction": "Email: 2028-08-04\nrRnG-s953Q8!\"'i)\nR_+@oxq\nTotal: YYqFPl2",
-          "reference": "Email: 2028-08-04\nrRnG-s953Q8!\"i)\nR_+@oxq\nTotal: YYqFPl2"
-        },
-        {
-          "prediction": "IvyHxE-AF\nijJ5:\nDate: 9304.23\npeference: 2022-10-27\nx!MVLv+(z F\"P\"-fGD9HLWH",
-          "reference": "IvyHxE-AF\nijJ5:\nDate: 9304.23\nReference: 2022-10-27\nx!MVLv+(z F\"P\"-fGD9HLWH"
-        },
-        {
-          "prediction": "Balance: 2026-11-11\nInvoice: 8747.92\nZpkpzi#e\nAmount: 2027-10-25",
-          "reference": "Balance: 2026-11-11\nInvoice: 8747.92\n2PkPzi#e\nAmount: 2027-10-25"
-        },
-        {
-          "prediction": "Amount: 6415.94\nAccount: 0dblLTHQLGAC\n\"=5_uQUY-VAFw9TR",
-          "reference": "Amount: 6415.94\nAccount: 0dblLTHQlGAC\n\"=5_uQUY-VAFw9TR"
-        },
-        {
-          "prediction": "Total: hgOyYtu\nAccount: 2022-06-19\n1Z",
-          "reference": "Total: hgnOyYtu\nAccount: 2022-06-19\n1Z"
-        },
-        {
-          "prediction": "Invoice: 2021-03-24\nAount: 2022-04-02\nT-#)lyxsyeg_0YjLHTB\na_M(jnNN?-",
-          "reference": "Invoice: 2021-03-24\nAmount: 2022-04-02\nT-#)lyxsyeg_0YjlKTB\na_M(jnNN?-"
-        },
-        {
-          "prediction": "u3hSTVSmj_\"h\n(o7541fjt)\nDate: 2022-05-15\nEmail: IAlocTtUza4L\nAccount: 2025-02-03\nsdr#@+m2MTfT-",
-          "reference": "u3hSTVSmj_\"h\n(o7541fjt)\nDate: 2022-05-15\nEmail: IAlocTtUza4L\nAccount: 2025-02-03\nsdr#8+D2MTfT-"
-        },
-        {
-          "prediction": "Account: 0wo2\nTotal: z_z\nF1t$/?3,$PI2g\nal5 kg",
-          "reference": "Account: 0wo2\nTotal: zJz\nF1t$/?3,$PI2g\naIS k9"
-        },
-        {
-          "prediction": "fYFpU$e?p-\nInvoice: 2029-07-23\n9l xFF!\nAount: 3179.87",
-          "reference": "fYFpU$e?p-\nInvoice: 2029-07-23\n9l xFF!\nAmount: 3179.87"
-        },
-        {
-          "prediction": "ls1bQ=d!Gdj8o',t,k?IG+\ncD8p9&icw%n;WdFZX4\nAount: 586\nTotal: mrb9b5Hv",
-          "reference": "ls1bQ=d!Gdj8o',t,,k?IG+\ncD8p9&icw%n;WdFZX4\nAmount: 586\nTotal: rrb9b5Hv"
-        },
-        {
-          "prediction": "Balance: Aic4n8Pq\nInvoice: 7983.62\nBalance: LgGdBv55\n)zRM,2gNSGl:%;sUC&1cc79\nwtTkoY\nAccount: 1967.56",
-          "reference": "Balance: Aic4n8Pq\nInvoice: 7983.62\nBalance: LgGdBv55\n)zRM,2gNSGl:%;s(C&1cc79\nwt%TkOY\nAccount: 1967.56"
-        }
+        {"prediction": "b_FP_,(2tfL9\nAccount: 9170.18\nyOk_5ds895u5gO=OfvT0\nW4$b'81;;", "reference": "b_FP_,(2tfL9\nAccount: 9170.18\nyOk_5ds895u5g0=OfvT0\nW4$b'81;;"},
+        {"prediction": "Balance: 8627.66\nTotal: 2028-01-08\nDate: hvXdV\ngMNaLp_O!wsMPMp'gz\"\nDate: c2ch8xgqXH", "reference": "Balance: 8627.66\nTotal: 2028-01-08\nDate: bvXdV\ngMNaLp_O!wsMPMp'gz\"\nDate: d2ch8xgqXH"},
+        {"prediction": "Date: xBNOcLrfB\n'6Rl%j3gh90\nEmail: bkaJ0cL9\nyv0?\nBalance: 230fl", "reference": "Date: xBNOcLmfB\n'6RI%j3gh90\nEmail: bkaJ0cL9\nyv0?\nBalance: 23Cfl"},
+        {"prediction": "i83v\nAmount: j6EwgkiOUQ8f\nAccount: GpVGl\nZa\nEmail: t6amCYV3xaUl", "reference": "i83v\nAmount: j6EwgkiOUQ8f\nAccount: GpVGI\nza\nEmail: t6amCYV3xaUl"},
+        {"prediction": "Amount: TwwlI\n9_debqbyS\nHOnh2ZG3yf.oc\nAccount: 2021-02-27\nmate: pCwbAxekVoJz\nIIDFGf", "reference": "Amount: TwwII\n9_debqbyS\nH0nh2ZG3y f.oc\nAccount: 2021-02-27\nDate: RCwbAxekVOJz\nIPDFGf"}
       ],
       "exact_match": 0.275,
       "line_count_errors": 0,
@@ -1224,86 +249,11 @@
           "character_errors": 1226,
           "characters": 16295,
           "errors": [
-            {
-              "prediction": "Amount: LHW9E1EEd4L",
-              "reference": "Amount: UKW9E1EEd4L"
-            },
-            {
-              "prediction": "otal: 2025-02-23",
-              "reference": "Total: 2025-02-23"
-            },
-            {
-              "prediction": "Invoice: 69og.z",
-              "reference": "Invoice: 6908.12"
-            },
-            {
-              "prediction": "Accout: 13zz.ss",
-              "reference": "Account: 1322.99"
-            },
-            {
-              "prediction": "Totel: pt9ZfYW",
-              "reference": "Total: qt9ZfnYW"
-            },
-            {
-              "prediction": "Emai: 2023-02-16",
-              "reference": "Email: 2023-02-16"
-            },
-            {
-              "prediction": "qalance: (ggnxDHMyj",
-              "reference": "Balance: lggnxDMyj"
-            },
-            {
-              "prediction": "mate: 5O44.36",
-              "reference": "Date: 5044.36"
-            },
-            {
-              "prediction": "Amount: oz2bu7J0LXp",
-              "reference": "Amount: Oz2bu7J0lXP"
-            },
-            {
-              "prediction": "nnvoice: mZyMK7Oq",
-              "reference": "Invoice: mZyMK7O6"
-            },
-            {
-              "prediction": "Ivoice: 4155.34",
-              "reference": "Invoice: 4155.34"
-            },
-            {
-              "prediction": "Email: z0z3-os-zs",
-              "reference": "Email: 2023-05-25"
-            },
-            {
-              "prediction": "Palane: uTLjfkuLNg",
-              "reference": "Balance: uTUjfkuUN4"
-            },
-            {
-              "prediction": "Accont: 2029-12-08",
-              "reference": "Account: 2029-12-08"
-            },
-            {
-              "prediction": "Invoice: s3AZkssrNgbz",
-              "reference": "Invoice: s3AZKsSrM4Ba"
-            },
-            {
-              "prediction": "Reference: J4Zfwva3",
-              "reference": "Reference: J4Zfwa3"
-            },
-            {
-              "prediction": "Amount: rLC6Vg",
-              "reference": "Amount: rLC6V9"
-            },
-            {
-              "prediction": "tmail: 3699.47",
-              "reference": "Email: 3699.47"
-            },
-            {
-              "prediction": "mate: 2021-11-08",
-              "reference": "Date: 2021-11-08"
-            },
-            {
-              "prediction": "Account: 4382.ip",
-              "reference": "Account: 4382.17"
-            }
+            {"prediction": "Amount: LHW9E1EEd4L", "reference": "Amount: UKW9E1EEd4L"},
+            {"prediction": "otal: 2025-02-23", "reference": "Total: 2025-02-23"},
+            {"prediction": "Invoice: 69og.z", "reference": "Invoice: 6908.12"},
+            {"prediction": "Accout: 13zz.ss", "reference": "Account: 1322.99"},
+            {"prediction": "Totel: pt9ZfYW", "reference": "Total: qt9ZfnYW"}
           ],
           "exact_match": 0.43,
           "samples": 1000,
@@ -1316,86 +266,11 @@
           "character_errors": 1659,
           "characters": 12217,
           "errors": [
-            {
-              "prediction": "r/xX?2bHkUrUc",
-              "reference": "I/%X?2bHkmUrUc"
-            },
-            {
-              "prediction": "orR",
-              "reference": "orK"
-            },
-            {
-              "prediction": "g.jczh.cx5eG5@9WwmJq0",
-              "reference": "9.K?h,dx5eG5@9WwrJq0"
-            },
-            {
-              "prediction": "dpfw\"zgA.#f?Aea%36pb",
-              "reference": "dPFW'\"3gA.PT?Aea%36pb"
-            },
-            {
-              "prediction": "wSbK&8Lhy(Q(og(-Z#h!2",
-              "reference": "wSbK&8lhy/Q/og(-Z#h!2"
-            },
-            {
-              "prediction": "y(,/1_-C1kRhw!_.!AVr+",
-              "reference": "y(,/1_l-C1kRhw!_.\"AVr+"
-            },
-            {
-              "prediction": "#vdpdi+Ms,Gh@#LDSA,&I",
-              "reference": "mv6K6l+kMs,Gb@#lDSA,&I"
-            },
-            {
-              "prediction": "\"T8pYFrsZvkfW7&Sm?rKV",
-              "reference": "'T8pYFrsZvkfW7&Sm?rKV"
-            },
-            {
-              "prediction": "onbgssbKBVII$CAmHm",
-              "reference": "0DB&sSbKBVInI$CAmHm"
-            },
-            {
-              "prediction": "ikW)O",
-              "reference": "ikW)0"
-            },
-            {
-              "prediction": "0Mf_%rQ",
-              "reference": "0MF_%rQ"
-            },
-            {
-              "prediction": "e3sLW?x+?2&u4Z",
-              "reference": "e3sLW?x+?2&uP4Z"
-            },
-            {
-              "prediction": "383URjU#nyE9G Qwpokmgbp",
-              "reference": "585URjUHnyE9G QwpoRm&b'p"
-            },
-            {
-              "prediction": "fWw099)Rd59JTd-zy;Qg",
-              "reference": "fW09%)Rd59JTd-zy;Qg"
-            },
-            {
-              "prediction": "&AqxHNcke:l&q",
-              "reference": "8AqxHNcka+L8G"
-            },
-            {
-              "prediction": "TsOaLJk;zVjk4@O$sWip#vs",
-              "reference": "TsOaLJk;zVjk4@O$SW1F#v3"
-            },
-            {
-              "prediction": "rY.cAe",
-              "reference": "rY.GAe"
-            },
-            {
-              "prediction": "=q/yHEUgwl#up'suqd;",
-              "reference": "=o/yHElgwI#uR'$uQ'd!"
-            },
-            {
-              "prediction": "cspulPl$#uB8zlXQP.%-",
-              "reference": "dsqulPI$#uB8zlXQDu,xz"
-            },
-            {
-              "prediction": "TI@N-5a)g7BPJ7w42umruts",
-              "reference": "Th@N-5a)g7BPJ7w42umTuEs"
-            }
+            {"prediction": "r/xX?2bHkUrUc", "reference": "I/%X?2bHkmUrUc"},
+            {"prediction": "orR", "reference": "orK"},
+            {"prediction": "g.jczh.cx5eG5@9WwmJq0", "reference": "9.K?h,dx5eG5@9WwrJq0"},
+            {"prediction": "dpfw\"zgA.#f?Aea%36pb", "reference": "dPFW'\"3gA.PT?Aea%36pb"},
+            {"prediction": "wSbK&8Lhy(Q(og(-Z#h!2", "reference": "wSbK&8lhy/Q/og(-Z#h!2"}
           ],
           "exact_match": 0.446,
           "samples": 1000,
@@ -1408,101 +283,17 @@
       "character_errors": 2885,
       "characters": 28512,
       "errors": [
-        {
-          "prediction": "Amount: LHW9E1EEd4L",
-          "reference": "Amount: UKW9E1EEd4L"
-        },
-        {
-          "prediction": "otal: 2025-02-23",
-          "reference": "Total: 2025-02-23"
-        },
-        {
-          "prediction": "r/xX?2bHkUrUc",
-          "reference": "I/%X?2bHkmUrUc"
-        },
-        {
-          "prediction": "Invoice: 69og.z",
-          "reference": "Invoice: 6908.12"
-        },
-        {
-          "prediction": "orR",
-          "reference": "orK"
-        },
-        {
-          "prediction": "g.jczh.cx5eG5@9WwmJq0",
-          "reference": "9.K?h,dx5eG5@9WwrJq0"
-        },
-        {
-          "prediction": "dpfw\"zgA.#f?Aea%36pb",
-          "reference": "dPFW'\"3gA.PT?Aea%36pb"
-        },
-        {
-          "prediction": "Accout: 13zz.ss",
-          "reference": "Account: 1322.99"
-        },
-        {
-          "prediction": "wSbK&8Lhy(Q(og(-Z#h!2",
-          "reference": "wSbK&8lhy/Q/og(-Z#h!2"
-        },
-        {
-          "prediction": "y(,/1_-C1kRhw!_.!AVr+",
-          "reference": "y(,/1_l-C1kRhw!_.\"AVr+"
-        },
-        {
-          "prediction": "Totel: pt9ZfYW",
-          "reference": "Total: qt9ZfnYW"
-        },
-        {
-          "prediction": "Emai: 2023-02-16",
-          "reference": "Email: 2023-02-16"
-        },
-        {
-          "prediction": "#vdpdi+Ms,Gh@#LDSA,&I",
-          "reference": "mv6K6l+kMs,Gb@#lDSA,&I"
-        },
-        {
-          "prediction": "qalance: (ggnxDHMyj",
-          "reference": "Balance: lggnxDMyj"
-        },
-        {
-          "prediction": "mate: 5O44.36",
-          "reference": "Date: 5044.36"
-        },
-        {
-          "prediction": "Amount: oz2bu7J0LXp",
-          "reference": "Amount: Oz2bu7J0lXP"
-        },
-        {
-          "prediction": "nnvoice: mZyMK7Oq",
-          "reference": "Invoice: mZyMK7O6"
-        },
-        {
-          "prediction": "Ivoice: 4155.34",
-          "reference": "Invoice: 4155.34"
-        },
-        {
-          "prediction": "\"T8pYFrsZvkfW7&Sm?rKV",
-          "reference": "'T8pYFrsZvkfW7&Sm?rKV"
-        },
-        {
-          "prediction": "onbgssbKBVII$CAmHm",
-          "reference": "0DB&sSbKBVInI$CAmHm"
-        }
+        {"prediction": "Amount: LHW9E1EEd4L", "reference": "Amount: UKW9E1EEd4L"},
+        {"prediction": "otal: 2025-02-23", "reference": "Total: 2025-02-23"},
+        {"prediction": "r/xX?2bHkUrUc", "reference": "I/%X?2bHkmUrUc"},
+        {"prediction": "Invoice: 69og.z", "reference": "Invoice: 6908.12"},
+        {"prediction": "orR", "reference": "orK"}
       ],
       "exact_match": 0.438,
-      "families": [
-        "Noto Serif",
-        "Ubuntu"
-      ],
+      "families": ["Noto Serif", "Ubuntu"],
       "fonts": [
-        {
-          "file": "NotoSerif.ttf",
-          "sha256": "4d8e6761424656867019081a1a01336f3cb086982682698714054fc33f782713"
-        },
-        {
-          "file": "Ubuntu.ttf",
-          "sha256": "3128df86a31805618436d0ae5651ba4285d0c9de0a39057d025f64ee33bceb64"
-        }
+        {"file": "NotoSerif.ttf", "sha256": "4d8e6761424656867019081a1a01336f3cb086982682698714054fc33f782713"},
+        {"file": "Ubuntu.ttf", "sha256": "3128df86a31805618436d0ae5651ba4285d0c9de0a39057d025f64ee33bceb64"}
       ],
       "samples": 2000,
       "wer": 0.4088291746641075,
@@ -1514,86 +305,11 @@
       "character_errors": 1288,
       "characters": 13698,
       "errors": [
-        {
-          "prediction": "T0q(23\nm#r\nJ7\"FJfxJJ.tqPJJe@jLm!\n6&HH2S24\nh+v6m_l8df_.!8f)sF_c\ny3@HBY92y",
-          "reference": "T0q(23\nm#r\nI7\"F)fxJJ.tqPJJ/e@jLm!\n6&HH2S24\nh+v6m_l8df_.!8f)sF_c\ny3@HBY92y"
-        },
-        {
-          "prediction": "mw'_pg=sa\n(T+tMq.1\"AOw/bm-2EzLe@M\"\nAccount: 2025-06-ij",
-          "reference": "mw'_pg=sa\n(T+tMq.1\"AOw/bm-2B2le@M\"\nAccount: 2025-06-17"
-        },
-        {
-          "prediction": "Email: 172.7s\nIeference: 8551.00\nplgt)Q",
-          "reference": "Email: 172.75\nReference: 8551.00\nplgt)Q"
-        },
-        {
-          "prediction": "k!?:=f!2@sBo_\nInvoice: Bhpn\n'",
-          "reference": "k!?:=f!2@sBo_\nInvoice: BRRP\n'"
-        },
-        {
-          "prediction": "h_FP_,(2tL9\nAccount: 9170.18\nyOk_5ds895u5gO=OfvTO\nW4$b'81;;",
-          "reference": "b_FP_,(2tfL9\nAccount: 9170.18\nyOk_5ds895u5g0=OfvT0\nW4$b'81;;"
-        },
-        {
-          "prediction": "iK_KOgXUAw@BEK\nBalance: 2020-05-oz\np.HdTDtkaJB/sK\nAccount: 2028-08-16\ntmail: 2022-11-26\n/YD cF#-Kl?",
-          "reference": "iK_KQgXUAw@BEK\nBalance: 2020-05-03\nR.HGTDtkaJB/sK\nAccount: 2028-08-16\nEmail: 2022-11-26\n/YD cF#-KI?"
-        },
-        {
-          "prediction": "Ealance: 8627.66\nmotal: 2028-01-08\nDate: bvXdV\ngwvaup_o:wsMPMp'gz\"\nDate: d2ch8xgqXH",
-          "reference": "Balance: 8627.66\nTotal: 2028-01-08\nDate: bvXdV\ngMNaLp_O!wsMPMp'gz\"\nDate: d2ch8xgqXH"
-        },
-        {
-          "prediction": "Date: xBNOcLmfB\n'6Rl%j3gh90\nEmail: bkaJ0cL9\nyv0?\nBalance: 23Cf",
-          "reference": "Date: xBNOcLmfB\n'6RI%j3gh90\nEmail: bkaJ0cL9\nyv0?\nBalance: 23Cfl"
-        },
-        {
-          "prediction": "i83v\nAmount: jetwgkioUQ8f\nAeeount: GpVGI\nZe\nEmail: t6amCYV3xaL1",
-          "reference": "i83v\nAmount: j6EwgkiOUQ8f\nAccount: GpVGI\nza\nEmail: t6amCYV3xaUl"
-        },
-        {
-          "prediction": "Date: 4370.50\nZv0FOQHFuK?4\nAccount: 2O26-09-27",
-          "reference": "Date: 4370.50\nZv0FOQHFuK?4\nAccount: 2026-09-27"
-        },
-        {
-          "prediction": "Amount: Twwrj\n9_debqbyS\nHOnh2ZG3y f.oc\nAeeount: 2021-02-27\nDate: RCwbAxekVoJz\nnmDFGf",
-          "reference": "Amount: TwwII\n9_debqbyS\nH0nh2ZG3y f.oc\nAccount: 2021-02-27\nDate: RCwbAxekVOJz\nIPDFGf"
-        },
-        {
-          "prediction": "6V\nBalance: 2030-09-07\nhw_IQm;N",
-          "reference": "6V\nBalance: 2030-09-07\nbw_lQm;N"
-        },
-        {
-          "prediction": ",%\"yjk$XyGvt2Ke?-\nAmount: 2026-01-23\n7tqa.d!",
-          "reference": ",%\"yjk$XyGvt2KDe?2\nAmount: 2026-01-23\n7tqa,d!"
-        },
-        {
-          "prediction": "Email: 01uczmw\n+GK@n-GxN\n-OqdYOWfz\nAccount: ar9\n5o1FtQ!O;t\"zo4yaw2z",
-          "reference": "Email: 0F1uczmw\n+GK@n-GxN\n-OqdYOWfz\nAccount: ar9\n5o1FtQ!O;t'zo4yaw2z"
-        },
-        {
-          "prediction": "Date: WMk\n(-74og4SjVjxqzc_:+xq\nR_j\nGFJCti\n8\n1!H)\"'_'XTq,go:",
-          "reference": "Date: WMk\n(J7&og4SjVjxq2C_!#x@\nR_j\nGFJCti\n8\n1!H)\"_'XTq$8o:"
-        },
-        {
-          "prediction": "Email: 2028-08-04\nrRnG-s953Q8!\"i)\nR_+@oxq\nTotal: YYqFPLz",
-          "reference": "Email: 2028-08-04\nrRnG-s953Q8!\"i)\nR_+@oxq\nTotal: YYqFPl2"
-        },
-        {
-          "prediction": "IvyfxE-AF\nijJ5:\nDate: 9304.23\npeference: 2022-10-27\nx!MVLv+(z F\"P\"-fGD9HLWH",
-          "reference": "IvyHxE-AF\nijJ5:\nDate: 9304.23\nReference: 2022-10-27\nx!MVLv+(z F\"P\"-fGD9HLWH"
-        },
-        {
-          "prediction": "Balance: 2026-11-11\nInvoice: 8747.92\nzHkFzi#e\nAmount: 2027-10-25",
-          "reference": "Balance: 2026-11-11\nInvoice: 8747.92\n2PkPzi#e\nAmount: 2027-10-25"
-        },
-        {
-          "prediction": "Reference: 1498.04\nEmail: bLMTrhgO1rDx\nDate: 2O23-o4-zo\nmate: 2o29-04-09",
-          "reference": "Reference: 1498.04\nEmail: blMTrhgO1rDX\nDate: 2023-04-20\nDate: 2029-04-09"
-        },
-        {
-          "prediction": "Aout: enG4jqFhVX4\nReference: 2026-06-09\nInvoice: 202t-os-zd",
-          "reference": "Account: enG4jqFhVX4\nReference: 2026-06-09\nInvoice: 2021-05-26"
-        }
+        {"prediction": "T0q(23\nm#r\nJ7\"FJfxJJ.tqPJJe@jLm!\n6&HH2S24\nh+v6m_l8df_.!8f)sF_c\ny3@HBY92y", "reference": "T0q(23\nm#r\nI7\"F)fxJJ.tqPJJ/e@jLm!\n6&HH2S24\nh+v6m_l8df_.!8f)sF_c\ny3@HBY92y"},
+        {"prediction": "mw'_pg=sa\n(T+tMq.1\"AOw/bm-2EzLe@M\"\nAccount: 2025-06-ij", "reference": "mw'_pg=sa\n(T+tMq.1\"AOw/bm-2B2le@M\"\nAccount: 2025-06-17"},
+        {"prediction": "Email: 172.7s\nIeference: 8551.00\nplgt)Q", "reference": "Email: 172.75\nReference: 8551.00\nplgt)Q"},
+        {"prediction": "k!?:=f!2@sBo_\nInvoice: Bhpn\n'", "reference": "k!?:=f!2@sBo_\nInvoice: BRRP\n'"},
+        {"prediction": "h_FP_,(2tL9\nAccount: 9170.18\nyOk_5ds895u5gO=OfvTO\nW4$b'81;;", "reference": "b_FP_,(2tfL9\nAccount: 9170.18\nyOk_5ds895u5g0=OfvT0\nW4$b'81;;"}
       ],
       "exact_match": 0.03,
       "line_count_errors": 0,
@@ -1607,15 +323,7 @@
   "deskew": false,
   "epoch": 18,
   "max_length": 24,
-  "runtime": {
-    "batch_size": 32,
-    "device": "cpu",
-    "numpy": "1.26.4",
-    "pillow": "12.3.0",
-    "python": "3.11.16",
-    "threads": 1,
-    "torch": "2.13.0+cu130"
-  },
+  "runtime": {"batch_size": 32, "device": "cpu", "numpy": "1.26.4", "pillow": "12.3.0", "python": "3.11.16", "threads": 1, "torch": "2.13.0+cu130"},
   "seed": 400000,
   "task": "lines"
 }

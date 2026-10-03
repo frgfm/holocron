@@ -2,7 +2,7 @@
 
 The models subpackage contains definitions of models for addressing
 different tasks, including: image classification, pixelwise semantic
-segmentation and object detection.
+segmentation, object detection, and text recognition.
 
 ## Support status
 
@@ -11,6 +11,7 @@ segmentation and object detection.
 | Classification | 15 families | Imagenette checkpoints with top-1/top-5 metrics; selected ReXNet ImageNet-1K checkpoints | [Reference script](https://github.com/frgfm/holocron/blob/main/references/classification/train.py) | [Classification export](https://github.com/frgfm/holocron/blob/main/scripts/export_to_onnx.py) | **Validated** |
 | Semantic segmentation | U-Net, U-Net++, UNet3+ | Only the legacy `unet_rexnet13` weights; dataset and metric are not documented | [Reference script](https://github.com/frgfm/holocron/blob/main/references/segmentation/train.py) | Not documented | **Unbenchmarked** |
 | Object detection | YOLOv1, YOLOv2, YOLOv4 | None | [Reference script](https://github.com/frgfm/holocron/blob/main/references/detection/train.py) | [Export tests](https://github.com/frgfm/holocron/blob/main/tests/test_models_detection.py); runtime parity not benchmarked | **Experimental**; [YOLOv4 learning check verified](#yolo-training-validation) |
+| [Text recognition](recognition.md) | Shared glyph CNN, BiGRU/CTC | None; training produces local checkpoints | [Synthetic curriculum](https://github.com/frgfm/holocron/tree/main/references/recognition) | Not validated | **Experimental**; synthetic CPU benchmark |
 
 **Validated** means published task checkpoints and metrics are available.
 **Unbenchmarked** means an implementation or legacy weight exists without a

@@ -22,32 +22,6 @@ HEIGHT = 32
 FIELD_NAMES = ("Invoice", "Total", "Date", "Account", "Reference", "Amount", "Email", "Balance")
 
 
-class Codec:
-    """An ordered Unicode alphabet with index zero reserved for CTC blank."""
-
-    def __init__(self, alphabet=ALPHABET):
-        if not alphabet or len(set(alphabet)) != len(alphabet):
-            raise ValueError("alphabet must be nonempty with unique characters")
-        if any(not char.isprintable() or (char.isspace() and char != " ") for char in alphabet):
-            raise ValueError("only printable characters and ordinary spaces are supported")
-        if not alphabet.replace(" ", ""):
-            raise ValueError("alphabet must contain a visible character")
-        self.alphabet = alphabet
-        self.indices = {char: index + 1 for index, char in enumerate(alphabet)}
-
-    def encode(self, text):
-        return torch.tensor([self.indices[char] for char in text], dtype=torch.long)
-
-    def decode(self, indices):
-        result = []
-        previous = 0
-        for index in indices:
-            if index and index != previous:
-                result.append(self.alphabet[index - 1])
-            previous = index
-        return "".join(result)
-
-
 def inspect_fonts(records, alphabet):
     """Reject missing glyphs and case-collapsing fonts instead of learning tofu labels.
 

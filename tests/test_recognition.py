@@ -11,10 +11,12 @@ import torch
 from PIL import Image, ImageDraw, ImageFont
 from torch.utils.data import DataLoader
 
+from holocron.models.recognition import CharacterClassifier, CTCRecognizer
+from holocron.utils import CTCCodec, prefix_beam_decode
 from references.classification.train_characters import FontRecord
 from references.recognition import evaluate, train
 from references.recognition.data import (
-    Codec,
+    ALPHABET,
     SyntheticTextDataset,
     collate_lines,
     deskew_line,
@@ -24,7 +26,6 @@ from references.recognition.data import (
     render_page,
     split_fonts,
 )
-from references.recognition.decoding import prefix_beam_decode
 from references.recognition.evaluate import (
     detect_lines,
     edit_distance,
@@ -32,7 +33,6 @@ from references.recognition.evaluate import (
     transcribe_page,
     transcript_metrics,
 )
-from references.recognition.model import CharacterClassifier, CTCRecognizer
 
 SANS = Path(mpl.get_data_path()) / "fonts" / "ttf" / "DejaVuSans.ttf"
 SERIF = SANS.with_name("DejaVuSerif.ttf")
@@ -40,11 +40,11 @@ SERIF = SANS.with_name("DejaVuSerif.ttf")
 
 @pytest.fixture
 def records():
-    return inspect_fonts([SANS, SERIF], Codec().alphabet)
+    return inspect_fonts([SANS, SERIF], CTCCodec(ALPHABET).alphabet)
 
 
 def test_ctc_repeats_spaces_punctuation_and_impossible_alignment():
-    codec = Codec("AB .")
+    codec = CTCCodec("AB .")
     assert codec.decode([1, 1, 0, 1, 3, 3, 2, 4, 4]) == "AA B."
     assert not codec.decode([0, 0])
     probabilities = torch.randn(5, 1, 5).log_softmax(-1).requires_grad_()
@@ -59,7 +59,7 @@ def test_ctc_repeats_spaces_punctuation_and_impossible_alignment():
 @pytest.mark.parametrize("alphabet", ["", "AA", "A\n", " "])
 def test_invalid_alphabet(alphabet):
     with pytest.raises(ValueError):
-        Codec(alphabet)
+        CTCCodec(alphabet)
 
 
 def test_family_split_and_missing_glyph_validation(records):
@@ -74,7 +74,7 @@ def test_family_split_and_missing_glyph_validation(records):
 
 
 def test_data_seed_epoch_and_worker_independence(records):
-    codec = Codec("AB12 .")
+    codec = CTCCodec("AB12 .")
     dataset = SyntheticTextDataset(records, codec, 8, seed=42, augment=True)
     first = [dataset[index] for index in range(8)]
     for index in reversed(range(8)):
@@ -95,15 +95,15 @@ def test_data_seed_epoch_and_worker_independence(records):
 
 
 def test_variable_width_padding_and_masked_context(records):
-    dataset = SyntheticTextDataset(records, Codec(), 5)
+    dataset = SyntheticTextDataset(records, CTCCodec(ALPHABET), 5)
     images, lengths, texts = collate_lines([dataset[index] for index in range(5)])
     assert images.shape[-1] == int(lengths.max()) * 4
     for index, length in enumerate(lengths):
         assert (images[index, :, :, int(length) * 4 :] == 1).all()
-    model = CTCRecognizer(len(Codec().alphabet)).eval()
+    model = CTCRecognizer(len(CTCCodec(ALPHABET).alphabet)).eval()
     probabilities = model(images, lengths)
-    assert probabilities.shape == (int(lengths.max()), 5, len(Codec().alphabet) + 1)
-    loss = train.ctc_loss(probabilities, lengths, texts, Codec())
+    assert probabilities.shape == (int(lengths.max()), 5, len(CTCCodec(ALPHABET).alphabet) + 1)
+    loss = train.ctc_loss(probabilities, lengths, texts, CTCCodec(ALPHABET))
     loss.backward()
     assert model.backbone.features[0].weight.grad.abs().sum() > 0
 
@@ -121,7 +121,7 @@ def test_metrics_include_insertions_deletions_and_whitespace():
 
 
 def test_page_detection_and_reading_order_use_only_pixels(records):
-    codec = Codec()
+    codec = CTCCodec(ALPHABET)
     for degraded in (False, True):
         page = render_page(records, codec, 17, augment=degraded)
         boxes = detect_lines(page.image)
@@ -231,7 +231,7 @@ def test_real_cli_pretraining_transfer_resume_and_evaluation(tmp_path):
 
 def test_small_fixed_batch_learns_character_shapes(records):
     torch.manual_seed(0)
-    dataset = SyntheticTextDataset(records[:1], Codec("AB"), 2, task="characters")
+    dataset = SyntheticTextDataset(records[:1], CTCCodec("AB"), 2, task="characters")
     images, lengths, _ = collate_lines([dataset[0], dataset[1]])
     model = CharacterClassifier(2)
     optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
@@ -303,7 +303,7 @@ def test_character_preprocessing_preserves_punctuation_baseline(records):
 
 
 def test_prefix_beam_matches_exhaustive_ctc_alignment():
-    codec = Codec("AB")
+    codec = CTCCodec("AB")
     probabilities = np.array([[0.45, 0.4, 0.15]] * 3)
     assert not codec.decode(probabilities.argmax(-1))
     assert prefix_beam_decode(np.log(probabilities), codec) == "A"

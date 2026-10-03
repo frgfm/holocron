@@ -4,6 +4,8 @@ Measured accuracy, training histories, and error examples are in [RESULTS.md](RE
 
 This experiment extends [synthetic character classification](../classification/README.md#synthetic-character-classification) with a shared visual backbone, character pretraining, variable-width line recognition, and page transcription. It is a reproducible research reference, using only existing Holocron dependencies. It does not download pretrained OCR weights or use a dictionary to correct predictions.
 
+The reusable models are part of the installed library: `holocron.models.recognition.CharacterBackbone`, `CharacterClassifier`, and `CTCRecognizer`. Alphabet encoding and greedy/prefix-beam decoding use `holocron.utils.CTCCodec` and `prefix_beam_decode`. Their [public API documentation](../../docs/docs/reference/models/recognition.md) describes input shapes, normalization, and sequence lengths. This folder contains synthetic rendering, augmentation, training orchestration, evaluation, and the experimental page detector; it imports the library models directly.
+
 The curriculum has three stages:
 
 1. Classify balanced synthetic glyphs across font families, keeping their baseline position so punctuation remains distinguishable.
