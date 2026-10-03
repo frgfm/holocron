@@ -222,6 +222,20 @@ def _checkpoint_from_hub_config(hub_config: dict[str, Any]) -> Checkpoint:
     )
 
 
+def _imagenette_recipe(arch: str, batch_size: int = 64) -> str:
+    """Return the fixed Imagenette training arguments for published v0.2.1 checkpoints.
+
+    Returns:
+        Historical command-line arguments, including accumulation for batches of 32.
+    """
+    batch_args = f"{batch_size} --grad-acc 2" if batch_size == 32 else str(batch_size)
+    return (
+        f"./imagenette2-320/ --arch {arch} --batch-size {batch_args} --mixup-alpha 0.2 --amp"
+        " --device 0 --epochs 100 --lr 1e-3 --label-smoothing 0.1 --random-erase 0.1 --train-crop-size 176"
+        " --val-resize-size 232 --opt adamw --weight-decay 5e-2"
+    )
+
+
 def _checkpoint(
     arch: str,
     url: str,

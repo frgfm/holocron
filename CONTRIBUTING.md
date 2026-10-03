@@ -10,7 +10,7 @@ Whatever the way you wish to contribute to the project, please respect the [code
 
 - [`./holocron`](holocron) - The actual holocron library
 - [`./tests`](tests) - Python unit tests
-- [`./docs`](docs) - Sphinx documentation building
+- [`./docs`](docs) - MkDocs documentation
 - [`./scripts`](scripts) - Example and utilities scripts
 - [`./references`](references) - Reference training scripts
 - [`./api`](api) - A minimal FastAPI backend to run Holocron models
@@ -62,10 +62,10 @@ git remote add upstream https://github.com/frgfm/Holocron.git
 git checkout -b a-short-description
 ```
 
-4 - You only have to set your development environment now. First uninstall any existing installation of the library with `pip uninstall pylocron`, then:
+4 - Install the development dependencies with [uv](https://docs.astral.sh/uv/getting-started/installation/):
 ```shell
-pip install -e ".[dev]"
-prek install
+uv sync --locked --extra quality --extra test --extra training --extra docs
+uv run --no-sync prek install
 ```
 
 ### Developing your feature

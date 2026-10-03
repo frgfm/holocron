@@ -80,25 +80,17 @@ def main():  # noqa: PLR0912
         with Path(pyproject_path).open("rb") as f:
             pyproject = tomllib.load(f)
 
-        # Parse dependencies
-        core_deps = [parse_dep_str(dep) for dep in pyproject["project"]["dependencies"]]
-        core_deps = {dep["pkg"]: dep for dep in core_deps}
-        for dep in deps_dict:  # noqa: PLC0206
-            if dep in core_deps:
-                deps_dict[dep].append({"file": pyproject_path, "version": core_deps[dep]["version"]})
-
-        # Parse optional dependencies
-        quality_deps = [parse_dep_str(dep) for dep in pyproject["project"]["optional-dependencies"].get("quality", [])]
-        quality_deps = {dep["pkg"]: dep for dep in quality_deps}
-        for dep in deps_dict:  # noqa: PLC0206
-            if dep in quality_deps:
-                deps_dict[dep].append({"file": pyproject_path, "version": quality_deps[dep]["version"]})
-
-        test_deps = [parse_dep_str(dep) for dep in pyproject["project"]["optional-dependencies"].get("test", [])]
-        test_deps = {dep["pkg"]: dep for dep in test_deps}
-        for dep in deps_dict:  # noqa: PLC0206
-            if dep in test_deps:
-                deps_dict[dep].append({"file": pyproject_path, "version": test_deps[dep]["version"]})
+        optional_deps = pyproject["project"]["optional-dependencies"]
+        for requirements in (
+            pyproject["project"]["dependencies"],
+            optional_deps.get("quality", []),
+            optional_deps.get("test", []),
+        ):
+            parsed_deps = [parse_dep_str(dep) for dep in requirements]
+            parsed_deps = {dep["pkg"]: dep for dep in parsed_deps}
+            for dep in deps_dict:  # noqa: PLC0206
+                if dep in parsed_deps:
+                    deps_dict[dep].append({"file": pyproject_path, "version": parsed_deps[dep]["version"]})
 
     # Parse requirements.txt
     for req_txt in REQUIREMENTS_TXT:

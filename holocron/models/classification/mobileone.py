@@ -14,7 +14,7 @@ from torch import Tensor, nn
 from holocron.nn import GlobalAvgPool2d, init
 
 from ..checkpoints import Checkpoint, _handle_legacy_pretrained
-from ..utils import _checkpoint, _configure_model, conv_sequence, fuse_conv_bn
+from ..utils import _checkpoint, _configure_model, _imagenette_recipe, conv_sequence, fuse_conv_bn
 
 __all__ = [
     "MobileOne",
@@ -258,11 +258,7 @@ class MobileOne_S0_Checkpoint(Enum):
         size=17708169,
         num_params=4277991,
         commit="d4a59999179b42fc0d3058ac6b76cc41f49dd56e",
-        train_args=(
-            "./imagenette2-320/ --arch mobileone_s0 --batch-size 64 --mixup-alpha 0.2 --amp --device 0 --epochs 100"
-            " --lr 1e-3 --label-smoothing 0.1 --random-erase 0.1 --train-crop-size 176 --val-resize-size 232"
-            " --opt adamw --weight-decay 5e-2"
-        ),
+        train_args=_imagenette_recipe("mobileone_s0"),
     )
     DEFAULT = IMAGENETTE
 
@@ -308,11 +304,7 @@ class MobileOne_S1_Checkpoint(Enum):
         size=14594817,
         num_params=3555188,
         commit="d4a59999179b42fc0d3058ac6b76cc41f49dd56e",
-        train_args=(
-            "./imagenette2-320/ --arch mobileone_s1 --batch-size 64 --mixup-alpha 0.2 --amp --device 0 --epochs 100"
-            " --lr 1e-3 --label-smoothing 0.1 --random-erase 0.1 --train-crop-size 176 --val-resize-size 232"
-            " --opt adamw --weight-decay 5e-2"
-        ),
+        train_args=_imagenette_recipe("mobileone_s1"),
     )
     DEFAULT = IMAGENETTE
 
@@ -358,11 +350,7 @@ class MobileOne_S2_Checkpoint(Enum):
         size=23866479,
         num_params=5854324,
         commit="d4a59999179b42fc0d3058ac6b76cc41f49dd56e",
-        train_args=(
-            "./imagenette2-320/ --arch mobileone_s2 --batch-size 64 --mixup-alpha 0.2 --amp --device 0 --epochs 100"
-            " --lr 1e-3 --label-smoothing 0.1 --random-erase 0.1 --train-crop-size 176 --val-resize-size 232"
-            " --opt adamw --weight-decay 5e-2"
-        ),
+        train_args=_imagenette_recipe("mobileone_s2"),
     )
     DEFAULT = IMAGENETTE
 
@@ -408,11 +396,7 @@ class MobileOne_S3_Checkpoint(Enum):
         size=33080943,
         num_params=8140276,
         commit="d4a59999179b42fc0d3058ac6b76cc41f49dd56e",
-        train_args=(
-            "./imagenette2-320/ --arch mobileone_s3 --batch-size 64 --mixup-alpha 0.2 --amp --device 0 --epochs 100"
-            " --lr 1e-3 --label-smoothing 0.1 --random-erase 0.1 --train-crop-size 176 --val-resize-size 232"
-            " --opt adamw --weight-decay 5e-2"
-        ),
+        train_args=_imagenette_recipe("mobileone_s3"),
     )
     DEFAULT = IMAGENETTE
 

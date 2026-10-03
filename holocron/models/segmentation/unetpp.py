@@ -23,6 +23,32 @@ default_cfgs: dict[str, dict[str, Any]] = {
 }
 
 
+def _encoder_and_bridge(
+    layout: list[int],
+    in_channels: int,
+    act_layer: nn.Module,
+    norm_layer: Callable[..., nn.Module] | None,
+    drop_layer: Callable[..., nn.Module] | None,
+    conv_layer: Callable[..., nn.Module] | None,
+) -> tuple[nn.ModuleList, nn.Sequential]:
+    """Build the shared contracting path of UNet+ and UNet++.
+
+    Returns:
+        Encoder blocks and bridge, in their original construction order.
+    """
+    layers = (act_layer, norm_layer, drop_layer, conv_layer)
+    encoder = nn.ModuleList(
+        down_path(in_chan, out_chan, idx > 0, 1, *layers)
+        for idx, (in_chan, out_chan) in enumerate(pairwise([in_channels, *layout]))
+    )
+    bridge = nn.Sequential(
+        nn.MaxPool2d((2, 2)),
+        *conv_sequence(layout[-1], 2 * layout[-1], *layers, kernel_size=3, padding=1),
+        *conv_sequence(2 * layout[-1], layout[-1], *layers, kernel_size=3, padding=1),
+    )
+    return encoder, bridge
+
+
 class UNetp(nn.Module):
     """Implements a UNet+ architecture
 
@@ -52,21 +78,8 @@ class UNetp(nn.Module):
             act_layer = nn.ReLU(inplace=True)
 
         # Contracting path
-        self.encoder = nn.ModuleList([])
-        layout_ = [in_channels, *layout]
-        pool = False
-        for in_chan, out_chan in pairwise(layout_):
-            self.encoder.append(down_path(in_chan, out_chan, pool, 1, act_layer, norm_layer, drop_layer, conv_layer))
-            pool = True
-
-        self.bridge = nn.Sequential(
-            nn.MaxPool2d((2, 2)),
-            *conv_sequence(
-                layout[-1], 2 * layout[-1], act_layer, norm_layer, drop_layer, conv_layer, kernel_size=3, padding=1
-            ),
-            *conv_sequence(
-                2 * layout[-1], layout[-1], act_layer, norm_layer, drop_layer, conv_layer, kernel_size=3, padding=1
-            ),
+        self.encoder, self.bridge = _encoder_and_bridge(
+            layout, in_channels, act_layer, norm_layer, drop_layer, conv_layer
         )
 
         # Expansive path
@@ -131,21 +144,8 @@ class UNetpp(nn.Module):
             act_layer = nn.ReLU(inplace=True)
 
         # Contracting path
-        self.encoder = nn.ModuleList([])
-        layout_ = [in_channels, *layout]
-        pool = False
-        for in_chan, out_chan in pairwise(layout_):
-            self.encoder.append(down_path(in_chan, out_chan, pool, 1, act_layer, norm_layer, drop_layer, conv_layer))
-            pool = True
-
-        self.bridge = nn.Sequential(
-            nn.MaxPool2d((2, 2)),
-            *conv_sequence(
-                layout[-1], 2 * layout[-1], act_layer, norm_layer, drop_layer, conv_layer, kernel_size=3, padding=1
-            ),
-            *conv_sequence(
-                2 * layout[-1], layout[-1], act_layer, norm_layer, drop_layer, conv_layer, kernel_size=3, padding=1
-            ),
+        self.encoder, self.bridge = _encoder_and_bridge(
+            layout, in_channels, act_layer, norm_layer, drop_layer, conv_layer
         )
 
         # Expansive path

@@ -16,7 +16,7 @@ from holocron.nn.init import init_module
 
 from ..checkpoints import Checkpoint, _handle_legacy_pretrained
 from ..presets import IMAGENETTE
-from ..utils import _checkpoint, _configure_model, conv_sequence
+from ..utils import _checkpoint, _configure_model, _imagenette_recipe, conv_sequence
 from .darknetv3 import ResBlock
 
 __all__ = ["CSPDarknet53_Checkpoint", "CSPDarknet53_Mish_Checkpoint", "DarknetV4", "cspdarknet53", "cspdarknet53_mish"]
@@ -240,11 +240,7 @@ class CSPDarknet53_Checkpoint(Enum):
         size=106732575,
         num_params=26627434,
         commit="6e32c5b578711a2ef3731a8f8c61760ed9f03e58",
-        train_args=(
-            "./imagenette2-320/ --arch cspdarknet53 --batch-size 64 --mixup-alpha 0.2 --amp --device 0 --epochs 100"
-            " --lr 1e-3 --label-smoothing 0.1 --random-erase 0.1 --train-crop-size 176 --val-resize-size 232"
-            " --opt adamw --weight-decay 5e-2"
-        ),
+        train_args=_imagenette_recipe("cspdarknet53"),
     )
     DEFAULT = IMAGENETTE
 
@@ -290,11 +286,7 @@ class CSPDarknet53_Mish_Checkpoint(Enum):
         size=106737530,
         num_params=26627434,
         commit="6e32c5b578711a2ef3731a8f8c61760ed9f03e58",
-        train_args=(
-            "./imagenette2-320/ --arch cspdarknet53_mish --batch-size 32 --grad-acc 2 --mixup-alpha 0.2 --amp"
-            "  --device 0 --epochs 100 --lr 1e-3 --label-smoothing 0.1 --random-erase 0.1 --train-crop-size 176"
-            " --val-resize-size 232 --opt adamw --weight-decay 5e-2"
-        ),
+        train_args=_imagenette_recipe("cspdarknet53_mish", batch_size=32),
     )
     DEFAULT = IMAGENETTE
 

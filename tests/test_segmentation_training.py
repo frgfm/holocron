@@ -218,7 +218,14 @@ def test_reference_training_and_checkpoint_reload(arch, loss, monkeypatch, tmp_p
     checkpoint = tmp_path / "model.pth"
     args = train.get_parser().parse_args([str(tmp_path), "--arch", arch, "--loss", loss])
     vars(args).update(
-        img_size=35, batch_size=2, workers=0, epochs=1, grad_acc=2, norm_wd=0, output_file=str(checkpoint)
+        opt="radam" if loss == "crossentropy" else "adamp",
+        img_size=35,
+        batch_size=2,
+        workers=0,
+        epochs=1,
+        grad_acc=2,
+        norm_wd=0,
+        output_file=str(checkpoint),
     )
     train.main(args)
     state = torch.load(checkpoint, weights_only=True)
