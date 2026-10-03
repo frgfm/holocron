@@ -12,13 +12,13 @@
         <meta name="author" content="François-Guillaume Fernandez">
       
       
-        <link rel="canonical" href="https://frgfm.github.io/holocron/reference/models/classification/darknetv3/">
+        <link rel="canonical" href="https://frgfm.github.io/holocron/reference/models/detection/yolo26/">
       
       
-        <link rel="prev" href="../darknetv2/">
+        <link rel="prev" href="../../models/">
       
       
-        <link rel="next" href="../darknetv4/">
+        <link rel="next" href="../../recognition/">
       
       
         
@@ -29,7 +29,7 @@
     
     
       
-        <title>DarkNetV3 - Holocron — development documentation</title>
+        <title>YOLO26 detection - Holocron — development documentation</title>
       
     
     
@@ -77,17 +77,17 @@
     
   
 <meta property="og:type" content="website" />
-<meta property="og:title" content="DarkNetV3 - Holocron — development documentation" />
+<meta property="og:title" content="YOLO26 detection - Holocron — development documentation" />
 <meta property="og:description" content="PyTorch implementations of recent Computer Vision tricks (ReXNet, RepVGG, Unet3p, YOLOv4, CIoU loss, AdaBelief, PolyLoss, MobileOne)." />
-<meta property="og:image" content="https://frgfm.github.io/holocron/assets/images/social/reference/models/classification/darknetv3.png" />
+<meta property="og:image" content="https://frgfm.github.io/holocron/assets/images/social/reference/models/detection/yolo26.png" />
 <meta property="og:image:type" content="image/png" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
-<meta property="og:url" content="https://frgfm.github.io/holocron/reference/models/classification/darknetv3/" />
+<meta property="og:url" content="https://frgfm.github.io/holocron/reference/models/detection/yolo26/" />
 <meta property="twitter:card" content="summary_large_image" />
-<meta property="twitter:title" content="DarkNetV3 - Holocron — development documentation" />
+<meta property="twitter:title" content="YOLO26 detection - Holocron — development documentation" />
 <meta property="twitter:description" content="PyTorch implementations of recent Computer Vision tricks (ReXNet, RepVGG, Unet3p, YOLOv4, CIoU loss, AdaBelief, PolyLoss, MobileOne)." />
-<meta property="twitter:image" content="https://frgfm.github.io/holocron/assets/images/social/reference/models/classification/darknetv3.png" />
+<meta property="twitter:image" content="https://frgfm.github.io/holocron/assets/images/social/reference/models/detection/yolo26.png" />
 </head>
   
   
@@ -107,7 +107,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#darknetv3" class="md-skip">
+        <a href="#yolo26-nano" class="md-skip">
           Skip to content
         </a>
       
@@ -142,7 +142,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              DarkNetV3
+              YOLO26 detection
             
           </span>
         </div>
@@ -750,10 +750,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../detection/yolo26/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    YOLO26 detection
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -769,6 +796,92 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#architecture-and-training-scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architecture and training scope
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#published-reference-not-holocron-measurements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Published reference, not Holocron measurements
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#local-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Local validation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#holocron.models.detection.yolo26.YOLO26" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;YOLO26
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#holocron.models.detection.yolo26.yolo26n" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;yolo26n
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -896,10 +1009,8 @@
                 
   
   
-    
   
   
-  
     
     
       
@@ -940,11 +1051,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1_5" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1_5" >
         
           
           <label class="md-nav__link" for="__nav_3_1_5" id="__nav_3_1_5_label" tabindex="0">
@@ -965,7 +1076,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_1_5_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_1_5_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3_1_5">
             <span class="md-nav__icon md-icon"></span>
             
@@ -983,7 +1094,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../resnet/" class="md-nav__link">
+      <a href="../../classification/resnet/" class="md-nav__link">
         
   
   
@@ -1011,7 +1122,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../resnext/" class="md-nav__link">
+      <a href="../../classification/resnext/" class="md-nav__link">
         
   
   
@@ -1039,7 +1150,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../res2net/" class="md-nav__link">
+      <a href="../../classification/res2net/" class="md-nav__link">
         
   
   
@@ -1067,7 +1178,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../tridentnet/" class="md-nav__link">
+      <a href="../../classification/tridentnet/" class="md-nav__link">
         
   
   
@@ -1095,7 +1206,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../convnext/" class="md-nav__link">
+      <a href="../../classification/convnext/" class="md-nav__link">
         
   
   
@@ -1123,7 +1234,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../pyconv_resnet/" class="md-nav__link">
+      <a href="../../classification/pyconv_resnet/" class="md-nav__link">
         
   
   
@@ -1151,7 +1262,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../rexnet/" class="md-nav__link">
+      <a href="../../classification/rexnet/" class="md-nav__link">
         
   
   
@@ -1179,7 +1290,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../sknet/" class="md-nav__link">
+      <a href="../../classification/sknet/" class="md-nav__link">
         
   
   
@@ -1207,7 +1318,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../darknet/" class="md-nav__link">
+      <a href="../../classification/darknet/" class="md-nav__link">
         
   
   
@@ -1235,7 +1346,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../darknetv2/" class="md-nav__link">
+      <a href="../../classification/darknetv2/" class="md-nav__link">
         
   
   
@@ -1260,37 +1371,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    DarkNetV3
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../classification/darknetv3/" class="md-nav__link">
         
   
   
@@ -1306,121 +1390,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#architecture-overview" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Architecture overview
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#model-builders" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Model builders
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Model builders">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#holocron.models.classification.DarknetV3" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;DarknetV3
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#holocron.models.classification.darknet53" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;darknet53
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label=" darknet53">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#holocron.models.Darknet53_Checkpoint" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;Darknet53_Checkpoint
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label=" Darknet53_Checkpoint">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#holocron.models.Darknet53_Checkpoint.IMAGENETTE" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;IMAGENETTE
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#holocron.models.Darknet53_Checkpoint.DEFAULT" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;DEFAULT
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1433,7 +1402,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../darknetv4/" class="md-nav__link">
+      <a href="../../classification/darknetv4/" class="md-nav__link">
         
   
   
@@ -1461,7 +1430,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../repvgg/" class="md-nav__link">
+      <a href="../../classification/repvgg/" class="md-nav__link">
         
   
   
@@ -1489,7 +1458,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../mobileone/" class="md-nav__link">
+      <a href="../../classification/mobileone/" class="md-nav__link">
         
   
   
@@ -1517,7 +1486,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../repvit/" class="md-nav__link">
+      <a href="../../classification/repvit/" class="md-nav__link">
         
   
   
@@ -1937,10 +1906,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#architecture-overview" class="md-nav__link">
+  <a href="#use" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Architecture overview
+        Use
       
     </span>
   </a>
@@ -1948,86 +1917,57 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#model-builders" class="md-nav__link">
+  <a href="#architecture-and-training-scope" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Model builders
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Model builders">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#holocron.models.classification.DarknetV3" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;DarknetV3
+        Architecture and training scope
       
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#holocron.models.classification.darknet53" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#published-reference-not-holocron-measurements" class="md-nav__link">
     <span class="md-ellipsis">
       
-        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;darknet53
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label=" darknet53">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#holocron.models.Darknet53_Checkpoint" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;Darknet53_Checkpoint
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label=" Darknet53_Checkpoint">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#holocron.models.Darknet53_Checkpoint.IMAGENETTE" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;IMAGENETTE
+        Published reference, not Holocron measurements
       
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#holocron.models.Darknet53_Checkpoint.DEFAULT" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#local-validation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;DEFAULT
+        Local validation
       
     </span>
   </a>
   
 </li>
-        
-      </ul>
-    </nav>
+      
+        <li class="md-nav__item">
+  <a href="#holocron.models.detection.yolo26.YOLO26" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;YOLO26
+      
+    </span>
+  </a>
   
 </li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-      </ul>
-    </nav>
+      
+        <li class="md-nav__item">
+  <a href="#holocron.models.detection.yolo26.yolo26n" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;yolo26n
+      
+    </span>
+  </a>
   
 </li>
       
@@ -2112,24 +2052,6 @@
   
 
       
-        
-  
-  
-    
-    
-      <li class="md-path__item">
-        <a href="../resnet/" class="md-path__link">
-          
-  <span class="md-ellipsis">
-    Classification
-  </span>
-
-        </a>
-      </li>
-    
-  
-
-      
     </ol>
   </nav>
 
@@ -2143,63 +2065,340 @@
   
 
 
-<h1 id="darknetv3">DarkNetV3<a class="headerlink" href="#darknetv3" title="Permanent link">&para;</a></h1>
-<p>The DarkNetV3 model is based on the <a href="https://pjreddie.com/media/files/papers/YOLOv3.pdf">"YOLOv3: An Incremental Improvement"</a> paper.</p>
-<h2 id="architecture-overview">Architecture overview<a class="headerlink" href="#architecture-overview" title="Permanent link">&para;</a></h2>
-<p>This paper makes a more powerful version than its predecedors by increasing depth and using ResNet tricks.</p>
-<p>The key takeaways from the paper are the following:</p>
-<ul>
-<li>adds residual connection compared to DarkNetV2</li>
-</ul>
-<h2 id="model-builders">Model builders<a class="headerlink" href="#model-builders" title="Permanent link">&para;</a></h2>
-<p>The following model builders can be used to instantiate a DarknetV3 model, with or
-without pre-trained weights. All the model builders internally rely on the
-<a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-class&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-class-name&quot;&gt;DarknetV3&lt;/span&gt;" href="#holocron.models.classification.DarknetV3"><code>DarknetV3</code></a> base class.</p>
-
-
-<div class="doc doc-object doc-module">
-
-
-
-
-    <div class="doc doc-contents first">
-
-
-
-
-
-
-
-
-
-
-<div class="doc doc-children">
-
-
-
-
-
-
-
+<h1 id="yolo26-nano">YOLO26 nano<a class="headerlink" href="#yolo26-nano" title="Permanent link">&para;</a></h1>
+<p><code>yolo26n</code> adds a small detector to Holocron. It learns boxes and classes in the
+same training call. It uses three feature scales to find objects of different
+sizes. Its default inference path does not need non-maximum suppression (NMS).</p>
+<div class="admonition warning">
+<p class="admonition-title">Experimental, without pretrained weights</p>
+<p>This is an original implementation of the nano architecture. It is not a
+reproduction of the published COCO checkpoint or its full training recipe.
+<code>pretrained=True</code> and <code>pretrained_backbone=True</code> raise clear errors.</p>
+</div>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>flowchart LR
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    I[Image] --&gt; B[Small backbone]
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    B --&gt; N[Combine three feature scales]
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    N --&gt; M[Many matches per object]
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    N --&gt; D[Stop feature gradients]
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    D --&gt; O[One match per object]
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    M --&gt; T[Training losses]
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    O --&gt; T
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    O --&gt; P[Boxes and class scores]
+</span></code></pre></div>
+<p>The many-match branch helps train the backbone. The one-match branch learns to
+return one prediction for each object. It receives detached features, so its
+loss only updates that branch. Both branches use four direct box values; they
+do not predict distributions over distance bins. At inference, the model runs
+only the selected branch.</p>
+<h2 id="use">Use<a class="headerlink" href="#use" title="Permanent link">&para;</a></h2>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">holocron.models.detection</span><span class="w"> </span><span class="kn">import</span> <span class="n">yolo26n</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="n">model</span> <span class="o">=</span> <span class="n">yolo26n</span><span class="p">(</span><span class="n">num_classes</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="n">images</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">96</span><span class="p">,</span> <span class="mi">128</span><span class="p">)</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="n">targets</span> <span class="o">=</span> <span class="p">[</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    <span class="p">{</span><span class="s2">&quot;boxes&quot;</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">]]),</span> <span class="s2">&quot;labels&quot;</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mi">0</span><span class="p">])},</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    <span class="p">{</span><span class="s2">&quot;boxes&quot;</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="s2">&quot;labels&quot;</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">long</span><span class="p">)},</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="p">]</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="n">losses</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">targets</span><span class="p">)</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="nb">sum</span><span class="p">(</span><span class="n">losses</span><span class="o">.</span><span class="n">values</span><span class="p">())</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">inference_mode</span><span class="p">():</span>
+</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>    <span class="n">predictions</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">images</span><span class="p">)</span>
+</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>    <span class="n">deployment_model</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">to_deploy</span><span class="p">()</span>
+</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>    <span class="n">deployment_predictions</span> <span class="o">=</span> <span class="n">deployment_model</span><span class="p">(</span><span class="n">images</span><span class="p">)</span>
+</span></code></pre></div>
+<p>Input height and width must be multiples of 32. Tensor batches and lists or
+tuples of equally sized images are accepted. Targets use normalized <code>xyxy</code>
+boxes and zero-based class labels. Empty targets are valid. Evaluation returns
+one dictionary per image with <code>boxes</code>, <code>scores</code>, and <code>labels</code>. Scores are class
+probabilities; this model has no separate objectness output.</p>
+<p>The default score threshold is 0.05, with at most 300 detections per image.
+<code>nms=True</code> selects the many-match branch and class-aware NMS. Without NMS,
+untrained or poorly trained weights can still produce duplicate detections.
+<code>to_deploy()</code> makes an independent evaluation copy, folds batch normalization
+into convolution, and removes the unused branch. Keep the original model for
+training. To restore deployment weights, construct the same model and call
+<code>eval().to_deploy()</code> before <code>load_state_dict()</code>.</p>
+<p>A fixed-batch, fixed-resolution ONNX opset-20 export of the fused NMS-free
+model passes the ONNX checker. Use <code>torch.onnx.export(..., dynamo=False)</code>.
+Dynamic batch or image sizes and ONNX Runtime parity have not been validated.</p>
+<p>The existing <code>DetectionTrainer</code> and VOC reference script can train this model:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>uv<span class="w"> </span>run<span class="w"> </span>--no-sync<span class="w"> </span>python<span class="w"> </span>references/detection/train.py<span class="w"> </span>VOC2012<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span>--arch<span class="w"> </span>yolo26n<span class="w"> </span>--img-size<span class="w"> </span><span class="m">640</span><span class="w"> </span>--opt<span class="w"> </span>adamw<span class="w"> </span>--lr<span class="w"> </span><span class="m">0</span>.001<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span>--epochs<span class="w"> </span><span class="m">30</span><span class="w"> </span>-b<span class="w"> </span><span class="m">8</span><span class="w"> </span>--output-file<span class="w"> </span>checkpoints/yolo26n-voc.pth
+</span></code></pre></div>
+<p>This is an integration example, not a validated VOC training recipe. Do not add
+<code>--pretrained</code>: no Holocron checkpoint is published for this model.</p>
+<h2 id="architecture-and-training-scope">Architecture and training scope<a class="headerlink" href="#architecture-and-training-scope" title="Permanent link">&para;</a></h2>
+<p>The layer dimensions follow the public nano configuration at revision
+<a href="https://github.com/ultralytics/ultralytics/blob/abd16e057bc0fde135c557d95e1fac31413d8575/ultralytics/cfg/models/26/yolo26.yaml"><code>abd16e05</code></a>.
+The implementation is original; it does not include upstream source code or
+weights. It shares its backbone blocks with Holocron's YOLO26 models.</p>
+<table>
+<thead>
+<tr>
+<th>80-class model</th>
+<th style="text-align: right;">Parameters</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Training, with both prediction branches</td>
+<td style="text-align: right;">2,572,280</td>
+</tr>
+<tr>
+<td>Fused, with only the NMS-free branch</td>
+<td style="text-align: right;">2,408,932</td>
+</tr>
+</tbody>
+</table>
+<p>Matching uses class probability to the power 0.5 and IoU to the power 6, with
+top-10 candidates for the many-match branch and top-1 for the one-match branch.
+Competing matches at one feature point are resolved by IoU. Losses use soft
+quality targets for classification BCE and matched, quality-weighted CIoU for
+boxes. Box calculations run in FP32 under autocast.</p>
+<p>This implementation has two local training guards: each object can use the
+feature point nearest its center, and assigned quality is at least 0.001. These
+guards give small or initially missed objects a regression signal. They are
+not the published STAL method. Predicted widths and heights also have a small
+positive numerical floor before loss calculation.</p>
+<p>The full <strong>STAL, Progressive Loss, MuSGD, augmentation search, and Objects365
+pretraining recipe are not implemented</strong>. The two branch losses have equal
+weight throughout training. The reference check uses AdamW from random weights.
+No compatibility with upstream checkpoint keys or export formats is claimed.</p>
+<h2 id="published-reference-not-holocron-measurements">Published reference, not Holocron measurements<a class="headerlink" href="#published-reference-not-holocron-measurements" title="Permanent link">&para;</a></h2>
+<p>The authors report the following for their released YOLO26n checkpoint:</p>
+<table>
+<thead>
+<tr>
+<th>Input</th>
+<th style="text-align: right;">COCO AP50:95</th>
+<th style="text-align: right;">T4 TensorRT10 latency</th>
+<th style="text-align: right;">Parameters</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>640 × 640, NMS-free branch</td>
+<td style="text-align: right;">40.1</td>
+<td style="text-align: right;">1.7 ms, batch 1</td>
+<td style="text-align: right;">2.4M fused</td>
+</tr>
+</tbody>
+</table>
+<p>The default NMS branch reaches 40.9 AP. The 1.7 ms speed belongs to the
+NMS-free branch. Their checkpoints use Objects365 pretraining before COCO
+fine-tuning. These figures are <strong>targets for future work</strong>, not measured
+performance of these randomly initialized Holocron models.</p>
+<p>Sources: <a href="https://arxiv.org/abs/2606.03748">paper</a>,
+<a href="https://github.com/ultralytics/ultralytics/blob/abd16e057bc0fde135c557d95e1fac31413d8575/docs/macros/yolo-det-perf.md">published metrics</a>,
+<a href="https://github.com/ultralytics/ultralytics/blob/abd16e057bc0fde135c557d95e1fac31413d8575/docs/en/guides/yolo26-training-recipe.md">training recipe</a>.</p>
+<h2 id="local-validation">Local validation<a class="headerlink" href="#local-validation" title="Permanent link">&para;</a></h2>
+<p>The <a href="https://github.com/frgfm/holocron/blob/main/references/detection/YOLO26.md">reference guide</a>
+has CPU training results, split details, and reproduction commands. Those
+checks cover new validation images, empty scenes, and multiple objects. They
+do not establish COCO performance. Tests also cover finite gradients, detached
+branch training, matching, tuple batches through <code>DetectionTrainer</code>, optional
+NMS, deployment parity, checkpoint round trips, and static ONNX export.</p>
 
 
 <div class="doc doc-object doc-class">
 
 
 
-<h3 id="holocron.models.classification.DarknetV3" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">DarknetV3</span>
+<h2 id="holocron.models.detection.yolo26.YOLO26" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">YOLO26</span>
 
 
-<a href="#holocron.models.classification.DarknetV3" class="headerlink" title="Permanent link">&para;</a></h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">DarknetV3</span><span class="p">(</span><span class="n">layout</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/stdtypes.html#list">list</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple">tuple</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/functions.html#int">int</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/functions.html#int">int</a></span><span class="p">]],</span> <span class="n">num_classes</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/functions.html#int">int</a></span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">in_channels</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/functions.html#int">int</a></span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">stem_channels</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/functions.html#int">int</a></span> <span class="o">=</span> <span class="mi">32</span><span class="p">,</span> <span class="n">act_layer</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="&lt;code&gt;torch.nn.Module&lt;/code&gt;" href="https://docs.pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module">Module</a></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">norm_layer</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="&lt;code&gt;collections.abc.Callable&lt;/code&gt;" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable">Callable</a></span><span class="p">[[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/functions.html#int">int</a></span><span class="p">],</span> <span class="n"><a class="autorefs autorefs-external" title="&lt;code&gt;torch.nn.Module&lt;/code&gt;" href="https://docs.pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module">Module</a></span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">drop_layer</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="&lt;code&gt;collections.abc.Callable&lt;/code&gt;" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable">Callable</a></span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" title="&lt;code&gt;torch.nn.Module&lt;/code&gt;" href="https://docs.pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module">Module</a></span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">conv_layer</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="&lt;code&gt;collections.abc.Callable&lt;/code&gt;" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable">Callable</a></span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" title="&lt;code&gt;torch.nn.Module&lt;/code&gt;" href="https://docs.pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module">Module</a></span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span>
+<a href="#holocron.models.detection.yolo26.YOLO26" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">YOLO26</span><span class="p">(</span><span class="n">num_classes</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/functions.html#int">int</a></span> <span class="o">=</span> <span class="mi">80</span><span class="p">,</span> <span class="n">in_channels</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/functions.html#int">int</a></span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">box_score_thresh</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/functions.html#float">float</a></span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span> <span class="n">max_detections</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/functions.html#int">int</a></span> <span class="o">=</span> <span class="mi">300</span><span class="p">,</span> <span class="n">nms</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/functions.html#bool">bool</a></span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">nms_thresh</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/functions.html#float">float</a></span> <span class="o">=</span> <span class="mf">0.7</span><span class="p">,</span> <span class="n">box_weight</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/functions.html#float">float</a></span> <span class="o">=</span> <span class="mf">7.5</span><span class="p">,</span> <span class="n">class_weight</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/functions.html#float">float</a></span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">)</span>
 </span></code></pre></div>
 
-    <div class="doc doc-contents ">
-            <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-external" title="&lt;code&gt;torch.nn.Sequential&lt;/code&gt;" href="https://docs.pytorch.org/docs/stable/generated/torch.nn.Sequential.html#torch.nn.Sequential">Sequential</a></code></p>
+    <div class="doc doc-contents first">
 
 
+
+        <p>YOLO26 nano detector with direct box regression and dual training heads.</p>
+<p>Training accepts normalized <code>xyxy</code> boxes and zero-based integer labels,
+and returns four scalar losses. Evaluation uses the one-to-one head without
+NMS by default. Inputs must have equal dimensions divisible by 32.</p>
+<p>This is an original architecture implementation, not a reproduction of the
+released weights. The full MuSGD, STAL and Progressive Loss training recipe
+is not included. See the reference guide before comparing COCO results.</p>
+
+
+<table>
+      <thead>
+        <tr>
+          <th><span class="doc-section-title">PARAMETER</span></th>
+          <th><span>DESCRIPTION</span></th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>num_classes</code>
+            </td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>number of foreground classes (no background class).</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/functions.html#int">int</a></code>
+                  </span>
+                  <span class="doc-param-default">
+                    <b>DEFAULT:</b>
+                      <code>80</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>in_channels</code>
+            </td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>number of input channels.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/functions.html#int">int</a></code>
+                  </span>
+                  <span class="doc-param-default">
+                    <b>DEFAULT:</b>
+                      <code>3</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>box_score_thresh</code>
+            </td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>minimum returned class probability.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/functions.html#float">float</a></code>
+                  </span>
+                  <span class="doc-param-default">
+                    <b>DEFAULT:</b>
+                      <code>0.05</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>max_detections</code>
+            </td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>maximum detections per image.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/functions.html#int">int</a></code>
+                  </span>
+                  <span class="doc-param-default">
+                    <b>DEFAULT:</b>
+                      <code>300</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>nms</code>
+            </td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>use the one-to-many head and class-aware NMS at evaluation.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/functions.html#bool">bool</a></code>
+                  </span>
+                  <span class="doc-param-default">
+                    <b>DEFAULT:</b>
+                      <code>False</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>nms_thresh</code>
+            </td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>IoU threshold for optional NMS.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/functions.html#float">float</a></code>
+                  </span>
+                  <span class="doc-param-default">
+                    <b>DEFAULT:</b>
+                      <code>0.7</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>box_weight</code>
+            </td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>multiplier for each head's CIoU loss.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/functions.html#float">float</a></code>
+                  </span>
+                  <span class="doc-param-default">
+                    <b>DEFAULT:</b>
+                      <code>7.5</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>class_weight</code>
+            </td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>multiplier for each head's classification BCE.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/functions.html#float">float</a></code>
+                  </span>
+                  <span class="doc-param-default">
+                    <b>DEFAULT:</b>
+                      <code>0.5</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+      </tbody>
+    </table>
 
 
 
@@ -2209,14 +2408,8 @@ without pre-trained weights. All the model builders internally rely on the
 
 
                   <details class="mkdocstrings-source">
-                    <summary>Source code in <code>holocron/models/classification/darknetv3.py</code></summary>
-                    <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-170">170</a></span>
-<span class="normal"><a href="#__codelineno-0-171">171</a></span>
-<span class="normal"><a href="#__codelineno-0-172">172</a></span>
-<span class="normal"><a href="#__codelineno-0-173">173</a></span>
-<span class="normal"><a href="#__codelineno-0-174">174</a></span>
-<span class="normal"><a href="#__codelineno-0-175">175</a></span>
-<span class="normal"><a href="#__codelineno-0-176">176</a></span>
+                    <summary>Source code in <code>holocron/models/detection/yolo26.py</code></summary>
+                    <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-176">176</a></span>
 <span class="normal"><a href="#__codelineno-0-177">177</a></span>
 <span class="normal"><a href="#__codelineno-0-178">178</a></span>
 <span class="normal"><a href="#__codelineno-0-179">179</a></span>
@@ -2232,29 +2425,45 @@ without pre-trained weights. All the model builders internally rely on the
 <span class="normal"><a href="#__codelineno-0-189">189</a></span>
 <span class="normal"><a href="#__codelineno-0-190">190</a></span>
 <span class="normal"><a href="#__codelineno-0-191">191</a></span>
-<span class="normal"><a href="#__codelineno-0-192">192</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-170"><a id="__codelineno-0-170" name="__codelineno-0-170"></a><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
-</span><span id="__span-0-171"><a id="__codelineno-0-171" name="__codelineno-0-171"></a>    <span class="bp">self</span><span class="p">,</span>
-</span><span id="__span-0-172"><a id="__codelineno-0-172" name="__codelineno-0-172"></a>    <span class="n">layout</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span>
-</span><span id="__span-0-173"><a id="__codelineno-0-173" name="__codelineno-0-173"></a>    <span class="n">num_classes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
-</span><span id="__span-0-174"><a id="__codelineno-0-174" name="__codelineno-0-174"></a>    <span class="n">in_channels</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
-</span><span id="__span-0-175"><a id="__codelineno-0-175" name="__codelineno-0-175"></a>    <span class="n">stem_channels</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">32</span><span class="p">,</span>
-</span><span id="__span-0-176"><a id="__codelineno-0-176" name="__codelineno-0-176"></a>    <span class="n">act_layer</span><span class="p">:</span> <span class="n">nn</span><span class="o">.</span><span class="n">Module</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="__span-0-177"><a id="__codelineno-0-177" name="__codelineno-0-177"></a>    <span class="n">norm_layer</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">int</span><span class="p">],</span> <span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="__span-0-178"><a id="__codelineno-0-178" name="__codelineno-0-178"></a>    <span class="n">drop_layer</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="__span-0-179"><a id="__codelineno-0-179" name="__codelineno-0-179"></a>    <span class="n">conv_layer</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="__span-0-180"><a id="__codelineno-0-180" name="__codelineno-0-180"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-0-181"><a id="__codelineno-0-181" name="__codelineno-0-181"></a>    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-</span><span id="__span-0-182"><a id="__codelineno-0-182" name="__codelineno-0-182"></a>        <span class="n">OrderedDict</span><span class="p">([</span>
-</span><span id="__span-0-183"><a id="__codelineno-0-183" name="__codelineno-0-183"></a>            <span class="p">(</span>
-</span><span id="__span-0-184"><a id="__codelineno-0-184" name="__codelineno-0-184"></a>                <span class="s2">&quot;features&quot;</span><span class="p">,</span>
-</span><span id="__span-0-185"><a id="__codelineno-0-185" name="__codelineno-0-185"></a>                <span class="n">DarknetBodyV3</span><span class="p">(</span><span class="n">layout</span><span class="p">,</span> <span class="n">in_channels</span><span class="p">,</span> <span class="n">stem_channels</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">act_layer</span><span class="p">,</span> <span class="n">norm_layer</span><span class="p">,</span> <span class="n">drop_layer</span><span class="p">,</span> <span class="n">conv_layer</span><span class="p">),</span>
-</span><span id="__span-0-186"><a id="__codelineno-0-186" name="__codelineno-0-186"></a>            <span class="p">),</span>
-</span><span id="__span-0-187"><a id="__codelineno-0-187" name="__codelineno-0-187"></a>            <span class="p">(</span><span class="s2">&quot;pool&quot;</span><span class="p">,</span> <span class="n">GlobalAvgPool2d</span><span class="p">(</span><span class="n">flatten</span><span class="o">=</span><span class="kc">True</span><span class="p">)),</span>
-</span><span id="__span-0-188"><a id="__codelineno-0-188" name="__codelineno-0-188"></a>            <span class="p">(</span><span class="s2">&quot;classifier&quot;</span><span class="p">,</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">layout</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">num_classes</span><span class="p">)),</span>
-</span><span id="__span-0-189"><a id="__codelineno-0-189" name="__codelineno-0-189"></a>        <span class="p">])</span>
-</span><span id="__span-0-190"><a id="__codelineno-0-190" name="__codelineno-0-190"></a>    <span class="p">)</span>
-</span><span id="__span-0-191"><a id="__codelineno-0-191" name="__codelineno-0-191"></a>
-</span><span id="__span-0-192"><a id="__codelineno-0-192" name="__codelineno-0-192"></a>    <span class="n">init_module</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;leaky_relu&quot;</span><span class="p">)</span>
+<span class="normal"><a href="#__codelineno-0-192">192</a></span>
+<span class="normal"><a href="#__codelineno-0-193">193</a></span>
+<span class="normal"><a href="#__codelineno-0-194">194</a></span>
+<span class="normal"><a href="#__codelineno-0-195">195</a></span>
+<span class="normal"><a href="#__codelineno-0-196">196</a></span>
+<span class="normal"><a href="#__codelineno-0-197">197</a></span>
+<span class="normal"><a href="#__codelineno-0-198">198</a></span>
+<span class="normal"><a href="#__codelineno-0-199">199</a></span>
+<span class="normal"><a href="#__codelineno-0-200">200</a></span>
+<span class="normal"><a href="#__codelineno-0-201">201</a></span>
+<span class="normal"><a href="#__codelineno-0-202">202</a></span>
+<span class="normal"><a href="#__codelineno-0-203">203</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-176"><a id="__codelineno-0-176" name="__codelineno-0-176"></a><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+</span><span id="__span-0-177"><a id="__codelineno-0-177" name="__codelineno-0-177"></a>    <span class="bp">self</span><span class="p">,</span>
+</span><span id="__span-0-178"><a id="__codelineno-0-178" name="__codelineno-0-178"></a>    <span class="n">num_classes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">80</span><span class="p">,</span>
+</span><span id="__span-0-179"><a id="__codelineno-0-179" name="__codelineno-0-179"></a>    <span class="n">in_channels</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
+</span><span id="__span-0-180"><a id="__codelineno-0-180" name="__codelineno-0-180"></a>    <span class="n">box_score_thresh</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span>
+</span><span id="__span-0-181"><a id="__codelineno-0-181" name="__codelineno-0-181"></a>    <span class="n">max_detections</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">300</span><span class="p">,</span>
+</span><span id="__span-0-182"><a id="__codelineno-0-182" name="__codelineno-0-182"></a>    <span class="n">nms</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+</span><span id="__span-0-183"><a id="__codelineno-0-183" name="__codelineno-0-183"></a>    <span class="n">nms_thresh</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.7</span><span class="p">,</span>
+</span><span id="__span-0-184"><a id="__codelineno-0-184" name="__codelineno-0-184"></a>    <span class="n">box_weight</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">7.5</span><span class="p">,</span>
+</span><span id="__span-0-185"><a id="__codelineno-0-185" name="__codelineno-0-185"></a>    <span class="n">class_weight</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
+</span><span id="__span-0-186"><a id="__codelineno-0-186" name="__codelineno-0-186"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-0-187"><a id="__codelineno-0-187" name="__codelineno-0-187"></a>    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+</span><span id="__span-0-188"><a id="__codelineno-0-188" name="__codelineno-0-188"></a>    <span class="k">if</span> <span class="n">num_classes</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">max_detections</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+</span><span id="__span-0-189"><a id="__codelineno-0-189" name="__codelineno-0-189"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;num_classes and max_detections must be positive&quot;</span><span class="p">)</span>
+</span><span id="__span-0-190"><a id="__codelineno-0-190" name="__codelineno-0-190"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">box_score_thresh</span> <span class="o">&lt;=</span> <span class="mi">1</span> <span class="ow">or</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">nms_thresh</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+</span><span id="__span-0-191"><a id="__codelineno-0-191" name="__codelineno-0-191"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Score and NMS thresholds must be in [0, 1]&quot;</span><span class="p">)</span>
+</span><span id="__span-0-192"><a id="__codelineno-0-192" name="__codelineno-0-192"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">num_classes</span> <span class="o">=</span> <span class="n">num_classes</span>
+</span><span id="__span-0-193"><a id="__codelineno-0-193" name="__codelineno-0-193"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">in_channels</span> <span class="o">=</span> <span class="n">in_channels</span>
+</span><span id="__span-0-194"><a id="__codelineno-0-194" name="__codelineno-0-194"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">box_score_thresh</span> <span class="o">=</span> <span class="n">box_score_thresh</span>
+</span><span id="__span-0-195"><a id="__codelineno-0-195" name="__codelineno-0-195"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">max_detections</span> <span class="o">=</span> <span class="n">max_detections</span>
+</span><span id="__span-0-196"><a id="__codelineno-0-196" name="__codelineno-0-196"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">nms</span> <span class="o">=</span> <span class="n">nms</span>
+</span><span id="__span-0-197"><a id="__codelineno-0-197" name="__codelineno-0-197"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">nms_thresh</span> <span class="o">=</span> <span class="n">nms_thresh</span>
+</span><span id="__span-0-198"><a id="__codelineno-0-198" name="__codelineno-0-198"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">box_weight</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">class_weight</span> <span class="o">=</span> <span class="n">box_weight</span><span class="p">,</span> <span class="n">class_weight</span>
+</span><span id="__span-0-199"><a id="__codelineno-0-199" name="__codelineno-0-199"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span> <span class="o">=</span> <span class="n">YOLO26Backbone</span><span class="p">(</span><span class="n">in_channels</span><span class="o">=</span><span class="n">in_channels</span><span class="p">)</span>
+</span><span id="__span-0-200"><a id="__codelineno-0-200" name="__codelineno-0-200"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">neck</span> <span class="o">=</span> <span class="n">YOLO26Neck</span><span class="p">()</span>
+</span><span id="__span-0-201"><a id="__codelineno-0-201" name="__codelineno-0-201"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">one_to_many</span> <span class="o">=</span> <span class="n">PredictionHead</span><span class="p">(</span><span class="n">num_classes</span><span class="p">)</span>
+</span><span id="__span-0-202"><a id="__codelineno-0-202" name="__codelineno-0-202"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">one_to_one</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">one_to_many</span><span class="p">)</span>
+</span><span id="__span-0-203"><a id="__codelineno-0-203" name="__codelineno-0-203"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">deployed</span> <span class="o">=</span> <span class="kc">False</span>
 </span></code></pre></div></td></tr></table></div>
                   </details>
 
@@ -2279,22 +2488,20 @@ without pre-trained weights. All the model builders internally rely on the
 
 </div>
 
-
 <div class="doc doc-object doc-function">
 
 
-<h3 id="holocron.models.classification.darknet53" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <span class="doc doc-object-name doc-function-name">darknet53</span>
+<h2 id="holocron.models.detection.yolo26.yolo26n" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <span class="doc doc-object-name doc-function-name">yolo26n</span>
 
 
-<a href="#holocron.models.classification.darknet53" class="headerlink" title="Permanent link">&para;</a></h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">darknet53</span><span class="p">(</span><span class="n">pretrained</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/functions.html#bool">bool</a></span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">checkpoint</span><span class="p">:</span> <span class="n"><span title="holocron.models.checkpoints.Checkpoint">Checkpoint</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">progress</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/functions.html#bool">bool</a></span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="&lt;code&gt;typing.Any&lt;/code&gt;" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-class&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-class-name&quot;&gt;DarknetV3&lt;/span&gt; (&lt;code&gt;holocron.models.classification.darknetv3.DarknetV3&lt;/code&gt;)" href="#holocron.models.classification.DarknetV3">DarknetV3</a></span>
+<a href="#holocron.models.detection.yolo26.yolo26n" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">yolo26n</span><span class="p">(</span><span class="n">pretrained</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/functions.html#bool">bool</a></span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">progress</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/functions.html#bool">bool</a></span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="&lt;code&gt;typing.Any&lt;/code&gt;" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-class&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-class-name&quot;&gt;YOLO26&lt;/span&gt; (&lt;code&gt;holocron.models.detection.yolo26.YOLO26&lt;/code&gt;)" href="#holocron.models.detection.yolo26.YOLO26">YOLO26</a></span>
 </span></code></pre></div>
 
-    <div class="doc doc-contents ">
+    <div class="doc doc-contents first">
 
-        <p>Darknet-53 from
-<a href="https://pjreddie.com/media/files/papers/YOLOv3.pdf">"YOLOv3: An Incremental Improvement"</a></p>
+        <p>Build a randomly initialized YOLO26 nano detector.</p>
 
 
 <table>
@@ -2311,7 +2518,7 @@ without pre-trained weights. All the model builders internally rely on the
             </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
-                <p>If True, returns a model pre-trained on ImageNet</p>
+                <p>unavailable; requesting weights raises an error.</p>
               </div>
               <p>
                   <span class="doc-param-annotation">
@@ -2327,31 +2534,11 @@ without pre-trained weights. All the model builders internally rely on the
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>checkpoint</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                <p>If specified, the model's parameters will be set to the checkpoint's values</p>
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code><span title="holocron.models.checkpoints.Checkpoint">Checkpoint</span> | None</code>
-                  </span>
-                  <span class="doc-param-default">
-                    <b>DEFAULT:</b>
-                      <code>None</code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
                 <code>progress</code>
             </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
-                <p>If True, displays a progress bar of the download to stderr</p>
+                <p>kept for compatibility with other detection factories.</p>
               </div>
               <p>
                   <span class="doc-param-annotation">
@@ -2367,11 +2554,11 @@ without pre-trained weights. All the model builders internally rely on the
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>kwargs</code>
+                <code>**kwargs</code>
             </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
-                <p>keyword args of <a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-class&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-class-name&quot;&gt;DarknetV3&lt;/span&gt;" href="#holocron.models.classification.DarknetV3"><code>DarknetV3</code></a></p>
+                <p>arguments passed to :class:<code>YOLO26</code>.</p>
               </div>
               <p>
                   <span class="doc-param-annotation">
@@ -2400,185 +2587,80 @@ without pre-trained weights. All the model builders internally rely on the
           <tr class="doc-section-item">
             <td>
                 <span class="doc-returns-annotation">
-                    <code><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-class&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-class-name&quot;&gt;DarknetV3&lt;/span&gt; (&lt;code&gt;holocron.models.classification.darknetv3.DarknetV3&lt;/code&gt;)" href="#holocron.models.classification.DarknetV3">DarknetV3</a></code>
+                    <code><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-class&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-class-name&quot;&gt;YOLO26&lt;/span&gt; (&lt;code&gt;holocron.models.detection.yolo26.YOLO26&lt;/code&gt;)" href="#holocron.models.detection.yolo26.YOLO26">YOLO26</a></code>
                 </span>
             </td>
             <td class="doc-returns-details">
               <div class="doc-md-description">
-                <p>classification model</p>
+                <p>nano detector with dual training heads.</p>
               </div>
             </td>
           </tr>
       </tbody>
     </table>
-        <div class="doc doc-object doc-class">
 
 
-
-<h4 id="holocron.models.Darknet53_Checkpoint" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">Darknet53_Checkpoint</span>
-
-
-<a href="#holocron.models.Darknet53_Checkpoint" class="headerlink" title="Permanent link">&para;</a></h4>
-
-
-    <div class="doc doc-contents first">
-            <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-external" title="&lt;code&gt;enum.Enum&lt;/code&gt;" href="https://docs.python.org/3/library/enum.html#enum.Enum">Enum</a></code></p>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div class="doc doc-children">
-
-
-
-
-
-
-
-<div class="doc doc-object doc-attribute">
-
-
-
-<h5 id="holocron.models.Darknet53_Checkpoint.IMAGENETTE" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <span class="doc doc-object-name doc-attribute-name">IMAGENETTE</span>
-
-
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
-      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
-  </span>
-
-<a href="#holocron.models.Darknet53_Checkpoint.IMAGENETTE" class="headerlink" title="Permanent link">&para;</a></h5>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">IMAGENETTE</span> <span class="o">=</span> <span class="n"><span title="holocron.models.utils._checkpoint">_checkpoint</span></span><span class="p">(</span><span class="n"><span title="holocron.models.utils._checkpoint(arch)">arch</span></span><span class="o">=</span><span class="s1">&#39;darknet53&#39;</span><span class="p">,</span> <span class="n"><span title="holocron.models.utils._checkpoint(url)">url</span></span><span class="o">=</span><span class="s1">&#39;https://github.com/frgfm/Holocron/releases/download/v0.2.1/darknet53_224-5015f3fd.pth&#39;</span><span class="p">,</span> <span class="n"><span title="holocron.models.utils._checkpoint(acc1)">acc1</span></span><span class="o">=</span><span class="mf">0.9417</span><span class="p">,</span> <span class="n"><span title="holocron.models.utils._checkpoint(acc5)">acc5</span></span><span class="o">=</span><span class="mf">0.9957</span><span class="p">,</span> <span class="n"><span title="holocron.models.utils._checkpoint(sha256)">sha256</span></span><span class="o">=</span><span class="s1">&#39;5015f3fdf0963342e0c54790127350375ba269d871feed48f8328b2e43cf7819&#39;</span><span class="p">,</span> <span class="n"><span title="holocron.models.utils._checkpoint(size)">size</span></span><span class="o">=</span><span class="mi">162584273</span><span class="p">,</span> <span class="n"><span title="holocron.models.utils._checkpoint(num_params)">num_params</span></span><span class="o">=</span><span class="mi">40595178</span><span class="p">,</span> <span class="n"><span title="holocron.models.utils._checkpoint(commit)">commit</span></span><span class="o">=</span><span class="s1">&#39;6e32c5b578711a2ef3731a8f8c61760ed9f03e58&#39;</span><span class="p">,</span> <span class="n"><span title="holocron.models.utils._checkpoint(train_args)">train_args</span></span><span class="o">=</span><span class="n"><span title="holocron.models.utils._imagenette_recipe">_imagenette_recipe</span></span><span class="p">(</span><span class="s1">&#39;darknet53&#39;</span><span class="p">))</span>
-</span></code></pre></div>
-
-    <div class="doc doc-contents ">
-
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-attribute">
-
-
-
-<h5 id="holocron.models.Darknet53_Checkpoint.DEFAULT" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <span class="doc doc-object-name doc-attribute-name">DEFAULT</span>
-
-
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
-      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
-  </span>
-
-<a href="#holocron.models.Darknet53_Checkpoint.DEFAULT" class="headerlink" title="Permanent link">&para;</a></h5>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">DEFAULT</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-attribute&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-attribute-name&quot;&gt;IMAGENETTE&lt;/span&gt;
-
-
-  &lt;span class=&quot;doc doc-labels&quot;&gt;
-      &lt;small class=&quot;doc doc-label doc-label-class-attribute&quot;&gt;&lt;code&gt;class-attribute&lt;/code&gt;&lt;/small&gt;
-      &lt;small class=&quot;doc doc-label doc-label-instance-attribute&quot;&gt;&lt;code&gt;instance-attribute&lt;/code&gt;&lt;/small&gt;
-  &lt;/span&gt; (&lt;code&gt;holocron.models.classification.darknetv3.Darknet53_Checkpoint.IMAGENETTE&lt;/code&gt;)" href="#holocron.models.Darknet53_Checkpoint.IMAGENETTE">IMAGENETTE</a></span>
-</span></code></pre></div>
-
-    <div class="doc doc-contents ">
-
-    </div>
-
-</div>
-
-
-
-
-
-
-  </div>
-
-    </div>
-
-</div>
+<table>
+      <thead>
+        <tr>
+          <th><span class="doc-section-title">RAISES</span></th>
+          <th><span>DESCRIPTION</span></th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+              <span class="doc-raises-annotation">
+                  <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError">ValueError</a></code>
+              </span>
+            </td>
+            <td class="doc-raises-details">
+              <div class="doc-md-description">
+                <p>if pretrained detector or backbone weights are requested.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>holocron/models/classification/darknetv3.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-221">221</a></span>
-<span class="normal"><a href="#__codelineno-0-222">222</a></span>
-<span class="normal"><a href="#__codelineno-0-223">223</a></span>
-<span class="normal"><a href="#__codelineno-0-224">224</a></span>
-<span class="normal"><a href="#__codelineno-0-225">225</a></span>
-<span class="normal"><a href="#__codelineno-0-226">226</a></span>
-<span class="normal"><a href="#__codelineno-0-227">227</a></span>
-<span class="normal"><a href="#__codelineno-0-228">228</a></span>
-<span class="normal"><a href="#__codelineno-0-229">229</a></span>
-<span class="normal"><a href="#__codelineno-0-230">230</a></span>
-<span class="normal"><a href="#__codelineno-0-231">231</a></span>
-<span class="normal"><a href="#__codelineno-0-232">232</a></span>
-<span class="normal"><a href="#__codelineno-0-233">233</a></span>
-<span class="normal"><a href="#__codelineno-0-234">234</a></span>
-<span class="normal"><a href="#__codelineno-0-235">235</a></span>
-<span class="normal"><a href="#__codelineno-0-236">236</a></span>
-<span class="normal"><a href="#__codelineno-0-237">237</a></span>
-<span class="normal"><a href="#__codelineno-0-238">238</a></span>
-<span class="normal"><a href="#__codelineno-0-239">239</a></span>
-<span class="normal"><a href="#__codelineno-0-240">240</a></span>
-<span class="normal"><a href="#__codelineno-0-241">241</a></span>
-<span class="normal"><a href="#__codelineno-0-242">242</a></span>
-<span class="normal"><a href="#__codelineno-0-243">243</a></span>
-<span class="normal"><a href="#__codelineno-0-244">244</a></span>
-<span class="normal"><a href="#__codelineno-0-245">245</a></span>
-<span class="normal"><a href="#__codelineno-0-246">246</a></span>
-<span class="normal"><a href="#__codelineno-0-247">247</a></span>
-<span class="normal"><a href="#__codelineno-0-248">248</a></span>
-<span class="normal"><a href="#__codelineno-0-249">249</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-221"><a id="__codelineno-0-221" name="__codelineno-0-221"></a><span class="k">def</span><span class="w"> </span><span class="nf">darknet53</span><span class="p">(</span>
-</span><span id="__span-0-222"><a id="__codelineno-0-222" name="__codelineno-0-222"></a>    <span class="n">pretrained</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-</span><span id="__span-0-223"><a id="__codelineno-0-223" name="__codelineno-0-223"></a>    <span class="n">checkpoint</span><span class="p">:</span> <span class="n">Checkpoint</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="__span-0-224"><a id="__codelineno-0-224" name="__codelineno-0-224"></a>    <span class="n">progress</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-</span><span id="__span-0-225"><a id="__codelineno-0-225" name="__codelineno-0-225"></a>    <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
-</span><span id="__span-0-226"><a id="__codelineno-0-226" name="__codelineno-0-226"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DarknetV3</span><span class="p">:</span>
-</span><span id="__span-0-227"><a id="__codelineno-0-227" name="__codelineno-0-227"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Darknet-53 from</span>
-</span><span id="__span-0-228"><a id="__codelineno-0-228" name="__codelineno-0-228"></a><span class="sd">    [&quot;YOLOv3: An Incremental Improvement&quot;](https://pjreddie.com/media/files/papers/YOLOv3.pdf)</span>
-</span><span id="__span-0-229"><a id="__codelineno-0-229" name="__codelineno-0-229"></a>
-</span><span id="__span-0-230"><a id="__codelineno-0-230" name="__codelineno-0-230"></a><span class="sd">    Args:</span>
-</span><span id="__span-0-231"><a id="__codelineno-0-231" name="__codelineno-0-231"></a><span class="sd">        pretrained: If True, returns a model pre-trained on ImageNet</span>
-</span><span id="__span-0-232"><a id="__codelineno-0-232" name="__codelineno-0-232"></a><span class="sd">        checkpoint: If specified, the model&#39;s parameters will be set to the checkpoint&#39;s values</span>
-</span><span id="__span-0-233"><a id="__codelineno-0-233" name="__codelineno-0-233"></a><span class="sd">        progress: If True, displays a progress bar of the download to stderr</span>
-</span><span id="__span-0-234"><a id="__codelineno-0-234" name="__codelineno-0-234"></a><span class="sd">        kwargs: keyword args of [`DarknetV3`][holocron.models.classification.darknetv3.DarknetV3]</span>
-</span><span id="__span-0-235"><a id="__codelineno-0-235" name="__codelineno-0-235"></a>
-</span><span id="__span-0-236"><a id="__codelineno-0-236" name="__codelineno-0-236"></a><span class="sd">    Returns:</span>
-</span><span id="__span-0-237"><a id="__codelineno-0-237" name="__codelineno-0-237"></a><span class="sd">        classification model</span>
-</span><span id="__span-0-238"><a id="__codelineno-0-238" name="__codelineno-0-238"></a>
-</span><span id="__span-0-239"><a id="__codelineno-0-239" name="__codelineno-0-239"></a><span class="sd">    ::: holocron.models.Darknet53_Checkpoint</span>
-</span><span id="__span-0-240"><a id="__codelineno-0-240" name="__codelineno-0-240"></a><span class="sd">        options:</span>
-</span><span id="__span-0-241"><a id="__codelineno-0-241" name="__codelineno-0-241"></a><span class="sd">            heading_level: 4</span>
-</span><span id="__span-0-242"><a id="__codelineno-0-242" name="__codelineno-0-242"></a><span class="sd">            show_if_no_docstring: true</span>
-</span><span id="__span-0-243"><a id="__codelineno-0-243" name="__codelineno-0-243"></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="__span-0-244"><a id="__codelineno-0-244" name="__codelineno-0-244"></a>    <span class="n">checkpoint</span> <span class="o">=</span> <span class="n">_handle_legacy_pretrained</span><span class="p">(</span>
-</span><span id="__span-0-245"><a id="__codelineno-0-245" name="__codelineno-0-245"></a>        <span class="n">pretrained</span><span class="p">,</span>
-</span><span id="__span-0-246"><a id="__codelineno-0-246" name="__codelineno-0-246"></a>        <span class="n">checkpoint</span><span class="p">,</span>
-</span><span id="__span-0-247"><a id="__codelineno-0-247" name="__codelineno-0-247"></a>        <span class="n">Darknet53_Checkpoint</span><span class="o">.</span><span class="n">DEFAULT</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
-</span><span id="__span-0-248"><a id="__codelineno-0-248" name="__codelineno-0-248"></a>    <span class="p">)</span>
-</span><span id="__span-0-249"><a id="__codelineno-0-249" name="__codelineno-0-249"></a>    <span class="k">return</span> <span class="n">_darknet</span><span class="p">(</span><span class="n">checkpoint</span><span class="p">,</span> <span class="n">progress</span><span class="p">,</span> <span class="p">[(</span><span class="mi">64</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="p">(</span><span class="mi">512</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="p">(</span><span class="mi">1024</span><span class="p">,</span> <span class="mi">4</span><span class="p">)],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+              <summary>Source code in <code>holocron/models/detection/yolo26.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-326">326</a></span>
+<span class="normal"><a href="#__codelineno-0-327">327</a></span>
+<span class="normal"><a href="#__codelineno-0-328">328</a></span>
+<span class="normal"><a href="#__codelineno-0-329">329</a></span>
+<span class="normal"><a href="#__codelineno-0-330">330</a></span>
+<span class="normal"><a href="#__codelineno-0-331">331</a></span>
+<span class="normal"><a href="#__codelineno-0-332">332</a></span>
+<span class="normal"><a href="#__codelineno-0-333">333</a></span>
+<span class="normal"><a href="#__codelineno-0-334">334</a></span>
+<span class="normal"><a href="#__codelineno-0-335">335</a></span>
+<span class="normal"><a href="#__codelineno-0-336">336</a></span>
+<span class="normal"><a href="#__codelineno-0-337">337</a></span>
+<span class="normal"><a href="#__codelineno-0-338">338</a></span>
+<span class="normal"><a href="#__codelineno-0-339">339</a></span>
+<span class="normal"><a href="#__codelineno-0-340">340</a></span>
+<span class="normal"><a href="#__codelineno-0-341">341</a></span>
+<span class="normal"><a href="#__codelineno-0-342">342</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-326"><a id="__codelineno-0-326" name="__codelineno-0-326"></a><span class="k">def</span><span class="w"> </span><span class="nf">yolo26n</span><span class="p">(</span><span class="n">pretrained</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">progress</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">YOLO26</span><span class="p">:</span>
+</span><span id="__span-0-327"><a id="__codelineno-0-327" name="__codelineno-0-327"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Build a randomly initialized YOLO26 nano detector.</span>
+</span><span id="__span-0-328"><a id="__codelineno-0-328" name="__codelineno-0-328"></a>
+</span><span id="__span-0-329"><a id="__codelineno-0-329" name="__codelineno-0-329"></a><span class="sd">    Args:</span>
+</span><span id="__span-0-330"><a id="__codelineno-0-330" name="__codelineno-0-330"></a><span class="sd">        pretrained: unavailable; requesting weights raises an error.</span>
+</span><span id="__span-0-331"><a id="__codelineno-0-331" name="__codelineno-0-331"></a><span class="sd">        progress: kept for compatibility with other detection factories.</span>
+</span><span id="__span-0-332"><a id="__codelineno-0-332" name="__codelineno-0-332"></a><span class="sd">        **kwargs: arguments passed to :class:`YOLO26`.</span>
+</span><span id="__span-0-333"><a id="__codelineno-0-333" name="__codelineno-0-333"></a>
+</span><span id="__span-0-334"><a id="__codelineno-0-334" name="__codelineno-0-334"></a><span class="sd">    Returns:</span>
+</span><span id="__span-0-335"><a id="__codelineno-0-335" name="__codelineno-0-335"></a><span class="sd">        nano detector with dual training heads.</span>
+</span><span id="__span-0-336"><a id="__codelineno-0-336" name="__codelineno-0-336"></a>
+</span><span id="__span-0-337"><a id="__codelineno-0-337" name="__codelineno-0-337"></a><span class="sd">    Raises:</span>
+</span><span id="__span-0-338"><a id="__codelineno-0-338" name="__codelineno-0-338"></a><span class="sd">        ValueError: if pretrained detector or backbone weights are requested.</span>
+</span><span id="__span-0-339"><a id="__codelineno-0-339" name="__codelineno-0-339"></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="__span-0-340"><a id="__codelineno-0-340" name="__codelineno-0-340"></a>    <span class="k">if</span> <span class="n">pretrained</span> <span class="ow">or</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;pretrained_backbone&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+</span><span id="__span-0-341"><a id="__codelineno-0-341" name="__codelineno-0-341"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No Holocron YOLO26 pretrained weights are available&quot;</span><span class="p">)</span>
+</span><span id="__span-0-342"><a id="__codelineno-0-342" name="__codelineno-0-342"></a>    <span class="k">return</span> <span class="n">YOLO26</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
-    </div>
-
-</div>
-
-
-
-  </div>
-
     </div>
 
 </div>
@@ -2621,7 +2703,7 @@ without pre-trained weights. All the model builders internally rely on the
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../darknetv2/" class="md-footer__link md-footer__link--prev" aria-label="Previous: DarkNetV2">
+          <a href="../../models/" class="md-footer__link md-footer__link--prev" aria-label="Previous: holocron.models">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -2631,20 +2713,20 @@ without pre-trained weights. All the model builders internally rely on the
                 Previous
               </span>
               <div class="md-ellipsis">
-                DarkNetV2
+                holocron.models
               </div>
             </div>
           </a>
         
         
           
-          <a href="../darknetv4/" class="md-footer__link md-footer__link--next" aria-label="Next: DarkNetV4">
+          <a href="../../recognition/" class="md-footer__link md-footer__link--next" aria-label="Next: Text recognition">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                DarkNetV4
+                Text recognition
               </div>
             </div>
             <div class="md-footer__button md-icon">

@@ -18,7 +18,7 @@
         <link rel="prev" href="../../../getting-started/notebooks/">
       
       
-        <link rel="next" href="../recognition/">
+        <link rel="next" href="../detection/yolo26/">
       
       
         
@@ -673,6 +673,8 @@
       
         
       
+        
+      
     
     
     
@@ -1147,6 +1149,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../detection/yolo26/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    YOLO26 detection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../recognition/" class="md-nav__link">
         
   
@@ -1190,10 +1220,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1_4" >
         
           
-          <label class="md-nav__link" for="__nav_3_1_3" id="__nav_3_1_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3_1_4" id="__nav_3_1_4_label" tabindex="0">
             
   
   
@@ -1211,8 +1241,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_1_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_1_3">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_1_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1_4">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1308,10 +1338,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1_5" >
         
           
-          <label class="md-nav__link" for="__nav_3_1_4" id="__nav_3_1_4_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3_1_5" id="__nav_3_1_5_label" tabindex="0">
             
   
   
@@ -1329,8 +1359,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_1_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_1_4">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_1_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1_5">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -3108,7 +3138,8 @@ paper-level accuracy results are published.</p>
 </div>
 <p>Object detection models expect a 4D image tensor as an input (N x C x H x W) and returns a list of dictionaries.
 In evaluation mode, each dictionary has three keys: <code>boxes</code> (normalized xmin, ymin, xmax, ymax coordinates),
-<code>scores</code> (objectness multiplied by the top class probability), and <code>labels</code> (class indices).
+<code>scores</code> (objectness multiplied by the top class probability for YOLOv1/v2/v4;
+class probability for YOLO26), and <code>labels</code> (class indices).
 In training mode, pass a list of target dictionaries with normalized <code>boxes</code> and integer <code>labels</code>;
 the model returns a loss dictionary.</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">holocron.models</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">models</span>
@@ -3161,6 +3192,9 @@ The <a href="https://github.com/frgfm/holocron/blob/main/references/detection/RE
 contains the matched-control results, reproducible commands, learning-rate finder options,
 metric definitions, and the five-epoch CUDA/VOC acceptance gate.</p>
 <h3 id="yolo-family">YOLO family<a class="headerlink" href="#yolo-family" title="Permanent link">&para;</a></h3>
+<p><a href="../detection/yolo26/">YOLO26 nano</a> adds dual-head training and NMS-free inference,
+with 2.41M parameters in its fused 80-class inference model. Its full published
+training recipe and pretrained weights are not included.</p>
 
 
 <div class="doc doc-object doc-class">
@@ -7600,13 +7634,13 @@ API, training output, parameter counts, and deployment limits.</p>
         
         
           
-          <a href="../recognition/" class="md-footer__link md-footer__link--next" aria-label="Next: Text recognition">
+          <a href="../detection/yolo26/" class="md-footer__link md-footer__link--next" aria-label="Next: YOLO26 detection">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Text recognition
+                YOLO26 detection
               </div>
             </div>
             <div class="md-footer__button md-icon">
