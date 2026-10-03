@@ -8,7 +8,9 @@
 The channel counts, stage depths, and connectivity follow the published YOLO26
 nano model configuration (depth 0.5, width 0.25). The operations below are native
 PyTorch implementations; no Ultralytics dependency or pretrained weights are used.
-Reference: https://github.com/ultralytics/ultralytics/blob/main/ultralytics/cfg/models/26/yolo26.yaml
+Reference: the YOLO26 YAML at Ultralytics revision
+abd16e057bc0fde135c557d95e1fac31413d8575, path
+ultralytics/cfg/models/26/yolo26.yaml.
 """
 
 import torch
