@@ -1,0 +1,329 @@
+{
+  "alphabet": "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz .,;:!?-+/=()@%$#'\"_&",
+  "beam_width": 0,
+  "benchmarks": {
+    "seen_clean": {
+      "by_content": {
+        "fields": {
+          "cer": 0.003313899969315741,
+          "character_errors": 54,
+          "characters": 16295,
+          "errors": [
+            {"prediction": "Amount: 0z2bu7J0lXP", "reference": "Amount: Oz2bu7J0lXP"},
+            {"prediction": "Accout: 4382.17", "reference": "Account: 4382.17"},
+            {"prediction": "Amount: eCyOvHlK", "reference": "Amount: eCyOvHIK"},
+            {"prediction": "Total: bAWk1YnR", "reference": "Total: bAwk1YnR"},
+            {"prediction": "Invoice: 0hAO", "reference": "Invoice: 0hA0"}
+          ],
+          "exact_match": 0.948,
+          "samples": 1000,
+          "wer": 0.026,
+          "word_errors": 52,
+          "words": 2000
+        },
+        "random": {
+          "cer": 0.025783743963329785,
+          "character_errors": 315,
+          "characters": 12217,
+          "errors": [
+            {"prediction": "9.K?h,dx5eG5@9Wwr!q0", "reference": "9.K?h,dx5eG5@9WwrJq0"},
+            {"prediction": "y(,/1_l-C1kRhw!'_.\"AVr+", "reference": "y(,/1_l-C1kRhw!_.\"AVr+"},
+            {"prediction": "mv6K6l+kMs,Gb@#lDSA,&l", "reference": "mv6K6l+kMs,Gb@#lDSA,&I"},
+            {"prediction": "0DB&sSbKBVInl$CAmHm", "reference": "0DB&sSbKBVInI$CAmHm"},
+            {"prediction": "=o/yHElgwl#uR'$uQ'd!", "reference": "=o/yHElgwI#uR'$uQ'd!"}
+          ],
+          "exact_match": 0.748,
+          "samples": 1000,
+          "wer": 0.2566607460035524,
+          "word_errors": 289,
+          "words": 1126
+        }
+      },
+      "cer": 0.012941919191919192,
+      "character_errors": 369,
+      "characters": 28512,
+      "errors": [
+        {"prediction": "9.K?h,dx5eG5@9Wwr!q0", "reference": "9.K?h,dx5eG5@9WwrJq0"},
+        {"prediction": "y(,/1_l-C1kRhw!'_.\"AVr+", "reference": "y(,/1_l-C1kRhw!_.\"AVr+"},
+        {"prediction": "mv6K6l+kMs,Gb@#lDSA,&l", "reference": "mv6K6l+kMs,Gb@#lDSA,&I"},
+        {"prediction": "Amount: 0z2bu7J0lXP", "reference": "Amount: Oz2bu7J0lXP"},
+        {"prediction": "0DB&sSbKBVInl$CAmHm", "reference": "0DB&sSbKBVInI$CAmHm"}
+      ],
+      "exact_match": 0.848,
+      "families": ["IBM Plex Mono", "Lora", "Montserrat", "Noto Sans", "Open Sans", "PT Serif", "Roboto Mono", "Source Sans 3"],
+      "fonts": [
+        {"file": "Montserrat.ttf", "sha256": "0f7b311b2f3279e4eef9b2f968bcdbab6e28f4daeb1f049f4f278a902bcd82f7"},
+        {"file": "Lora.ttf", "sha256": "822a6621ccbe8d97d20ac88c1c41f5615c9c2c202eaa75f272cd452aac6475a7"},
+        {"file": "RobotoMono.ttf", "sha256": "66a80e79d17e4c7cabd162e2916578a4cc08fd19eef6e2a643305eae9c567b2b"},
+        {"file": "NotoSans.ttf", "sha256": "bfb7bb691513f12e734dc346c03a03f784912432d7e3fa8e56efcf906fe86b3d"},
+        {"file": "OpenSans.ttf", "sha256": "36643644f318a812aab2d2ed3bb98f8cf0872527f835fe9398d95fe6b9adb878"},
+        {"file": "SourceSans3.ttf", "sha256": "042fe2cc0b933e328410d7acbd0aa6a1873dca5aef81875f4bc214b08825c7b9"},
+        {"file": "IBMPlexMono.ttf", "sha256": "6a3412f058c7d8dfd9170c41e85ade48e5156ecb89356110ca57a0a27734af46"},
+        {"file": "PTSerif.ttf", "sha256": "a4951fade06ff8f09b7673aa81ffb65a8cd409e24d3289a6dc670bc4dda2557a"}
+      ],
+      "samples": 2000,
+      "wer": 0.1090850927703135,
+      "word_errors": 341,
+      "words": 3126
+    },
+    "seen_clean_pages": {
+      "cer": 0.01357862461673237,
+      "character_errors": 186,
+      "characters": 13698,
+      "errors": [
+        {"prediction": "T0q(23\nm#r\nI7\"F)fxJJ.tqPJJ/e@jLm!\n6&HH2S24\nh+v6m_l8df.!8f)sF_c\ny3@HBY92y", "reference": "T0q(23\nm#r\nI7\"F)fxJJ.tqPJJ/e@jLm!\n6&HH2S24\nh+v6m_l8df_.!8f)sF_c\ny3@HBY92y"},
+        {"prediction": "k!?:=f!2@sBo_\nInvoice: BRRP\n,", "reference": "k!?:=f!2@sBo_\nInvoice: BRRP\n'"},
+        {"prediction": "Balance: 8627.66\nTotal: 2028-01-08\nDate: bvXdV\ngMNaLp_0!wsMPMp'gz\"\nDate: d2ch8xgqXH", "reference": "Balance: 8627.66\nTotal: 2028-01-08\nDate: bvXdV\ngMNaLp_O!wsMPMp'gz\"\nDate: d2ch8xgqXH"},
+        {"prediction": "Date: xBNOcLmfB\n'6RI%j3gh90\nEmail: bkaJ0cL9\nyv0?\nBalance: 23Cf1", "reference": "Date: xBNOcLmfB\n'6RI%j3gh90\nEmail: bkaJ0cL9\nyv0?\nBalance: 23Cfl"},
+        {"prediction": "i83v\nAmount: j6EwgkiOUQ8f\nAccount: GpVGI\nZa\nEmail: t6amCY3xaUl", "reference": "i83v\nAmount: j6EwgkiOUQ8f\nAccount: GpVGI\nza\nEmail: t6amCYV3xaUl"}
+      ],
+      "exact_match": 0.465,
+      "line_count_errors": 0,
+      "samples": 200,
+      "wer": 0.10754985754985755,
+      "word_errors": 151,
+      "words": 1404
+    },
+    "seen_degraded": {
+      "by_content": {
+        "fields": {
+          "cer": 0.00816201288738877,
+          "character_errors": 133,
+          "characters": 16295,
+          "errors": [
+            {"prediction": "Total: ot9ZfnYW", "reference": "Total: qt9ZfnYW"},
+            {"prediction": "Amount: 0z2bu7J0lXP", "reference": "Amount: Oz2bu7J0lXP"},
+            {"prediction": "Balance: uTUjfuUN4", "reference": "Balance: uTUjfkuUN4"},
+            {"prediction": "Invoice: s3AZKsSrM4B=", "reference": "Invoice: s3AZKsSrM4Ba"},
+            {"prediction": "Total: bAvk1nR", "reference": "Total: bAwk1YnR"}
+          ],
+          "exact_match": 0.915,
+          "samples": 1000,
+          "wer": 0.046,
+          "word_errors": 92,
+          "words": 2000
+        },
+        "random": {
+          "cer": 0.046083326512237045,
+          "character_errors": 563,
+          "characters": 12217,
+          "errors": [
+            {"prediction": "dPFW\"\"3gA.PT?Aea%36pb", "reference": "dPFW'\"3gA.PT?Aea%36pb"},
+            {"prediction": "wSbK&81hy/Q/og(-Z#h!2", "reference": "wSbK&8lhy/Q/og(-Z#h!2"},
+            {"prediction": "y(,/1_1-C1kRhw!_.\"AVr+", "reference": "y(,/1_l-C1kRhw!_.\"AVr+"},
+            {"prediction": "mv6K6l+kMs,Gb@#lDSA,&1", "reference": "mv6K6l+kMs,Gb@#lDSA,&I"},
+            {"prediction": "ZCImTbA\"'TTh7WG", "reference": "ZCImTbA\"TTh7WG"}
+          ],
+          "exact_match": 0.673,
+          "samples": 1000,
+          "wer": 0.3339253996447602,
+          "word_errors": 376,
+          "words": 1126
+        }
+      },
+      "cer": 0.02441077441077441,
+      "character_errors": 696,
+      "characters": 28512,
+      "errors": [
+        {"prediction": "dPFW\"\"3gA.PT?Aea%36pb", "reference": "dPFW'\"3gA.PT?Aea%36pb"},
+        {"prediction": "wSbK&81hy/Q/og(-Z#h!2", "reference": "wSbK&8lhy/Q/og(-Z#h!2"},
+        {"prediction": "y(,/1_1-C1kRhw!_.\"AVr+", "reference": "y(,/1_l-C1kRhw!_.\"AVr+"},
+        {"prediction": "Total: ot9ZfnYW", "reference": "Total: qt9ZfnYW"},
+        {"prediction": "mv6K6l+kMs,Gb@#lDSA,&1", "reference": "mv6K6l+kMs,Gb@#lDSA,&I"}
+      ],
+      "exact_match": 0.794,
+      "families": ["IBM Plex Mono", "Lora", "Montserrat", "Noto Sans", "Open Sans", "PT Serif", "Roboto Mono", "Source Sans 3"],
+      "fonts": [
+        {"file": "Montserrat.ttf", "sha256": "0f7b311b2f3279e4eef9b2f968bcdbab6e28f4daeb1f049f4f278a902bcd82f7"},
+        {"file": "Lora.ttf", "sha256": "822a6621ccbe8d97d20ac88c1c41f5615c9c2c202eaa75f272cd452aac6475a7"},
+        {"file": "RobotoMono.ttf", "sha256": "66a80e79d17e4c7cabd162e2916578a4cc08fd19eef6e2a643305eae9c567b2b"},
+        {"file": "NotoSans.ttf", "sha256": "bfb7bb691513f12e734dc346c03a03f784912432d7e3fa8e56efcf906fe86b3d"},
+        {"file": "OpenSans.ttf", "sha256": "36643644f318a812aab2d2ed3bb98f8cf0872527f835fe9398d95fe6b9adb878"},
+        {"file": "SourceSans3.ttf", "sha256": "042fe2cc0b933e328410d7acbd0aa6a1873dca5aef81875f4bc214b08825c7b9"},
+        {"file": "IBMPlexMono.ttf", "sha256": "6a3412f058c7d8dfd9170c41e85ade48e5156ecb89356110ca57a0a27734af46"},
+        {"file": "PTSerif.ttf", "sha256": "a4951fade06ff8f09b7673aa81ffb65a8cd409e24d3289a6dc670bc4dda2557a"}
+      ],
+      "samples": 2000,
+      "wer": 0.14971209213051823,
+      "word_errors": 468,
+      "words": 3126
+    },
+    "seen_degraded_pages": {
+      "cer": 0.02029493356694408,
+      "character_errors": 278,
+      "characters": 13698,
+      "errors": [
+        {"prediction": "T0q(23\nm#r\nI7\"F)fxJJ.tqPJJ/e@jLm!\n6&HH2S24\nh+v6m_l8df_.!8fsF_c\ny3@HBY92y", "reference": "T0q(23\nm#r\nI7\"F)fxJJ.tqPJJ/e@jLm!\n6&HH2S24\nh+v6m_l8df_.!8f)sF_c\ny3@HBY92y"},
+        {"prediction": "k!?:=f!2@sBo_\nInvoice: BRRP\n,", "reference": "k!?:=f!2@sBo_\nInvoice: BRRP\n'"},
+        {"prediction": "Balance: 8627.66\nTotal: 2028-01-08\nDate: bvXdV\ngMNaLp_0!wsMPNMp'gz\"\nDate: d2ch8xgqXH", "reference": "Balance: 8627.66\nTotal: 2028-01-08\nDate: bvXdV\ngMNaLp_O!wsMPMp'gz\"\nDate: d2ch8xgqXH"},
+        {"prediction": "Date: xBNOcLmfB\n'6Rl%j3gh90\nEmail: bkaJ0cL9\nyV0?\nBalance: 23Cf1", "reference": "Date: xBNOcLmfB\n'6RI%j3gh90\nEmail: bkaJ0cL9\nyv0?\nBalance: 23Cfl"},
+        {"prediction": "i83v\nAmount: j6EwgkiOUQ8f\nAccount: GpVGI\nZa\nEmail: t6amCY3xaUl", "reference": "i83v\nAmount: j6EwgkiOUQ8f\nAccount: GpVGI\nza\nEmail: t6amCYV3xaUl"}
+      ],
+      "exact_match": 0.42,
+      "line_count_errors": 0,
+      "samples": 200,
+      "wer": 0.1339031339031339,
+      "word_errors": 188,
+      "words": 1404
+    },
+    "unseen_clean": {
+      "by_content": {
+        "fields": {
+          "cer": 0.015158023933722,
+          "character_errors": 247,
+          "characters": 16295,
+          "errors": [
+            {"prediction": "Aout: 5642.24", "reference": "Amount: 5642.24"},
+            {"prediction": "Total: qt9ZfYW", "reference": "Total: qt9ZfnYW"},
+            {"prediction": "Balance:lggxDMyj", "reference": "Balance: lggnxDMyj"},
+            {"prediction": "Aout: 2026-02-03", "reference": "Amount: 2026-02-03"},
+            {"prediction": "Invoice: s3AZJKsSrM4Ba", "reference": "Invoice: s3AZKsSrM4Ba"}
+          ],
+          "exact_match": 0.808,
+          "samples": 1000,
+          "wer": 0.103,
+          "word_errors": 206,
+          "words": 2000
+        },
+        "random": {
+          "cer": 0.03937136776622739,
+          "character_errors": 481,
+          "characters": 12217,
+          "errors": [
+            {"prediction": "-ns%uU+D_", "reference": "-nns%uU+D_"},
+            {"prediction": "dPFW\"3gA.PT?Aea%36pb", "reference": "dPFW'\"3gA.PT?Aea%36pb"},
+            {"prediction": "wSbK&8Ly/Q/og(-Z#h!2", "reference": "wSbK&8lhy/Q/og(-Z#h!2"},
+            {"prediction": "y(,/1_l-C1kRhw!_.\"'AVr+", "reference": "y(,/1_l-C1kRhw!_.\"AVr+"},
+            {"prediction": "mv6K6l+kWs,Gb@#IDSA,&", "reference": "mv6K6l+kMs,Gb@#lDSA,&I"}
+          ],
+          "exact_match": 0.635,
+          "samples": 1000,
+          "wer": 0.3650088809946714,
+          "word_errors": 411,
+          "words": 1126
+        }
+      },
+      "cer": 0.025533108866442198,
+      "character_errors": 728,
+      "characters": 28512,
+      "errors": [
+        {"prediction": "-ns%uU+D_", "reference": "-nns%uU+D_"},
+        {"prediction": "Aout: 5642.24", "reference": "Amount: 5642.24"},
+        {"prediction": "dPFW\"3gA.PT?Aea%36pb", "reference": "dPFW'\"3gA.PT?Aea%36pb"},
+        {"prediction": "wSbK&8Ly/Q/og(-Z#h!2", "reference": "wSbK&8lhy/Q/og(-Z#h!2"},
+        {"prediction": "y(,/1_l-C1kRhw!_.\"'AVr+", "reference": "y(,/1_l-C1kRhw!_.\"AVr+"}
+      ],
+      "exact_match": 0.7215,
+      "families": ["Noto Serif", "Ubuntu"],
+      "fonts": [
+        {"file": "NotoSerif.ttf", "sha256": "4d8e6761424656867019081a1a01336f3cb086982682698714054fc33f782713"},
+        {"file": "Ubuntu.ttf", "sha256": "3128df86a31805618436d0ae5651ba4285d0c9de0a39057d025f64ee33bceb64"}
+      ],
+      "samples": 2000,
+      "wer": 0.19737683941138837,
+      "word_errors": 617,
+      "words": 3126
+    },
+    "unseen_clean_pages": {
+      "cer": 0.026573222368228937,
+      "character_errors": 364,
+      "characters": 13698,
+      "errors": [
+        {"prediction": "T0q(23\nm#r\nI7\"F)txJJ.tqPJJ/e@jLm!\n6&HH2S24\nh+v6m_l8df_.!8f)sF_c\ny3@HBY92y", "reference": "T0q(23\nm#r\nI7\"F)fxJJ.tqPJJ/e@jLm!\n6&HH2S24\nh+v6m_l8df_.!8f)sF_c\ny3@HBY92y"},
+        {"prediction": "mw'_pg=Sa\n(T+tMq.1\"AOw/bm-2B2le@M\"\nAccount: 2025-06-17", "reference": "mw'_pg=sa\n(T+tMq.1\"AOw/bm-2B2le@M\"\nAccount: 2025-06-17"},
+        {"prediction": "k!?:=f!2@sBo_\nInvoice: BRRP\n,", "reference": "k!?:=f!2@sBo_\nInvoice: BRRP\n'"},
+        {"prediction": "lb_FP_(2tt9\nAccount: 9170.18\nyOk_5ds895u5gO=OfvTO\nW4$b'81;;", "reference": "b_FP_,(2tfL9\nAccount: 9170.18\nyOk_5ds895u5g0=OfvT0\nW4$b'81;;"},
+        {"prediction": "iK_KQgXUAw@BEK\nBalance: 2020-05-03\nR.HGTDtkaJB/sK\nAccount: 2028-08-16\nEmail: 2022-11-26\n/YD cF#-Kl?", "reference": "iK_KQgXUAw@BEK\nBalance: 2020-05-03\nR.HGTDtkaJB/sK\nAccount: 2028-08-16\nEmail: 2022-11-26\n/YD cF#-KI?"}
+      ],
+      "exact_match": 0.245,
+      "line_count_errors": 0,
+      "samples": 200,
+      "wer": 0.20655270655270655,
+      "word_errors": 290,
+      "words": 1404
+    },
+    "unseen_degraded": {
+      "by_content": {
+        "fields": {
+          "cer": 0.009696225836146058,
+          "character_errors": 158,
+          "characters": 16295,
+          "errors": [
+            {"prediction": "Accout: 1322.99", "reference": "Account: 1322.99"},
+            {"prediction": "Invoice: s3AZKsSnM4Ba", "reference": "Invoice: s3AZKsSrM4Ba"},
+            {"prediction": "Accout: 4382.17", "reference": "Account: 4382.17"},
+            {"prediction": "Invoice: CFE", "reference": "Invoice: CHF"},
+            {"prediction": "Total: bAwk1YmR", "reference": "Total: bAwk1YnR"}
+          ],
+          "exact_match": 0.871,
+          "samples": 1000,
+          "wer": 0.069,
+          "word_errors": 138,
+          "words": 2000
+        },
+        "random": {
+          "cer": 0.05132192846034215,
+          "character_errors": 627,
+          "characters": 12217,
+          "errors": [
+            {"prediction": "-hns%uU+D_", "reference": "-nns%uU+D_"},
+            {"prediction": "1/%X?2bHkmUrUc", "reference": "I/%X?2bHkmUrUc"},
+            {"prediction": "dPFW\"3gA.PT?Aea%36pb", "reference": "dPFW'\"3gA.PT?Aea%36pb"},
+            {"prediction": "wSbK&8Lhy/Q/'og(-Z#h!2", "reference": "wSbK&8lhy/Q/og(-Z#h!2"},
+            {"prediction": "?yKW", "reference": "?YKW"}
+          ],
+          "exact_match": 0.592,
+          "samples": 1000,
+          "wer": 0.40852575488454707,
+          "word_errors": 460,
+          "words": 1126
+        }
+      },
+      "cer": 0.02753226711560045,
+      "character_errors": 785,
+      "characters": 28512,
+      "errors": [
+        {"prediction": "-hns%uU+D_", "reference": "-nns%uU+D_"},
+        {"prediction": "1/%X?2bHkmUrUc", "reference": "I/%X?2bHkmUrUc"},
+        {"prediction": "dPFW\"3gA.PT?Aea%36pb", "reference": "dPFW'\"3gA.PT?Aea%36pb"},
+        {"prediction": "Accout: 1322.99", "reference": "Account: 1322.99"},
+        {"prediction": "wSbK&8Lhy/Q/'og(-Z#h!2", "reference": "wSbK&8lhy/Q/og(-Z#h!2"}
+      ],
+      "exact_match": 0.7315,
+      "families": ["Noto Serif", "Ubuntu"],
+      "fonts": [
+        {"file": "NotoSerif.ttf", "sha256": "4d8e6761424656867019081a1a01336f3cb086982682698714054fc33f782713"},
+        {"file": "Ubuntu.ttf", "sha256": "3128df86a31805618436d0ae5651ba4285d0c9de0a39057d025f64ee33bceb64"}
+      ],
+      "samples": 2000,
+      "wer": 0.19129878438899553,
+      "word_errors": 598,
+      "words": 3126
+    },
+    "unseen_degraded_pages": {
+      "cer": 0.02774127609870054,
+      "character_errors": 380,
+      "characters": 13698,
+      "errors": [
+        {"prediction": "T0q(23\nm#r\nI7'F)txJ.iqPJJ/e@jLm!\n6&HH2S24\nh+v6m_l8df_.!8f)sF_c\ny3@HBY92y", "reference": "T0q(23\nm#r\nI7\"F)fxJJ.tqPJJ/e@jLm!\n6&HH2S24\nh+v6m_l8df_.!8f)sF_c\ny3@HBY92y"},
+        {"prediction": "k!?:=f!2@sBo_\nInvoice: BRRP\n,", "reference": "k!?:=f!2@sBo_\nInvoice: BRRP\n'"},
+        {"prediction": "b_FP_(2tfL9\nAccount: 9170.18\nyOk_5ds895u5gO=OfvTO\nW4$b'81;;", "reference": "b_FP_,(2tfL9\nAccount: 9170.18\nyOk_5ds895u5g0=OfvT0\nW4$b'81;;"},
+        {"prediction": "iK_KQgXUAw@BEK\nBalance: 2020-05-03\nR.HGTDtkaJB/sK\nAccount: 2028-08-16\nEmail: 2022-11-26\n/YD cF#-Kl?", "reference": "iK_KQgXUAw@BEK\nBalance: 2020-05-03\nR.HGTDtkaJB/sK\nAccount: 2028-08-16\nEmail: 2022-11-26\n/YD cF#-KI?"},
+        {"prediction": "Balance: 8627.66\nTotal: 2028-01-08\nDate: lbvXdV\ngMNaLp_O!wsMPMp'gz\"\nDate: d2ch8xgqXH", "reference": "Balance: 8627.66\nTotal: 2028-01-08\nDate: bvXdV\ngMNaLp_O!wsMPMp'gz\"\nDate: d2ch8xgqXH"}
+      ],
+      "exact_match": 0.265,
+      "line_count_errors": 0,
+      "samples": 200,
+      "wer": 0.1866096866096866,
+      "word_errors": 262,
+      "words": 1404
+    }
+  },
+  "checkpoint_sha256": "80e779b426cba1c8f665300e7918311f3559a3c817fecfc5ecf2ae60e5170e42",
+  "deskew": false,
+  "epoch": 17,
+  "max_length": 24,
+  "runtime": {"batch_size": 32, "device": "cpu", "numpy": "1.26.4", "pillow": "12.3.0", "python": "3.11.16", "threads": 1, "torch": "2.13.0+cu130"},
+  "seed": 400000,
+  "task": "lines"
+}

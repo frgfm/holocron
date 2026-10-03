@@ -1,0 +1,20 @@
+{
+  "after": {
+    "count": 0,
+    "errors": []
+  },
+  "before": {
+    "count": 47,
+    "errors": [
+      {"actual": 7, "expected": 6, "seed": 1100021, "text": "X%sD%SV\nTotal: 2026-04-13\nd@FSwb\"3iE-Ih:Z 2hu/QEW5LKWd\n.JR\naCe_sLtY=/v%ui;Cq;KTL+L e;38?ZA4=zppdWi\n+D-;PC.RTdX+1,q"},
+      {"actual": 4, "expected": 5, "seed": 1100035, "text": "OCY7+N2p,w7/.WHtmmGB1Ls%;!T!_rDyWr/mi7%-zNk7'w:\nDate: 5104.12\nEmail: 2PWT89J\nEmail: 2025-04-07\nyEgBUF?Lq?=o#&LpKfB,Kw4?pvmt5\"%MZ aDRX29;"},
+      {"actual": 6, "expected": 5, "seed": 1100068, "text": "v?@Ev4sn/VF%H4\n.;\n5Q\nLU,aAj0MODUIHaRYkOVR'7r)X:X!O\nHE=9-zg+qp\"OjCG&RE1)EYRey7\"(Zn"},
+      {"actual": 6, "expected": 5, "seed": 1100072, "text": "+n)$bU:)q0V/s6'Xhs=%b8_jT;eWv$\"'irOTf hVM=a40-\nAccount: 2024-01-25\n;GkwFf4'&J:eE=&a\nHz)oZYWPYAjxMPbK%Mz.UDFgG5&jDl&jsjk.x\nb,sZ)q+H 0U&."},
+      {"actual": 5, "expected": 6, "seed": 1100074, "text": "Date: pMylaheqU\nAccount: eAkyyseJ\nK7uiF%L\n(UXf\nbC(LT#YNt9/wj@k8i0J?o,C9dv\n-_n=O.(')GI"}
+    ]
+  },
+  "font_split": "training families only",
+  "max_length": 48,
+  "pages": 500,
+  "seed": 1100002
+}

@@ -95,3 +95,5 @@ The updated list of available checkpoints can be found in the [documentation](ht
 | res2net50_26w_4s | 89.58 (99.26)    | 23.67M  | 4.28G | bilinear      | 224        |
 | darnet24         | 91.57 (8.43)     | 22.40M  | 4.21G | bilinear      | 224        |
 | resnet50         | 84.36 (15.64)    | 23.53M  | 4.11G | bilinear      | 224        |
+
+For character pretraining that transfers directly into line and page OCR, see the [recognition experiment](../recognition/README.md).

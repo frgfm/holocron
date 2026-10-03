@@ -1,0 +1,101 @@
+{
+  "version": 1,
+  "sources": {
+    "google-fonts": {
+      "base_url": "https://raw.githubusercontent.com/google/fonts",
+      "revision": "038b637da7b3fd956a4ed93ffc607c3d5e4ce172"
+    }
+  },
+  "fonts": [
+    {
+      "family": "Montserrat",
+      "style": "Variable",
+      "source": "google-fonts",
+      "path": "ofl/montserrat/Montserrat[wght].ttf",
+      "filename": "Montserrat.ttf",
+      "sha256": "0f7b311b2f3279e4eef9b2f968bcdbab6e28f4daeb1f049f4f278a902bcd82f7",
+      "license": "OFL-1.1"
+    },
+    {
+      "family": "Lora",
+      "style": "Variable",
+      "source": "google-fonts",
+      "path": "ofl/lora/Lora[wght].ttf",
+      "filename": "Lora.ttf",
+      "sha256": "822a6621ccbe8d97d20ac88c1c41f5615c9c2c202eaa75f272cd452aac6475a7",
+      "license": "OFL-1.1"
+    },
+    {
+      "family": "Roboto Mono",
+      "style": "Variable",
+      "source": "google-fonts",
+      "path": "ofl/robotomono/RobotoMono[wght].ttf",
+      "filename": "RobotoMono.ttf",
+      "sha256": "66a80e79d17e4c7cabd162e2916578a4cc08fd19eef6e2a643305eae9c567b2b",
+      "license": "OFL-1.1"
+    },
+    {
+      "family": "Noto Sans",
+      "style": "Variable",
+      "source": "google-fonts",
+      "path": "ofl/notosans/NotoSans[wdth,wght].ttf",
+      "filename": "NotoSans.ttf",
+      "sha256": "bfb7bb691513f12e734dc346c03a03f784912432d7e3fa8e56efcf906fe86b3d",
+      "license": "OFL-1.1"
+    },
+    {
+      "family": "Noto Serif",
+      "style": "Variable",
+      "source": "google-fonts",
+      "path": "ofl/notoserif/NotoSerif[wdth,wght].ttf",
+      "filename": "NotoSerif.ttf",
+      "sha256": "4d8e6761424656867019081a1a01336f3cb086982682698714054fc33f782713",
+      "license": "OFL-1.1"
+    },
+    {
+      "family": "Open Sans",
+      "style": "Variable",
+      "source": "google-fonts",
+      "path": "ofl/opensans/OpenSans[wdth,wght].ttf",
+      "filename": "OpenSans.ttf",
+      "sha256": "36643644f318a812aab2d2ed3bb98f8cf0872527f835fe9398d95fe6b9adb878",
+      "license": "OFL-1.1"
+    },
+    {
+      "family": "Source Sans 3",
+      "style": "Variable",
+      "source": "google-fonts",
+      "path": "ofl/sourcesans3/SourceSans3[wght].ttf",
+      "filename": "SourceSans3.ttf",
+      "sha256": "042fe2cc0b933e328410d7acbd0aa6a1873dca5aef81875f4bc214b08825c7b9",
+      "license": "OFL-1.1"
+    },
+    {
+      "family": "IBM Plex Mono",
+      "style": "Regular",
+      "source": "google-fonts",
+      "path": "ofl/ibmplexmono/IBMPlexMono-Regular.ttf",
+      "filename": "IBMPlexMono.ttf",
+      "sha256": "6a3412f058c7d8dfd9170c41e85ade48e5156ecb89356110ca57a0a27734af46",
+      "license": "OFL-1.1"
+    },
+    {
+      "family": "PT Serif",
+      "style": "Regular",
+      "source": "google-fonts",
+      "path": "ofl/ptserif/PT_Serif-Web-Regular.ttf",
+      "filename": "PTSerif.ttf",
+      "sha256": "a4951fade06ff8f09b7673aa81ffb65a8cd409e24d3289a6dc670bc4dda2557a",
+      "license": "OFL-1.1"
+    },
+    {
+      "family": "Ubuntu",
+      "style": "Regular",
+      "source": "google-fonts",
+      "path": "ufl/ubuntu/Ubuntu-Regular.ttf",
+      "filename": "Ubuntu.ttf",
+      "sha256": "3128df86a31805618436d0ae5651ba4285d0c9de0a39057d025f64ee33bceb64",
+      "license": "UFL-1.0"
+    }
+  ]
+}
