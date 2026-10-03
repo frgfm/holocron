@@ -97,7 +97,8 @@ in the table for reference but use a different evaluation dataset.
 
 Object detection models expect a 4D image tensor as an input (N x C x H x W) and returns a list of dictionaries.
 In evaluation mode, each dictionary has three keys: `boxes` (normalized xmin, ymin, xmax, ymax coordinates),
-`scores` (objectness multiplied by the top class probability), and `labels` (class indices).
+`scores` (objectness multiplied by the top class probability for YOLOv1/v2/v4;
+class probability for YOLO26), and `labels` (class indices).
 In training mode, pass a list of target dictionaries with normalized `boxes` and integer `labels`;
 the model returns a loss dictionary.
 
@@ -139,6 +140,10 @@ contains the matched-control results, reproducible commands, learning-rate finde
 metric definitions, and the five-epoch CUDA/VOC acceptance gate.
 
 ### YOLO family
+
+[YOLO26 nano](detection/yolo26.md) adds dual-head training and NMS-free inference,
+with 2.41M parameters in its fused 80-class inference model. Its full published
+training recipe and pretrained weights are not included.
 
 ::: holocron.models.detection.yolo.YOLOv1
     options:

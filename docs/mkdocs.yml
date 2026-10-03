@@ -178,6 +178,7 @@ nav:
   - Package Reference:
     - Models:
       - reference/models/models.md
+      - YOLO26 detection: reference/models/detection/yolo26.md
       - Text recognition: reference/models/recognition.md
       - Semantic segmentation:
         - reference/models/segmentation/yolo26.md
