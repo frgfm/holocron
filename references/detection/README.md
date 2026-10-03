@@ -10,6 +10,9 @@ Full CUDA/VOC training on the final repaired implementation remains pending. Thi
 
 ## Getting started
 
+For the new YOLO26 nano model, see the [architecture and CPU validation guide](YOLO26.md).
+It supports this reference script through `--arch yolo26n` and has no pretrained weights.
+
 Follow the [shared installation instructions](../README.md#installation), then run the training commands from `references/detection`.
 
 No need to download the dataset, torchvision will handle [this](https://pytorch.org/docs/stable/torchvision/datasets.html#torchvision.datasets.VOCDetection) for you! From there, you can run your training with the following command
