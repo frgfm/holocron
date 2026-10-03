@@ -1,0 +1,397 @@
+{
+  "task": "Penn-Fudan binary semantic segmentation; a local small-data check, not an official benchmark split",
+  "dataset_repository": "https://github.com/swallan/PennFudanPed",
+  "dataset_commit": "ec1d4583fb436b14e2062587c8b28a5018668a5e",
+  "architecture": "yolo26n_sem",
+  "pretrained": false,
+  "device": "cpu",
+  "precision": "float32",
+  "torch": "2.13.0+cu130",
+  "threads": 2,
+  "seed": 42,
+  "image_size": 128,
+  "split": {
+    "train": [
+      "PennPed00059.png",
+      "PennPed00014.png",
+      "FudanPed00007.png",
+      "FudanPed00037.png",
+      "PennPed00021.png",
+      "FudanPed00071.png",
+      "FudanPed00059.png",
+      "PennPed00084.png",
+      "PennPed00029.png",
+      "FudanPed00045.png",
+      "FudanPed00029.png",
+      "PennPed00071.png",
+      "PennPed00001.png",
+      "PennPed00070.png",
+      "PennPed00028.png",
+      "FudanPed00009.png",
+      "PennPed00068.png",
+      "PennPed00056.png",
+      "FudanPed00074.png",
+      "FudanPed00035.png",
+      "FudanPed00070.png",
+      "PennPed00053.png",
+      "PennPed00034.png",
+      "PennPed00030.png",
+      "PennPed00004.png",
+      "PennPed00095.png",
+      "PennPed00054.png",
+      "PennPed00096.png",
+      "FudanPed00050.png",
+      "FudanPed00021.png",
+      "FudanPed00016.png",
+      "FudanPed00041.png",
+      "PennPed00026.png",
+      "PennPed00078.png",
+      "FudanPed00048.png",
+      "PennPed00041.png",
+      "PennPed00036.png",
+      "PennPed00058.png",
+      "PennPed00005.png",
+      "FudanPed00073.png",
+      "PennPed00033.png",
+      "PennPed00019.png",
+      "PennPed00010.png",
+      "FudanPed00033.png",
+      "PennPed00082.png",
+      "FudanPed00026.png",
+      "FudanPed00054.png",
+      "PennPed00038.png",
+      "PennPed00020.png",
+      "PennPed00044.png",
+      "PennPed00007.png",
+      "PennPed00015.png",
+      "PennPed00091.png",
+      "PennPed00088.png",
+      "FudanPed00042.png",
+      "FudanPed00036.png",
+      "PennPed00086.png",
+      "PennPed00063.png",
+      "PennPed00051.png",
+      "FudanPed00051.png",
+      "PennPed00013.png",
+      "PennPed00037.png",
+      "PennPed00009.png",
+      "PennPed00048.png",
+      "PennPed00085.png",
+      "FudanPed00034.png",
+      "FudanPed00049.png",
+      "PennPed00017.png",
+      "PennPed00062.png",
+      "FudanPed00064.png",
+      "PennPed00074.png",
+      "FudanPed00060.png",
+      "FudanPed00063.png",
+      "FudanPed00052.png",
+      "FudanPed00022.png",
+      "PennPed00066.png",
+      "FudanPed00002.png",
+      "FudanPed00044.png",
+      "FudanPed00053.png",
+      "PennPed00016.png",
+      "PennPed00031.png",
+      "PennPed00093.png",
+      "PennPed00045.png",
+      "FudanPed00061.png",
+      "PennPed00075.png",
+      "PennPed00092.png",
+      "FudanPed00025.png",
+      "PennPed00060.png",
+      "FudanPed00004.png",
+      "FudanPed00012.png",
+      "PennPed00024.png",
+      "PennPed00012.png",
+      "FudanPed00010.png",
+      "FudanPed00046.png",
+      "PennPed00050.png",
+      "PennPed00042.png",
+      "PennPed00052.png",
+      "FudanPed00003.png",
+      "FudanPed00024.png",
+      "FudanPed00056.png",
+      "PennPed00067.png",
+      "FudanPed00062.png",
+      "FudanPed00027.png",
+      "PennPed00094.png",
+      "FudanPed00006.png",
+      "PennPed00073.png",
+      "PennPed00025.png",
+      "FudanPed00011.png",
+      "FudanPed00031.png",
+      "PennPed00022.png",
+      "PennPed00023.png",
+      "FudanPed00015.png",
+      "PennPed00035.png",
+      "PennPed00079.png",
+      "PennPed00055.png",
+      "PennPed00076.png",
+      "FudanPed00040.png",
+      "PennPed00090.png",
+      "FudanPed00030.png",
+      "FudanPed00038.png"
+    ],
+    "validation": [
+      "FudanPed00057.png",
+      "PennPed00080.png",
+      "PennPed00002.png",
+      "FudanPed00023.png",
+      "FudanPed00065.png",
+      "FudanPed00039.png",
+      "FudanPed00069.png",
+      "FudanPed00067.png",
+      "FudanPed00019.png",
+      "PennPed00008.png",
+      "FudanPed00008.png",
+      "PennPed00069.png",
+      "PennPed00083.png",
+      "PennPed00061.png",
+      "PennPed00039.png",
+      "FudanPed00014.png",
+      "PennPed00087.png",
+      "FudanPed00072.png",
+      "PennPed00006.png",
+      "PennPed00027.png",
+      "FudanPed00028.png",
+      "PennPed00049.png",
+      "PennPed00072.png",
+      "PennPed00081.png",
+      "FudanPed00043.png"
+    ],
+    "test": [
+      "PennPed00040.png",
+      "PennPed00011.png",
+      "FudanPed00005.png",
+      "FudanPed00001.png",
+      "PennPed00047.png",
+      "PennPed00046.png",
+      "PennPed00077.png",
+      "FudanPed00066.png",
+      "FudanPed00013.png",
+      "FudanPed00068.png",
+      "PennPed00089.png",
+      "PennPed00043.png",
+      "FudanPed00055.png",
+      "PennPed00032.png",
+      "FudanPed00017.png",
+      "FudanPed00018.png",
+      "PennPed00065.png",
+      "FudanPed00047.png",
+      "FudanPed00058.png",
+      "PennPed00018.png",
+      "PennPed00003.png",
+      "PennPed00057.png",
+      "PennPed00064.png",
+      "FudanPed00020.png",
+      "FudanPed00032.png"
+    ]
+  },
+  "classes": [
+    "background",
+    "person"
+  ],
+  "target": "all nonzero instance-mask labels merged into foreground",
+  "augmentation": "training only: horizontal flip p=0.5, brightness factor uniform [0.8, 1.2]",
+  "loss": "weighted cross entropy [1, 2] plus 0.5 times the auxiliary-head loss",
+  "optimizer": "AdamW",
+  "weight_decay": 0.0001,
+  "normalization_weight_decay": 0,
+  "learning_rate": 0.003,
+  "scheduler": "cosine",
+  "epochs": 30,
+  "batch_size": 6,
+  "steps": 600,
+  "selection": "highest validation mean IoU; test used only after validation-based model selection",
+  "selected_epoch": 23,
+  "initial_validation": {
+    "val_loss": 0.6979431366920471,
+    "acc_global": 0.1930249035358429,
+    "mean_iou": 0.09651245176792145
+  },
+  "selected_validation": {
+    "val_loss": 0.2570332670211792,
+    "acc_global": 0.9089111089706421,
+    "mean_iou": 0.7562228441238403
+  },
+  "test": {
+    "val_loss": 0.2125943422317505,
+    "acc_global": 0.9291528463363647,
+    "mean_iou": 0.7600685358047485
+  },
+  "test_per_class_iou": {
+    "background": 0.920752763748169,
+    "person": 0.5993843078613281
+  },
+  "test_confusion_matrix": [
+    [
+      337164,
+      14992
+    ],
+    [
+      14027,
+      43417
+    ]
+  ],
+  "finite_gradients": true,
+  "parameters_2_classes_training": 1630692,
+  "history": [
+    {
+      "val_loss": 0.6129157209396362,
+      "acc_global": 0.8069751262664795,
+      "mean_iou": 0.40348756313323975
+    },
+    {
+      "val_loss": 0.9082836103439331,
+      "acc_global": 0.8069751262664795,
+      "mean_iou": 0.40348756313323975
+    },
+    {
+      "val_loss": 0.7966821241378784,
+      "acc_global": 0.8145825266838074,
+      "mean_iou": 0.4272545278072357
+    },
+    {
+      "val_loss": 0.620040192604065,
+      "acc_global": 0.8623071312904358,
+      "mean_iou": 0.6126218438148499
+    },
+    {
+      "val_loss": 0.37323715567588805,
+      "acc_global": 0.8788403272628784,
+      "mean_iou": 0.689130961894989
+    },
+    {
+      "val_loss": 0.4433514666557312,
+      "acc_global": 0.8645727634429932,
+      "mean_iou": 0.6417739391326904
+    },
+    {
+      "val_loss": 0.31772523522377016,
+      "acc_global": 0.8683691620826721,
+      "mean_iou": 0.6874784231185913
+    },
+    {
+      "val_loss": 0.2818182694911957,
+      "acc_global": 0.8877416849136353,
+      "mean_iou": 0.7214087843894958
+    },
+    {
+      "val_loss": 0.2921617674827576,
+      "acc_global": 0.8743383884429932,
+      "mean_iou": 0.7071201801300049
+    },
+    {
+      "val_loss": 0.2816251611709595,
+      "acc_global": 0.8935375809669495,
+      "mean_iou": 0.7281430959701538
+    },
+    {
+      "val_loss": 0.2659857738018036,
+      "acc_global": 0.8961035013198853,
+      "mean_iou": 0.7386193871498108
+    },
+    {
+      "val_loss": 0.2754056131839752,
+      "acc_global": 0.8873437643051147,
+      "mean_iou": 0.7225906848907471
+    },
+    {
+      "val_loss": 0.2728564715385437,
+      "acc_global": 0.8870800733566284,
+      "mean_iou": 0.723681628704071
+    },
+    {
+      "val_loss": 0.2607007694244385,
+      "acc_global": 0.8986474871635437,
+      "mean_iou": 0.7430930137634277
+    },
+    {
+      "val_loss": 0.2572628617286682,
+      "acc_global": 0.8927270770072937,
+      "mean_iou": 0.7337998747825623
+    },
+    {
+      "val_loss": 0.2796071898937225,
+      "acc_global": 0.9028393626213074,
+      "mean_iou": 0.7387009859085083
+    },
+    {
+      "val_loss": 0.25273638546466826,
+      "acc_global": 0.901538074016571,
+      "mean_iou": 0.7473748922348022
+    },
+    {
+      "val_loss": 0.2549508237838745,
+      "acc_global": 0.9050952196121216,
+      "mean_iou": 0.7518473863601685
+    },
+    {
+      "val_loss": 0.2769862174987793,
+      "acc_global": 0.9028246998786926,
+      "mean_iou": 0.740204930305481
+    },
+    {
+      "val_loss": 0.25548755407333373,
+      "acc_global": 0.900524914264679,
+      "mean_iou": 0.7476357221603394
+    },
+    {
+      "val_loss": 0.2760644227266312,
+      "acc_global": 0.9068334698677063,
+      "mean_iou": 0.7477896213531494
+    },
+    {
+      "val_loss": 0.2570068323612213,
+      "acc_global": 0.9056786894798279,
+      "mean_iou": 0.7522504925727844
+    },
+    {
+      "val_loss": 0.2570332670211792,
+      "acc_global": 0.9089111089706421,
+      "mean_iou": 0.7562228441238403
+    },
+    {
+      "val_loss": 0.27807327270507814,
+      "acc_global": 0.9077612161636353,
+      "mean_iou": 0.7483653426170349
+    },
+    {
+      "val_loss": 0.27480733454227446,
+      "acc_global": 0.9058740139007568,
+      "mean_iou": 0.7474884390830994
+    },
+    {
+      "val_loss": 0.26591277778148653,
+      "acc_global": 0.90484619140625,
+      "mean_iou": 0.7507123351097107
+    },
+    {
+      "val_loss": 0.2583930218219757,
+      "acc_global": 0.9061352610588074,
+      "mean_iou": 0.7546415328979492
+    },
+    {
+      "val_loss": 0.2539994353055954,
+      "acc_global": 0.9061205983161926,
+      "mean_iou": 0.7558035850524902
+    },
+    {
+      "val_loss": 0.25377036809921266,
+      "acc_global": 0.9062573313713074,
+      "mean_iou": 0.755916953086853
+    },
+    {
+      "val_loss": 0.2525059640407562,
+      "acc_global": 0.9061694145202637,
+      "mean_iou": 0.7561180591583252
+    }
+  ],
+  "elapsed_seconds": 98.25578696299999,
+  "python": "3.11.16",
+  "cpu": "Intel(R) Xeon(R) Platinum 8370C CPU @ 2.80GHz",
+  "checkpoint_loaded_from_disk": true,
+  "checkpoint_sha256": "9aaced66798525a5a9de968dee6babebd343a903cc0102ee0c955acea7061c26",
+  "fused_max_abs_error": 2.86102294921875e-06
+}
