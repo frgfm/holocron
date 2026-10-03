@@ -123,7 +123,8 @@ def _assign(
     positive = torch.zeros(len(boxes), device=boxes.device, dtype=torch.bool)
     if not len(target["boxes"]):
         return assigned_boxes, scores, positive
-    gt, labels = target["boxes"], target["labels"]
+    # Match the decoder's calculation dtype without changing caller-owned targets.
+    gt, labels = target["boxes"].to(dtype=boxes.dtype), target["labels"]
     overlap = box_iou(gt, boxes).clamp_min(0)
     alignment = logits.sigmoid()[:, labels].T.sqrt() * overlap.pow(6)
     inside = ((points[None] > gt[:, None, :2]) & (points[None] < gt[:, None, 2:])).all(-1)

@@ -35,6 +35,24 @@ def test_yolo26_training_ragged_targets_and_empty_images(use_amp):
     assert model.one_to_one.classes[0][-1].bias.grad.abs().sum() > 0
 
 
+@pytest.mark.parametrize("box_dtype", [torch.float32, torch.float64, torch.float16, torch.bfloat16])
+def test_yolo26_training_accepts_floating_box_dtypes(box_dtype):
+    torch.manual_seed(5)
+    model = yolo26n(num_classes=2)
+    images = torch.rand(2, 3, 64, 64)
+    targets = [{**target, "boxes": target["boxes"].to(box_dtype)} for target in _targets()]
+    original_targets = copy.deepcopy(targets)
+    float_targets = [{**target, "boxes": target["boxes"].float()} for target in targets]
+    with torch.no_grad():
+        reference_losses = copy.deepcopy(model)(images, float_targets)
+    losses = model(images, targets)
+    torch.testing.assert_close(losses, reference_losses)
+    assert all(value.isfinite() for value in losses.values())
+    sum(losses.values()).backward()
+    assert all(parameter.grad is not None and parameter.grad.isfinite().all() for parameter in model.parameters())
+    torch.testing.assert_close(targets, original_targets)
+
+
 def test_yolo26_one_to_one_branch_detaches_backbone():
     model = yolo26n(num_classes=2)
     losses = model(torch.rand(2, 3, 64, 64), _targets())
