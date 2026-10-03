@@ -1,0 +1,263 @@
+{
+  "alphabet": "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz .,;:!?-+/=()@%$#'\"_&",
+  "configuration": {
+    "alphabet": "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz .,;:!?-+/=()@%$#'\"_&",
+    "augment": true,
+    "batch_size": 32,
+    "device": "cpu",
+    "epochs": 20,
+    "font_dir": "/workspace/ocr-fonts",
+    "held_out": [
+      "Noto Serif",
+      "Ubuntu"
+    ],
+    "init": "/workspace/ocr-runs/characters-baseline-preserving/best.pth",
+    "lr": 0.001,
+    "manifest": "references/fonts/ocr-latin.json",
+    "max_length": 24,
+    "output_dir": "/workspace/ocr-runs/transfer",
+    "resume": null,
+    "samples_per_epoch": 2048,
+    "seed": 0,
+    "task": "lines",
+    "threads": 2,
+    "validation_samples": 256,
+    "workers": 1
+  },
+  "fonts": [
+    {
+      "family": "Montserrat",
+      "file": "Montserrat.ttf",
+      "sha256": "0f7b311b2f3279e4eef9b2f968bcdbab6e28f4daeb1f049f4f278a902bcd82f7"
+    },
+    {
+      "family": "Lora",
+      "file": "Lora.ttf",
+      "sha256": "822a6621ccbe8d97d20ac88c1c41f5615c9c2c202eaa75f272cd452aac6475a7"
+    },
+    {
+      "family": "Roboto Mono",
+      "file": "RobotoMono.ttf",
+      "sha256": "66a80e79d17e4c7cabd162e2916578a4cc08fd19eef6e2a643305eae9c567b2b"
+    },
+    {
+      "family": "Noto Sans",
+      "file": "NotoSans.ttf",
+      "sha256": "bfb7bb691513f12e734dc346c03a03f784912432d7e3fa8e56efcf906fe86b3d"
+    },
+    {
+      "family": "Open Sans",
+      "file": "OpenSans.ttf",
+      "sha256": "36643644f318a812aab2d2ed3bb98f8cf0872527f835fe9398d95fe6b9adb878"
+    },
+    {
+      "family": "Source Sans 3",
+      "file": "SourceSans3.ttf",
+      "sha256": "042fe2cc0b933e328410d7acbd0aa6a1873dca5aef81875f4bc214b08825c7b9"
+    },
+    {
+      "family": "IBM Plex Mono",
+      "file": "IBMPlexMono.ttf",
+      "sha256": "6a3412f058c7d8dfd9170c41e85ade48e5156ecb89356110ca57a0a27734af46"
+    },
+    {
+      "family": "PT Serif",
+      "file": "PTSerif.ttf",
+      "sha256": "a4951fade06ff8f09b7673aa81ffb65a8cd409e24d3289a6dc670bc4dda2557a"
+    }
+  ],
+  "held_out_fonts": [
+    {
+      "family": "Noto Serif",
+      "file": "NotoSerif.ttf",
+      "sha256": "4d8e6761424656867019081a1a01336f3cb086982682698714054fc33f782713"
+    },
+    {
+      "family": "Ubuntu",
+      "file": "Ubuntu.ttf",
+      "sha256": "3128df86a31805618436d0ae5651ba4285d0c9de0a39057d025f64ee33bceb64"
+    }
+  ],
+  "history": [
+    {
+      "epoch": 1,
+      "lr": 0.001,
+      "seconds": 30.451315722999993,
+      "train_loss": 4.79009485244751,
+      "validation_cer": 1.0,
+      "validation_exact_match": 0.0
+    },
+    {
+      "epoch": 2,
+      "lr": 0.000994459753267812,
+      "seconds": 27.57905452,
+      "train_loss": 4.074247017502785,
+      "validation_cer": 0.9560949004635942,
+      "validation_exact_match": 0.0
+    },
+    {
+      "epoch": 3,
+      "lr": 0.000977975432332819,
+      "seconds": 30.510068391999994,
+      "train_loss": 3.5114268139004707,
+      "validation_cer": 0.9010089991818926,
+      "validation_exact_match": 0.0
+    },
+    {
+      "epoch": 4,
+      "lr": 0.0009509529358847653,
+      "seconds": 35.94547874,
+      "train_loss": 3.0945380739867687,
+      "validation_cer": 0.7932915189528225,
+      "validation_exact_match": 0.00390625
+    },
+    {
+      "epoch": 5,
+      "lr": 0.0009140576474687262,
+      "seconds": 27.97827118500004,
+      "train_loss": 2.1621983721852303,
+      "validation_cer": 0.33842377965639486,
+      "validation_exact_match": 0.0859375
+    },
+    {
+      "epoch": 6,
+      "lr": 0.0008681980515339462,
+      "seconds": 28.735207240000022,
+      "train_loss": 1.162214731797576,
+      "validation_cer": 0.18898281974365966,
+      "validation_exact_match": 0.25390625
+    },
+    {
+      "epoch": 7,
+      "lr": 0.0008145033635316127,
+      "seconds": 27.86183766299996,
+      "train_loss": 0.6492410278879106,
+      "validation_cer": 0.0965366784837742,
+      "validation_exact_match": 0.41796875
+    },
+    {
+      "epoch": 8,
+      "lr": 0.0007542957248827959,
+      "seconds": 31.997300688999985,
+      "train_loss": 0.4597788592800498,
+      "validation_cer": 0.0889010089991819,
+      "validation_exact_match": 0.46875
+    },
+    {
+      "epoch": 9,
+      "lr": 0.0006890576474687263,
+      "seconds": 29.987548009999955,
+      "train_loss": 0.3813431332819164,
+      "validation_cer": 0.07035724025088629,
+      "validation_exact_match": 0.55859375
+    },
+    {
+      "epoch": 10,
+      "lr": 0.0006203955092681039,
+      "seconds": 27.929359228000067,
+      "train_loss": 0.30329066631384194,
+      "validation_cer": 0.0638123806926643,
+      "validation_exact_match": 0.55078125
+    },
+    {
+      "epoch": 11,
+      "lr": 0.0005499999999999999,
+      "seconds": 28.67049276900002,
+      "train_loss": 0.2801656306255609,
+      "validation_cer": 0.04717752931551677,
+      "validation_exact_match": 0.6328125
+    },
+    {
+      "epoch": 12,
+      "lr": 0.00047960449073189616,
+      "seconds": 26.52419586999997,
+      "train_loss": 0.1994966574711725,
+      "validation_cer": 0.04608671938914644,
+      "validation_exact_match": 0.65234375
+    },
+    {
+      "epoch": 13,
+      "lr": 0.0004109423525312736,
+      "seconds": 26.652905462000035,
+      "train_loss": 0.19296290318015963,
+      "validation_cer": 0.03354240523588765,
+      "validation_exact_match": 0.72265625
+    },
+    {
+      "epoch": 14,
+      "lr": 0.0003457042751172039,
+      "seconds": 26.96179749500004,
+      "train_loss": 0.1877323120716028,
+      "validation_cer": 0.03190619034633215,
+      "validation_exact_match": 0.73046875
+    },
+    {
+      "epoch": 15,
+      "lr": 0.0002854966364683871,
+      "seconds": 25.283615104999967,
+      "train_loss": 0.17416067456360906,
+      "validation_cer": 0.03326970275429506,
+      "validation_exact_match": 0.73046875
+    },
+    {
+      "epoch": 16,
+      "lr": 0.00023180194846605365,
+      "seconds": 25.2073727720001,
+      "train_loss": 0.1750700557604432,
+      "validation_cer": 0.029451868011998908,
+      "validation_exact_match": 0.75390625
+    },
+    {
+      "epoch": 17,
+      "lr": 0.0001859423525312737,
+      "seconds": 26.662207870000202,
+      "train_loss": 0.14233383967075497,
+      "validation_cer": 0.024543223343332424,
+      "validation_exact_match": 0.78515625
+    },
+    {
+      "epoch": 18,
+      "lr": 0.0001490470641152345,
+      "seconds": 25.709406265000098,
+      "train_loss": 0.13631708914181218,
+      "validation_cer": 0.024543223343332424,
+      "validation_exact_match": 0.76953125
+    },
+    {
+      "epoch": 19,
+      "lr": 0.00012202456766718092,
+      "seconds": 26.70228073499993,
+      "train_loss": 0.13378174713579938,
+      "validation_cer": 0.025634033269702754,
+      "validation_exact_match": 0.77734375
+    },
+    {
+      "epoch": 20,
+      "lr": 0.00010554024673218806,
+      "seconds": 25.6012154980001,
+      "train_loss": 0.13963230012450367,
+      "validation_cer": 0.02508862830651759,
+      "validation_exact_match": 0.78515625
+    }
+  ],
+  "initialized_from": {
+    "epoch": 11,
+    "sha256": "ae8cacbe504b0b43d70a2b445c338fe4b69082a660a69cb6cac0f89285dcc3b6",
+    "task": "characters"
+  },
+  "manifest": {
+    "path": "/workspace/holocron/references/fonts/ocr-latin.json",
+    "source_revisions": {
+      "google-fonts": "038b637da7b3fd956a4ed93ffc607c3d5e4ce172"
+    },
+    "version": 1
+  },
+  "parameters": 498236,
+  "runtime": {
+    "device": "cpu",
+    "python": "3.11.16",
+    "threads": 2,
+    "torch": "2.13.0+cu130"
+  },
+  "task": "lines"
+}

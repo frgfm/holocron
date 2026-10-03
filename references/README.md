@@ -32,3 +32,7 @@ Refer to the [`./segmentation`](segmentation) folder
 ### Object detection
 
 Refer to the [`./detection`](detection) folder
+
+### Character and text recognition
+
+Refer to the [`./recognition`](recognition) folder for a reproducible character-pretraining, CTC line-recognition, and synthetic-page OCR experiment.
