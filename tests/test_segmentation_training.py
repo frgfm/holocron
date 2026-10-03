@@ -290,3 +290,42 @@ def test_local_voc_directory_trains_without_download(mode, monkeypatch, tmp_path
         monkeypatch.setattr(train.SegmentationTrainer, "fit_n_epochs", check_batches)
     train.main(args)
     assert checkpoint.is_file() == (mode == "train")
+
+
+def test_yolo26_semantic_reference_training_and_checkpoint(monkeypatch, tmp_path):
+    class TinyVOC(Dataset):
+        def __init__(self, _root, image_set, download, transforms):
+            assert download
+            self.transforms = transforms
+            self.offset = 20 if image_set == "train" else 40
+
+        def __len__(self):
+            return 3
+
+        def __getitem__(self, index):
+            target = np.zeros((64, 64), dtype=np.uint8)
+            target[8:48, 12:52] = 20
+            target[:3] = 255
+            image = np.full((64, 64, 3), self.offset + index, dtype=np.uint8)
+            return self.transforms(Image.fromarray(image), Image.fromarray(target))
+
+    monkeypatch.setattr(train, "VOCSegmentation", TinyVOC)
+    checkpoint = tmp_path / "yolo26-sem.pth"
+    args = train.get_parser().parse_args([str(tmp_path), "--arch", "yolo26n_sem"])
+    vars(args).update(
+        img_size=64,
+        batch_size=2,
+        workers=0,
+        epochs=1,
+        lr=0.001,
+        opt="radam",
+        output_file=str(checkpoint),
+    )
+    train.main(args)
+    state = torch.load(checkpoint, weights_only=True)
+    assert state["epoch"] == 1
+    assert state["step"] == 2
+    assert math.isfinite(state["min_loss"])
+    assert state["model"]["classifier.1.weight"].shape[0] == 21
+    args.resume, args.test_only = str(checkpoint), True
+    train.main(args)

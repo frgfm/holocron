@@ -179,6 +179,8 @@ nav:
     - Models:
       - reference/models/models.md
       - Text recognition: reference/models/recognition.md
+      - Semantic segmentation:
+        - reference/models/segmentation/yolo26.md
       - Classification:
         - reference/models/classification/resnet.md
         - reference/models/classification/resnext.md

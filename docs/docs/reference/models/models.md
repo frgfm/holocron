@@ -9,7 +9,7 @@ segmentation, object detection, and text recognition.
 | Task | Architectures | Published checkpoints | Training | ONNX | Status |
 |---|---|---|---|---|---|
 | Classification | 15 families | Imagenette checkpoints with top-1/top-5 metrics; selected ReXNet ImageNet-1K checkpoints | [Reference script](https://github.com/frgfm/holocron/blob/main/references/classification/train.py) | [Classification export](https://github.com/frgfm/holocron/blob/main/scripts/export_to_onnx.py) | **Validated** |
-| Semantic segmentation | U-Net, U-Net++, UNet3+ | Only the legacy `unet_rexnet13` weights; dataset and metric are not documented | [Reference script](https://github.com/frgfm/holocron/blob/main/references/segmentation/train.py) | Not documented | **Unbenchmarked** |
+| Semantic segmentation | U-Net, U-Net++, UNet3+, [YOLO26 nano](segmentation/yolo26.md) | Only the legacy `unet_rexnet13` weights; dataset and metric are not documented | [Reference script](https://github.com/frgfm/holocron/blob/main/references/segmentation/train.py) | YOLO26 export and CPU reference parity tested | **Unbenchmarked** on standard benchmarks; YOLO26 small-data learning checks available |
 | Object detection | YOLOv1, YOLOv2, YOLOv4 | None | [Reference script](https://github.com/frgfm/holocron/blob/main/references/detection/train.py) | [Export tests](https://github.com/frgfm/holocron/blob/main/tests/test_models_detection.py); runtime parity not benchmarked | **Experimental**; [YOLOv4 learning check verified](#yolo-training-validation) |
 | [Text recognition](recognition.md) | Shared glyph CNN, BiGRU/CTC | None; training produces local checkpoints | [Synthetic curriculum](https://github.com/frgfm/holocron/tree/main/references/recognition) | Not validated | **Experimental**; synthetic CPU benchmark |
 
@@ -251,3 +251,8 @@ unet = models.unet(num_classes=10)
 ::: holocron.models.segmentation.unet3p.unet3p
     options:
         heading_level: 4
+
+### YOLO26 family
+
+See [YOLO26 nano semantic segmentation](segmentation/yolo26.md) for the model
+API, training output, parameter counts, and deployment limits.
