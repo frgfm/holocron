@@ -1,0 +1,38 @@
+{
+  "scope": "CPU forward-only microbenchmark; excludes preprocessing and data transfer; no GPU claim",
+  "model": "repvit_m0_9",
+  "num_classes": 1000,
+  "checkpoint_path": "checkpoints/repvit-m0.9-imagenet-imported.pth",
+  "checkpoint_sha256": "a06f95bda7c6ce837f88e35cfce2a8e3cde279f5523b4a3744f190de420d7af4",
+  "device": "cpu",
+  "cpu_model": "Intel(R) Xeon(R) Platinum 8370C CPU @ 2.80GHz",
+  "dtype": "float32",
+  "intraop_threads": 2,
+  "pytorch": "2.13.0+cu130",
+  "python": "3.11.16",
+  "warmup_iterations": 20,
+  "measured_iterations": 100,
+  "measurement_order": "paired forwards, alternating which model runs first",
+  "parameters_before": 5103560,
+  "parameters_after": 5067056,
+  "batchnorm_layers_after": 0,
+  "measurements": [
+    {
+      "input_shape": [
+        1,
+        3,
+        224,
+        224
+      ],
+      "max_absolute_logit_difference": 9.5367431640625e-06,
+      "unfused": {
+        "median_ms": 40.750878999915585,
+        "p95_ms": 51.647672000058265
+      },
+      "fused": {
+        "median_ms": 29.889048999962142,
+        "p95_ms": 38.711732000138
+      }
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "scope": "Official checkpoint import equivalence, not a new ImageNet accuracy measurement",
+  "upstream_repository": "https://github.com/THU-MIG/RepViT",
+  "upstream_commit": "298f42075eda5d2e6102559fad260c970769d34e",
+  "checkpoint_url": "https://github.com/THU-MIG/RepViT/releases/download/v1.0/repvit_m0_9_distill_450e.pth",
+  "checkpoint_sha256": "b76537a20b8c47ef40c1b884bd88f4f3cae498b90f35c61d32da44c16c221443",
+  "converted_checkpoint_sha256": "a06f95bda7c6ce837f88e35cfce2a8e3cde279f5523b4a3744f190de420d7af4",
+  "upstream_reference_model": "model/repvit.py:repvit_m0_9(distillation=True)",
+  "reference_timm_version": "0.6.13",
+  "torch_version": "2.13.0+cu130",
+  "input_shape": [
+    2,
+    3,
+    224,
+    224
+  ],
+  "input_seed": 0,
+  "input_distribution": "torch.randn",
+  "device": "cpu",
+  "dtype": "float32",
+  "atol": 1e-05,
+  "rtol": 0.0001,
+  "maximum_absolute_error_before_fusion": 3.6954879760742188e-06,
+  "maximum_absolute_error_after_fusion": 8.52346420288086e-06
+}

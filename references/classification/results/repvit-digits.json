@@ -1,0 +1,325 @@
+{
+  "experiment": "RepViT-M0.9 full-model supervised CPU learning check on handwritten digits",
+  "scope": "Not an ImageNet reproduction or a deployment benchmark; random example split, not writer-disjoint.",
+  "created_utc": "2026-10-03T22:46:56.730972+00:00",
+  "dataset": {
+    "name": "UCI optical recognition of handwritten digits (scikit-learn packaged 1797-example subset)",
+    "source_url": "https://raw.githubusercontent.com/scikit-learn/scikit-learn/1.7.2/sklearn/datasets/data/digits.csv.gz",
+    "source_sha256": "09f66e6debdee2cd2b5ae59e0d6abbb73fc2b0e0185d2e1957e9ebb51e23aa22",
+    "preprocessing": "8x8 grayscale / 8 - 1; bilinear resize to 32x32; repeat to three channels",
+    "unique_images": 1797,
+    "split": {
+      "train": {
+        "count": 1074,
+        "class_counts": [
+          106,
+          109,
+          106,
+          109,
+          108,
+          109,
+          108,
+          107,
+          104,
+          108
+        ],
+        "indices_sha256": "f5e19920a4a174ce7d24733921fc1f321bbdd41896416b2129585734d8d9abf1"
+      },
+      "validation": {
+        "count": 355,
+        "class_counts": [
+          35,
+          36,
+          35,
+          36,
+          36,
+          36,
+          36,
+          35,
+          34,
+          36
+        ],
+        "indices_sha256": "a25f1f0077c3155c5c9a33744fc5210fd9682088bb330139c62e369e263749c6"
+      },
+      "test": {
+        "count": 368,
+        "class_counts": [
+          37,
+          37,
+          36,
+          38,
+          37,
+          37,
+          37,
+          37,
+          36,
+          36
+        ],
+        "indices_sha256": "57a5a881498c5b3b6786e915252a88cdbb35ca2f402a51e03aafe89c99d47309"
+      }
+    }
+  },
+  "configuration": {
+    "architecture": "repvit_m0_9",
+    "num_classes": 10,
+    "input_shape": [
+      3,
+      32,
+      32
+    ],
+    "pretrained": false,
+    "parameters": 4722410,
+    "trainable_parameters": 4722410,
+    "seed": 42,
+    "epochs": 12,
+    "batch_size": 64,
+    "drop_last_training_batch": true,
+    "optimizer": "AdamW",
+    "initial_learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "scheduler": "cosine decay to one tenth of initial learning rate",
+    "augmentation": "none",
+    "checkpoint_selection": "minimum validation cross-entropy over the fixed epoch budget"
+  },
+  "baseline_validation": {
+    "loss": 2.3328184530768596,
+    "accuracy": 0.10140845070422536,
+    "correct": 36,
+    "count": 355
+  },
+  "history": [
+    {
+      "epoch": 1,
+      "learning_rate": 0.001,
+      "training": {
+        "loss": 0.6971264835447073,
+        "accuracy": 0.833984375,
+        "count": 1024
+      },
+      "validation": {
+        "loss": 2.3061413617201256,
+        "accuracy": 0.10140845070422536,
+        "correct": 36,
+        "count": 355
+      },
+      "seconds": 5.370339462999937
+    },
+    {
+      "epoch": 2,
+      "learning_rate": 0.0009846666218300806,
+      "training": {
+        "loss": 0.12465912266634405,
+        "accuracy": 0.9775390625,
+        "count": 1024
+      },
+      "validation": {
+        "loss": 2.2970978857765734,
+        "accuracy": 0.10140845070422536,
+        "correct": 36,
+        "count": 355
+      },
+      "seconds": 5.232561378000014
+    },
+    {
+      "epoch": 3,
+      "learning_rate": 0.0009397114317029974,
+      "training": {
+        "loss": 0.0696835370035842,
+        "accuracy": 0.984375,
+        "count": 1024
+      },
+      "validation": {
+        "loss": 1.3806653734663843,
+        "accuracy": 0.9380281690140845,
+        "correct": 333,
+        "count": 355
+      },
+      "seconds": 5.536113526999998
+    },
+    {
+      "epoch": 4,
+      "learning_rate": 0.0008681980515339463,
+      "training": {
+        "loss": 0.039355995249934494,
+        "accuracy": 0.9921875,
+        "count": 1024
+      },
+      "validation": {
+        "loss": 0.2088705815060038,
+        "accuracy": 0.9802816901408451,
+        "correct": 348,
+        "count": 355
+      },
+      "seconds": 5.95380891700006
+    },
+    {
+      "epoch": 5,
+      "learning_rate": 0.000775,
+      "training": {
+        "loss": 0.025666438596090302,
+        "accuracy": 0.9970703125,
+        "count": 1024
+      },
+      "validation": {
+        "loss": 0.08606482727426878,
+        "accuracy": 0.9774647887323944,
+        "correct": 347,
+        "count": 355
+      },
+      "seconds": 8.733217623000087
+    },
+    {
+      "epoch": 6,
+      "learning_rate": 0.0006664685702961343,
+      "training": {
+        "loss": 0.02306201122701168,
+        "accuracy": 0.99609375,
+        "count": 1024
+      },
+      "validation": {
+        "loss": 0.0492795554684921,
+        "accuracy": 0.9887323943661972,
+        "correct": 351,
+        "count": 355
+      },
+      "seconds": 5.459925601999998
+    },
+    {
+      "epoch": 7,
+      "learning_rate": 0.0005499999999999999,
+      "training": {
+        "loss": 0.010706371307605878,
+        "accuracy": 1.0,
+        "count": 1024
+      },
+      "validation": {
+        "loss": 0.04372723807751293,
+        "accuracy": 0.9915492957746479,
+        "correct": 352,
+        "count": 355
+      },
+      "seconds": 5.363449156999991
+    },
+    {
+      "epoch": 8,
+      "learning_rate": 0.00043353142970386566,
+      "training": {
+        "loss": 0.010341468208935112,
+        "accuracy": 1.0,
+        "count": 1024
+      },
+      "validation": {
+        "loss": 0.03152897836456836,
+        "accuracy": 0.9943661971830986,
+        "correct": 353,
+        "count": 355
+      },
+      "seconds": 5.898130968000032
+    },
+    {
+      "epoch": 9,
+      "learning_rate": 0.0003250000000000001,
+      "training": {
+        "loss": 0.006779930976335891,
+        "accuracy": 1.0,
+        "count": 1024
+      },
+      "validation": {
+        "loss": 0.030014871627512114,
+        "accuracy": 0.9943661971830986,
+        "correct": 353,
+        "count": 355
+      },
+      "seconds": 8.353450939000027
+    },
+    {
+      "epoch": 10,
+      "learning_rate": 0.00023180194846605365,
+      "training": {
+        "loss": 0.005119185938383453,
+        "accuracy": 1.0,
+        "count": 1024
+      },
+      "validation": {
+        "loss": 0.027583819459861433,
+        "accuracy": 0.9971830985915493,
+        "correct": 354,
+        "count": 355
+      },
+      "seconds": 6.682134768999958
+    },
+    {
+      "epoch": 11,
+      "learning_rate": 0.00016028856829700258,
+      "training": {
+        "loss": 0.005517292389413342,
+        "accuracy": 1.0,
+        "count": 1024
+      },
+      "validation": {
+        "loss": 0.02610995912216079,
+        "accuracy": 0.9971830985915493,
+        "correct": 354,
+        "count": 355
+      },
+      "seconds": 6.660694350999961
+    },
+    {
+      "epoch": 12,
+      "learning_rate": 0.0001153333781699193,
+      "training": {
+        "loss": 0.004238071895088069,
+        "accuracy": 1.0,
+        "count": 1024
+      },
+      "validation": {
+        "loss": 0.026972706846787896,
+        "accuracy": 0.9971830985915493,
+        "correct": 354,
+        "count": 355
+      },
+      "seconds": 7.545197065000025
+    }
+  ],
+  "selected_epoch": 11,
+  "selected_validation": {
+    "loss": 0.02610995912216079,
+    "accuracy": 0.9971830985915493,
+    "correct": 354,
+    "count": 355
+  },
+  "final_test": {
+    "loss": 0.051336997553058296,
+    "accuracy": 0.9891304347826086,
+    "correct": 364,
+    "count": 368
+  },
+  "test_evaluations": 1,
+  "selected_stem_weight_mean_absolute_change": 0.005123319569975138,
+  "checkpoint": {
+    "path": "checkpoints/repvit-digits.pth",
+    "sha256": "365ec3d1cc6849bbc27ae0e4e237f1645fd9cbda99fa02d9712e45d4d5db175c"
+  },
+  "runtime": {
+    "training_seconds": 77.16143355499992,
+    "total_seconds": 78.82018597799993,
+    "python": "3.11.16",
+    "pytorch": "2.13.0+cu130",
+    "numpy": "1.26.4",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "cpu_model": "Intel(R) Xeon(R) Platinum 8370C CPU @ 2.80GHz",
+    "device": "cpu",
+    "dtype": "float32",
+    "intraop_threads": 2,
+    "interop_threads": 1,
+    "deterministic_algorithms": true,
+    "command": [
+      "/workspace/holocron/.venv/bin/python",
+      "references/classification/train_repvit_digits.py",
+      "--epochs",
+      "12",
+      "--threads",
+      "2"
+    ]
+  }
+}
