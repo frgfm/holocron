@@ -1,10 +1,11 @@
+from dataclasses import replace
 from types import SimpleNamespace
 
 import pytest
 import torch
 from torch import nn
 
-from holocron.models import utils
+from holocron.models import get_model, get_model_info, list_checkpoints, list_models, utils
 from holocron.nn import SAM, BlurPool2d, DropBlock2d
 
 
@@ -126,3 +127,38 @@ def test_remote_checkpoint_loading_is_safe(monkeypatch, tmp_path):
         ("config.json", "resolved-sha", False),
         ("pytorch_model.bin", "resolved-sha", False),
     ]
+
+
+def test_model_catalog():
+    names = list_models()
+    assert names == sorted(set(names))
+    assert "ConvNeXt" not in names
+    assert "convnext_atto" in list_models(task="classification", pretrained=True)
+    assert "yolo26n" in list_models(task="detection", pretrained=False)
+    assert get_model_info("yolo26n_sem").task == "segmentation"
+    assert get_model_info("unet_rexnet13").pretrained
+    assert list_checkpoints("convnext_atto")[0].meta.arch == "convnext_atto"
+    assert list_checkpoints("unet_rexnet13") == list_checkpoints("repvit_m0_9") == ()
+    with pytest.raises(ValueError, match="unknown task"):
+        list_models(task="missing")
+    with pytest.raises(ValueError, match="unknown model"):
+        get_model("missing")
+
+
+def test_get_model(monkeypatch):
+    assert get_model("repvit_m0_9", num_classes=7).head[-1].out_features == 7
+    checkpoint = list_checkpoints("convnext_atto")[0]
+    calls = []
+    monkeypatch.setattr(
+        utils, "load_pretrained_params", lambda model, url, **kwargs: calls.append((model, url, kwargs))
+    )
+    model = get_model("convnext_atto", checkpoint=checkpoint, progress=False)
+    assert model.default_cfg is checkpoint
+    assert calls == [(model, checkpoint.meta.url, {"progress": False})]
+    with pytest.raises(TypeError, match="must be a Checkpoint"):
+        get_model("convnext_atto", checkpoint="imagenette")
+    with pytest.raises(ValueError, match="does not match"):
+        get_model("resnet18", checkpoint=checkpoint)
+    legacy = replace(checkpoint, meta=replace(checkpoint.meta, arch="darknet24"))
+    with pytest.raises(ValueError, match="does not accept typed checkpoints"):
+        get_model("darknet24", checkpoint=legacy)
