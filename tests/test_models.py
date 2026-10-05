@@ -162,3 +162,8 @@ def test_get_model(monkeypatch):
     legacy = replace(checkpoint, meta=replace(checkpoint.meta, arch="darknet24"))
     with pytest.raises(ValueError, match="does not accept typed checkpoints"):
         get_model("darknet24", checkpoint=legacy)
+
+    model = get_model("resnet34", pretrained=True, progress=False)
+    checkpoint = list_checkpoints("resnet34")[0]
+    assert model.default_cfg is checkpoint
+    assert calls[-1] == (model, checkpoint.meta.url, {"progress": False})

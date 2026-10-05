@@ -534,6 +534,7 @@ def resnet34(
             heading_level: 4
             show_if_no_docstring: true
     """
+    checkpoint = _handle_legacy_pretrained(pretrained, checkpoint, ResNet34_Checkpoint.DEFAULT.value)
     return _resnet(checkpoint, progress, BasicBlock, [3, 4, 6, 3], [64, 128, 256, 512], **kwargs)
 
 
@@ -622,6 +623,7 @@ def resnet50d(
             heading_level: 4
             show_if_no_docstring: true
     """
+    checkpoint = _handle_legacy_pretrained(pretrained, checkpoint, ResNet50D_Checkpoint.DEFAULT.value)
     return _resnet(
         checkpoint,
         progress,
@@ -714,6 +716,7 @@ def resnext50_32x4d(
             heading_level: 4
             show_if_no_docstring: true
     """
+    checkpoint = _handle_legacy_pretrained(pretrained, checkpoint, ResNeXt50_32x4d_Checkpoint.DEFAULT.value)
     kwargs["width_per_group"] = 4
     block_args = {"groups": 32}
     return _resnet(
