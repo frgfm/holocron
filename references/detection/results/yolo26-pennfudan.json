@@ -1,0 +1,703 @@
+{
+  "dataset": "PennFudanPed",
+  "data_revision": "swallan/PennFudanPed@ec1d4583fb436b14e2062587c8b28a5018668a5e",
+  "split": {
+    "training": 120,
+    "validation": 25,
+    "test": 25,
+    "identifiers": [
+      [
+        "PennPed00032.png",
+        "FudanPed00024.png",
+        "FudanPed00053.png",
+        "PennPed00033.png",
+        "PennPed00038.png",
+        "FudanPed00068.png",
+        "PennPed00090.png",
+        "PennPed00016.png",
+        "PennPed00073.png",
+        "PennPed00001.png",
+        "PennPed00064.png",
+        "FudanPed00062.png",
+        "PennPed00093.png",
+        "FudanPed00006.png",
+        "PennPed00091.png",
+        "PennPed00020.png",
+        "PennPed00054.png",
+        "FudanPed00035.png",
+        "PennPed00041.png",
+        "PennPed00042.png",
+        "PennPed00094.png",
+        "FudanPed00045.png",
+        "FudanPed00070.png",
+        "FudanPed00017.png",
+        "PennPed00013.png",
+        "PennPed00075.png",
+        "FudanPed00027.png",
+        "FudanPed00065.png",
+        "FudanPed00046.png",
+        "FudanPed00074.png",
+        "FudanPed00016.png",
+        "PennPed00023.png",
+        "PennPed00011.png",
+        "PennPed00053.png",
+        "PennPed00043.png",
+        "PennPed00078.png",
+        "PennPed00047.png",
+        "PennPed00022.png",
+        "FudanPed00029.png",
+        "PennPed00034.png",
+        "FudanPed00033.png",
+        "PennPed00018.png",
+        "FudanPed00011.png",
+        "FudanPed00060.png",
+        "FudanPed00071.png",
+        "PennPed00087.png",
+        "PennPed00006.png",
+        "FudanPed00047.png",
+        "PennPed00070.png",
+        "FudanPed00040.png",
+        "FudanPed00043.png",
+        "PennPed00044.png",
+        "PennPed00017.png",
+        "PennPed00074.png",
+        "FudanPed00049.png",
+        "PennPed00084.png",
+        "FudanPed00018.png",
+        "PennPed00021.png",
+        "PennPed00004.png",
+        "FudanPed00007.png",
+        "PennPed00048.png",
+        "PennPed00040.png",
+        "PennPed00068.png",
+        "PennPed00045.png",
+        "PennPed00026.png",
+        "FudanPed00025.png",
+        "PennPed00063.png",
+        "PennPed00031.png",
+        "FudanPed00020.png",
+        "FudanPed00042.png",
+        "PennPed00055.png",
+        "FudanPed00030.png",
+        "PennPed00035.png",
+        "FudanPed00064.png",
+        "PennPed00076.png",
+        "PennPed00071.png",
+        "FudanPed00063.png",
+        "PennPed00028.png",
+        "PennPed00096.png",
+        "PennPed00081.png",
+        "PennPed00046.png",
+        "PennPed00066.png",
+        "FudanPed00012.png",
+        "PennPed00056.png",
+        "FudanPed00057.png",
+        "PennPed00067.png",
+        "FudanPed00019.png",
+        "PennPed00007.png",
+        "FudanPed00003.png",
+        "FudanPed00059.png",
+        "FudanPed00073.png",
+        "PennPed00051.png",
+        "PennPed00083.png",
+        "FudanPed00061.png",
+        "PennPed00072.png",
+        "PennPed00080.png",
+        "PennPed00057.png",
+        "PennPed00059.png",
+        "FudanPed00037.png",
+        "FudanPed00050.png",
+        "PennPed00062.png",
+        "FudanPed00036.png",
+        "FudanPed00032.png",
+        "FudanPed00022.png",
+        "FudanPed00015.png",
+        "FudanPed00013.png",
+        "PennPed00052.png",
+        "PennPed00036.png",
+        "PennPed00008.png",
+        "FudanPed00039.png",
+        "FudanPed00051.png",
+        "PennPed00030.png",
+        "PennPed00024.png",
+        "FudanPed00014.png",
+        "PennPed00077.png",
+        "PennPed00003.png",
+        "PennPed00060.png",
+        "FudanPed00010.png",
+        "PennPed00088.png",
+        "PennPed00014.png"
+      ],
+      [
+        "PennPed00010.png",
+        "FudanPed00001.png",
+        "PennPed00092.png",
+        "PennPed00079.png",
+        "FudanPed00044.png",
+        "PennPed00012.png",
+        "FudanPed00002.png",
+        "FudanPed00048.png",
+        "FudanPed00021.png",
+        "FudanPed00023.png",
+        "FudanPed00052.png",
+        "FudanPed00005.png",
+        "FudanPed00004.png",
+        "PennPed00025.png",
+        "FudanPed00008.png",
+        "PennPed00095.png",
+        "FudanPed00054.png",
+        "PennPed00085.png",
+        "PennPed00002.png",
+        "PennPed00050.png",
+        "FudanPed00026.png",
+        "FudanPed00034.png",
+        "PennPed00015.png",
+        "PennPed00049.png",
+        "FudanPed00031.png"
+      ],
+      [
+        "PennPed00019.png",
+        "PennPed00037.png",
+        "PennPed00089.png",
+        "FudanPed00069.png",
+        "FudanPed00072.png",
+        "PennPed00065.png",
+        "PennPed00009.png",
+        "PennPed00058.png",
+        "PennPed00086.png",
+        "FudanPed00055.png",
+        "PennPed00005.png",
+        "PennPed00069.png",
+        "PennPed00082.png",
+        "FudanPed00056.png",
+        "FudanPed00066.png",
+        "PennPed00029.png",
+        "FudanPed00009.png",
+        "FudanPed00038.png",
+        "PennPed00027.png",
+        "FudanPed00058.png",
+        "FudanPed00067.png",
+        "PennPed00039.png",
+        "FudanPed00041.png",
+        "FudanPed00028.png",
+        "PennPed00061.png"
+      ]
+    ]
+  },
+  "configuration": {
+    "data": "/workspace/holocron-bench-data/PennFudanPed",
+    "image_size": 128,
+    "epochs": 30,
+    "batch_size": 8,
+    "lr": 0.001,
+    "seed": 42,
+    "threads": 1,
+    "calibrate": true,
+    "output": "references/detection/results/yolo26-pennfudan.json",
+    "checkpoint": "/workspace/holocron-bench-data/yolo26-pennfudan.pth"
+  },
+  "runtime": {
+    "python": "3.11.16",
+    "torch": "2.13.0+cu130",
+    "device": "cpu",
+    "precision": "float32",
+    "threads": 1
+  },
+  "pretrained": false,
+  "training_steps": 450,
+  "best_epoch": 21,
+  "parameter_count": {
+    "training": 2504190,
+    "deployment": 2375031
+  },
+  "before_validation": {
+    "ap50": 0.0,
+    "precision_at_score_005": 0.0,
+    "recall_at_score_005": 0.0,
+    "true_positives": 0,
+    "false_positives": 0,
+    "ground_truth_objects": 60
+  },
+  "after_validation": {
+    "ap50": 0.34657324452211363,
+    "precision_at_score_005": 0.2440944881889764,
+    "recall_at_score_005": 0.5166666666666667,
+    "true_positives": 31,
+    "false_positives": 96,
+    "ground_truth_objects": 60
+  },
+  "test": {
+    "ap50": 0.2693891448549705,
+    "precision_at_score_005": 0.2345679012345679,
+    "recall_at_score_005": 0.5507246376811594,
+    "true_positives": 38,
+    "false_positives": 124,
+    "ground_truth_objects": 69
+  },
+  "calibration": {
+    "selection": "Maximum validation F1; ties select the higher threshold",
+    "validation": {
+      "threshold": 0.1,
+      "precision": 0.3835616438356164,
+      "recall": 0.4666666666666667,
+      "f1": 0.42105263157894735,
+      "true_positives": 28,
+      "false_positives": 45
+    },
+    "candidates": [
+      {
+        "threshold": 0.05,
+        "precision": 0.2440944881889764,
+        "recall": 0.5166666666666667,
+        "f1": 0.3315508021390375,
+        "true_positives": 31,
+        "false_positives": 96
+      },
+      {
+        "threshold": 0.1,
+        "precision": 0.3835616438356164,
+        "recall": 0.4666666666666667,
+        "f1": 0.42105263157894735,
+        "true_positives": 28,
+        "false_positives": 45
+      },
+      {
+        "threshold": 0.2,
+        "precision": 0.5263157894736842,
+        "recall": 0.3333333333333333,
+        "f1": 0.4081632653061224,
+        "true_positives": 20,
+        "false_positives": 18
+      },
+      {
+        "threshold": 0.3,
+        "precision": 0.6206896551724138,
+        "recall": 0.3,
+        "f1": 0.40449438202247195,
+        "true_positives": 18,
+        "false_positives": 11
+      },
+      {
+        "threshold": 0.4,
+        "precision": 0.7647058823529411,
+        "recall": 0.21666666666666667,
+        "f1": 0.33766233766233766,
+        "true_positives": 13,
+        "false_positives": 4
+      },
+      {
+        "threshold": 0.5,
+        "precision": 0.8571428571428571,
+        "recall": 0.1,
+        "f1": 0.17910447761194032,
+        "true_positives": 6,
+        "false_positives": 1
+      },
+      {
+        "threshold": 0.6,
+        "precision": 1.0,
+        "recall": 0.08333333333333333,
+        "f1": 0.15384615384615385,
+        "true_positives": 5,
+        "false_positives": 0
+      },
+      {
+        "threshold": 0.7,
+        "precision": 1.0,
+        "recall": 0.03333333333333333,
+        "f1": 0.06451612903225806,
+        "true_positives": 2,
+        "false_positives": 0
+      },
+      {
+        "threshold": 0.8,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "true_positives": 0,
+        "false_positives": 0
+      },
+      {
+        "threshold": 0.9,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "true_positives": 0,
+        "false_positives": 0
+      }
+    ],
+    "test": {
+      "threshold": 0.1,
+      "precision": 0.32967032967032966,
+      "recall": 0.43478260869565216,
+      "f1": 0.375,
+      "true_positives": 30,
+      "false_positives": 61
+    }
+  },
+  "finite_loss_and_gradients": true,
+  "training_elapsed_seconds": 121.54633802799981,
+  "history": [
+    {
+      "epoch": 1,
+      "training_loss": 12.194002024332683,
+      "validation": {
+        "ap50": 0.0,
+        "precision_at_score_005": 0.0,
+        "recall_at_score_005": 0.0,
+        "true_positives": 0,
+        "false_positives": 0,
+        "ground_truth_objects": 60
+      }
+    },
+    {
+      "epoch": 2,
+      "training_loss": 10.7865265528361,
+      "validation": {
+        "ap50": 0.0,
+        "precision_at_score_005": 0.0,
+        "recall_at_score_005": 0.0,
+        "true_positives": 0,
+        "false_positives": 0,
+        "ground_truth_objects": 60
+      }
+    },
+    {
+      "epoch": 3,
+      "training_loss": 9.991602897644043,
+      "validation": {
+        "ap50": 0.0,
+        "precision_at_score_005": 0.0,
+        "recall_at_score_005": 0.0,
+        "true_positives": 0,
+        "false_positives": 0,
+        "ground_truth_objects": 60
+      }
+    },
+    {
+      "epoch": 4,
+      "training_loss": 9.515462239583334,
+      "validation": {
+        "ap50": 0.0,
+        "precision_at_score_005": 0.0,
+        "recall_at_score_005": 0.0,
+        "true_positives": 0,
+        "false_positives": 0,
+        "ground_truth_objects": 60
+      }
+    },
+    {
+      "epoch": 5,
+      "training_loss": 9.452223968505859,
+      "validation": {
+        "ap50": 0.0,
+        "precision_at_score_005": 0.0,
+        "recall_at_score_005": 0.0,
+        "true_positives": 0,
+        "false_positives": 0,
+        "ground_truth_objects": 60
+      }
+    },
+    {
+      "epoch": 6,
+      "training_loss": 9.073834800720215,
+      "validation": {
+        "ap50": 0.0,
+        "precision_at_score_005": 0.0,
+        "recall_at_score_005": 0.0,
+        "true_positives": 0,
+        "false_positives": 0,
+        "ground_truth_objects": 60
+      }
+    },
+    {
+      "epoch": 7,
+      "training_loss": 8.554232597351074,
+      "validation": {
+        "ap50": 0.0,
+        "precision_at_score_005": 0.0,
+        "recall_at_score_005": 0.0,
+        "true_positives": 0,
+        "false_positives": 0,
+        "ground_truth_objects": 60
+      }
+    },
+    {
+      "epoch": 8,
+      "training_loss": 8.399720350901285,
+      "validation": {
+        "ap50": 0.10794255343994291,
+        "precision_at_score_005": 0.47058823529411764,
+        "recall_at_score_005": 0.13333333333333333,
+        "true_positives": 8,
+        "false_positives": 9,
+        "ground_truth_objects": 60
+      }
+    },
+    {
+      "epoch": 9,
+      "training_loss": 7.976996930440267,
+      "validation": {
+        "ap50": 0.16968613626933335,
+        "precision_at_score_005": 0.29545454545454547,
+        "recall_at_score_005": 0.21666666666666667,
+        "true_positives": 13,
+        "false_positives": 31,
+        "ground_truth_objects": 60
+      }
+    },
+    {
+      "epoch": 10,
+      "training_loss": 8.100192991892497,
+      "validation": {
+        "ap50": 0.25451849179692787,
+        "precision_at_score_005": 0.359375,
+        "recall_at_score_005": 0.38333333333333336,
+        "true_positives": 23,
+        "false_positives": 41,
+        "ground_truth_objects": 60
+      }
+    },
+    {
+      "epoch": 11,
+      "training_loss": 7.641121323903402,
+      "validation": {
+        "ap50": 0.08900181831109642,
+        "precision_at_score_005": 0.15286624203821655,
+        "recall_at_score_005": 0.4,
+        "true_positives": 24,
+        "false_positives": 133,
+        "ground_truth_objects": 60
+      }
+    },
+    {
+      "epoch": 12,
+      "training_loss": 7.267560291290283,
+      "validation": {
+        "ap50": 0.240386892515834,
+        "precision_at_score_005": 0.18064516129032257,
+        "recall_at_score_005": 0.4666666666666667,
+        "true_positives": 28,
+        "false_positives": 127,
+        "ground_truth_objects": 60
+      }
+    },
+    {
+      "epoch": 13,
+      "training_loss": 6.850096066792806,
+      "validation": {
+        "ap50": 0.08466193965165922,
+        "precision_at_score_005": 0.0918918918918919,
+        "recall_at_score_005": 0.5666666666666667,
+        "true_positives": 34,
+        "false_positives": 336,
+        "ground_truth_objects": 60
+      }
+    },
+    {
+      "epoch": 14,
+      "training_loss": 6.853821309407552,
+      "validation": {
+        "ap50": 0.10512065466972861,
+        "precision_at_score_005": 0.11160714285714286,
+        "recall_at_score_005": 0.4166666666666667,
+        "true_positives": 25,
+        "false_positives": 199,
+        "ground_truth_objects": 60
+      }
+    },
+    {
+      "epoch": 15,
+      "training_loss": 6.554866313934326,
+      "validation": {
+        "ap50": 0.2216065493550631,
+        "precision_at_score_005": 0.21323529411764705,
+        "recall_at_score_005": 0.48333333333333334,
+        "true_positives": 29,
+        "false_positives": 107,
+        "ground_truth_objects": 60
+      }
+    },
+    {
+      "epoch": 16,
+      "training_loss": 6.354934883117676,
+      "validation": {
+        "ap50": 0.2648806557206824,
+        "precision_at_score_005": 0.3614457831325301,
+        "recall_at_score_005": 0.5,
+        "true_positives": 30,
+        "false_positives": 53,
+        "ground_truth_objects": 60
+      }
+    },
+    {
+      "epoch": 17,
+      "training_loss": 6.178542137145996,
+      "validation": {
+        "ap50": 0.27127914322484836,
+        "precision_at_score_005": 0.3076923076923077,
+        "recall_at_score_005": 0.4666666666666667,
+        "true_positives": 28,
+        "false_positives": 63,
+        "ground_truth_objects": 60
+      }
+    },
+    {
+      "epoch": 18,
+      "training_loss": 5.941943677266439,
+      "validation": {
+        "ap50": 0.29675498663788974,
+        "precision_at_score_005": 0.25225225225225223,
+        "recall_at_score_005": 0.4666666666666667,
+        "true_positives": 28,
+        "false_positives": 83,
+        "ground_truth_objects": 60
+      }
+    },
+    {
+      "epoch": 19,
+      "training_loss": 5.767290433247884,
+      "validation": {
+        "ap50": 0.3118863294620325,
+        "precision_at_score_005": 0.3020833333333333,
+        "recall_at_score_005": 0.48333333333333334,
+        "true_positives": 29,
+        "false_positives": 67,
+        "ground_truth_objects": 60
+      }
+    },
+    {
+      "epoch": 20,
+      "training_loss": 5.508944924672445,
+      "validation": {
+        "ap50": 0.32531035772644645,
+        "precision_at_score_005": 0.2818181818181818,
+        "recall_at_score_005": 0.5166666666666667,
+        "true_positives": 31,
+        "false_positives": 79,
+        "ground_truth_objects": 60
+      }
+    },
+    {
+      "epoch": 21,
+      "training_loss": 5.465838177998861,
+      "validation": {
+        "ap50": 0.34657324452211363,
+        "precision_at_score_005": 0.2440944881889764,
+        "recall_at_score_005": 0.5166666666666667,
+        "true_positives": 31,
+        "false_positives": 96,
+        "ground_truth_objects": 60
+      }
+    },
+    {
+      "epoch": 22,
+      "training_loss": 5.465790557861328,
+      "validation": {
+        "ap50": 0.303455246262031,
+        "precision_at_score_005": 0.35714285714285715,
+        "recall_at_score_005": 0.5,
+        "true_positives": 30,
+        "false_positives": 54,
+        "ground_truth_objects": 60
+      }
+    },
+    {
+      "epoch": 23,
+      "training_loss": 5.2887733459472654,
+      "validation": {
+        "ap50": 0.28813921136431175,
+        "precision_at_score_005": 0.325,
+        "recall_at_score_005": 0.43333333333333335,
+        "true_positives": 26,
+        "false_positives": 54,
+        "ground_truth_objects": 60
+      }
+    },
+    {
+      "epoch": 24,
+      "training_loss": 5.042023913065592,
+      "validation": {
+        "ap50": 0.31046273714244954,
+        "precision_at_score_005": 0.297029702970297,
+        "recall_at_score_005": 0.5,
+        "true_positives": 30,
+        "false_positives": 71,
+        "ground_truth_objects": 60
+      }
+    },
+    {
+      "epoch": 25,
+      "training_loss": 4.927875963846843,
+      "validation": {
+        "ap50": 0.3096781128113813,
+        "precision_at_score_005": 0.30927835051546393,
+        "recall_at_score_005": 0.5,
+        "true_positives": 30,
+        "false_positives": 67,
+        "ground_truth_objects": 60
+      }
+    },
+    {
+      "epoch": 26,
+      "training_loss": 4.908683888117472,
+      "validation": {
+        "ap50": 0.34108943573319084,
+        "precision_at_score_005": 0.30927835051546393,
+        "recall_at_score_005": 0.5,
+        "true_positives": 30,
+        "false_positives": 67,
+        "ground_truth_objects": 60
+      }
+    },
+    {
+      "epoch": 27,
+      "training_loss": 4.814906469980875,
+      "validation": {
+        "ap50": 0.3021228213121395,
+        "precision_at_score_005": 0.28125,
+        "recall_at_score_005": 0.45,
+        "true_positives": 27,
+        "false_positives": 69,
+        "ground_truth_objects": 60
+      }
+    },
+    {
+      "epoch": 28,
+      "training_loss": 4.586542860666911,
+      "validation": {
+        "ap50": 0.343173888650271,
+        "precision_at_score_005": 0.30526315789473685,
+        "recall_at_score_005": 0.48333333333333334,
+        "true_positives": 29,
+        "false_positives": 66,
+        "ground_truth_objects": 60
+      }
+    },
+    {
+      "epoch": 29,
+      "training_loss": 4.57704865137736,
+      "validation": {
+        "ap50": 0.32664778356504914,
+        "precision_at_score_005": 0.28846153846153844,
+        "recall_at_score_005": 0.5,
+        "true_positives": 30,
+        "false_positives": 74,
+        "ground_truth_objects": 60
+      }
+    },
+    {
+      "epoch": 30,
+      "training_loss": 4.500205564498901,
+      "validation": {
+        "ap50": 0.34270174137436515,
+        "precision_at_score_005": 0.3448275862068966,
+        "recall_at_score_005": 0.5,
+        "true_positives": 30,
+        "false_positives": 57,
+        "ground_truth_objects": 60
+      }
+    }
+  ],
+  "limitations": "Small single-seed CPU check; resize distorts aspect ratios. AP50 at score>=0.05 is not COCO AP50:95. Full published training recipe and pretrained weights are not reproduced."
+}

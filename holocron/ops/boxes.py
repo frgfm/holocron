@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2025, François-Guillaume Fernandez.
+# Copyright (C) 2019-2026, François-Guillaume Fernandez.
 
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
@@ -116,12 +116,14 @@ def diou_loss(boxes1: Tensor, boxes2: Tensor) -> Tensor:
     \mathcal{L}_{DIoU} = 1 - IoU + \frac{\rho^2(b, b^{GT})}{c^2}
     $$
 
+    Illustration from the original paper:
+
+    ![Distance-IoU loss](https://github.com/frgfm/Holocron/releases/download/v0.1.3/diou_loss.png)
+
     where $\IoU$ is the Intersection over Union,
     $b$ and $b^{GT}$ are the centers of the box and the ground truth box respectively,
     $c$ c is the diagonal length of the smallest enclosing box covering the two boxes,
     and $\rho(.)$ is the Euclidean distance.
-
-    ![Distance-IoU loss](https://github.com/frgfm/Holocron/releases/download/v0.1.3/diou_loss.png)
 
     Args:
         boxes1: bounding boxes of shape [M, 4]
@@ -207,13 +209,13 @@ def ciou_loss(boxes1: Tensor, boxes2: Tensor) -> Tensor:
         box_ciou(boxes1, boxes2)
         ```
     """
+    # Keep normalized-box geometry and its gradients safe under AMP.
+    if boxes1.dtype in {torch.float16, torch.bfloat16}:
+        boxes1 = boxes1.float()
+    if boxes2.dtype in {torch.float16, torch.bfloat16}:
+        boxes2 = boxes2.float()
     iou = box_iou(boxes1, boxes2)
     v = aspect_ratio_consistency(boxes1, boxes2)
 
-    ciou_loss = 1 - iou + iou_penalty(boxes1, boxes2)
-
-    # Check
-    filter_ = (v != 0) & (iou != 0)
-    ciou_loss[filter_].addcdiv_(v[filter_], 1 - iou[filter_] + v[filter_])
-
-    return ciou_loss
+    aspect_denominator = (1 - iou + v).clamp_min(torch.finfo(v.dtype).tiny)
+    return 1 - iou + iou_penalty(boxes1, boxes2) + v.square() / aspect_denominator

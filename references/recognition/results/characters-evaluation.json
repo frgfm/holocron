@@ -1,0 +1,140 @@
+{
+  "alphabet": "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz .,;:!?-+/=()@%$#'\"_&",
+  "beam_width": 0,
+  "benchmarks": {
+    "seen_clean": {
+      "accuracy": 0.99853515625,
+      "cer": 0.00146484375,
+      "character_errors": 12,
+      "characters": 8192,
+      "confusions": [
+        {"count": 12, "prediction": "O", "reference": "0"}
+      ],
+      "errors": [
+        {"prediction": "O", "reference": "0"},
+        {"prediction": "O", "reference": "0"},
+        {"prediction": "O", "reference": "0"},
+        {"prediction": "O", "reference": "0"},
+        {"prediction": "O", "reference": "0"}
+      ],
+      "exact_match": 0.99853515625,
+      "families": ["IBM Plex Mono", "Lora", "Montserrat", "Noto Sans", "Open Sans", "PT Serif", "Roboto Mono", "Source Sans 3"],
+      "fonts": [
+        {"file": "Montserrat.ttf", "sha256": "0f7b311b2f3279e4eef9b2f968bcdbab6e28f4daeb1f049f4f278a902bcd82f7"},
+        {"file": "Lora.ttf", "sha256": "822a6621ccbe8d97d20ac88c1c41f5615c9c2c202eaa75f272cd452aac6475a7"},
+        {"file": "RobotoMono.ttf", "sha256": "66a80e79d17e4c7cabd162e2916578a4cc08fd19eef6e2a643305eae9c567b2b"},
+        {"file": "NotoSans.ttf", "sha256": "bfb7bb691513f12e734dc346c03a03f784912432d7e3fa8e56efcf906fe86b3d"},
+        {"file": "OpenSans.ttf", "sha256": "36643644f318a812aab2d2ed3bb98f8cf0872527f835fe9398d95fe6b9adb878"},
+        {"file": "SourceSans3.ttf", "sha256": "042fe2cc0b933e328410d7acbd0aa6a1873dca5aef81875f4bc214b08825c7b9"},
+        {"file": "IBMPlexMono.ttf", "sha256": "6a3412f058c7d8dfd9170c41e85ade48e5156ecb89356110ca57a0a27734af46"},
+        {"file": "PTSerif.ttf", "sha256": "a4951fade06ff8f09b7673aa81ffb65a8cd409e24d3289a6dc670bc4dda2557a"}
+      ],
+      "samples": 8192,
+      "wer": 0.00146484375,
+      "word_errors": 12,
+      "words": 8192
+    },
+    "seen_degraded": {
+      "accuracy": 0.9979248046875,
+      "cer": 0.0020751953125,
+      "character_errors": 17,
+      "characters": 8192,
+      "confusions": [
+        {"count": 9, "prediction": "O", "reference": "0"},
+        {"count": 6, "prediction": "0", "reference": "O"},
+        {"count": 1, "prediction": "I", "reference": "l"},
+        {"count": 1, "prediction": "l", "reference": "I"}
+      ],
+      "errors": [
+        {"prediction": "O", "reference": "0"},
+        {"prediction": "O", "reference": "0"},
+        {"prediction": "O", "reference": "0"},
+        {"prediction": "I", "reference": "l"},
+        {"prediction": "0", "reference": "O"}
+      ],
+      "exact_match": 0.9979248046875,
+      "families": ["IBM Plex Mono", "Lora", "Montserrat", "Noto Sans", "Open Sans", "PT Serif", "Roboto Mono", "Source Sans 3"],
+      "fonts": [
+        {"file": "Montserrat.ttf", "sha256": "0f7b311b2f3279e4eef9b2f968bcdbab6e28f4daeb1f049f4f278a902bcd82f7"},
+        {"file": "Lora.ttf", "sha256": "822a6621ccbe8d97d20ac88c1c41f5615c9c2c202eaa75f272cd452aac6475a7"},
+        {"file": "RobotoMono.ttf", "sha256": "66a80e79d17e4c7cabd162e2916578a4cc08fd19eef6e2a643305eae9c567b2b"},
+        {"file": "NotoSans.ttf", "sha256": "bfb7bb691513f12e734dc346c03a03f784912432d7e3fa8e56efcf906fe86b3d"},
+        {"file": "OpenSans.ttf", "sha256": "36643644f318a812aab2d2ed3bb98f8cf0872527f835fe9398d95fe6b9adb878"},
+        {"file": "SourceSans3.ttf", "sha256": "042fe2cc0b933e328410d7acbd0aa6a1873dca5aef81875f4bc214b08825c7b9"},
+        {"file": "IBMPlexMono.ttf", "sha256": "6a3412f058c7d8dfd9170c41e85ade48e5156ecb89356110ca57a0a27734af46"},
+        {"file": "PTSerif.ttf", "sha256": "a4951fade06ff8f09b7673aa81ffb65a8cd409e24d3289a6dc670bc4dda2557a"}
+      ],
+      "samples": 8192,
+      "wer": 0.0020751953125,
+      "word_errors": 17,
+      "words": 8192
+    },
+    "unseen_clean": {
+      "accuracy": 0.988525390625,
+      "cer": 0.011474609375,
+      "character_errors": 94,
+      "characters": 8192,
+      "confusions": [
+        {"count": 54, "prediction": "l", "reference": "I"},
+        {"count": 40, "prediction": "O", "reference": "0"}
+      ],
+      "errors": [
+        {"prediction": "l", "reference": "I"},
+        {"prediction": "l", "reference": "I"},
+        {"prediction": "l", "reference": "I"},
+        {"prediction": "l", "reference": "I"},
+        {"prediction": "l", "reference": "I"}
+      ],
+      "exact_match": 0.988525390625,
+      "families": ["Noto Serif", "Ubuntu"],
+      "fonts": [
+        {"file": "NotoSerif.ttf", "sha256": "4d8e6761424656867019081a1a01336f3cb086982682698714054fc33f782713"},
+        {"file": "Ubuntu.ttf", "sha256": "3128df86a31805618436d0ae5651ba4285d0c9de0a39057d025f64ee33bceb64"}
+      ],
+      "samples": 8192,
+      "wer": 0.011474609375,
+      "word_errors": 94,
+      "words": 8192
+    },
+    "unseen_degraded": {
+      "accuracy": 0.9896240234375,
+      "cer": 0.0103759765625,
+      "character_errors": 85,
+      "characters": 8192,
+      "confusions": [
+        {"count": 45, "prediction": "l", "reference": "I"},
+        {"count": 26, "prediction": "O", "reference": "0"},
+        {"count": 6, "prediction": "j", "reference": "i"},
+        {"count": 4, "prediction": ",", "reference": "."},
+        {"count": 1, "prediction": "y", "reference": "v"},
+        {"count": 1, "prediction": ";", "reference": ":"},
+        {"count": 1, "prediction": "F", "reference": "f"},
+        {"count": 1, "prediction": "g", "reference": "q"}
+      ],
+      "errors": [
+        {"prediction": "l", "reference": "I"},
+        {"prediction": "l", "reference": "I"},
+        {"prediction": "l", "reference": "I"},
+        {"prediction": "l", "reference": "I"},
+        {"prediction": "O", "reference": "0"}
+      ],
+      "exact_match": 0.9896240234375,
+      "families": ["Noto Serif", "Ubuntu"],
+      "fonts": [
+        {"file": "NotoSerif.ttf", "sha256": "4d8e6761424656867019081a1a01336f3cb086982682698714054fc33f782713"},
+        {"file": "Ubuntu.ttf", "sha256": "3128df86a31805618436d0ae5651ba4285d0c9de0a39057d025f64ee33bceb64"}
+      ],
+      "samples": 8192,
+      "wer": 0.0103759765625,
+      "word_errors": 85,
+      "words": 8192
+    }
+  },
+  "checkpoint_sha256": "ae8cacbe504b0b43d70a2b445c338fe4b69082a660a69cb6cac0f89285dcc3b6",
+  "deskew": false,
+  "epoch": 11,
+  "max_length": 24,
+  "runtime": {"batch_size": 32, "device": "cpu", "numpy": "1.26.4", "pillow": "12.3.0", "python": "3.11.16", "threads": 1, "torch": "2.13.0+cu130"},
+  "seed": 300000,
+  "task": "characters"
+}

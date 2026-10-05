@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2025, François-Guillaume Fernandez.
+# Copyright (C) 2019-2026, François-Guillaume Fernandez.
 
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
@@ -194,7 +194,9 @@ class MutualChannelLoss(Loss):
         self.alpha: float = alpha
 
     def forward(self, x: Tensor, target: Tensor) -> Tensor:
-        return F.mutual_channel_loss(x, target, self.weight, self.ignore_index, self.reduction, self.xi, self.alpha)
+        return F.mutual_channel_loss(
+            x, target, self.weight, self.ignore_index, self.reduction, self.xi, self.alpha, training=self.training
+        )
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(reduction='{self.reduction}', xi={self.xi}, alpha={self.alpha})"
@@ -228,35 +230,36 @@ class DiceLoss(Loss):
 
 
 class PolyLoss(Loss):
-    r"""Implements the Poly1 loss from ["PolyLoss: A Polynomial Expansion Perspective of Classification Loss
+    """Implements the Poly1 loss from ["PolyLoss: A Polynomial Expansion Perspective of Classification Loss
     Functions"](https://arxiv.org/pdf/2204.12511.pdf).
 
-    The loss expects **raw, unnormalized scores (logits)** as input (a log-softmax is applied internally),
-    of shape $(N, K)$ — or $(N, K, d_1, ..., d_n)$ for dense tasks. The ``target`` is either **hard class
-    indices** of shape $(N,)$ — or $(N, d_1, ..., d_n)$ — and dtype ``torch.int64``, or **soft class
-    probabilities** with the same shape as the input.
+    Pass raw logits with shape `(N, K, ...)`, where `K` is the number of classes.
+    Hard targets have shape `(N, ...)` and dtype `torch.int64`, with values in
+    `[0, K)`. Soft targets are floating-point class probabilities with the same
+    shape as the logits. Do not apply softmax to the input first.
 
     Example:
         >>> import torch
         >>> from holocron.nn import PolyLoss
-        >>> criterion = PolyLoss(ignore_index=-100)
-        >>> logits = torch.rand(4, 10, requires_grad=True)  # (N, num_classes) raw scores
-        >>> target = torch.tensor([0, -100, 3, 1])  # int64 class indices; the 2nd sample is ignored
-        >>> loss = criterion(logits, target)
+        >>> logits = torch.randn(4, 10, requires_grad=True)
+        >>> target = torch.tensor([0, 9, 3, 1], dtype=torch.int64)
+        >>> loss = PolyLoss()(logits, target)
         >>> loss.backward()
 
     Note:
-        Hard ``target`` must be of dtype ``torch.int64``; otherwise a ``TypeError`` is raised. Set a
-        sample/pixel target to ``ignore_index`` (``-100`` by default) to exclude it from the loss and
-        its gradient.
+        Out-of-range hard targets, including the default `ignore_index=-100`,
+        raise an error if present in the target. Only an in-range class index
+        can be ignored for sum/mean reduction. With `reduction="none"`, ignored
+        positions are not zeroed and hard-target losses are returned as a flat
+        tensor. See the [loss input guide](https://frgfm.github.io/holocron/reference/nn/#loss-functions)
+        for a loss that supports out-of-range ignored targets.
 
     Args:
-        weight: manual rescaling weight given to each class (default: None)
-        ignore_index: target value that is ignored and does not contribute to the loss or gradient
-            (default: -100)
-        reduction: reduction to apply to the output, one of ``"none"`` | ``"mean"`` | ``"sum"``
-            (default: ``"mean"``)
+        *args: positional weight, ignore_index and reduction arguments of
+            [`Loss`][holocron.nn.modules.loss.Loss]
         eps: epsilon 1 from the paper (default: 2.0)
+        **kwargs: weight, ignore_index and reduction keyword arguments of
+            [`Loss`][holocron.nn.modules.loss.Loss]
     """
 
     def __init__(

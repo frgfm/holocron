@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2025, François-Guillaume Fernandez.
+# Copyright (C) 2019-2026, François-Guillaume Fernandez.
 
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
@@ -61,7 +61,7 @@ def main(args):
     # Pretrained imagenet model
     model = models.__dict__[args.arch](pretrained=args.pretrained).eval()
     # Reparametrizable models
-    if args.arch.startswith("repvgg") or args.arch.startswith("mobileone"):
+    if hasattr(model, "reparametrize"):
         model.reparametrize()
 
     # Input

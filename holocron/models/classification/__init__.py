@@ -6,6 +6,7 @@ from .darknetv4 import *
 from .mobileone import *
 from .pyconv_resnet import *
 from .repvgg import *
+from .repvit import *
 from .res2net import *
 from .resnet import *
 from .rexnet import *

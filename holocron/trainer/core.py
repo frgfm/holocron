@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2025, François-Guillaume Fernandez.
+# Copyright (C) 2019-2026, François-Guillaume Fernandez.
 
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
@@ -6,6 +6,7 @@
 import math
 from collections import defaultdict
 from collections.abc import Callable, Sequence
+from pathlib import Path
 from typing import Any, cast
 
 import matplotlib.pyplot as plt
@@ -115,6 +116,7 @@ class Trainer:
         Args:
             output_file: destination file path
         """
+        Path(output_file).parent.mkdir(parents=True, exist_ok=True)
         torch.save(
             {
                 "epoch": self.epoch,
@@ -161,16 +163,17 @@ class Trainer:
             # Backprop
             if not self.skip_nan_loss or torch.isfinite(batch_loss):
                 nan_cnt = 0
-                self._backprop_step(batch_loss)
+                if self._backprop_step(batch_loss):
+                    self.scheduler.step()
             else:
                 nan_cnt += 1
                 if nan_cnt > self.nan_tolerance:
                     raise ValueError(f"loss value has been NaN or inf for more than {self.nan_tolerance} steps.")
-            # Update LR
-            self.scheduler.step()
             pb.comment = f"Training loss: {batch_loss.item():.4}"
 
             self.step += 1
+        if self._optimizer_step():
+            self.scheduler.step()
         self.epoch += 1
 
     def to_cuda(
@@ -200,31 +203,39 @@ class Trainer:
         target = target.cuda(non_blocking=True)
         return x, target
 
-    def _backprop_step(self, loss: Tensor) -> None:
-        # Backpropate the loss
+    def _backprop_step(self, loss: Tensor, force: bool = False) -> bool:
         self._grad_count += 1
         if self.amp:
-            # Backprop
             self.scaler.scale(loss).backward()
-            if self._grad_count == self.gradient_acc:
-                # Safeguard for Gradient explosion
-                if isinstance(self.grad_clip, float):
-                    self.scaler.unscale_(self.optimizer)
-                    nn.utils.clip_grad_norm_(self.model.parameters(), self.grad_clip)
-                self.scaler.step(self.optimizer)
-                self.scaler.update()
-                self.optimizer.zero_grad()
-                self._grad_count = 0
         else:
-            # Backprop
             loss.backward()
-            if self._grad_count == self.gradient_acc:
-                # Safeguard for Gradient explosion
-                if isinstance(self.grad_clip, float):
-                    nn.utils.clip_grad_norm_(self.model.parameters(), self.grad_clip)
-                self.optimizer.step()
-                self.optimizer.zero_grad()
-                self._grad_count = 0
+        if self._grad_count < self.gradient_acc and not force:
+            return False
+        return self._optimizer_step()
+
+    def _optimizer_step(self) -> bool:
+        if self._grad_count == 0:
+            return False
+
+        if self.amp:
+            self.scaler.unscale_(self.optimizer)
+        for param in self.model.parameters():
+            if param.grad is not None:
+                param.grad.div_(self._grad_count)
+        if isinstance(self.grad_clip, float):
+            nn.utils.clip_grad_norm_(self.model.parameters(), self.grad_clip)
+
+        if self.amp:
+            scale = self.scaler.get_scale()
+            self.scaler.step(self.optimizer)
+            self.scaler.update()
+            stepped = self.scaler.get_scale() >= scale
+        else:
+            self.optimizer.step()
+            stepped = True
+        self.optimizer.zero_grad(set_to_none=True)
+        self._grad_count = 0
+        return stepped
 
     def _get_loss(self, x: Tensor, target: Tensor, return_logits: bool = False) -> Tensor | tuple[Tensor, Tensor]:
         # AMP
@@ -268,7 +279,8 @@ class Trainer:
             for params, wd in zip(self._params, wd_groups, strict=True):
                 if len(params) > 0:
                     self.optimizer.add_param_group({"params": params, "weight_decay": wd})
-        self.optimizer.zero_grad()
+        self.optimizer.zero_grad(set_to_none=True)
+        self._grad_count = 0
 
     @torch.inference_mode()
     def evaluate(self):  # type: ignore[no-untyped-def]  # noqa: D102, ANN201
@@ -280,10 +292,11 @@ class Trainer:
 
     def _reset_scheduler(self, lr: float, num_epochs: int, sched_type: str = "onecycle", **kwargs: Any) -> None:
         self.scheduler: LRScheduler
+        num_steps = num_epochs * math.ceil(len(self.train_loader) / self.gradient_acc)
         if sched_type == "onecycle":
-            self.scheduler = OneCycleLR(self.optimizer, lr, num_epochs * len(self.train_loader), **kwargs)
+            self.scheduler = OneCycleLR(self.optimizer, lr, num_steps, **kwargs)
         elif sched_type == "cosine":
-            self.scheduler = CosineAnnealingLR(self.optimizer, num_epochs * len(self.train_loader), **kwargs)
+            self.scheduler = CosineAnnealingLR(self.optimizer, num_steps, **kwargs)
         else:
             raise ValueError(f"The following scheduler type is not supported: {sched_type}")
 
@@ -350,10 +363,11 @@ class Trainer:
            start_lr: initial learning rate
            end_lr: final learning rate
            norm_weight_decay: weight decay to apply to normalization parameters
-           num_it: number of iterations to perform
+           num_it: number of microbatches represented by the sweep; AMP overflow retries may consume more
 
         Raises:
             ValueError: if the number of iterations is greater than the number of available batches
+            RuntimeError: if AMP overflows exhaust the available batches before the sweep completes
         """
         if num_it > len(self.train_loader):
             raise ValueError("the value of `num_it` needs to be lower than the number of available batches")
@@ -361,35 +375,44 @@ class Trainer:
         freeze_model(self.model.train(), freeze_until)
         # Update param groups & LR
         self._reset_opt(start_lr, norm_weight_decay)
-        gamma = (end_lr / start_lr) ** (1 / (num_it - 1))
+        num_steps = math.ceil(num_it / self.gradient_acc)
+        gamma = (end_lr / start_lr) ** (1 / (num_steps - 1)) if num_steps > 1 else 1
         scheduler = MultiplicativeLR(self.optimizer, lambda step: gamma)
 
-        self.lr_recorder = [start_lr * gamma**idx for idx in range(num_it)]
+        self.lr_recorder = []
         self.loss_recorder = []
 
         if self.amp:
             self.scaler = GradScaler("cuda")
 
-        for batch_idx, (x, target) in enumerate(self.train_loader):
-            x, target = self.to_cuda(x, target)
+        batch_iter = iter(self.train_loader)
+        final_step_batches = num_it - self.gradient_acc * (num_steps - 1)
+        for step_idx in progress_bar(range(num_steps), total=num_steps):
+            step_batches = final_step_batches if step_idx == num_steps - 1 else self.gradient_acc
+            stepped = False
+            while not stepped:
+                accumulated_loss = 0.0
+                for batch_idx in range(step_batches):
+                    try:
+                        x, target = next(batch_iter)
+                    except StopIteration as exc:
+                        raise RuntimeError("LR finder ran out of batches while recovering from AMP overflow") from exc
+                    x, target = self.to_cuda(x, target)
 
-            # Forward
-            batch_loss: Tensor = self._get_loss(x, target)  # type: ignore[assignment]
-            self._backprop_step(batch_loss)
-            # Update LR
-            scheduler.step()
+                    # Forward
+                    batch_loss: Tensor = self._get_loss(x, target)  # type: ignore[assignment]
+                    if torch.isnan(batch_loss) or torch.isinf(batch_loss):
+                        if len(self.loss_recorder) == 0:
+                            raise ValueError("loss value is NaN or inf.")
+                        return
 
-            # Record
-            if torch.isnan(batch_loss) or torch.isinf(batch_loss):
-                if batch_idx == 0:
-                    raise ValueError("loss value is NaN or inf.")
-                break
-            self.loss_recorder.append(batch_loss.item())
-            # Stop after the number of iterations
-            if batch_idx + 1 == num_it:
-                break
+                    accumulated_loss += batch_loss.item()
+                    stepped = self._backprop_step(batch_loss, force=batch_idx == step_batches - 1)
 
-        self.lr_recorder = self.lr_recorder[: len(self.loss_recorder)]
+                if stepped:
+                    self.lr_recorder.append(float(self.optimizer.param_groups[0]["lr"]))
+                    self.loss_recorder.append(accumulated_loss / step_batches)
+                    scheduler.step()
 
     def plot_recorder(self, beta: float = 0.95, **kwargs: Any) -> None:
         """Display the results of the LR grid search
@@ -411,21 +434,10 @@ class Trainer:
             avg_loss = beta * avg_loss + (1 - beta) * loss
             smoothed_losses.append(avg_loss / (1 - beta ** (idx + 1)))
 
-        # Properly rescale Y-axis
-        data_slice = slice(
-            min(len(self.loss_recorder) // 10, 10),
-            -min(len(self.loss_recorder) // 20, 5) if len(self.loss_recorder) >= 20 else len(self.loss_recorder),
-        )
-        vals: np.ndarray = np.array(smoothed_losses[data_slice])
-        min_idx = vals.argmin()
-        max_val = vals.max() if min_idx is None else vals[: min_idx + 1].max()
-        delta = max_val - vals[min_idx]
-
-        plt.plot(self.lr_recorder[data_slice], smoothed_losses[data_slice])
+        plt.plot(self.lr_recorder, smoothed_losses)
         plt.xscale("log")
         plt.xlabel("Learning Rate")
         plt.ylabel("Training loss")
-        plt.ylim(vals[min_idx] - 0.1 * delta, max_val + 0.2 * delta)
         plt.grid(True, linestyle="--", axis="x")
         plt.show(**kwargs)
 
@@ -461,11 +473,11 @@ class Trainer:
         if self.amp:
             self.scaler = GradScaler("cuda")
 
-        for _ in range(num_it):
+        for idx in range(num_it):
             # Forward
             batch_loss: Tensor = self._get_loss(x, target)  # type: ignore[assignment]
             # Backprop
-            self._backprop_step(batch_loss)
+            self._backprop_step(batch_loss, force=idx + 1 == num_it)
 
             if torch.isnan(batch_loss) or torch.isinf(batch_loss):
                 raise ValueError("loss value is NaN or inf.")

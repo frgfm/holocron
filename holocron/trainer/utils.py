@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2025, François-Guillaume Fernandez.
+# Copyright (C) 2019-2026, François-Guillaume Fernandez.
 
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
@@ -108,7 +108,7 @@ def split_normalization_params(
     norm_params: list[nn.Parameter] = []
     other_params: list[nn.Parameter] = []
     for module in model.modules():
-        if next(module.children(), None):
+        if next(module.children(), None) is not None:
             other_params.extend(p for p in module.parameters(recurse=False) if p.requires_grad)
         elif isinstance(module, classes):
             norm_params.extend(p for p in module.parameters() if p.requires_grad)

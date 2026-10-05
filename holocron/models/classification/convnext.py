@@ -1,4 +1,4 @@
-# Copyright (C) 2022-2025, François-Guillaume Fernandez.
+# Copyright (C) 2022-2026, François-Guillaume Fernandez.
 
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
@@ -16,7 +16,7 @@ from torchvision.ops.stochastic_depth import StochasticDepth
 from holocron.nn import GlobalAvgPool2d
 
 from ..checkpoints import Checkpoint, _handle_legacy_pretrained
-from ..utils import _checkpoint, _configure_model, conv_sequence
+from ..utils import _checkpoint, _configure_model, _imagenette_recipe, conv_sequence
 from .resnet import _ResBlock
 
 __all__ = [
@@ -211,11 +211,7 @@ class ConvNeXt_Atto_Checkpoint(Enum):
         size=13535258,
         num_params=3377730,
         commit="d4a59999179b42fc0d3058ac6b76cc41f49dd56e",
-        train_args=(
-            "./imagenette2-320/ --arch convnext_atto --batch-size 64 --mixup-alpha 0.2 --amp --device 0 --epochs 100"
-            " --lr 1e-3 --label-smoothing 0.1 --random-erase 0.1 --train-crop-size 176 --val-resize-size 232"
-            " --opt adamw --weight-decay 5e-2"
-        ),
+        train_args=_imagenette_recipe("convnext_atto"),
     )
     DEFAULT = IMAGENETTE
 

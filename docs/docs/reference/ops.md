@@ -7,6 +7,8 @@
 
 ## Boxes
 
+![Four-panel comparison of IoU overlap, GIoU enclosing area, DIoU center distance, and CIoU aspect-ratio geometry using the same target and prediction boxes.](../img/box-iou-family.svg)
+
 ::: holocron.ops
     options:
         heading_level: 3

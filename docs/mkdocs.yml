@@ -1,5 +1,5 @@
 # Project information
-site_name: Holocron
+site_name: Holocron — development documentation
 site_url: https://frgfm.github.io/holocron
 site_description: PyTorch implementations of recent Computer Vision tricks (ReXNet, RepVGG, Unet3p, YOLOv4, CIoU loss, AdaBelief, PolyLoss, MobileOne).
 site_author: François-Guillaume Fernandez
@@ -74,9 +74,11 @@ plugins:
     sections:
       Getting started:
         - getting-started/installation.md
+        - getting-started/classification.md
         - getting-started/notebooks.md
       Package Reference:
         - reference/models/models.md
+        - reference/models/recognition.md
         - reference/nn.md
         - reference/ops.md
         - reference/optim.md
@@ -171,10 +173,15 @@ nav:
   - Home: index.md
   - Getting started:
     - getting-started/installation.md
+    - getting-started/classification.md
     - getting-started/notebooks.md
   - Package Reference:
     - Models:
       - reference/models/models.md
+      - YOLO26 detection: reference/models/detection/yolo26.md
+      - Text recognition: reference/models/recognition.md
+      - Semantic segmentation:
+        - reference/models/segmentation/yolo26.md
       - Classification:
         - reference/models/classification/resnet.md
         - reference/models/classification/resnext.md
@@ -190,6 +197,7 @@ nav:
         - reference/models/classification/darknetv4.md
         - reference/models/classification/repvgg.md
         - reference/models/classification/mobileone.md
+        - reference/models/classification/repvit.md
     - Layers: reference/nn.md
     - Operators: reference/ops.md
     - Optimizers: reference/optim.md

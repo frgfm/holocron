@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2025, François-Guillaume Fernandez.
+# Copyright (C) 2019-2026, François-Guillaume Fernandez.
 
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
@@ -117,24 +117,17 @@ class NormConv2d(_NormConvNd):
         )
 
     def forward(self, x: Tensor) -> Tensor:
+        padding = self.padding
         if self.padding_mode != "zeros":
-            return F.norm_conv2d(
-                pad(x, self._reversed_padding_repeated_twice, mode=self.padding_mode),
-                self.weight,
-                self.bias,
-                self.stride,  # type: ignore[arg-type]
-                _pair(0),
-                self.dilation,  # type: ignore[arg-type]
-                self.groups,
-                self.eps,
-            )
+            x = pad(x, self._reversed_padding_repeated_twice, mode=self.padding_mode)
+            padding = _pair(0)
         return F.norm_conv2d(
             x,
             self.weight,
             self.bias,
-            self.stride,  # type: ignore[arg-type]
-            self.padding,  # type: ignore[arg-type]
-            self.dilation,  # type: ignore[arg-type]
+            self.stride,
+            padding,
+            self.dilation,
             self.groups,
             self.eps,
         )
@@ -205,25 +198,17 @@ class Add2d(_NormConvNd):
         )
 
     def forward(self, x: Tensor) -> Tensor:
+        padding = self.padding
         if self.padding_mode != "zeros":
-            return F.add2d(
-                pad(x, self._reversed_padding_repeated_twice, mode=self.padding_mode),
-                self.weight,
-                self.bias,
-                self.stride,  # type: ignore[arg-type]
-                _pair(0),
-                self.dilation,  # type: ignore[arg-type]
-                self.groups,
-                self.normalize_slices,
-                self.eps,
-            )
+            x = pad(x, self._reversed_padding_repeated_twice, mode=self.padding_mode)
+            padding = _pair(0)
         return F.add2d(
             x,
             self.weight,
             self.bias,
-            self.stride,  # type: ignore[arg-type]
-            self.padding,  # type: ignore[arg-type]
-            self.dilation,  # type: ignore[arg-type]
+            self.stride,
+            padding,
+            self.dilation,
             self.groups,
             self.normalize_slices,
             self.eps,

@@ -1,22 +1,13 @@
 # Holocron training scripts
 
-This section is specific to train computer vision models.
-
-
 ## Installation
 
-### Prerequisites
-
-Python 3.8 (or higher) and [pip](https://pip.pypa.io/en/stable/) & [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) are required to install Holocron.
-
-
-### Developer mode
-
-In order to install the specific dependencies for training, you will have to install the package from source *(install [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) first)*:
+Use Python 3.11 or higher, [Git](https://git-scm.com/), and [uv](https://docs.astral.sh/uv/getting-started/installation/) to install the training dependencies:
 
 ```shell
 git clone https://github.com/frgfm/Holocron.git
-pip install -e "Holocron/.[training]"
+cd Holocron
+uv sync --locked --extra training
 ```
 
 ## Available tasks
@@ -32,3 +23,7 @@ Refer to the [`./segmentation`](segmentation) folder
 ### Object detection
 
 Refer to the [`./detection`](detection) folder
+
+### Character and text recognition
+
+Refer to the [`./recognition`](recognition) folder for a reproducible character-pretraining, CTC line-recognition, and synthetic-page OCR experiment.

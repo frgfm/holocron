@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2025, François-Guillaume Fernandez.
+# Copyright (C) 2019-2026, François-Guillaume Fernandez.
 
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
@@ -81,15 +81,16 @@ def focal_loss(
     Returns:
         loss reduced with `reduction` method
     """
+    # Accumulate dense losses in float32 for low-precision logits.
+    if x.dtype in {torch.float16, torch.bfloat16}:
+        x = x.float()
     # log(P[class]) = log_softmax(score)[class]
     logpt = F.log_softmax(x, dim=1)
 
     # Compute pt and logpt only for target classes (the remaining will have a 0 coefficient)
-    logpt = logpt.transpose(1, 0).flatten(1).gather(0, target.view(1, -1)).squeeze()
-    # Ignore index (set loss contribution to 0)
-    valid_idxs = torch.ones(target.view(-1).shape[0], dtype=torch.bool, device=x.device)
-    if ignore_index >= 0 and ignore_index < x.shape[1]:
-        valid_idxs[target.view(-1) == ignore_index] = False
+    valid_idxs = target.reshape(-1) != ignore_index
+    safe_target = target.reshape(-1).masked_fill(~valid_idxs, 0)
+    logpt = logpt.transpose(1, 0).flatten(1).gather(0, safe_target.unsqueeze(0)).squeeze(0)
 
     # Get P(class)
     pt = logpt.exp()
@@ -99,16 +100,16 @@ def focal_loss(
         # Tensor type
         if weight.type() != x.data.type():
             weight = weight.type_as(x.data)
-        logpt = weight.gather(0, target.data.view(-1)) * logpt
+        logpt = weight.gather(0, safe_target) * logpt
 
     # Loss
-    loss = cast(Tensor, -1 * (1 - pt) ** gamma * logpt)
+    loss = cast(Tensor, -1 * (1 - pt) ** gamma * logpt).masked_fill(~valid_idxs, 0)
 
     # Loss reduction
     if reduction == "sum":
         loss = loss[valid_idxs].sum()
     elif reduction == "mean":
-        loss = loss[valid_idxs].mean()
+        loss = loss.sum() / valid_idxs.sum().clamp_min(1)
     else:
         # if no reduction, reshape tensor like target
         loss = loss.view(*target.shape)
@@ -271,6 +272,7 @@ def mutual_channel_loss(
     reduction: str = "mean",
     xi: int = 2,
     alpha: float = 1.0,
+    training: bool = True,
 ) -> Tensor:
     """Implements the mutual channel loss from
     ["The Devil is in the Channels: Mutual-Channel Loss for Fine-Grained Image Classification"](https://arxiv.org/pdf/2002.04264.pdf).
@@ -283,23 +285,35 @@ def mutual_channel_loss(
         reduction: reduction method
         xi: num of features per class
         alpha: diversity factor
+        training: whether to randomly mask channels; evaluation uses all channels
 
     Returns:
         loss reduced with `reduction` method
+
+    Raises:
+        ValueError: if the number of channels is not a multiple of a positive xi
     """
+    # Accumulate dense losses in float32 for low-precision logits.
+    if x.dtype in {torch.float16, torch.bfloat16}:
+        x = x.float()
     # Flatten spatial dimension
     b, c = x.shape[:2]
     spatial_dims = x.shape[2:]
+    if xi < 1 or c % xi != 0:
+        raise ValueError("The number of channels must be a multiple of a positive xi")
     cnum = c // xi
-    x = x.view(b, cnum, xi, -1)
+    x = x.reshape(b, cnum, xi, -1)
+    valid = target != ignore_index
 
     # CWA
-    base_mask = torch.zeros(xi, device=x.device)
-    base_mask[: ceil(xi / 2)] = 1
-    chan_mask = torch.zeros((cnum, xi), device=x.device)
-    for idx in range(cnum):
-        chan_mask[idx] = base_mask[torch.randperm(xi)]
-    discr_out = x * chan_mask.view(1, cnum, xi, 1)
+    discr_out = x
+    if training:
+        base_mask = torch.zeros(xi, device=x.device)
+        base_mask[: ceil(xi / 2)] = 1
+        chan_mask = torch.zeros((cnum, xi), device=x.device)
+        for idx in range(cnum):
+            chan_mask[idx] = base_mask[torch.randperm(xi, device=x.device)]
+        discr_out = x.masked_fill(chan_mask.view(1, cnum, xi, 1) == 0, torch.finfo(x.dtype).min)
     # CCMP
     discr_out = discr_out.max(dim=2).values
     discr_out = discr_out.view(b, cnum, *spatial_dims)
@@ -307,19 +321,25 @@ def mutual_channel_loss(
     if isinstance(weight, torch.Tensor) and weight.type() != x.data.type():
         weight = weight.type_as(x.data)
 
-    discr_loss = F.cross_entropy(discr_out, target, weight, ignore_index=ignore_index, reduction=reduction)
+    if valid.any():
+        discr_loss = F.cross_entropy(discr_out, target, weight, ignore_index=ignore_index, reduction=reduction)
+    else:
+        discr_loss = (discr_out * 0).sum(dim=1)
+        if reduction != "none":
+            discr_loss = discr_loss.sum()
 
     # Softmax
-    div_out = F.softmax(x, dim=-1)
+    spatial_valid = valid.reshape(b, 1, 1, -1)
+    div_out = F.softmax(x.masked_fill(~spatial_valid, torch.finfo(x.dtype).min), dim=-1)
     # CCMP
     div_out = div_out.max(dim=2).values
 
-    diversity_loss = div_out.mean(dim=1)
+    diversity_loss = div_out.mean(dim=1).masked_fill(~valid.reshape(b, -1), 0)
 
     if reduction == "sum":
         diversity_loss = diversity_loss.sum()
     elif reduction == "mean":
-        diversity_loss = diversity_loss.mean()
+        diversity_loss = diversity_loss.sum() / valid.sum().clamp_min(1)
     else:
         diversity_loss = diversity_loss.view(b, *spatial_dims)
 
@@ -561,18 +581,21 @@ def poly_loss(
     """Implements the Poly1 loss from ["PolyLoss: A Polynomial Expansion Perspective of Classification Loss Functions"](https://arxiv.org/pdf/2204.12511.pdf).
 
     Args:
-        x: raw, unnormalized scores (logits) of shape [N, K, ...]; a log-softmax is applied internally
-        target: hard class indices of shape [N, ...] and dtype ``torch.int64``, or soft class probabilities of shape [N, K, ...]
+        x: raw logits of shape [N, K, ...]; log-softmax is applied internally
+        target: hard class indices of shape [N, ...] with dtype torch.int64, or floating-point
+            class probabilities with the same shape as x
         eps: epsilon 1 from the paper
         weight: manual rescaling of each class of shape [K]
-        ignore_index: specifies target value that is ignored and do not contribute to gradient
-        reduction: reduction method
+        ignore_index: class index excluded from sum/mean reduction; for hard targets it must be in
+            [0, K) if present in target. Out-of-range values, including -100, are not supported
+        reduction: reduction method; with hard targets, "none" returns a flat tensor and does not
+            zero ignored positions
 
     Returns:
         loss reduced with `reduction` method
 
     Raises:
-        TypeError: if the target dtype is not torch.int64
+        TypeError: if hard class-index targets do not have dtype torch.int64
         ValueError: if the target shape is invalid
     """
     # log(P[class]) = log_softmax(score)[class]
@@ -583,14 +606,9 @@ def poly_loss(
     if target.ndim == x.ndim - 1:
         if target.dtype != torch.long:
             raise TypeError("target dtype is expected to be torch.int64")
-        # Positions to ignore (their contribution to the loss & gradient is zeroed out below). This
-        # supports any `ignore_index`, including the default -100 which is out of the class range.
-        ignored_mask = target == ignore_index
-        # Replace ignored targets with a valid dummy class so `gather` stays in bounds
-        safe_target = target.masked_fill(ignored_mask, 0)
         # Compute pt and logpt only for target classes (the remaining will have a 0 coefficient)
         # Shape (N, ...)
-        logpt = logpt.transpose(1, 0).flatten(1).gather(0, safe_target.view(1, -1)).squeeze(0)
+        logpt = logpt.transpose(1, 0).flatten(1).gather(0, target.view(1, -1)).squeeze(0)
     else:
         if target.ndim != x.ndim or target.shape[0] != x.shape[0] or target.shape[1] != x.shape[1]:
             raise ValueError("invalid target shape")
@@ -606,17 +624,18 @@ def poly_loss(
         if weight.type() != x.data.type():
             weight = weight.type_as(x.data)
         if target.ndim == x.ndim - 1:
-            loss = weight.gather(0, safe_target.data.view(-1)) * loss
+            loss = weight.gather(0, target.data.view(-1)) * loss
         else:
             loss = weight.reshape(1, -1) * loss
 
     # Ignore index (set loss contribution to 0)
     if target.ndim == x.ndim - 1:
-        # Drop the samples whose target equals `ignore_index` (any value, including the default -100)
-        valid_idxs = ~ignored_mask.view(-1)
+        valid_idxs = torch.ones(target.view(-1).shape[0], dtype=torch.bool, device=x.device)
+        if ignore_index >= 0 and ignore_index < x.shape[1]:
+            valid_idxs[target.view(-1) == ignore_index] = False
     else:
         valid_idxs = torch.ones(target.shape[1], dtype=torch.bool, device=x.device)
-        if 0 <= ignore_index < x.shape[1]:
+        if ignore_index >= 0 and ignore_index < x.shape[1]:
             valid_idxs[ignore_index] = False
 
     # Loss reduction
@@ -624,10 +643,8 @@ def poly_loss(
         loss = loss[valid_idxs].sum() if target.ndim == x.ndim - 1 else loss[:, valid_idxs].sum()
     elif reduction == "mean":
         loss = loss[valid_idxs].mean() if target.ndim == x.ndim - 1 else loss[:, valid_idxs].sum(1).mean()
-    # if no reduction, keep a per-sample loss with ignored positions zeroed out
-    elif target.ndim == x.ndim - 1:
-        loss = loss.masked_fill(~valid_idxs, 0.0)
-    # reshape tensor like target -> (N, ...) for the soft-label case
+    # if no reduction, reshape tensor like target
+    # (N, ...)
     elif target.ndim == x.ndim:
         loss = loss[:, valid_idxs].sum(1)
 

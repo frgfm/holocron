@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2025, François-Guillaume Fernandez.
+# Copyright (C) 2019-2026, François-Guillaume Fernandez.
 
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
@@ -16,7 +16,7 @@ from torch import Tensor, nn
 from holocron.nn import GlobalAvgPool2d, init
 
 from ..checkpoints import Checkpoint, Dataset, _handle_legacy_pretrained
-from ..utils import _checkpoint, _configure_model, conv_sequence
+from ..utils import _checkpoint, _configure_model, _imagenette_recipe, conv_sequence
 
 __all__ = [
     "ReXBlock",
@@ -263,11 +263,7 @@ class ReXNet1_0x_Checkpoint(Enum):
         size=14351299,
         num_params=3527996,
         commit="d4a59999179b42fc0d3058ac6b76cc41f49dd56e",
-        train_args=(
-            "./imagenette2-320/ --arch rexnet1_0x --batch-size 64 --mixup-alpha 0.2 --amp --device 0 --epochs 100"
-            " --lr 1e-3 --label-smoothing 0.1 --random-erase 0.1 --train-crop-size 176 --val-resize-size 232"
-            " --opt adamw --weight-decay 5e-2"
-        ),
+        train_args=_imagenette_recipe("rexnet1_0x"),
     )
     DEFAULT = IMAGENET1K
 
@@ -282,7 +278,7 @@ def rexnet1_0x(
     ["ReXNet: Diminishing Representational Bottleneck on Convolutional Neural Network"](https://arxiv.org/pdf/2007.00992.pdf)
 
     Args:
-        pretrained: If True, returns a model pre-trained on ImageNet
+        pretrained: If True, returns a model pre-trained on ImageNet-1K
         checkpoint: If specified, the model's parameters will be set to the checkpoint's values
         progress: If True, displays a progress bar of the download to stderr
         kwargs: keyword args of [`ReXNet`][holocron.models.classification.rexnet.ReXNet]
@@ -325,11 +321,7 @@ class ReXNet1_3x_Checkpoint(Enum):
         size=23920480,
         num_params=5907848,
         commit="d4a59999179b42fc0d3058ac6b76cc41f49dd56e",
-        train_args=(
-            "./imagenette2-320/ --arch rexnet1_3x --batch-size 64 --mixup-alpha 0.2 --amp --device 0 --epochs 100"
-            " --lr 1e-3 --label-smoothing 0.1 --random-erase 0.1 --train-crop-size 176 --val-resize-size 232"
-            " --opt adamw --weight-decay 5e-2"
-        ),
+        train_args=_imagenette_recipe("rexnet1_3x"),
     )
     DEFAULT = IMAGENET1K
 
@@ -387,11 +379,7 @@ class ReXNet1_5x_Checkpoint(Enum):
         size=31625286,
         num_params=7825772,
         commit="d4a59999179b42fc0d3058ac6b76cc41f49dd56e",
-        train_args=(
-            "./imagenette2-320/ --arch rexnet1_5x --batch-size 64 --mixup-alpha 0.2 --amp --device 0 --epochs 100"
-            " --lr 1e-3 --label-smoothing 0.1 --random-erase 0.1 --train-crop-size 176 --val-resize-size 232"
-            " --opt adamw --weight-decay 5e-2"
-        ),
+        train_args=_imagenette_recipe("rexnet1_5x"),
     )
     DEFAULT = IMAGENET1K
 
@@ -449,11 +437,7 @@ class ReXNet2_0x_Checkpoint(Enum):
         size=55724412,
         num_params=13829854,
         commit="d4a59999179b42fc0d3058ac6b76cc41f49dd56e",
-        train_args=(
-            "./imagenette2-320/ --arch rexnet2_0x --batch-size 32 --grad-acc 2 --mixup-alpha 0.2 --amp --device 0"
-            " --epochs 100 --lr 1e-3 --label-smoothing 0.1 --random-erase 0.1 --train-crop-size 176"
-            " --val-resize-size 232 --opt adamw --weight-decay 5e-2"
-        ),
+        train_args=_imagenette_recipe("rexnet2_0x", batch_size=32),
     )
     DEFAULT = IMAGENET1K
 
@@ -499,11 +483,7 @@ class ReXNet2_2x_Checkpoint(Enum):
         size=67217933,
         num_params=16694966,
         commit="d4a59999179b42fc0d3058ac6b76cc41f49dd56e",
-        train_args=(
-            "./imagenette2-320/ --arch rexnet2_2x --batch-size 32 --grad-acc 2 --mixup-alpha 0.2 --amp --device 0"
-            " --epochs 100 --lr 1e-3 --label-smoothing 0.1 --random-erase 0.1 --train-crop-size 176"
-            " --val-resize-size 232 --opt adamw --weight-decay 5e-2"
-        ),
+        train_args=_imagenette_recipe("rexnet2_2x", batch_size=32),
     )
     DEFAULT = IMAGENETTE
 
@@ -518,7 +498,7 @@ def rexnet2_2x(
     ["ReXNet: Diminishing Representational Bottleneck on Convolutional Neural Network"](https://arxiv.org/pdf/2007.00992.pdf)
 
     Args:
-        pretrained: If True, returns a model pre-trained on ImageNette
+        pretrained: If True, returns a model pre-trained on Imagenette
         checkpoint: If specified, the model's parameters will be set to the checkpoint's values
         progress: If True, displays a progress bar of the download to stderr
         kwargs: keyword args of [`ReXNet`][holocron.models.classification.rexnet.ReXNet]

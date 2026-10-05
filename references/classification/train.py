@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2025, François-Guillaume Fernandez.
+# Copyright (C) 2019-2026, François-Guillaume Fernandez.
 
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
@@ -8,7 +8,6 @@
 import datetime
 import logging
 import math
-import os
 import time
 from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 from pathlib import Path
@@ -19,7 +18,6 @@ import torch
 import wandb
 from codecarbon import track_emissions
 from torch import nn
-from torch.utils.data import RandomSampler, SequentialSampler
 from torch.utils.data._utils.collate import default_collate
 from torchvision.datasets import CIFAR10, CIFAR100, ImageFolder
 from torchvision.transforms import v2 as T
@@ -28,8 +26,8 @@ from torchvision.transforms.v2.functional import InterpolationMode, to_pil_image
 from holocron.models import classification
 from holocron.models.presets import CIFAR10 as CIF10
 from holocron.models.presets import IMAGENETTE
-from holocron.optim import AdaBelief, AdamP, AdEMAMix
 from holocron.trainer import ClassificationTrainer
+from holocron.trainer._reference import add_loading_args, create_loader, create_optimizer
 from holocron.utils.data import Mixup
 from holocron.utils.misc import find_image_size
 
@@ -77,6 +75,7 @@ def plot_samples(images, targets, num_samples=8):
 def main(args):
     print(args)
 
+    torch.manual_seed(args.seed)
     torch.backends.cudnn.benchmark = True
 
     # Data loading
@@ -132,15 +131,8 @@ def main(args):
         if args.mixup_alpha > 0:
             mix = Mixup(len(train_set.classes), alpha=args.mixup_alpha)
             collate_fn = lambda batch: mix(*default_collate(batch))
-        train_loader = torch.utils.data.DataLoader(
-            train_set,
-            batch_size=args.batch_size,
-            drop_last=True,
-            sampler=RandomSampler(train_set),
-            num_workers=args.workers,
-            pin_memory=True,
-            worker_init_fn=worker_init_fn,
-            collate_fn=collate_fn,
+        train_loader = create_loader(
+            train_set, args, training=True, worker_init_fn=worker_init_fn, collate_fn=collate_fn
         )
 
         print(
@@ -175,15 +167,7 @@ def main(args):
             )
         num_classes = len(val_set.classes)
 
-        val_loader = torch.utils.data.DataLoader(
-            val_set,
-            batch_size=args.batch_size,
-            drop_last=False,
-            sampler=SequentialSampler(val_set),
-            num_workers=args.workers,
-            pin_memory=True,
-            worker_init_fn=worker_init_fn,
-        )
+        val_loader = create_loader(val_set, args, training=False, worker_init_fn=worker_init_fn)
 
         print(f"Validation set loaded in {time.time() - st:.2f}s ({len(val_set)} samples in {len(val_loader)} batches)")
 
@@ -192,23 +176,7 @@ def main(args):
     criterion = nn.CrossEntropyLoss(label_smoothing=args.label_smoothing)
 
     # Create the contiguous parameters.
-    model_params = [p for p in model.parameters() if p.requires_grad]
-    if args.opt == "sgd":
-        optimizer = torch.optim.SGD(model_params, args.lr, momentum=0.9, weight_decay=args.weight_decay)
-    elif args.opt == "radam":
-        optimizer = torch.optim.RAdam(
-            model_params, args.lr, betas=(0.95, 0.99), eps=1e-6, weight_decay=args.weight_decay
-        )
-    elif args.opt == "adamw":
-        optimizer = torch.optim.AdamW(model_params, args.lr, weight_decay=args.weight_decay)
-    elif args.opt == "adamp":
-        optimizer = AdamP(model_params, args.lr, betas=(0.95, 0.99), eps=1e-6, weight_decay=args.weight_decay)
-    elif args.opt == "adabelief":
-        optimizer = AdaBelief(model_params, args.lr, betas=(0.95, 0.99), eps=1e-6, weight_decay=args.weight_decay)
-    elif args.opt == "ademamix":
-        optimizer = AdEMAMix(
-            model_params, args.lr, betas=(0.95, 0.99, 0.9999), eps=1e-6, weight_decay=args.weight_decay
-        )
+    optimizer = create_optimizer(model, args)
 
     log_wb = lambda metrics: wandb.log(metrics) if args.wb else None
     trainer = ClassificationTrainer(
@@ -276,6 +244,7 @@ def main(args):
                 "loss": "crossentropy",
                 "label_smoothing": args.label_smoothing,
                 "mixup_alpha": args.mixup_alpha,
+                "seed": args.seed,
             },
         )
 
@@ -310,16 +279,8 @@ def get_parser():
     group.add_argument("--pretrained", action="store_true", help="Use pre-trained models from the modelzoo")
     group.add_argument("--output-file", default="./checkpoints/checkpoint.pth", help="path where to save")
     group.add_argument("--resume", default="", help="resume from checkpoint")
-    # Hardware
-    group = parser.add_argument_group("Hardware")
-    group.add_argument("--device", default=None, type=int, help="device")
-    group.add_argument("--amp", help="Use Automatic Mixed Precision", action="store_true")
-    # Data loading
-    group = parser.add_argument_group("Data loading")
-    group.add_argument("-b", "--batch-size", default=32, type=int, help="batch size")
-    group.add_argument(
-        "-j", "--workers", default=min(os.cpu_count(), 16), type=int, help="number of data loading workers"
-    )
+    group.add_argument("--seed", default=0, type=int, help="random seed")
+    add_loading_args(parser)
     # Transformations
     group = parser.add_argument_group("Transformations")
     group.add_argument("--train-crop-size", default=176, type=int, help="training image size")

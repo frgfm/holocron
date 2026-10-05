@@ -23,7 +23,7 @@ DOCKER_TAG ?= latest
 DOCKER_PLATFORM ?= linux/amd64
 PYTHON_REQ_FILE = /tmp/requirements.txt
 
-.PHONY: help install install-quality lint-check lint-format precommit typing-check deps-check model-zoo model-zoo-check quality style init-gh-labels init-gh-settings install-mintlify start-mintlify
+.PHONY: help install install-quality lint-check lint-format headers-check headers-fix precommit typing-check deps-check quality style init-gh-labels init-gh-settings install-mintlify start-mintlify
 
 help: ## Show this help message
 	@echo "Available commands:"
@@ -37,7 +37,7 @@ venv:
 	uv venv --python 3.11
 
 install: ${PY_DIR} ${PYPROJECT_FILE} ## Install the core library
-	uv pip install -e ${PY_DIR}
+	uv sync --locked --no-dev
 
 set-version: ${GLOBAL_PYPROJECT} ${BACKEND_PYPROJECT} ## Set the version in the pyproject.toml file
 	uv version --frozen --no-build ${BUILD_VERSION}
@@ -49,7 +49,7 @@ set-version: ${GLOBAL_PYPROJECT} ${BACKEND_PYPROJECT} ## Set the version in the 
 
 
 install-quality: ${PY_DIR} ${PYPROJECT_FILE} ## Install with quality dependencies
-	uv pip install -e '${PY_DIR}[quality]'
+	uv sync --locked --extra quality
 
 lint-check: ${PYPROJECT_FILE} ## Check code formatting and linting
 	ruff check . --config ${PYPROJECT_FILE}
@@ -63,19 +63,19 @@ precommit: ${PYPROJECT_FILE} .pre-commit-config.yaml ## Run pre-commit hooks
 	prek run --all-files
 
 typing-check: ${PYPROJECT_FILE} ## Check type annotations
-	uv run ty check .
+	uv run --no-sync ty check .
+
+headers-check: ${PYPROJECT_FILE} ## Check Python copyright and license headers
+	uv run --no-sync lmh check
+
+headers-fix: ${PYPROJECT_FILE} ## Refresh recognized stale copyright years
+	uv run --locked --extra quality lmh fix
 
 deps-check: .github/verify_deps_sync.py ## Check dependency synchronization
 	uv run --script .github/verify_deps_sync.py
 
-model-zoo: .github/generate_model_zoo.py ## Regenerate the pretrained model-zoo table in README & docs
-	uv run --script .github/generate_model_zoo.py
-
-model-zoo-check: .github/generate_model_zoo.py ## Check the model-zoo table is in sync with checkpoint metadata
-	uv run --script .github/generate_model_zoo.py --check
-
 # this target runs checks on all files
-quality: lint-check typing-check deps-check model-zoo-check ## Run all quality checks
+quality: lint-check typing-check headers-check deps-check ## Run all quality checks
 
 style: precommit ## Format code and run pre-commit hooks
 
@@ -94,20 +94,20 @@ publish: ${PY_DIR} ## Publish the package to PyPI
 ########################################################
 
 install-test: ${PY_DIR} ${PYPROJECT_FILE} ## Install with test dependencies
-	uv pip install -e '${PY_DIR}[test]'
+	uv sync --locked --extra test
 
 test: ${PYPROJECT_FILE} ## Run the tests
-	uv run pytest --cov-report xml
+	uv run --no-sync pytest --cov-report xml
 
 ########################################################
 # Scripts
 ########################################################
 
 install-scripts: ${PY_DIR} ${PYPROJECT_FILE} ## Install with test dependencies
-	uv pip install -e '${PY_DIR}[scripts]'
+	uv sync --locked --extra scripts
 
 bench-latency: ${PYPROJECT_FILE} ${LATENCY_SCRIPT} ## Run the tests
-	uv run python ${LATENCY_SCRIPT} rexnet1_0x
+	uv run --no-sync python ${LATENCY_SCRIPT} rexnet1_0x
 
 
 ########################################################
@@ -115,7 +115,7 @@ bench-latency: ${PYPROJECT_FILE} ${LATENCY_SCRIPT} ## Run the tests
 ########################################################
 
 install-docs: ${PYPROJECT_FILE}
-	uv pip install -e ".[docs]"
+	uv sync --locked --extra docs
 
 # Build documentation for current version
 serve-docs: ${DOCS_DIR}
@@ -123,7 +123,7 @@ serve-docs: ${DOCS_DIR}
 
 # Check that docs can build
 build-docs: ${DOCS_DIR}
-	DYLD_FALLBACK_LIBRARY_PATH=/opt/homebrew/lib uv run mkdocs build -f ${DOCS_DIR}/mkdocs.yml
+	DYLD_FALLBACK_LIBRARY_PATH=/opt/homebrew/lib uv run --no-sync mkdocs build -f ${DOCS_DIR}/mkdocs.yml
 
 push-docs: ${DOCS_DIR}
 	DYLD_FALLBACK_LIBRARY_PATH=/opt/homebrew/lib uv run mkdocs gh-deploy -f ${DOCS_DIR}/mkdocs.yml --force
@@ -176,4 +176,4 @@ stop-backend: ${BACKEND_DIR}
 	docker stop ${DOCKER_NAMESPACE}/${REPO_NAME}-backend:${DOCKER_TAG}
 
 test-backend:  ${BACKEND_DIR}/tests
-	uv --project ${BACKEND_DIR} --directory ${BACKEND_DIR} run pytest
+	uv --directory ${BACKEND_DIR} run pytest

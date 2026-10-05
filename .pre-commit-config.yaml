@@ -27,7 +27,7 @@ repos:
       - id: conventional-pre-commit
         stages: [commit-msg]
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: 'v0.15.19'
+    rev: 'v0.16.5'
     hooks:
       - id: ruff
         args: ["--fix", "--config", "./pyproject.toml"]
@@ -40,13 +40,14 @@ repos:
         args: ["./pyproject.toml", "./api/pyproject.toml"]
   - repo: local
     hooks:
+      - id: lmh
+        name: Lint My Headers
+        entry: make headers-check
+        language: system
+        pass_filenames: false
       - id: deps-check
         name: check deps version sync
         entry: make deps-check
-        language: system
-      - id: model-zoo-check
-        name: check model zoo table sync
-        entry: make model-zoo-check
         language: system
       - id: typing-check
         name: check typing

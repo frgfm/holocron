@@ -1,0 +1,48 @@
+{
+  "checkpoint_epoch": 9,
+  "checkpoint_sha256": "293d29e0bec44a5d6bed886074a54f07178544946b7b3568eb16a21926e5fdf0",
+  "conditions": [
+    {
+      "by_content": {
+        "fields": {"cer": 0.00511820619059225, "exact": 0.928},
+        "random": {"cer": 0.06415384615384616, "exact": 0.4961832061068702}
+      },
+      "cer": 0.041309063472602096,
+      "deskew": false,
+      "exact_match": 0.70703125,
+      "seconds": 6.686568082999884
+    },
+    {
+      "by_content": {
+        "fields": {"cer": 0.005849378503534, "exact": 0.912},
+        "random": {"cer": 0.03353846153846154, "exact": 0.6335877862595419}
+      },
+      "cer": 0.02282372913326417,
+      "deskew": 4,
+      "exact_match": 0.76953125,
+      "seconds": 7.077109992000032
+    },
+    {
+      "by_content": {
+        "fields": {"cer": 0.004874482086278333, "exact": 0.932},
+        "random": {"cer": 0.03353846153846154, "exact": 0.6259541984732825}
+      },
+      "cer": 0.022446477412053193,
+      "deskew": 6,
+      "exact_match": 0.775390625,
+      "seconds": 7.307939386000044
+    },
+    {
+      "by_content": {
+        "fields": {"cer": 0.00511820619059225, "exact": 0.928},
+        "random": {"cer": 0.03584615384615385, "exact": 0.6068702290076335}
+      },
+      "cer": 0.023955484296897103,
+      "deskew": 8,
+      "exact_match": 0.763671875,
+      "seconds": 6.943759964000037
+    }
+  ],
+  "dataset": {"augment": true, "font_split": "training families only", "max_length": 48, "samples": 512, "seed": 100001},
+  "minimum_concentration_gain": 1.03
+}

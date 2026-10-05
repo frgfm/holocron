@@ -1,0 +1,328 @@
+{
+  "alphabet": "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz .,;:!?-+/=()@%$#'\"_&",
+  "beam_width": 0,
+  "benchmarks": {
+    "seen_clean": {
+      "by_content": {
+        "fields": {
+          "cer": 0.0004973887092762995,
+          "character_errors": 4,
+          "characters": 8042,
+          "errors": [
+            {"prediction": "Total: BOZK9lbtpMqf", "reference": "Total: BOZK9IbtpMqf"},
+            {"prediction": "Invoice: 7I8IP7TovE", "reference": "Invoice: 7l8IP7TovE"},
+            {"prediction": "Invoice: 5M6aUxpyJ8R", "reference": "Invoice: 5M6aUxpyJJ8R"},
+            {"prediction": "Reference: fc6GLXn2", "reference": "Reference: fc6GLxn2"}
+          ],
+          "exact_match": 0.9919191919191919,
+          "samples": 495,
+          "wer": 0.00404040404040404,
+          "word_errors": 4,
+          "words": 990
+        },
+        "random": {
+          "cer": 0.009459795867562858,
+          "character_errors": 114,
+          "characters": 12051,
+          "errors": [
+            {"prediction": "J1?UGueQlZfMj3Wz eYsh?UvlPd3?\"otAS", "reference": "J1?UGueQIZfMj3Wz eYsh?UvIPd3?\"otAS"},
+            {"prediction": "=t&q0O05veb;nk5p;Pq15", "reference": "=t&qOO5veb;nk5p;Pq15"},
+            {"prediction": "sV/lCTg!-8WDm+eweWl.h9#k_+(", "reference": "sV/lCTg!'-8WDm+eweWl.h9#k_+("},
+            {"prediction": "n6/!z\"JyvAriV%FifpCgaK/bT/!wnZ'otj )5NEqYnN", "reference": "n6/!z\"JyvAriV%FifpC'gaK/bT/!wnZ'otj )5NEqYnN"},
+            {"prediction": "Y0K'Wt8/E'-jhz$bft,;y?J&qjR;M4Tp,3Mx_1la3INw@ +nO.", "reference": "Y0K'Wt8/E'-jhz$bft,;y?J&qjR;M4Tp,3Mx_1a31Nw@+nO."}
+          ],
+          "exact_match": 0.8336633663366336,
+          "samples": 505,
+          "wer": 0.15552099533437014,
+          "word_errors": 100,
+          "words": 643
+        }
+      },
+      "cer": 0.005872691982282387,
+      "character_errors": 118,
+      "characters": 20093,
+      "errors": [
+        {"prediction": "J1?UGueQlZfMj3Wz eYsh?UvlPd3?\"otAS", "reference": "J1?UGueQIZfMj3Wz eYsh?UvIPd3?\"otAS"},
+        {"prediction": "=t&q0O05veb;nk5p;Pq15", "reference": "=t&qOO5veb;nk5p;Pq15"},
+        {"prediction": "sV/lCTg!-8WDm+eweWl.h9#k_+(", "reference": "sV/lCTg!'-8WDm+eweWl.h9#k_+("},
+        {"prediction": "n6/!z\"JyvAriV%FifpCgaK/bT/!wnZ'otj )5NEqYnN", "reference": "n6/!z\"JyvAriV%FifpC'gaK/bT/!wnZ'otj )5NEqYnN"},
+        {"prediction": "Y0K'Wt8/E'-jhz$bft,;y?J&qjR;M4Tp,3Mx_1la3INw@ +nO.", "reference": "Y0K'Wt8/E'-jhz$bft,;y?J&qjR;M4Tp,3Mx_1a31Nw@+nO."}
+      ],
+      "exact_match": 0.912,
+      "families": ["IBM Plex Mono", "Lora", "Montserrat", "Noto Sans", "Open Sans", "PT Serif", "Roboto Mono", "Source Sans 3"],
+      "fonts": [
+        {"file": "Montserrat.ttf", "sha256": "0f7b311b2f3279e4eef9b2f968bcdbab6e28f4daeb1f049f4f278a902bcd82f7"},
+        {"file": "Lora.ttf", "sha256": "822a6621ccbe8d97d20ac88c1c41f5615c9c2c202eaa75f272cd452aac6475a7"},
+        {"file": "RobotoMono.ttf", "sha256": "66a80e79d17e4c7cabd162e2916578a4cc08fd19eef6e2a643305eae9c567b2b"},
+        {"file": "NotoSans.ttf", "sha256": "bfb7bb691513f12e734dc346c03a03f784912432d7e3fa8e56efcf906fe86b3d"},
+        {"file": "OpenSans.ttf", "sha256": "36643644f318a812aab2d2ed3bb98f8cf0872527f835fe9398d95fe6b9adb878"},
+        {"file": "SourceSans3.ttf", "sha256": "042fe2cc0b933e328410d7acbd0aa6a1873dca5aef81875f4bc214b08825c7b9"},
+        {"file": "IBMPlexMono.ttf", "sha256": "6a3412f058c7d8dfd9170c41e85ade48e5156ecb89356110ca57a0a27734af46"},
+        {"file": "PTSerif.ttf", "sha256": "a4951fade06ff8f09b7673aa81ffb65a8cd409e24d3289a6dc670bc4dda2557a"}
+      ],
+      "samples": 1000,
+      "wer": 0.06368646662584201,
+      "word_errors": 104,
+      "words": 1633
+    },
+    "seen_clean_pages": {
+      "cer": 0.005170096163788647,
+      "character_errors": 50,
+      "characters": 9671,
+      "errors": [
+        {"prediction": "Email: TITWlADE\nr9J=a3_8!6\nEmail: ZZJ32y\nix,Spg8U4n-i:+kFd\"T\nEmail: 2027-02-25", "reference": "Email: TITWlADE\nr9J=a3 _8!6\nEmail: ZZJ32y\nix,Spg8U4n-i:+kFd\"T\nEmail: 2027-02-25"},
+        {"prediction": "Email: 2024-11-17\nReference: 8061.32\n6_+aum3V:oOJ(FN\n=wi4=ejQRj=C_.X_0-C:'#mDYBuH9krFAa'\ni;.\"' Hf,!%-7I;0XAUDvwBS@L(.S(/29LB0xWgaFhAt", "reference": "Email: 2024-11-17\nReference: 8061.32\n6_+aum3V:oOJ(FN\n=wi4=ejQRj=C_.X_0-C:'#mDYBuH9krFAa'\ni;.\" Hf,!%-7I;0XAUDvwBS@L(.S(/29LB0xWgaFhAt"},
+        {"prediction": "4V& oGQ090Qz\"Z-9WM,VVfNKR!MDEW\"7Pj65d9MCWVFwP\nInvoice: 7262.14\nLZ4xneYbZ!nzp6jPaq0vm;++\nAmount: 2029-05-24\nJ'g6oU0f!)=xA=)\"6hgAw74g\nW3ku", "reference": "4V& oGQ090Qz\"Z-9WM,VVfNKR! MDEW\"7Pj65d9MCWVFwP\nInvoice: 7262.14\nLZ4xneYbZ!nzp6jPaq0vm;++\nAmount: 2029-05-24\nJ'g6oU0f!)=xA=)\"6hgAw74g\nW3ku"},
+        {"prediction": "Total: 4847.85\nAccount: yWlqWKwXoP\nTotal: 6869.14\nTotal: 2026-01-10", "reference": "Total: 4847.85\nAccount: yWlJqWKwXoP\nTotal: 6869.14\nTotal: 2026-01-10"},
+        {"prediction": "Reference: 4880.91\nTotal: UXMH\nkf;7VBfLQJl8+D\nTqCB$fWmoB8_lXXG,d#I\nIN@(dg7gtXJ.Dx?m%wmDQqI8Nf69=bMTON", "reference": "Reference: 4880.91\nTotal: UXMH\nkf;7VBfLQJl8+D\nTqCB$fWmoB8_lXXG,d#I\nlN@(dg7gtXJ.Dx?m%wmDQq18Nf69=bMTON"}
+      ],
+      "exact_match": 0.66,
+      "line_count_errors": 0,
+      "samples": 100,
+      "wer": 0.0636237897648686,
+      "word_errors": 46,
+      "words": 723
+    },
+    "seen_degraded": {
+      "by_content": {
+        "fields": {
+          "cer": 0.0031086794329768714,
+          "character_errors": 25,
+          "characters": 8042,
+          "errors": [
+            {"prediction": "Email: 2020-10-2", "reference": "Email: 2020-10-21"},
+            {"prediction": "Balance: gEKxPul0pU", "reference": "Balance: gEKxPulOpU"},
+            {"prediction": "Balance: O7vqI", "reference": "Balance: O7vql"},
+            {"prediction": "Account: 116727", "reference": "Account: 1167.27"},
+            {"prediction": "Email: 410148", "reference": "Email: 4191.48"}
+          ],
+          "exact_match": 0.9616161616161616,
+          "samples": 495,
+          "wer": 0.01919191919191919,
+          "word_errors": 19,
+          "words": 990
+        },
+        "random": {
+          "cer": 0.019998340386689902,
+          "character_errors": 241,
+          "characters": 12051,
+          "errors": [
+            {"prediction": "7dKFY4=4_EX8ed#:dvI%XLu;o(.YK A5eSg1WM", "reference": "7dKFY4=4_EX8ed#:dvl%XLu;o(.YK A5esg1WM"},
+            {"prediction": "J1?UGueQlZfMj3Wz eYsh?UvIPd3?\"otAS", "reference": "J1?UGueQIZfMj3Wz eYsh?UvIPd3?\"otAS"},
+            {"prediction": "=t&q005veb;nk5p;Pq15", "reference": "=t&qOO5veb;nk5p;Pq15"},
+            {"prediction": "2iufq& pO?%koZ8AsbgM", "reference": "2iufq& p0?%koZ8AsbgM"},
+            {"prediction": "8Mv%0O%W1!5lo ;wc,VxmFWTT", "reference": "8Mv%0O%W1!5lo ;wc,VxmFWT"}
+          ],
+          "exact_match": 0.7346534653465346,
+          "samples": 505,
+          "wer": 0.24572317262830481,
+          "word_errors": 158,
+          "words": 643
+        }
+      },
+      "cer": 0.01323844124819589,
+      "character_errors": 266,
+      "characters": 20093,
+      "errors": [
+        {"prediction": "7dKFY4=4_EX8ed#:dvI%XLu;o(.YK A5eSg1WM", "reference": "7dKFY4=4_EX8ed#:dvl%XLu;o(.YK A5esg1WM"},
+        {"prediction": "J1?UGueQlZfMj3Wz eYsh?UvIPd3?\"otAS", "reference": "J1?UGueQIZfMj3Wz eYsh?UvIPd3?\"otAS"},
+        {"prediction": "=t&q005veb;nk5p;Pq15", "reference": "=t&qOO5veb;nk5p;Pq15"},
+        {"prediction": "2iufq& pO?%koZ8AsbgM", "reference": "2iufq& p0?%koZ8AsbgM"},
+        {"prediction": "8Mv%0O%W1!5lo ;wc,VxmFWTT", "reference": "8Mv%0O%W1!5lo ;wc,VxmFWT"}
+      ],
+      "exact_match": 0.847,
+      "families": ["IBM Plex Mono", "Lora", "Montserrat", "Noto Sans", "Open Sans", "PT Serif", "Roboto Mono", "Source Sans 3"],
+      "fonts": [
+        {"file": "Montserrat.ttf", "sha256": "0f7b311b2f3279e4eef9b2f968bcdbab6e28f4daeb1f049f4f278a902bcd82f7"},
+        {"file": "Lora.ttf", "sha256": "822a6621ccbe8d97d20ac88c1c41f5615c9c2c202eaa75f272cd452aac6475a7"},
+        {"file": "RobotoMono.ttf", "sha256": "66a80e79d17e4c7cabd162e2916578a4cc08fd19eef6e2a643305eae9c567b2b"},
+        {"file": "NotoSans.ttf", "sha256": "bfb7bb691513f12e734dc346c03a03f784912432d7e3fa8e56efcf906fe86b3d"},
+        {"file": "OpenSans.ttf", "sha256": "36643644f318a812aab2d2ed3bb98f8cf0872527f835fe9398d95fe6b9adb878"},
+        {"file": "SourceSans3.ttf", "sha256": "042fe2cc0b933e328410d7acbd0aa6a1873dca5aef81875f4bc214b08825c7b9"},
+        {"file": "IBMPlexMono.ttf", "sha256": "6a3412f058c7d8dfd9170c41e85ade48e5156ecb89356110ca57a0a27734af46"},
+        {"file": "PTSerif.ttf", "sha256": "a4951fade06ff8f09b7673aa81ffb65a8cd409e24d3289a6dc670bc4dda2557a"}
+      ],
+      "samples": 1000,
+      "wer": 0.10838946723821188,
+      "word_errors": 177,
+      "words": 1633
+    },
+    "seen_degraded_pages": {
+      "cer": 0.015613690414641713,
+      "character_errors": 151,
+      "characters": 9671,
+      "errors": [
+        {"prediction": "w1b MhaqbEXN/nhS,dUi3+:Qt3-zu2%ts#P!0/rAb=--c\nUjGQxafiL0MRjbP\"_C%VgfL)Gr\n?Hpmi9iwS\nBalance: 2029-03-07", "reference": "w1b MhaqbEXN/nhS,dUi3+:Qt3=zu2%ts#P!0/rAb=-c\nUjGQxafiL0MRjbP\"_C%VgfL)Gr\n?Hpmi9iwS\nBalance: 2029-03-07"},
+        {"prediction": "Email: TITWlADE\nr9J=a3_8!6\nEmail: ZZJ32y\nix,Spg8U4n-i:+kFd\"T\nEmail: 2027-02-25", "reference": "Email: TITWlADE\nr9J=a3 _8!6\nEmail: ZZJ32y\nix,Spg8U4n-i:+kFd\"T\nEmail: 2027-02-25"},
+        {"prediction": "RGkidnH9fjHgYrVABL:%o3a\nReference: 1429.02\nAccount: 9404.45\n,!M?%iOaJ'YcF@p4 Q", "reference": "G-s$GkidnR9fjHgYrVABt:%9aV\nReference: 1429.02\nAccount: 9404.45\n,!M?%iOaJ'YcF@p4 Q"},
+        {"prediction": "Email: 2024-11-17\nReference: 8061.32\n6_+aum3V:oOJ(FN\nI4=eQHI=QX0-C:\"#mUYBUH9KfHAa\ni;.\"Hf,!%-7I;0XAUDvwBS@L(.S(/29LB0xWgaFhAt", "reference": "Email: 2024-11-17\nReference: 8061.32\n6_+aum3V:oOJ(FN\n=wi4=ejQRj=C_.X_0-C:'#mDYBuH9krFAa'\ni;.\" Hf,!%-7I;0XAUDvwBS@L(.S(/29LB0xWgaFhAt"},
+        {"prediction": "4V& oGQ090Qz\"Z-9WM,VVfNKR!MDEW\"7Pj65d9MCWVFwP\nInvoice: 7262.14\nLZ4xneYbZ!nzp6jPaq0vm;++\nAmount: 2029-05-24\nJ'g6oU0f!)=xA=)\"6hgAw74g\nW3ku", "reference": "4V& oGQ090Qz\"Z-9WM,VVfNKR! MDEW\"7Pj65d9MCWVFwP\nInvoice: 7262.14\nLZ4xneYbZ!nzp6jPaq0vm;++\nAmount: 2029-05-24\nJ'g6oU0f!)=xA=)\"6hgAw74g\nW3ku"}
+      ],
+      "exact_match": 0.41,
+      "line_count_errors": 0,
+      "samples": 100,
+      "wer": 0.12171507607192254,
+      "word_errors": 88,
+      "words": 723
+    },
+    "unseen_clean": {
+      "by_content": {
+        "fields": {
+          "cer": 0.0037304153195722458,
+          "character_errors": 30,
+          "characters": 8042,
+          "errors": [
+            {"prediction": "Email: iff", "reference": "Email: iIf"},
+            {"prediction": "Total: izF1k9PRB", "reference": "Total: iIzF1k9PRB"},
+            {"prediction": "Account:1626.47", "reference": "Account: 1626.47"},
+            {"prediction": "Invoice:C4BcTpTo3c", "reference": "Invoice: C4BcTpTo3c"},
+            {"prediction": "Date: X4p0cLjwfK7t", "reference": "Date: X4p0cLjwK7t"}
+          ],
+          "exact_match": 0.9434343434343434,
+          "samples": 495,
+          "wer": 0.03333333333333333,
+          "word_errors": 33,
+          "words": 990
+        },
+        "random": {
+          "cer": 0.019500456393660277,
+          "character_errors": 235,
+          "characters": 12051,
+          "errors": [
+            {"prediction": "J1?UGueQIZfMj3Wz eYsh?UvlPd3?\"otAS", "reference": "J1?UGueQIZfMj3Wz eYsh?UvIPd3?\"otAS"},
+            {"prediction": "yjO#88z(VQsj2N k0\"'krA18rr-j5z", "reference": "yjO#88z(VQsjZN k0\"krA18rr-j5z"},
+            {"prediction": "V%ftx_AUWYQdm+3s2n/bnb2", "reference": "V%ffx_AUMYQdm+3s2n/bnb2"},
+            {"prediction": "NsfT8@oCGc:3kL.1C@:xz&J7Z", "reference": "NsfT8@oCGc:3kl.1C@:xz&J7Z"},
+            {"prediction": "8Mv%OO%W1!5lo;wc,VxmFWT", "reference": "8Mv%0O%W1!5lo ;wc,VxmFWT"}
+          ],
+          "exact_match": 0.6554455445544555,
+          "samples": 505,
+          "wer": 0.3265940902021773,
+          "word_errors": 210,
+          "words": 643
+        }
+      },
+      "cer": 0.013188672672074853,
+      "character_errors": 265,
+      "characters": 20093,
+      "errors": [
+        {"prediction": "J1?UGueQIZfMj3Wz eYsh?UvlPd3?\"otAS", "reference": "J1?UGueQIZfMj3Wz eYsh?UvIPd3?\"otAS"},
+        {"prediction": "yjO#88z(VQsj2N k0\"'krA18rr-j5z", "reference": "yjO#88z(VQsjZN k0\"krA18rr-j5z"},
+        {"prediction": "V%ftx_AUWYQdm+3s2n/bnb2", "reference": "V%ffx_AUMYQdm+3s2n/bnb2"},
+        {"prediction": "Email: iff", "reference": "Email: iIf"},
+        {"prediction": "NsfT8@oCGc:3kL.1C@:xz&J7Z", "reference": "NsfT8@oCGc:3kl.1C@:xz&J7Z"}
+      ],
+      "exact_match": 0.798,
+      "families": ["Noto Serif", "Ubuntu"],
+      "fonts": [
+        {"file": "NotoSerif.ttf", "sha256": "4d8e6761424656867019081a1a01336f3cb086982682698714054fc33f782713"},
+        {"file": "Ubuntu.ttf", "sha256": "3128df86a31805618436d0ae5651ba4285d0c9de0a39057d025f64ee33bceb64"}
+      ],
+      "samples": 1000,
+      "wer": 0.14880587875076545,
+      "word_errors": 243,
+      "words": 1633
+    },
+    "unseen_clean_pages": {
+      "cer": 0.014269465412056665,
+      "character_errors": 138,
+      "characters": 9671,
+      "errors": [
+        {"prediction": "w1b MhaqbEXN/nhS,dUi3+:Qt3=zu2%ts#P!O/rAb=-c\nUjGQxafL0MRjbP\"_C%VgfL)Gr\n?Hpmi9iwS\nBalance: 2029-03-07", "reference": "w1b MhaqbEXN/nhS,dUi3+:Qt3=zu2%ts#P!0/rAb=-c\nUjGQxafiL0MRjbP\"_C%VgfL)Gr\n?Hpmi9iwS\nBalance: 2029-03-07"},
+        {"prediction": "/gTgm;Px9dn8LW_8G(7Ch?OWixWFe\notASxYOBT!GP$zda$LMEooB/sAc.Ysr:$gF6m.?G\n-\"v hUh!gjLs8-.QtMZ&JlD\nAmount: JosqMVXb\nLxKX$ (k@fr%.xAKZ%xL5R@#s/", "reference": "/gTgm;Px9dn8LW_8G(7Ch?0WixWFe\notASxYOBT!GP$zda$LMEooB/sAc.Ysr.$gF6m.?G\n-\"v hUh!gjLs8-.QtMZ&JlD\nAmount: JosqMVXb\nLxKX$ (k@fr%.xAKZ%xL5R@#s/"},
+        {"prediction": "oDb-neDL;LTN\nlzNkX18 h+vy,N8OHnAdln/)x+ ?oZ?s(WLw$8G;Fc(FP6S\nEmail: 5349.34\nlhn\nInvoice: BVRaRw\nTotal: Sqh3bI9Wkxe", "reference": "oDb-neDL;LTN\nlzNkX18 h+vy,N8OHnxAdln/)x+ ?oZ?s(WLw$8G;Fc(FP6S\nEmail: 5349.34\nhn\nInvoice: BVRaRw\nTotal: Sqh3bI9Wkxe"},
+        {"prediction": "Email: 2024-11-17\nReference: 8061.32\n6_+aum3V:oOJ(FN\n=wi4=ejQRj=C_.X_0-C:'#mDYBuH9krFAa'\ni;.\"Hf,!%-7I;OXAUDvwBS@L(.S(/29LBOxWgaFhAt", "reference": "Email: 2024-11-17\nReference: 8061.32\n6_+aum3V:oOJ(FN\n=wi4=ejQRj=C_.X_0-C:'#mDYBuH9krFAa'\ni;.\" Hf,!%-7I;0XAUDvwBS@L(.S(/29LB0xWgaFhAt"},
+        {"prediction": "Date: IH7M8m\nReference: 2023-04-23\nTotal: 2022-03-14\nAccount: 2027-11-14", "reference": "Date: H7M8n\nReference: 2023-04-23\nTotal: 2022-03-14\nAccount: 2027-11-14"}
+      ],
+      "exact_match": 0.35,
+      "line_count_errors": 0,
+      "samples": 100,
+      "wer": 0.15767634854771784,
+      "word_errors": 114,
+      "words": 723
+    },
+    "unseen_degraded": {
+      "by_content": {
+        "fields": {
+          "cer": 0.00435215120616762,
+          "character_errors": 35,
+          "characters": 8042,
+          "errors": [
+            {"prediction": "Accout: 2029-03-14", "reference": "Account: 2029-03-14"},
+            {"prediction": "Aount: 2028-02-10", "reference": "Amount: 2028-02-10"},
+            {"prediction": "Balance: uhJhcNao4L", "reference": "Balance: uhJhcNaO4L"},
+            {"prediction": "Total: izF1k9PRB", "reference": "Total: iIzF1k9PRB"},
+            {"prediction": "Amout: 4007.26", "reference": "Amount: 4007.26"}
+          ],
+          "exact_match": 0.9333333333333333,
+          "samples": 495,
+          "wer": 0.03333333333333333,
+          "word_errors": 33,
+          "words": 990
+        },
+        "random": {
+          "cer": 0.016098249107957846,
+          "character_errors": 194,
+          "characters": 12051,
+          "errors": [
+            {"prediction": "J1?UGueQIZfMj3WzeYsh?UvlPd3?\"otAS", "reference": "J1?UGueQIZfMj3Wz eYsh?UvIPd3?\"otAS"},
+            {"prediction": "2KLi&F$Ms-v!s.a&IbZz'Tbgos8", "reference": "2KLi&F$Ms-v!s.a&IbZ'Tbgos8"},
+            {"prediction": "A6,8aL,pRp;ofOHaHyg C4Y73mSM;aV", "reference": "A6,8aL,pRp;of0HaHyg C4Y73mSM;aV"},
+            {"prediction": "VdYP7'+ce@szAN@Lvvbhm$:vSGr_T-e/@b0jdz", "reference": "VdYP7'+ce@szAN@Lvvbhm$:vSGr_)T-e/@b0jdz"},
+            {"prediction": "LA;(rjrPYkLv%\"Yc6A.7ffUs?u3os", "reference": "lA;(rjrPYkLv%\"Yc6A.7ffUs?u3os"}
+          ],
+          "exact_match": 0.7247524752475247,
+          "samples": 505,
+          "wer": 0.26749611197511663,
+          "word_errors": 172,
+          "words": 643
+        }
+      },
+      "cer": 0.011397003931717513,
+      "character_errors": 229,
+      "characters": 20093,
+      "errors": [
+        {"prediction": "J1?UGueQIZfMj3WzeYsh?UvlPd3?\"otAS", "reference": "J1?UGueQIZfMj3Wz eYsh?UvIPd3?\"otAS"},
+        {"prediction": "Accout: 2029-03-14", "reference": "Account: 2029-03-14"},
+        {"prediction": "2KLi&F$Ms-v!s.a&IbZz'Tbgos8", "reference": "2KLi&F$Ms-v!s.a&IbZ'Tbgos8"},
+        {"prediction": "A6,8aL,pRp;ofOHaHyg C4Y73mSM;aV", "reference": "A6,8aL,pRp;of0HaHyg C4Y73mSM;aV"},
+        {"prediction": "VdYP7'+ce@szAN@Lvvbhm$:vSGr_T-e/@b0jdz", "reference": "VdYP7'+ce@szAN@Lvvbhm$:vSGr_)T-e/@b0jdz"}
+      ],
+      "exact_match": 0.828,
+      "families": ["Noto Serif", "Ubuntu"],
+      "fonts": [
+        {"file": "NotoSerif.ttf", "sha256": "4d8e6761424656867019081a1a01336f3cb086982682698714054fc33f782713"},
+        {"file": "Ubuntu.ttf", "sha256": "3128df86a31805618436d0ae5651ba4285d0c9de0a39057d025f64ee33bceb64"}
+      ],
+      "samples": 1000,
+      "wer": 0.12553582363747703,
+      "word_errors": 205,
+      "words": 1633
+    },
+    "unseen_degraded_pages": {
+      "cer": 0.011167407713783476,
+      "character_errors": 108,
+      "characters": 9671,
+      "errors": [
+        {"prediction": "w1b MhaqbEXN/nhS,dUi3+:Qt3=zu2%ts#P!0/rAb=-c\nUjGQxafL0MRjbP\"_C%VgfL)Gr\n?Hpmi9iwS\nBalance: 2029-03-07", "reference": "w1b MhaqbEXN/nhS,dUi3+:Qt3=zu2%ts#P!0/rAb=-c\nUjGQxafiL0MRjbP\"_C%VgfL)Gr\n?Hpmi9iwS\nBalance: 2029-03-07"},
+        {"prediction": "Email: TITWLADE\nr9J=a3 _8!6\nEmail: ZZJ32y\nix,Spg8U4n-i:+kFd\"T\nEmail: 2027-02-25", "reference": "Email: TITWlADE\nr9J=a3 _8!6\nEmail: ZZJ32y\nix,Spg8U4n-i:+kFd\"T\nEmail: 2027-02-25"},
+        {"prediction": "G-s$GkidnR9fHgYrVABt:%9aV\nReference: 1429.02\nAccount: 9404.45\n,!M?%iOaJ'YcF@p4Q", "reference": "G-s$GkidnR9fjHgYrVABt:%9aV\nReference: 1429.02\nAccount: 9404.45\n,!M?%iOaJ'YcF@p4 Q"},
+        {"prediction": "oDb-neDL;LTN\nlzNkX18 h+vy;,N8OHnxAdl)x+ ?oZ?s(WLw$8G;Fc(FP6S\nEmail: 5349.34\nlhm\nInvoice: BVRaRw\nTotal: Sqh3bI9Wkxe", "reference": "oDb-neDL;LTN\nlzNkX18 h+vy,N8OHnxAdln/)x+ ?oZ?s(WLw$8G;Fc(FP6S\nEmail: 5349.34\nhn\nInvoice: BVRaRw\nTotal: Sqh3bI9Wkxe"},
+        {"prediction": "Email: 2024-11-17\nReference: 8061.32\n6_+aum3V:oOJ(FN\n=wi4=ejQRj=C_.X_0-C:'#mDYBuH9krFAa'\ni;.\"Hf,!%-7;0XAUDvwBS@L(.S(/29LB0xWgaFhAt", "reference": "Email: 2024-11-17\nReference: 8061.32\n6_+aum3V:oOJ(FN\n=wi4=ejQRj=C_.X_0-C:'#mDYBuH9krFAa'\ni;.\" Hf,!%-7I;0XAUDvwBS@L(.S(/29LB0xWgaFhAt"}
+      ],
+      "exact_match": 0.43,
+      "line_count_errors": 0,
+      "samples": 100,
+      "wer": 0.13692946058091288,
+      "word_errors": 99,
+      "words": 723
+    }
+  },
+  "checkpoint_sha256": "7d8caff6cc40e323d10faf0e9d8d4f37f7807c40b04c974482d318cd90256b4b",
+  "deskew": true,
+  "epoch": 11,
+  "max_length": 48,
+  "runtime": {"batch_size": 32, "device": "cpu", "numpy": "1.26.4", "pillow": "12.3.0", "python": "3.11.16", "threads": 2, "torch": "2.13.0+cu130"},
+  "seed": 500000,
+  "task": "lines"
+}

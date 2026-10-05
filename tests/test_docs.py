@@ -1,0 +1,119 @@
+import math
+import re
+from doctest import DocTestParser, DocTestRunner
+from pathlib import Path
+from xml.etree import ElementTree as ET  # noqa: S405
+
+import pytest
+from PIL import Image
+
+from holocron.nn import PolyLoss
+
+
+@pytest.mark.parametrize("document", ["README.md", "docs/docs/index.md"])
+def test_homepage_quickstart(monkeypatch, tmp_path, document):
+    homepage = (Path(__file__).parents[1] / document).read_text()
+    match = re.search(
+        r"<!-- quickstart-example-start -->\s*```python\n(?P<code>.*?)\n```\s*<!-- quickstart-example-end -->",
+        homepage,
+        re.DOTALL,
+    )
+    assert match is not None
+
+    image_path = tmp_path / "image.png"
+    Image.new("RGB", (320, 240)).save(image_path)
+
+    monkeypatch.setattr("holocron.models.utils.load_pretrained_params", lambda *_args, **_kwargs: None)
+    namespace = {"path_to_an_image": image_path}
+    exec(compile(match["code"], document, "exec"), namespace)  # noqa: S102
+
+    checkpoint = namespace["checkpoint"]
+    probabilities = namespace["probabilities"]
+    resize, _, _, normalize = namespace["transform"].transforms
+    assert namespace["preprocessing"] is checkpoint.pre_processing
+    assert tuple(resize.size) == checkpoint.pre_processing.input_shape[1:]
+    assert resize.interpolation == checkpoint.pre_processing.interpolation
+    assert tuple(normalize.mean) == checkpoint.pre_processing.mean
+    assert tuple(normalize.std) == checkpoint.pre_processing.std
+    assert namespace["input_tensor"].shape == (1, *checkpoint.pre_processing.input_shape)
+    assert probabilities.shape == (len(checkpoint.meta.categories),)
+    assert namespace["label"] in checkpoint.meta.categories
+    assert 0 <= namespace["confidence"] <= 1
+
+
+def test_poly_loss_example():
+    example = DocTestParser().get_doctest(PolyLoss.__doc__, {}, "PolyLoss", "loss.py", 0)
+    result = DocTestRunner().run(example)
+    assert result.failed == 0
+    assert result.attempted == 6
+
+
+def test_checkpoint_chart_matches_table():
+    repo_root = Path(__file__).parents[1]
+    models_page = (repo_root / "docs" / "docs" / "reference" / "models" / "models.md").read_text()
+    documented = {
+        match["checkpoint"]: (float(match["acc1"]), float(match["params"]))
+        for match in re.finditer(
+            r"^\| \[`(?P<checkpoint>[^`]+\.IMAGENETTE)`\]\[[^\]]+\] \| "
+            r"(?P<acc1>\d+\.\d+)% \| [^|]+ \| (?P<params>\d+(?:\.\d+)?)M \|",
+            models_page,
+            re.MULTILINE,
+        )
+    }
+
+    # The SVG is a trusted repository asset, not user input.
+    chart = ET.parse(repo_root / "docs" / "docs" / "img" / "checkpoint-accuracy-vs-parameters.svg")  # noqa: S314
+    svg = "{http://www.w3.org/2000/svg}"
+    points = chart.findall(f".//{svg}g[@data-checkpoint]")
+    plotted = {
+        point.attrib["data-checkpoint"]: (float(point.attrib["data-acc1"]), float(point.attrib["data-params"]))
+        for point in points
+    }
+
+    assert len(points) == len(plotted) == len(documented) == 27
+    assert plotted == documented
+    assert [point.attrib["data-checkpoint"] for point in points if point.get("data-default") == "true"] == [
+        "ResNet18_Checkpoint.IMAGENETTE"
+    ]
+
+    positions = {}
+    for point in points:
+        circle = point.find(f"{svg}circle")
+        if circle is not None:
+            x, y = float(circle.attrib["cx"]), float(circle.attrib["cy"])
+        else:
+            diamond = point.find(f"{svg}path")
+            assert diamond is not None
+            coordinates = [float(value) for value in re.findall(r"[\d.]+", diamond.attrib["d"])]
+            x = sum(coordinates[::2]) / (len(coordinates) / 2)
+            y = sum(coordinates[1::2]) / (len(coordinates) / 2)
+
+        positions[point.attrib["data-checkpoint"]] = (x, y)
+        acc1, params = plotted[point.attrib["data-checkpoint"]]
+        expected_x = 90 + (math.log10(params) - math.log10(3)) / (math.log10(200) - math.log10(3)) * 750
+        expected_y = 570 - (acc1 - 87) / (96 - 87) * 470
+        assert math.isclose(x, expected_x, abs_tol=0.11)
+        assert math.isclose(y, expected_y, abs_tol=0.11)
+
+    expected_pareto = {
+        checkpoint
+        for checkpoint, (acc1, params) in documented.items()
+        if not any(
+            other_checkpoint != checkpoint
+            and other_params <= params
+            and other_acc1 >= acc1
+            and (other_params < params or other_acc1 > acc1)
+            for other_checkpoint, (other_acc1, other_params) in documented.items()
+        )
+    }
+    plotted_pareto = {point.attrib["data-checkpoint"] for point in points if point.get("data-pareto") == "true"}
+    assert plotted_pareto == expected_pareto
+
+    frontier = chart.find(f".//{svg}polyline[@class='frontier-line']")
+    assert frontier is not None
+    coordinates = [float(value) for value in re.findall(r"[\d.]+", frontier.attrib["points"])]
+    frontier_points = list(zip(coordinates[::2], coordinates[1::2], strict=True))
+    expected_frontier = [
+        positions[checkpoint] for checkpoint in sorted(expected_pareto, key=lambda name: documented[name][1])
+    ]
+    assert frontier_points == expected_frontier

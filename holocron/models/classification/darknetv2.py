@@ -1,4 +1,4 @@
-# Copyright (C) 2020-2025, François-Guillaume Fernandez.
+# Copyright (C) 2020-2026, François-Guillaume Fernandez.
 
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
@@ -16,7 +16,7 @@ from holocron.nn.init import init_module
 
 from ..checkpoints import Checkpoint, _handle_legacy_pretrained
 from ..presets import IMAGENETTE
-from ..utils import _checkpoint, _configure_model, conv_sequence
+from ..utils import _checkpoint, _configure_model, _imagenette_recipe, conv_sequence
 
 __all__ = ["Darknet19_Checkpoint", "DarknetV2", "darknet19"]
 
@@ -200,11 +200,7 @@ class Darknet19_Checkpoint(Enum):
         size=79387724,
         num_params=19827626,
         commit="6e32c5b578711a2ef3731a8f8c61760ed9f03e58",
-        train_args=(
-            "./imagenette2-320/ --arch darknet19 --batch-size 64 --mixup-alpha 0.2 --amp --device 0 --epochs 100"
-            " --lr 1e-3 --label-smoothing 0.1 --random-erase 0.1 --train-crop-size 176 --val-resize-size 232"
-            " --opt adamw --weight-decay 5e-2"
-        ),
+        train_args=_imagenette_recipe("darknet19"),
     )
     DEFAULT = IMAGENETTE
 

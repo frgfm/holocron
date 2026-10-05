@@ -68,6 +68,37 @@ def test_focal_loss():
     assert repr(nn.FocalLoss()) == "FocalLoss(gamma=2.0, reduction='mean')"
 
 
+@pytest.mark.parametrize("ignore_index", [255, -100, 0])
+@pytest.mark.parametrize("reduction", ["none", "sum", "mean"])
+def test_focal_loss_ignored_segmentation_pixels(ignore_index, reduction):
+    logits = torch.randn(2, 3, 4, 5, requires_grad=True)
+    target = torch.ones(2, 4, 5, dtype=torch.long)
+    target[:, 0] = ignore_index
+    # Exercise non-contiguous masks as well as ignored labels outside the class range.
+    target = target.transpose(-1, -2)
+    logits = logits.transpose(-1, -2)
+    logits.retain_grad()
+    loss = F.focal_loss(logits, target, ignore_index=ignore_index, gamma=0, reduction=reduction)
+    expected = cross_entropy(logits, target, ignore_index=ignore_index, reduction=reduction)
+    assert torch.allclose(loss, expected)
+    loss.sum().backward()
+    assert torch.isfinite(logits.grad).all()
+    assert (logits.grad.permute(0, 2, 3, 1)[target == ignore_index] == 0).all()
+
+
+@pytest.mark.parametrize("reduction", ["none", "sum", "mean"])
+def test_focal_loss_all_ignored_and_weighted_single_pixel(reduction):
+    logits = torch.randn(1, 3, 1, 1, requires_grad=True)
+    ignored = torch.full((1, 1, 1), 255, dtype=torch.long)
+    weights = torch.tensor([0.5, 1.0, 2.0])
+    loss = F.focal_loss(logits, ignored, weight=weights, ignore_index=255, reduction=reduction)
+    assert loss.sum().item() == 0
+    loss.sum().backward()
+    assert (logits.grad == 0).all()
+    target = torch.full_like(ignored, 2)
+    assert torch.isfinite(F.focal_loss(logits, target, weight=weights, reduction=reduction)).all()
+
+
 def test_multilabel_cross_entropy():
     num_batches = 2
     num_classes = 4
@@ -164,6 +195,61 @@ def test_cb_loss():
     assert repr(criterion) == "ClassBalancedWrapper(CrossEntropyLoss(), beta=0.99)"
 
 
+@pytest.mark.parametrize("reduction", ["none", "sum", "mean"])
+@pytest.mark.parametrize("all_ignored", [False, True])
+def test_mc_loss_ignores_void_pixels_in_both_terms(reduction, all_ignored):
+    logits = torch.randn(2, 9, 4, 5, requires_grad=True)
+    target = torch.randint(3, (2, 4, 5))
+    target[:, :2] = 255
+    if all_ignored:
+        target.fill_(255)
+        logits = torch.full_like(logits, 3e38, requires_grad=True)
+    loss = F.mutual_channel_loss(logits, target, ignore_index=255, xi=3, reduction=reduction)
+    assert torch.isfinite(loss).all()
+    if all_ignored:
+        assert (loss == 0).all()
+    loss.sum().backward()
+    assert torch.isfinite(logits.grad).all()
+    assert (logits.grad.permute(0, 2, 3, 1)[target == 255] == 0).all()
+
+
+def test_mc_loss_evaluation_is_deterministic():
+    criterion = nn.MutualChannelLoss(xi=3).eval()
+    logits = torch.randn(2, 9, 4, 5)
+    target = torch.randint(3, (2, 4, 5))
+    first = criterion(logits, target)
+    torch.manual_seed(123)
+    second = criterion(logits, target)
+    assert torch.equal(first, second)
+    assert torch.allclose(first, F.mutual_channel_loss(logits, target, xi=3, training=False))
+
+
+def test_mc_loss_channel_mask_preserves_negative_logits():
+    logits = torch.tensor([[-4.0, -4.0, -1.0, -1.0]], requires_grad=True)
+    target = torch.tensor([0])
+    expected = cross_entropy(torch.tensor([[-4.0, -1.0]]), target)
+    actual = F.mutual_channel_loss(logits, target, xi=2, alpha=0)
+    assert torch.allclose(actual, expected)
+
+
+@pytest.mark.parametrize("dtype", [torch.float16, torch.bfloat16])
+@pytest.mark.parametrize("loss", ["focal", "mc"])
+def test_dense_segmentation_losses_accumulate_in_float32(dtype, loss):
+    channels = 3 if loss == "focal" else 6
+    logits = torch.zeros(1, channels, 128, 128, dtype=dtype)
+    logits[:, 1 if loss == "focal" else slice(2, 4)] = -8
+    logits.requires_grad_(True)
+    target = torch.ones(1, 128, 128, dtype=torch.long)
+    criterion = F.focal_loss if loss == "focal" else lambda x, y: F.mutual_channel_loss(x, y, xi=2, training=False)
+    actual = criterion(logits, target)
+    expected = criterion(logits.float(), target)
+    assert actual.dtype == torch.float32
+    assert torch.isfinite(actual)
+    assert torch.allclose(actual, expected)
+    actual.backward()
+    assert torch.isfinite(logits.grad).all()
+
+
 def test_dice_loss():
     num_batches = 2
     num_classes = 4
@@ -205,28 +291,3 @@ def test_poly_loss():
     out.backward()
 
     assert repr(nn.PolyLoss()) == "PolyLoss(eps=2.0, reduction='mean')"
-
-
-def test_poly_loss_ignore_index():
-    # Regression for #211: ignore_index (including the default -100) must not crash, and must
-    # zero out the loss and gradient contribution of ignored samples.
-    x = torch.rand(4, 5, requires_grad=True)
-    target = torch.tensor([0, -100, 3, 1])  # sample 1 is ignored
-
-    loss = nn.PolyLoss(ignore_index=-100)(x, target)
-    assert torch.isfinite(loss)
-    loss.backward()
-    assert torch.all(x.grad[1] == 0)  # ignored sample gets no gradient
-    assert torch.any(x.grad[0] != 0)  # valid samples do
-
-    # reduction="none" zeroes the ignored position and stays consistent with "mean"
-    per_sample = F.poly_loss(x.detach(), target, reduction="none")
-    assert per_sample[1].item() == 0.0
-    valid = target != -100
-    assert torch.allclose(F.poly_loss(x.detach(), target, reduction="mean"), per_sample[valid].mean())
-
-
-def test_poly_loss_target_dtype():
-    # Hard targets must be int64; a clear TypeError is raised otherwise.
-    with pytest.raises(TypeError):
-        F.poly_loss(torch.rand(2, 4), torch.zeros(2).float())

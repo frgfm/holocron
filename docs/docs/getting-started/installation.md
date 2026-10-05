@@ -1,54 +1,57 @@
 # Installation
 
+!!! info "Choose the matching version"
+    These pages follow the `main` branch. The latest PyPI release may not include recent changes.
+    Install from source to use unreleased APIs.
+
 ## Virtual environment
 
 !!! tip
     You will need an environment manager, and I cannot recommend enough [uv](https://docs.astral.sh/uv/getting-started/installation/).
 
-Create a virtual environment with your prefered Python version (3.11 or higher is required to use Holocron):
+Create a virtual environment with your preferred Python version (3.11 or higher is required to use Holocron):
 ```bash
 $ uv venv --python 3.11
 ```
 
-=== "Stable"
+=== "Stable (PyPI)"
 
     ```bash
     $ uv pip install pylocron
     ```
 
-=== "Latest"
+=== "Development (main branch)"
 
     ```bash
-    $ uv pip install pylocron @ git+https://github.com/frgfm/holocron.git
+    $ uv pip install "pylocron @ git+https://github.com/frgfm/holocron.git"
     ```
-
 
 ## System installation
 
 You'll need [Python](https://www.python.org/downloads/) 3.11 or higher, and a package installer like [uv](https://docs.astral.sh/uv/getting-started/installation/) or [pip](https://packaging.python.org/en/latest/tutorials/installing-packages/).
 
-=== "Stable"
+=== "Stable (PyPI, uv)"
 
     ```bash
     $ uv pip install --system pylocron
     ```
 
-=== "Latest"
+=== "Development (uv)"
 
     ```bash
-    $ uv pip install --system pylocron @ git+https://github.com/frgfm/holocron.git
+    $ uv pip install --system "pylocron @ git+https://github.com/frgfm/holocron.git"
     ```
 
-=== "Stable (pip)"
+=== "Stable (PyPI, pip)"
 
     ```bash
     $ pip install pylocron
     ```
 
-=== "Latest (pip)"
+=== "Development (pip)"
 
     ```bash
-    $ pip install pylocron @ git+https://github.com/frgfm/holocron.git
+    $ pip install "pylocron @ git+https://github.com/frgfm/holocron.git"
     ```
 
 !!! info

@@ -1,10 +1,15 @@
 from pathlib import Path
 
+import onnx
 import pytest
 import torch
 from torch import nn
+from torch.utils.data import DataLoader, TensorDataset
 
 from holocron.models import classification
+from holocron.models.classification.repvit import _RepVGGDW  # noqa: PLC2701
+from holocron.optim import AdamP
+from holocron.trainer import ClassificationTrainer
 
 
 def _test_classification_model(name, num_classes, pretrained):
@@ -26,6 +31,7 @@ def _test_classification_model(name, num_classes, pretrained):
 
 
 def test_repvgg_reparametrize():
+    torch.manual_seed(0)
     num_classes = 10
     batch_size = 2
     x = torch.rand((batch_size, 3, 224, 224))
@@ -42,10 +48,11 @@ def test_repvgg_reparametrize():
             assert mod.weight.data.shape[2:] == (3, 3)
     # Check that values are still matching
     with torch.no_grad():
-        assert torch.allclose(out, model(x), rtol=1e-4)  # logit score, not prob
+        torch.testing.assert_close(out, model(x), rtol=1e-4, atol=1e-5)  # logit score, not prob
 
 
 def test_mobileone_reparametrize():
+    torch.manual_seed(0)
     num_classes = 10
     batch_size = 2
     x = torch.rand((batch_size, 3, 224, 224))
@@ -60,7 +67,70 @@ def test_mobileone_reparametrize():
         assert not isinstance(mod, nn.BatchNorm2d)
     # Check that values are still matching
     with torch.no_grad():
-        assert torch.allclose(out, model(x), atol=1e-3)
+        torch.testing.assert_close(out, model(x), rtol=1e-4, atol=1e-5)
+
+
+@pytest.mark.parametrize(
+    ("arch", "training_params", "deployment_params"),
+    [
+        ("repvit_m0_9", 5_103_560, 5_067_056),
+        ("repvit_m1_0", 6_852_900, 6_810_312),
+        ("repvit_m1_1", 8_288_888, 8_244_312),
+    ],
+)
+@pytest.mark.parametrize("dtype", [torch.float32, torch.float64])
+def test_repvit_reparametrize(arch, training_params, deployment_params, dtype, tmp_path):
+    torch.manual_seed(0)
+    x = torch.rand((1, 3, 64, 64), dtype=dtype)
+    model = classification.__dict__[arch](pretrained=False, num_classes=1000).to(dtype=dtype)
+    assert sum(p.numel() for p in model.parameters()) == training_params
+
+    loader = DataLoader(TensorDataset(torch.rand((8, 3, 64, 64), dtype=dtype), torch.arange(8) % 7), batch_size=4)
+    initial_weights = model.features[0][0][0].weight.detach().clone()
+    trainer = ClassificationTrainer(
+        model,
+        loader,
+        loader,
+        nn.CrossEntropyLoss(label_smoothing=0.1),
+        AdamP(model.parameters(), lr=1e-3),
+        output_file=str(tmp_path / "checkpoint.pth"),
+    )
+    trainer.fit_n_epochs(2, 1e-3)
+    assert torch.isfinite(torch.tensor(trainer.min_loss))
+    assert not torch.equal(initial_weights, model.features[0][0][0].weight)
+    model.load_state_dict(torch.load(trainer.output_file, weights_only=True)["model"])
+    with torch.no_grad():
+        model.eval()
+        out = model(x)
+    model.reparametrize()
+    model.reparametrize()
+
+    assert sum(p.numel() for p in model.parameters()) == deployment_params
+    assert not any(isinstance(mod, (nn.BatchNorm1d, nn.BatchNorm2d, _RepVGGDW)) for mod in model.modules())
+    assert all(not mod.training for mod in model.modules())
+    assert all(p.dtype == dtype for p in model.parameters())
+    with torch.no_grad():
+        torch.testing.assert_close(out, model(x), rtol=1e-4, atol=1e-5)
+
+
+def test_repvit_reparametrize_requires_eval():
+    model = classification.repvit_m0_9().eval()
+    modules = tuple(model.modules())
+    model.head[0].train()
+    with pytest.raises(ValueError, match="call eval"):
+        model.reparametrize()
+    assert tuple(model.modules()) == modules
+
+
+def test_repvit_custom_channels():
+    model = classification.RepViT([72, 144, 288, 576], [1, 2, 2, 2], num_classes=7, in_channels=1)
+    # The official SE rounding keeps 72 / 4 = 18 channels rounded to 16, not 24.
+    assert model.features[1][0].token_mixer[1].fc1.out_channels == 16
+    x = torch.rand((2, 1, 64, 64))
+    assert model.features(x).shape == (2, 576, 2, 2)
+    out = model(x)
+    assert out.shape == (2, 7)
+    nn.functional.cross_entropy(out, torch.tensor([0, 1])).backward()
 
 
 @pytest.mark.parametrize(
@@ -106,6 +176,9 @@ def test_mobileone_reparametrize():
         ("mobileone_s1", False),
         ("mobileone_s2", False),
         ("mobileone_s3", False),
+        ("repvit_m0_9", False),
+        ("repvit_m1_0", False),
+        ("repvit_m1_1", False),
     ],
 )
 def test_classification_model(arch, pretrained):
@@ -129,13 +202,19 @@ def test_classification_model(arch, pretrained):
         "repvgg_a0",
         "convnext_atto",
         "mobileone_s0",
+        "repvit_m0_9",
+        "repvit_m1_0",
+        "repvit_m1_1",
     ],
 )
 def test_classification_onnx_export(arch, tmpdir_factory):
     model = classification.__dict__[arch](pretrained=False, num_classes=10).eval()
+    if hasattr(model, "reparametrize"):
+        model.reparametrize()
     tmp_path = Path(str(tmpdir_factory.mktemp("onnx"))).joinpath(f"{arch}.onnx")
     img_tensor = torch.rand((1, 3, 224, 224))
     with torch.no_grad():
         torch.onnx.export(
             model, img_tensor, tmp_path, export_params=True, opset_version=20, dynamo=False, verbose=False
         )
+    onnx.checker.check_model(onnx.load(tmp_path))

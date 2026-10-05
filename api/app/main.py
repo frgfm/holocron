@@ -1,4 +1,4 @@
-# Copyright (C) 2022-2025, François-Guillaume Fernandez.
+# Copyright (C) 2022-2026, François-Guillaume Fernandez.
 
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
@@ -7,7 +7,6 @@ import time
 from typing import Annotated
 
 from fastapi import FastAPI, File, Request, UploadFile, status
-from fastapi.openapi.utils import get_openapi
 from pydantic import BaseModel, Field
 
 from app.config import settings
@@ -62,20 +61,3 @@ async def add_process_time_header(request: Request, call_next):
     process_time = time.time() - start_time
     response.headers["X-Process-Time"] = str(process_time)
     return response
-
-
-# Docs
-def custom_openapi():
-    if app.openapi_schema:
-        return app.openapi_schema
-    openapi_schema = get_openapi(
-        title=settings.PROJECT_NAME,
-        version=settings.VERSION,
-        description=settings.PROJECT_DESCRIPTION,
-        routes=app.routes,
-    )
-    app.openapi_schema = openapi_schema
-    return app.openapi_schema
-
-
-app.openapi = custom_openapi

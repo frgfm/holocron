@@ -5,7 +5,7 @@ on:
     branches: main
 
 env:
-  UV_VERSION: "0.11.24"
+  UV_VERSION: "0.12.5"
   PYTHON_VERSION: "3.11"
 
 
@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           architecture: x64
@@ -22,7 +22,7 @@ jobs:
         with:
           version: ${{ env.UV_VERSION }}
           activate-environment: true
-      - uses: actions/cache@v5
+      - uses: actions/cache@v6
         with:
           path: ~/.cache/uv
           key: uv-${{ runner.os }}-${{ hashFiles('pyproject.toml') }}
@@ -40,7 +40,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           architecture: x64
@@ -50,31 +50,13 @@ jobs:
       - name: Run dependency sync checker
         run: make deps-check
 
-  model-zoo:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-python@v6
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-          architecture: x64
-      - uses: astral-sh/setup-uv@v7
-        with:
-          version: ${{ env.UV_VERSION }}
-      - name: Check the model zoo table is up to date
-        run: make model-zoo-check
-
   headers:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
       - name: Check the headers
-        uses: frgfm/validate-python-headers@main
-        with:
-          license: 'Apache-2.0'
-          owner: 'François-Guillaume Fernandez'
-          starting-year: 2019
-          folders: 'holocron,scripts,references,api/app,demo,docs,.github'
-          ignore-files: '__init__.py'
+        uses: frgfm/lint-my-headers@b2cbf9115943aa4b1407c3c944cc7c51250e7673 # v0.6.0

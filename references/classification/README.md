@@ -4,12 +4,7 @@ Since I do not own enough computing power to iterate over ImageNet full training
 
 ## Getting started
 
-Ensure that you have holocron installed
-
-```bash
-git clone https://github.com/frgfm/Holocron.git
-pip install -e "Holocron/.[training]"
-```
+Follow the [shared installation instructions](../README.md#installation). Run the commands below from `references/classification`.
 
 Download [Imagenette](https://s3.amazonaws.com/fast-ai-imageclas/imagenette2-320.tgz) and extract it where you want
 
@@ -21,10 +16,53 @@ tar -xvzf imagenette2-320.tgz
 From there, you can run your training with the following command
 
 ```
-python train.py imagenette2-320/ --arch darknet53 --lr 5e-3 -b 32 -j 16 --epochs 40 --opt adamp --sched onecycle
+uv run --project ../.. --no-sync python train.py imagenette2-320/ --arch darknet53 --lr 5e-3 -b 32 -j 16 --epochs 40 --opt adamp --sched onecycle
 ```
 
+## Synthetic character classification
 
+From the repository root, prepare the checksum-verified starter fonts once:
+
+```shell
+uv run --python 3.12 scripts/prepare_fonts.py \
+  --output /tmp/holocron-fonts --quiet
+```
+
+Generate and inspect fresh augmented samples without starting training:
+
+```shell
+uv run --python 3.12 --extra training \
+  references/classification/train_characters.py \
+  --font-dir /tmp/holocron-fonts \
+  --manifest references/fonts/latin-starter.json \
+  --show-samples /tmp/character-samples.png
+```
+
+Run a small CPU smoke training job:
+
+```shell
+uv run --python 3.12 --extra training \
+  references/classification/train_characters.py \
+  --font-dir /tmp/holocron-fonts \
+  --manifest references/fonts/latin-starter.json \
+  --device cpu --workers 0 --epochs 1 \
+  --image-size 32 --render-size 64 \
+  --samples-per-epoch 256 --batch-size 32
+```
+
+Measure live-image DataLoader throughput after worker warm-up:
+
+```shell
+uv run --python 3.12 --extra training \
+  references/classification/train_characters.py \
+  --font-dir /tmp/holocron-fonts \
+  --manifest references/fonts/latin-starter.json \
+  --benchmark-loader
+```
+
+`--render-size` controls glyph rasterization resolution; `--image-size` controls the final model input resolution. To expand the corpus, prepare another local manifest and directory and pass those paths to the same script—no Python changes are needed. Training itself never downloads data or fonts.
+
+`--arch alexnet` reuses TorchVision's AlexNet feature stack with a compact task head; use image size 64 or larger.
 
 ## Personal leaderboard
 
@@ -52,3 +90,5 @@ The updated list of available checkpoints can be found in the [documentation](ht
 | res2net50_26w_4s | 89.58 (99.26)    | 23.67M  | 4.28G | bilinear      | 224        |
 | darnet24         | 91.57 (8.43)     | 22.40M  | 4.21G | bilinear      | 224        |
 | resnet50         | 84.36 (15.64)    | 23.53M  | 4.11G | bilinear      | 224        |
+
+For character pretraining that transfers directly into line and page OCR, see the [recognition experiment](../recognition/README.md).

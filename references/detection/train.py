@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2025, François-Guillaume Fernandez.
+# Copyright (C) 2019-2026, François-Guillaume Fernandez.
 
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
@@ -7,27 +7,24 @@
 
 import datetime
 import math
-import os
 import time
 from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
-import torch.utils.data
 import wandb
 from codecarbon import track_emissions
 from matplotlib.patches import Rectangle
-from torch.utils.data import RandomSampler, SequentialSampler
 from torchvision.datasets import VOCDetection
 from torchvision.models import detection as tv_detection
 from torchvision.transforms import v2 as T
 from torchvision.transforms.v2.functional import InterpolationMode, to_pil_image
 from transforms import Compose, ImageTransform, RandomHorizontalFlip, Resize, VOCTargetTransform, convert_to_relative
 
-import holocron
 from holocron.models import detection
 from holocron.trainer import DetectionTrainer
+from holocron.trainer._reference import add_loading_args, create_loader, create_optimizer
 from holocron.utils.misc import find_image_size
 
 VOC_CLASSES = [
@@ -93,7 +90,6 @@ def plot_samples(images, targets, num_samples=8):
     plt.show()
 
 
-@track_emissions()
 def main(args):
     print(args)
 
@@ -130,15 +126,8 @@ def main(args):
             find_image_size(train_set)
             return
 
-        train_loader = torch.utils.data.DataLoader(
-            train_set,
-            batch_size=args.batch_size,
-            drop_last=True,
-            collate_fn=collate_fn,
-            sampler=RandomSampler(train_set),
-            num_workers=args.workers,
-            pin_memory=True,
-            worker_init_fn=worker_init_fn,
+        train_loader = create_loader(
+            train_set, args, training=True, collate_fn=collate_fn, worker_init_fn=worker_init_fn
         )
 
         print(
@@ -166,16 +155,7 @@ def main(args):
             ]),
         )
 
-        val_loader = torch.utils.data.DataLoader(
-            val_set,
-            batch_size=args.batch_size,
-            drop_last=False,
-            collate_fn=collate_fn,
-            sampler=SequentialSampler(val_set),
-            num_workers=args.workers,
-            pin_memory=True,
-            worker_init_fn=worker_init_fn,
-        )
+        val_loader = create_loader(val_set, args, training=False, collate_fn=collate_fn, worker_init_fn=worker_init_fn)
 
         print(f"Validation set loaded in {time.time() - st:.2f}s ({len(val_set)} samples in {len(val_loader)} batches)")
 
@@ -184,21 +164,7 @@ def main(args):
     elif args.source.lower() == "torchvision":
         model = tv_detection.__dict__[args.arch](args.pretrained, num_classes=len(VOC_CLASSES))
 
-    model_params = [p for p in model.parameters() if p.requires_grad]
-    if args.opt == "sgd":
-        optimizer = torch.optim.SGD(model_params, args.lr, momentum=0.9, weight_decay=args.weight_decay)
-    elif args.opt == "radam":
-        optimizer = holocron.optim.RAdam(
-            model_params, args.lr, betas=(0.95, 0.99), eps=1e-6, weight_decay=args.weight_decay
-        )
-    elif args.opt == "adamp":
-        optimizer = holocron.optim.AdamP(
-            model_params, args.lr, betas=(0.95, 0.99), eps=1e-6, weight_decay=args.weight_decay
-        )
-    elif args.opt == "adabelief":
-        optimizer = holocron.optim.AdaBelief(
-            model_params, args.lr, betas=(0.95, 0.99), eps=1e-6, weight_decay=args.weight_decay
-        )
+    optimizer = create_optimizer(model, args)
 
     log_wb = lambda metrics: wandb.log(metrics) if args.wb else None
     trainer = DetectionTrainer(
@@ -229,7 +195,13 @@ def main(args):
 
     if args.find_lr:
         print("Looking for optimal LR")
-        trainer.find_lr(args.freeze_until, norm_weight_decay=args.norm_wd, num_it=min(len(train_loader), 100))
+        trainer.find_lr(
+            args.freeze_until,
+            start_lr=args.find_lr_start,
+            end_lr=args.find_lr_end,
+            norm_weight_decay=args.norm_wd,
+            num_it=min(len(train_loader), 100),
+        )
         trainer.plot_recorder()
         return
 
@@ -284,16 +256,7 @@ def get_parser():
     group.add_argument("--pretrained", action="store_true", help="Use pre-trained models from the modelzoo")
     group.add_argument("--output-file", default="./checkpoints/model.pth", help="path where to save")
     group.add_argument("--resume", default="", help="resume from checkpoint")
-    # Hardware
-    group = parser.add_argument_group("Hardware")
-    group.add_argument("--device", default=None, type=int, help="device")
-    group.add_argument("--amp", help="Use Automatic Mixed Precision", action="store_true")
-    # Data loading
-    group = parser.add_argument_group("Data loading")
-    group.add_argument("-b", "--batch-size", default=32, type=int, help="batch size")
-    group.add_argument(
-        "-j", "--workers", default=min(os.cpu_count(), 16), type=int, help="number of data loading workers"
-    )
+    add_loading_args(parser)
     # Transformations
     group = parser.add_argument_group("Transformations")
     group.add_argument("--img-size", default=416, type=int, help="image size")
@@ -304,12 +267,15 @@ def get_parser():
     group.add_argument("--freeze-until", default=None, type=str, help="Last layer to freeze")
     group.add_argument("--grad-acc", default=1, type=int, help="Number of batches to accumulate the gradient of")
     group.add_argument("--opt", default="adamp", type=str, help="optimizer")
+    group.add_argument("--momentum", default=0.9, type=float, help="SGD momentum")
     group.add_argument("--sched", default="onecycle", type=str, help="Scheduler to be used")
     group.add_argument("--wd", "--weight-decay", default=0, type=float, help="weight decay", dest="weight_decay")
     group.add_argument("--norm-wd", default=None, type=float, help="weight decay of norm parameters")
     # Actions
     group = parser.add_argument_group("Actions")
     group.add_argument("--find-lr", action="store_true", help="Should you run LR Finder")
+    group.add_argument("--find-lr-start", default=1e-7, type=float, help="initial LR for LR Finder")
+    group.add_argument("--find-lr-end", default=1, type=float, help="final LR for LR Finder")
     group.add_argument("--find-size", dest="find_size", action="store_true", help="Should you run Image size Finder")
     group.add_argument("--check-setup", action="store_true", help="Check your training setup")
     group.add_argument("--show-samples", action="store_true", help="Whether training samples should be displayed")
@@ -318,10 +284,11 @@ def get_parser():
     group = parser.add_argument_group("Experiment tracking")
     group.add_argument("--wb", action="store_true", help="Log to Weights & Biases")
     group.add_argument("--name", type=str, default=None, help="Name of your training experiment")
+    group.add_argument("--verbose-codecarbon", action="store_true", help="Show CodeCarbon informational logs")
 
     return parser
 
 
 if __name__ == "__main__":
     args = get_parser().parse_args()
-    main(args)
+    track_emissions(log_level="info" if args.verbose_codecarbon else "error")(main)(args)

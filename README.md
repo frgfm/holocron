@@ -50,110 +50,67 @@ Implementations of recent Deep Learning tricks in Computer Vision, easily paired
 ## Quick Tour
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/frgfm/notebooks/blob/main/holocron/quicktour.ipynb)
 
-This project was created for quality implementations, increased developer flexibility and a clean integration with the PyTorch ecosystem. For instance, here is a short snippet to showcase how Holocron models are meant to be used:
+Holocron provides research implementations with PyTorch interfaces.
+Implementations and training recipes may differ from a paper author's code.
+This example uses an explicit checkpoint and its preprocessing and labels:
 
+<!-- quickstart-example-start -->
 ```python
 import torch
 from PIL import Image
 from torchvision.transforms.v2 import Compose, ConvertImageDtype, Normalize, PILToTensor, Resize
-from torchvision.transforms.v2.functional import InterpolationMode
-from holocron.models.classification import repvgg_a0
+from holocron.models.classification import ResNet18_Checkpoint, resnet18
 
-# Load your model (weights are pretrained on Imagenette, a 10-class subset of ImageNet)
-model = repvgg_a0(pretrained=True).eval()
+checkpoint = ResNet18_Checkpoint.DEFAULT.value
+model = resnet18(checkpoint=checkpoint).eval()
 
-# Read your image
-img = Image.open(path_to_an_image).convert("RGB")
+image = Image.open(path_to_an_image).convert("RGB")
+preprocessing = checkpoint.pre_processing
 
-# Preprocessing (model.default_cfg is the Checkpoint the pretrained weights came from)
-config = model.default_cfg
 transform = Compose([
-    Resize(config.pre_processing.input_shape[1:], interpolation=InterpolationMode.BILINEAR),
+    Resize(preprocessing.input_shape[1:], interpolation=preprocessing.interpolation),
     PILToTensor(),
     ConvertImageDtype(torch.float32),
-    Normalize(config.pre_processing.mean, config.pre_processing.std),
+    Normalize(preprocessing.mean, preprocessing.std),
 ])
 
-input_tensor = transform(img).unsqueeze(0)
+input_tensor = transform(image).unsqueeze(0)
 
-# Inference
 with torch.inference_mode():
-    output = model(input_tensor)
-print(config.meta.categories[output.squeeze(0).argmax().item()], output.squeeze(0).softmax(dim=0).max())
+    probabilities = model(input_tensor).squeeze(0).softmax(dim=0)
+
+class_idx = probabilities.argmax().item()
+label = checkpoint.meta.categories[class_idx]
+confidence = probabilities[class_idx].item()
+print(label, confidence)
 ```
+<!-- quickstart-example-end -->
 
 
 ## Pretrained models
 
-Holocron implements architectures directly from their papers and trains its own weights: most classification models on [Imagenette](https://github.com/fastai/imagenette) (a 10-class subset of ImageNet), and the ReXNet family on full ImageNet-1k. **These weights load through Holocron's own `pretrained=True` and are _not_ interchangeable with torchvision/`timm` checkpoints.**
+An architecture may be available without pretrained weights. See the
+[checkpoint list and loading guide](https://frgfm.github.io/holocron/reference/models/models/#available-checkpoints)
+for classification datasets, metrics and weight compatibility, and the
+[support status](https://frgfm.github.io/holocron/reference/models/models/#support-status)
+for other tasks. Most classification checkpoints target Imagenette (10 classes);
+selected ReXNet variants also provide ImageNet-1K weights (1,000 classes).
 
-> [!NOTE]
-> Top-1 accuracy is measured on the listed dataset's validation split, so Imagenette (10 classes) numbers are **not** comparable to ImageNet-1k (1000 classes) ones.
+Use the checkpoint's preprocessing and category metadata, as shown above.
+A matching model name does not make torchvision or `timm` weights compatible.
+To adapt pretrained weights to your own classes, load them before replacing the
+classifier; see the [transfer-learning guide](https://frgfm.github.io/holocron/getting-started/classification/).
 
-<details>
-<summary><b>Image classification</b> pretrained checkpoints</summary>
-
-<!-- AUTOGEN:MODEL_ZOO START - edit via .github/generate_model_zoo.py -->
-
-| Model | Input | Training dataset | Top-1 acc (%) | Params (M) |
-| --- | --- | --- | --- | --- |
-| `convnext_atto` | 224×224 | Imagenette (10) | 87.6 | 3.4 |
-| `cspdarknet53` | 224×224 | Imagenette (10) | 94.5 | 26.6 |
-| `cspdarknet53_mish` | 224×224 | Imagenette (10) | 94.7 | 26.6 |
-| `darknet19` | 224×224 | Imagenette (10) | 93.9 | 19.8 |
-| `darknet24` | 224×224 | Imagenette (10) | — | — |
-| `darknet53` | 224×224 | Imagenette (10) | 94.2 | 40.6 |
-| `mobileone_s0` | 224×224 | Imagenette (10) | 88.1 | 4.3 |
-| `mobileone_s1` | 224×224 | Imagenette (10) | 91.3 | 3.6 |
-| `mobileone_s2` | 224×224 | Imagenette (10) | 91.3 | 5.9 |
-| `mobileone_s3` | 224×224 | Imagenette (10) | 91.1 | 8.1 |
-| `repvgg_a0` | 224×224 | Imagenette (10) | 92.9 | 24.7 |
-| `repvgg_a1` | 224×224 | Imagenette (10) | 93.8 | 30.1 |
-| `repvgg_a2` | 224×224 | Imagenette (10) | 93.6 | 48.6 |
-| `repvgg_b0` | 224×224 | Imagenette (10) | 92.7 | 31.8 |
-| `repvgg_b1` | 224×224 | Imagenette (10) | 94.0 | 100.8 |
-| `repvgg_b2` | 224×224 | Imagenette (10) | 94.1 | 157.5 |
-| `res2net50_26w_4s` | 224×224 | Imagenette (10) | 93.9 | 23.7 |
-| `resnet18` | 224×224 | Imagenette (10) | 93.6 | 11.2 |
-| `resnet34` | 224×224 | Imagenette (10) | 93.8 | 21.3 |
-| `resnet50` | 224×224 | Imagenette (10) | 93.8 | 23.5 |
-| `resnet50d` | 224×224 | Imagenette (10) | 94.7 | 23.5 |
-| `resnext50_32x4d` | 224×224 | Imagenette (10) | 94.5 | 23.0 |
-| `rexnet1_0x` | 224×224 | ImageNet-1k (1000) | 77.9 | 4.8 |
-| `rexnet1_3x` | 224×224 | ImageNet-1k (1000) | 79.5 | 7.6 |
-| `rexnet1_5x` | 224×224 | ImageNet-1k (1000) | 80.3 | 9.7 |
-| `rexnet2_0x` | 224×224 | ImageNet-1k (1000) | 80.3 | 16.4 |
-| `rexnet2_2x` | 224×224 | Imagenette (10) | 95.4 | 16.7 |
-| `sknet50` | 224×224 | Imagenette (10) | 94.4 | 35.2 |
-| `tridentnet50` | 224×224 | Imagenette (10) | — | — |
-
-_Rows showing `—` are legacy checkpoints whose accuracy/params are not recorded in metadata._
-
-<!-- AUTOGEN:MODEL_ZOO END -->
-
-</details>
-
-- **Semantic segmentation:** only `unet_rexnet13` (~9.3M params) currently ships pretrained weights.
-- **Object detection:** the detection models (`yolov1`, `yolov2`, `yolov4`) **ship no pretrained weights yet** — instantiate them and train with the [reference scripts](references/detection).
-
-Every other architecture is available **untrained** (randomly initialized): calling it with `pretrained=True` emits a warning and falls back to random initialization, so train it yourself with the [reference scripts](references/).
+Requesting unavailable pretrained weights logs a warning and keeps the affected
+model's initial parameters. No full detection checkpoints are published; a pretrained
+classification backbone is not a pretrained detector. Train models without
+weights with the [reference scripts](references/).
 
 ## Loss functions
 
-Holocron's losses follow PyTorch conventions. Classification-style losses such as [`PolyLoss`](https://arxiv.org/abs/2204.12511) expect **raw logits** as input and **`torch.int64` class indices** as target (use `ignore_index` to mask samples):
-
-```python
-import torch
-from holocron.nn import PolyLoss
-
-criterion = PolyLoss(ignore_index=-100)
-
-logits = torch.rand(4, 10, requires_grad=True)  # (N, num_classes) unnormalized scores
-target = torch.tensor([0, -100, 3, 1])          # (N,) int64; -100 marks an ignored sample
-
-loss = criterion(logits, target)
-loss.backward()
-```
+`PolyLoss` expects raw logits and either `torch.int64` class indices or soft
+class probabilities. See the [loss input guide and runnable example](https://frgfm.github.io/holocron/reference/nn/#loss-functions)
+for tensor shapes, target types and the current `ignore_index` limitations.
 
 
 ## Installation
@@ -225,6 +182,12 @@ Reference scripts are provided to train your models using holocron on famous pub
 - [Image classification](references/classification)
 - [Object detection](references/detection)
 - [Semantic segmentation](references/segmentation)
+
+### YOLO training status
+
+YOLOv4's training implementation has been repaired and verified with regression tests and a reproducible CPU fixed-batch learning check. With a frozen pretrained Imagenette CSPDarknet53-Mish backbone, it produces correctly labeled detections with IoUs of 0.81 and 0.79 on two synthetic examples, with finite losses and gradients and a saved checkpoint. See the [detection guide](references/detection/README.md) for the command, matched control, and CUDA/VOC smoke recipe.
+
+Full CUDA/VOC training on the repaired implementation remains pending; the synthetic result does not establish dataset accuracy or reproduce the paper. YOLOv1/v2 loss behavior is unchanged, with regression coverage for shared inference changes. YOLOv3 is not implemented as a detector; the Darknet-53 classification backbone is available. No pretrained detection checkpoints are published.
 
 ### Latency benchmark
 

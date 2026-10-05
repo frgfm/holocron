@@ -1,4 +1,4 @@
-# Copyright (C) 2022-2025, François-Guillaume Fernandez.
+# Copyright (C) 2022-2026, François-Guillaume Fernandez.
 
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
@@ -25,8 +25,8 @@ def main(args):
         state_dict = torch.load(args.checkpoint, map_location="cpu")
         model.load_state_dict(state_dict, strict=True)
 
-    # RepVGG
-    if args.arch.startswith("repvgg") or args.arch.startswith("mobileone"):
+    # Reparametrizable models
+    if hasattr(model, "reparametrize"):
         model.reparametrize()
 
     # Input

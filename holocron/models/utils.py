@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2025, François-Guillaume Fernandez.
+# Copyright (C) 2019-2026, François-Guillaume Fernandez.
 
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
@@ -7,26 +7,17 @@ import json
 import logging
 from collections.abc import Callable
 from pathlib import Path
-from typing import Any, TypeVar
+from typing import Any, TypeVar, cast
 
 import torch
-from huggingface_hub.file_download import hf_hub_download
+from huggingface_hub import DryRunFileInfo, hf_hub_download
 from torch import nn
 from torch.hub import load_state_dict_from_url
 
 from holocron import models
 from holocron.nn import BlurPool2d
 
-from .checkpoints import (
-    Checkpoint,
-    Dataset,
-    Evaluation,
-    LoadingMeta,
-    Metric,
-    PreProcessing,
-    TrainingRecipe,
-    _warn_pretrained_unavailable,
-)
+from .checkpoints import Checkpoint, Dataset, Evaluation, LoadingMeta, Metric, PreProcessing, TrainingRecipe
 from .presets import IMAGENET, IMAGENETTE
 
 __all__ = ["conv_sequence", "fuse_conv_bn", "load_pretrained_params", "model_from_hf_hub"]
@@ -113,9 +104,9 @@ def load_pretrained_params(
         key_filter: prefix of the checkpoint keys to be loaded
     """
     if url is None:
-        _warn_pretrained_unavailable(model.__class__.__name__, stacklevel=3)
+        logger.warning("Invalid model URL, using default initialization.")
     else:
-        state_dict = load_state_dict_from_url(url, progress=progress, map_location="cpu")
+        state_dict = load_state_dict_from_url(url, progress=progress, map_location="cpu", weights_only=True)
         if isinstance(key_filter, str):
             state_dict = {k: v for k, v in state_dict.items() if k.startswith(key_filter)}
         if isinstance(key_replacement, tuple):
@@ -170,8 +161,16 @@ def model_from_hf_hub(repo_id: str, **kwargs: Any) -> nn.Module:
     Returns:
         Model loaded with the checkpoint
     """
+    # Pin the config and checkpoint to the same immutable revision.
+    requested_revision = kwargs.pop("revision", None)
+    info = cast(
+        DryRunFileInfo,
+        hf_hub_download(repo_id, filename="config.json", revision=requested_revision, **{**kwargs, "dry_run": True}),
+    )
+    kwargs.pop("dry_run", None)
+
     # Get the config
-    with Path(hf_hub_download(repo_id, filename="config.json", **kwargs)).open("rb") as f:
+    with Path(hf_hub_download(repo_id, filename="config.json", revision=info.commit_hash, **kwargs)).open("rb") as f:
         cfg = json.load(f)
 
     model = models.__dict__[cfg["arch"]](num_classes=len(cfg["classes"]), pretrained=False)
@@ -184,7 +183,11 @@ def model_from_hf_hub(repo_id: str, **kwargs: Any) -> nn.Module:
         model.default_cfg.update(cfg)
 
     # Load the checkpoint
-    state_dict = torch.load(hf_hub_download(repo_id, filename="pytorch_model.bin", **kwargs), map_location="cpu")
+    state_dict = torch.load(
+        hf_hub_download(repo_id, filename="pytorch_model.bin", revision=info.commit_hash, **kwargs),
+        map_location="cpu",
+        weights_only=True,
+    )
     model.load_state_dict(state_dict)
 
     return model
@@ -216,6 +219,20 @@ def _checkpoint_from_hub_config(hub_config: dict[str, Any]) -> Checkpoint:
             input_shape=hub_config["input_shape"], mean=hub_config["mean"], std=hub_config["std"]
         ),
         recipe=TrainingRecipe(commit=None, script="references/classification/train.py", args=None),
+    )
+
+
+def _imagenette_recipe(arch: str, batch_size: int = 64) -> str:
+    """Return the fixed Imagenette training arguments for published v0.2.1 checkpoints.
+
+    Returns:
+        Historical command-line arguments, including accumulation for batches of 32.
+    """
+    batch_args = f"{batch_size} --grad-acc 2" if batch_size == 32 else str(batch_size)
+    return (
+        f"./imagenette2-320/ --arch {arch} --batch-size {batch_args} --mixup-alpha 0.2 --amp"
+        " --device 0 --epochs 100 --lr 1e-3 --label-smoothing 0.1 --random-erase 0.1 --train-crop-size 176"
+        " --val-resize-size 232 --opt adamw --weight-decay 5e-2"
     )
 
 

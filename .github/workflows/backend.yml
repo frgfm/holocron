@@ -16,7 +16,7 @@ on:
 
 env:
   PYTHON_VERSION: "3.11"
-  UV_VERSION: "0.11.24"
+  UV_VERSION: "0.12.5"
   DOCKER_PLATFORM: "linux/amd64"
 
 jobs:
@@ -27,7 +27,7 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           architecture: x64
@@ -35,7 +35,7 @@ jobs:
         with:
           version: ${{ env.UV_VERSION }}
           activate-environment: true
-      - uses: actions/cache@v5
+      - uses: actions/cache@v6
         with:
           path: ~/.cache/uv
           key: uv-${{ runner.os }}-${{ hashFiles('api/uv.lock') }}
@@ -55,8 +55,8 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v7
-      - uses: docker/setup-buildx-action@v3
-      - uses: actions/cache@v5
+      - uses: docker/setup-buildx-action@v4
+      - uses: actions/cache@v6
         with:
           path: /tmp/.buildx-cache
           key: ${{ runner.os }}-buildx-backend-${{ hashFiles('api/uv.lock') }}-${{ github.sha }}
@@ -87,7 +87,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           architecture: x64
@@ -109,7 +109,7 @@ jobs:
       attestations: write
     steps:
       - uses: actions/checkout@v7
-      - uses: docker/setup-buildx-action@v3
+      - uses: docker/setup-buildx-action@v4
       - name: Generate metadata
         id: meta
         run: |
@@ -129,7 +129,7 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: actions/cache@v5
+      - uses: actions/cache@v6
         with:
           path: /tmp/.buildx-cache
           key: ${{ runner.os }}-buildx-backend-${{ hashFiles('api/uv.lock') }}-${{ github.sha }}
