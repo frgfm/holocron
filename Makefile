@@ -16,6 +16,7 @@ API_REQ_FILE = ${BACKEND_DIR}/requirements.txt
 DEMO_REQ_FILE = ${DEMO_DIR}/requirements.txt
 DEMO_FILE = ${DEMO_DIR}/app.py
 LATENCY_SCRIPT = ${SCRIPTS_DIR}/eval_latency.py
+LATENCY_ARGS ?=
 REPO_OWNER ?= frgfm
 REPO_NAME ?= holocron
 DOCKER_NAMESPACE ?= ghcr.io/${REPO_OWNER}
@@ -106,8 +107,8 @@ test: ${PYPROJECT_FILE} ## Run the tests
 install-scripts: ${PY_DIR} ${PYPROJECT_FILE} ## Install with test dependencies
 	uv sync --locked --extra scripts
 
-bench-latency: ${PYPROJECT_FILE} ${LATENCY_SCRIPT} ## Run the tests
-	uv run --no-sync python ${LATENCY_SCRIPT} rexnet1_0x
+bench-latency: ${PYPROJECT_FILE} ${LATENCY_SCRIPT} ## Measure model inference latency, throughput, and peak RSS
+	uv run --no-sync python ${LATENCY_SCRIPT} rexnet1_0x ${LATENCY_ARGS}
 
 
 ########################################################
