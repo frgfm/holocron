@@ -231,7 +231,7 @@ The files record the package revision and dirty state, dependency versions, runt
 and individual trials. Check that the CUDA math settings match before comparing GPU results.
 Alternate baseline and candidate commands, and first run main twice to check normal measurement variation.
 Compare latency, throughput, and peak RSS per workload; avoid treating small changes within that variation as gains.
-CI runs a short CPU check and uploads its JSON result. CI timing is advisory.
+CI runs short CPU checks for PyTorch and ONNX and uploads their JSON results. CI timing is advisory.
 
 *All arguments are listed by `python scripts/eval_latency.py --help`.*
 

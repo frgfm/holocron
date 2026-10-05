@@ -6,7 +6,6 @@ on:
     paths:
       - '.github/workflows/scripts.yml'
       - 'scripts/**'
-      - 'tests/test_eval_latency.py'
       - 'Makefile'
       - 'pyproject.toml'
       - 'uv.lock'
@@ -15,7 +14,6 @@ on:
     paths:
       - '.github/workflows/scripts.yml'
       - 'scripts/**'
-      - 'tests/test_eval_latency.py'
       - 'Makefile'
       - 'pyproject.toml'
       - 'uv.lock'
@@ -41,10 +39,10 @@ jobs:
         env:
           UV_TORCH_BACKEND: cpu
         run: |
-          uv sync --locked --extra scripts --extra test
-          uv run --no-sync pytest tests/test_eval_latency.py --no-cov
+          make install-scripts
           make bench-latency LATENCY_ARGS="--it 5 --warmup 1 --repeat 1 --output latency.json"
+          make bench-latency LATENCY_ARGS="--backend onnx --it 5 --warmup 1 --repeat 1 --output latency-onnx.json"
       - uses: actions/upload-artifact@v7
         with:
           name: latency
-          path: latency.json
+          path: latency*.json
