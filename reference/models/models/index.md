@@ -2,6 +2,23 @@
 
 The models subpackage contains definitions of models for addressing different tasks, including: image classification, pixelwise semantic segmentation, object detection, and text recognition.
 
+## Discover models
+
+List model factory functions and create a model without indexing Python modules:
+
+```python
+from holocron.models import get_model, get_model_info, list_checkpoints, list_models
+
+names = list_models(task="classification", pretrained=True)
+info = get_model_info("convnext_atto")
+checkpoints = list_checkpoints(info.name)
+model = get_model(info.name, pretrained=info.pretrained, checkpoint=checkpoints[0] if checkpoints else None)
+```
+
+`pretrained` reports built-in weight availability, including legacy weights. It does not establish benchmark quality. `list_checkpoints` returns existing typed metadata and stays empty for legacy weights. Factory arguments pass through unchanged; for example, `get_model("yolo26n", num_classes=20)`. Recognition currently exposes classes rather than factory functions, so its catalog list is empty. Discovery does not instantiate models or download weights.
+
+Some detection and segmentation factories load pretrained backbones by default. `pretrained=False` disables full-model weights only. Pass `pretrained_backbone=False` to those factories to avoid backbone downloads.
+
 ## Support status
 
 | Task                                | Architectures                                                  | Published checkpoints                                                                    | Training                                                                                           | ONNX                                                                                                                       | Status                                                                                |
