@@ -63,10 +63,12 @@ compatible: parameter names, shapes and preprocessing may differ. Use the
 published Holocron checkpoint or a documented adapter, such as
 [RepViT's official checkpoint import](classification/repvit.md#use-the-authors-checkpoint).
 
-An implemented architecture does not guarantee pretrained weights. Where no
-checkpoint is available, `pretrained=True` logs a warning and leaves the model
-randomly initialized. Check the model's checkpoint documentation before using
-it for inference; train models without weights with the
+An implemented architecture does not guarantee pretrained weights. When no
+weights are available, legacy weight loaders log
+`Invalid model URL, using default initialization.` and keep the model's initial
+parameters. The YOLO26 detection and segmentation builders instead raise
+`ValueError` for `pretrained=True`. Check the model's checkpoint documentation
+before using it for inference; train models without weights with the
 [reference scripts](https://github.com/frgfm/Holocron/tree/main/references).
 
 The table below lists classification checkpoints with recorded metrics.

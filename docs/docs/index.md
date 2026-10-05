@@ -36,7 +36,7 @@ from PIL import Image
 from torchvision.transforms.v2 import Compose, ConvertImageDtype, Normalize, PILToTensor, Resize
 from holocron.models.classification import ResNet18_Checkpoint, resnet18
 
-checkpoint = ResNet18_Checkpoint.DEFAULT.value
+checkpoint = ResNet18_Checkpoint.IMAGENETTE.value
 model = resnet18(checkpoint=checkpoint).eval()
 
 image = Image.open(path_to_an_image).convert("RGB")

@@ -544,7 +544,7 @@ def dice_loss(
     """Implements the dice loss from ["V-Net: Fully Convolutional Neural Networks for Volumetric Medical Image Segmentation"](https://arxiv.org/pdf/1606.04797.pdf)
 
     Args:
-        x: predicted probability of shape [N, K, ...]
+        x: predicted probability of shape [N, K, ...] with at least one spatial dimension
         target: target probability of shape [N, K, ...]
         weight: manual rescaling of each class of shape [K]
         gamma: controls the balance between recall (gamma > 1) and precision (gamma < 1)
@@ -587,7 +587,7 @@ def poly_loss(
         eps: epsilon 1 from the paper
         weight: manual rescaling of each class of shape [K]
         ignore_index: class index excluded from sum/mean reduction; for hard targets it must be in
-            [0, K) if present in target. Out-of-range values, including -100, are not supported
+            [0, K) if present in target. Out-of-range hard targets, including -100, raise RuntimeError
         reduction: reduction method; with hard targets, "none" returns a flat tensor and does not
             zero ignored positions
 

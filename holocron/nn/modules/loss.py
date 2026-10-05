@@ -248,7 +248,7 @@ class PolyLoss(Loss):
 
     Note:
         Out-of-range hard targets, including the default `ignore_index=-100`,
-        raise an error if present in the target. Only an in-range class index
+        raise `RuntimeError` if present in the target. Only an in-range class index
         can be ignored for sum/mean reduction. With `reduction="none"`, ignored
         positions are not zeroed and hard-target losses are returned as a flat
         tensor. See the [loss input guide](https://frgfm.github.io/holocron/reference/nn/#loss-functions)

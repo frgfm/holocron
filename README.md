@@ -61,7 +61,7 @@ from PIL import Image
 from torchvision.transforms.v2 import Compose, ConvertImageDtype, Normalize, PILToTensor, Resize
 from holocron.models.classification import ResNet18_Checkpoint, resnet18
 
-checkpoint = ResNet18_Checkpoint.DEFAULT.value
+checkpoint = ResNet18_Checkpoint.IMAGENETTE.value
 model = resnet18(checkpoint=checkpoint).eval()
 
 image = Image.open(path_to_an_image).convert("RGB")
@@ -101,8 +101,9 @@ A matching model name does not make torchvision or `timm` weights compatible.
 To adapt pretrained weights to your own classes, load them before replacing the
 classifier; see the [transfer-learning guide](https://frgfm.github.io/holocron/getting-started/classification/).
 
-Requesting unavailable pretrained weights logs a warning and keeps the affected
-model's initial parameters. No full detection checkpoints are published; a pretrained
+Legacy weight loaders log a warning and keep the affected model's initial
+parameters when no weights are available. YOLO26 builders instead raise
+`ValueError` for `pretrained=True`. No full detection checkpoints are published; a pretrained
 classification backbone is not a pretrained detector. Train models without
 weights with the [reference scripts](references/).
 
