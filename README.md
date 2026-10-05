@@ -162,7 +162,8 @@ Full CUDA/VOC training on the repaired implementation remains pending; the synth
 
 You crave for SOTA performances, but you don't know whether it fits your needs in terms of latency?
 
-In the table below, you will find a latency benchmark for all supported models:
+The table below contains historical results from an older timing method. Use the script below for
+current comparisons. Its GPU timer waits for execution to finish.
 
 | Arch                                                         | GPU mean (std)    | CPU mean (std)     |
 | ------------------------------------------------------------ | ----------------- | ------------------ |
@@ -196,13 +197,44 @@ In the table below, you will find a latency benchmark for all supported models:
 
 This benchmark was performed over 100 iterations on (224, 224) inputs, on a laptop to better reflect performances that can be expected by common users. The hardware setup includes an [Intel(R) Core(TM) i7-10750H](https://ark.intel.com/content/www/us/en/ark/products/201837/intel-core-i710750h-processor-12m-cache-up-to-5-00-ghz.html) for the CPU, and a [NVIDIA GeForce RTX 2070 with Max-Q Design](https://www.nvidia.com/fr-fr/geforce/graphics-cards/rtx-2070/) for the GPU.
 
-You can run this latency benchmark for any model on your hardware as follows:
+Measure a classification model on your hardware:
 
 ```bash
-python scripts/eval_latency.py rexnet1_0x
+uv sync --locked --extra scripts
+uv run --no-sync python scripts/eval_latency.py rexnet1_0x --device cpu --output /tmp/latency.json
 ```
 
-*All script arguments can be checked using `python scripts/eval_latency.py --help`*
+The command measures PyTorch on CPU by default. Use `--device cuda:0` or `--device mps` to measure a GPU.
+Use `--backend onnx` to measure ONNX Runtime on CPU. Its export runs in a separate process and uses temporary files.
+The ONNX worker checks its output against the PyTorch export reference.
+
+Each command runs five fresh worker processes by default. It reports the first forward call, median and 95th-percentile
+warmed batch latency, and sustained throughput in images per second. GPU timing waits for work to finish.
+The summary uses medians across workers for timings and throughput. It shows the range of worker medians.
+Peak RSS is the highest resident process memory across workers, recorded after inference.
+It includes imports, model setup, and warm-up. It excludes the parent process, ONNX export, and output checks.
+RSS is unavailable on Windows.
+CUDA workers also save peak tensor allocations and allocator reservations in the JSON file.
+RSS and CUDA memory are separate measurements. First-call timing excludes imports and model setup.
+Compare RSS only between runs using the same runtime and device.
+
+Use `--batch-size`, `--size`, `--threads`, `--it`, `--warmup`, and `--repeat` to set the workload.
+Inputs use float32. Inference uses evaluation mode, disables gradient tracking, and converts reparametrizable
+models to their inference form. CPU operations use one thread by default.
+The fixed seed improves repeatability; it does not prove identical weights or inputs across PyTorch versions.
+These measurements cover prepared-tensor inference. They exclude image loading, preprocessing, and transfers.
+They do not measure training or model accuracy.
+
+To compare main with a dependency PR, install each checkout into a separate environment with `uv sync --locked`.
+Use the same Python version, machine, runtime, device, and settings. Run the same version of this script against
+both installations, using an absolute path to the script. Save a JSON file from each environment.
+The files record the package revision and dirty state, dependency versions, runtime settings, script hash,
+and individual trials. Check that the CUDA math settings match before comparing GPU results.
+Alternate baseline and candidate commands, and first run main twice to check normal measurement variation.
+Compare latency, throughput, and peak RSS per workload; avoid treating small changes within that variation as gains.
+CI runs short CPU checks for PyTorch and ONNX and uploads their JSON results. CI timing is advisory.
+
+*All arguments are listed by `python scripts/eval_latency.py --help`.*
 
 ### Docker container
 

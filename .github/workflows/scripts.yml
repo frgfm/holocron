@@ -6,12 +6,16 @@ on:
     paths:
       - '.github/workflows/scripts.yml'
       - 'scripts/**'
+      - 'Makefile'
+      - 'pyproject.toml'
       - 'uv.lock'
   pull_request:
     branches: main
     paths:
       - '.github/workflows/scripts.yml'
       - 'scripts/**'
+      - 'Makefile'
+      - 'pyproject.toml'
       - 'uv.lock'
 
 env:
@@ -36,4 +40,10 @@ jobs:
           UV_TORCH_BACKEND: cpu
         run: |
           make install-scripts
-          make bench-latency
+          make bench-latency LATENCY_ARGS="--it 5 --warmup 1 --repeat 1 --output latency.json"
+          make bench-latency LATENCY_ARGS="--backend onnx --it 5 --warmup 1 --repeat 1 --output latency-onnx.json"
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: latency
+          path: latency*.json
