@@ -233,10 +233,33 @@ class PolyLoss(Loss):
     """Implements the Poly1 loss from ["PolyLoss: A Polynomial Expansion Perspective of Classification Loss
     Functions"](https://arxiv.org/pdf/2204.12511.pdf).
 
+    Pass raw logits with shape `(N, K, ...)`, where `K` is the number of classes.
+    Hard targets have shape `(N, ...)` and dtype `torch.int64`, with values in
+    `[0, K)`. Soft targets are floating-point class probabilities with the same
+    shape as the logits. Do not apply softmax to the input first.
+
+    Example:
+        >>> import torch
+        >>> from holocron.nn import PolyLoss
+        >>> logits = torch.randn(4, 10, requires_grad=True)
+        >>> target = torch.tensor([0, 9, 3, 1], dtype=torch.int64)
+        >>> loss = PolyLoss()(logits, target)
+        >>> loss.backward()
+
+    Note:
+        Out-of-range hard targets, including the default `ignore_index=-100`,
+        raise `RuntimeError` if present in the target. Only an in-range class index
+        can be ignored for sum/mean reduction. With `reduction="none"`, ignored
+        positions are not zeroed and hard-target losses are returned as a flat
+        tensor. See the [loss input guide](https://frgfm.github.io/holocron/reference/nn/#loss-functions)
+        for a loss that supports out-of-range ignored targets.
+
     Args:
-        *args: args of [`Loss`][holocron.nn.modules.loss.Loss]
-        eps: epsilon 1 from the paper
-        **kwargs: keyword args of [`Loss`][holocron.nn.modules.loss.Loss]
+        *args: positional weight, ignore_index and reduction arguments of
+            [`Loss`][holocron.nn.modules.loss.Loss]
+        eps: epsilon 1 from the paper (default: 2.0)
+        **kwargs: weight, ignore_index and reduction keyword arguments of
+            [`Loss`][holocron.nn.modules.loss.Loss]
     """
 
     def __init__(

@@ -36,7 +36,7 @@ from PIL import Image
 from torchvision.transforms.v2 import Compose, ConvertImageDtype, Normalize, PILToTensor, Resize
 from holocron.models.classification import ResNet18_Checkpoint, resnet18
 
-checkpoint = ResNet18_Checkpoint.DEFAULT.value
+checkpoint = ResNet18_Checkpoint.IMAGENETTE.value
 model = resnet18(checkpoint=checkpoint).eval()
 
 image = Image.open(path_to_an_image).convert("RGB")
@@ -73,8 +73,10 @@ before choosing a model.
 
 ### Image classification — validated checkpoints
 
-Published checkpoints and metrics cover Imagenette, plus selected ReXNet
-ImageNet-1K variants.
+See the [available checkpoints](reference/models/models.md#available-checkpoints)
+for datasets, metrics, weight compatibility and loading instructions. Most
+classification checkpoints target Imagenette (10 classes); selected ReXNet
+variants also provide ImageNet-1K weights (1,000 classes).
 
 * TridentNet from ["Scale-Aware Trident Networks for Object Detection"](https://arxiv.org/pdf/1901.01892.pdf)
 * SKNet from ["Selective Kernel Networks"](https://arxiv.org/pdf/1903.06586.pdf)

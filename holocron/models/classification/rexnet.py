@@ -278,7 +278,7 @@ def rexnet1_0x(
     ["ReXNet: Diminishing Representational Bottleneck on Convolutional Neural Network"](https://arxiv.org/pdf/2007.00992.pdf)
 
     Args:
-        pretrained: If True, returns a model pre-trained on ImageNette
+        pretrained: If True, returns a model pre-trained on ImageNet-1K
         checkpoint: If specified, the model's parameters will be set to the checkpoint's values
         progress: If True, displays a progress bar of the download to stderr
         kwargs: keyword args of [`ReXNet`][holocron.models.classification.rexnet.ReXNet]
@@ -336,7 +336,7 @@ def rexnet1_3x(
     ["ReXNet: Diminishing Representational Bottleneck on Convolutional Neural Network"](https://arxiv.org/pdf/2007.00992.pdf)
 
     Args:
-        pretrained: If True, returns a model pre-trained on ImageNet
+        pretrained: If True, returns a model pre-trained on ImageNet-1K
         checkpoint: If specified, the model's parameters will be set to the checkpoint's values
         progress: If True, displays a progress bar of the download to stderr
         kwargs: keyword args of [`ReXNet`][holocron.models.classification.rexnet.ReXNet]
@@ -394,7 +394,7 @@ def rexnet1_5x(
     ["ReXNet: Diminishing Representational Bottleneck on Convolutional Neural Network"](https://arxiv.org/pdf/2007.00992.pdf)
 
     Args:
-        pretrained: If True, returns a model pre-trained on ImageNet
+        pretrained: If True, returns a model pre-trained on ImageNet-1K
         checkpoint: If specified, the model's parameters will be set to the checkpoint's values
         progress: If True, displays a progress bar of the download to stderr
         kwargs: keyword args of [`ReXNet`][holocron.models.classification.rexnet.ReXNet]
@@ -452,7 +452,7 @@ def rexnet2_0x(
     ["ReXNet: Diminishing Representational Bottleneck on Convolutional Neural Network"](https://arxiv.org/pdf/2007.00992.pdf)
 
     Args:
-        pretrained: If True, returns a model pre-trained on ImageNet
+        pretrained: If True, returns a model pre-trained on ImageNet-1K
         checkpoint: If specified, the model's parameters will be set to the checkpoint's values
         progress: If True, displays a progress bar of the download to stderr
         kwargs: keyword args of [`ReXNet`][holocron.models.ReXNet]
@@ -498,7 +498,7 @@ def rexnet2_2x(
     ["ReXNet: Diminishing Representational Bottleneck on Convolutional Neural Network"](https://arxiv.org/pdf/2007.00992.pdf)
 
     Args:
-        pretrained: If True, returns a model pre-trained on ImageNet
+        pretrained: If True, returns a model pre-trained on Imagenette
         checkpoint: If specified, the model's parameters will be set to the checkpoint's values
         progress: If True, displays a progress bar of the download to stderr
         kwargs: keyword args of [`ReXNet`][holocron.models.classification.rexnet.ReXNet]

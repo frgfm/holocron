@@ -544,7 +544,7 @@ def dice_loss(
     """Implements the dice loss from ["V-Net: Fully Convolutional Neural Networks for Volumetric Medical Image Segmentation"](https://arxiv.org/pdf/1606.04797.pdf)
 
     Args:
-        x: predicted probability of shape [N, K, ...]
+        x: predicted probability of shape [N, K, ...] with at least one spatial dimension
         target: target probability of shape [N, K, ...]
         weight: manual rescaling of each class of shape [K]
         gamma: controls the balance between recall (gamma > 1) and precision (gamma < 1)
@@ -581,18 +581,21 @@ def poly_loss(
     """Implements the Poly1 loss from ["PolyLoss: A Polynomial Expansion Perspective of Classification Loss Functions"](https://arxiv.org/pdf/2204.12511.pdf).
 
     Args:
-        x: predicted probability of shape [N, K, ...]
-        target: target probability of shape [N, K, ...]
+        x: raw logits of shape [N, K, ...]; log-softmax is applied internally
+        target: hard class indices of shape [N, ...] with dtype torch.int64, or floating-point
+            class probabilities with the same shape as x
         eps: epsilon 1 from the paper
         weight: manual rescaling of each class of shape [K]
-        ignore_index: specifies target value that is ignored and do not contribute to gradient
-        reduction: reduction method
+        ignore_index: class index excluded from sum/mean reduction; for hard targets it must be in
+            [0, K) if present in target. Out-of-range hard targets, including -100, raise RuntimeError
+        reduction: reduction method; with hard targets, "none" returns a flat tensor and does not
+            zero ignored positions
 
     Returns:
         loss reduced with `reduction` method
 
     Raises:
-        TypeError: if the target dtype is not torch.int64
+        TypeError: if hard class-index targets do not have dtype torch.int64
         ValueError: if the target shape is invalid
     """
     # log(P[class]) = log_softmax(score)[class]

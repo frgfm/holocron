@@ -50,36 +50,68 @@ Implementations of recent Deep Learning tricks in Computer Vision, easily paired
 ## Quick Tour
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/frgfm/notebooks/blob/main/holocron/quicktour.ipynb)
 
-This project was created for quality implementations, increased developer flexibility and maximum compatibility with the PyTorch ecosystem. For instance, here is a short snippet to showcase how Holocron models are meant to be used:
+Holocron provides research implementations with PyTorch interfaces.
+Implementations and training recipes may differ from a paper author's code.
+This example uses an explicit checkpoint and its preprocessing and labels:
 
+<!-- quickstart-example-start -->
 ```python
+import torch
 from PIL import Image
 from torchvision.transforms.v2 import Compose, ConvertImageDtype, Normalize, PILToTensor, Resize
-from torchvision.transforms.v2.functional import InterpolationMode
-from holocron.models.classification import repvgg_a0
+from holocron.models.classification import ResNet18_Checkpoint, resnet18
 
-# Load your model
-model = repvgg_a0(pretrained=True).eval()
+checkpoint = ResNet18_Checkpoint.IMAGENETTE.value
+model = resnet18(checkpoint=checkpoint).eval()
 
-# Read your image
-img = Image.open(path_to_an_image).convert("RGB")
+image = Image.open(path_to_an_image).convert("RGB")
+preprocessing = checkpoint.pre_processing
 
-# Preprocessing
-config = model.default_cfg
 transform = Compose([
-    Resize(config["input_shape"][1:], interpolation=InterpolationMode.BILINEAR),
+    Resize(preprocessing.input_shape[1:], interpolation=preprocessing.interpolation),
     PILToTensor(),
     ConvertImageDtype(torch.float32),
-    Normalize(config["mean"], config["std"]),
+    Normalize(preprocessing.mean, preprocessing.std),
 ])
 
-input_tensor = transform(img).unsqueeze(0)
+input_tensor = transform(image).unsqueeze(0)
 
-# Inference
 with torch.inference_mode():
-    output = model(input_tensor)
-print(config["classes"][output.squeeze(0).argmax().item()], output.squeeze(0).softmax(dim=0).max())
+    probabilities = model(input_tensor).squeeze(0).softmax(dim=0)
+
+class_idx = probabilities.argmax().item()
+label = checkpoint.meta.categories[class_idx]
+confidence = probabilities[class_idx].item()
+print(label, confidence)
 ```
+<!-- quickstart-example-end -->
+
+
+## Pretrained models
+
+An architecture may be available without pretrained weights. See the
+[checkpoint list and loading guide](https://frgfm.github.io/holocron/reference/models/models/#available-checkpoints)
+for classification datasets, metrics and weight compatibility, and the
+[support status](https://frgfm.github.io/holocron/reference/models/models/#support-status)
+for other tasks. Most classification checkpoints target Imagenette (10 classes);
+selected ReXNet variants also provide ImageNet-1K weights (1,000 classes).
+
+Use the checkpoint's preprocessing and category metadata, as shown above.
+A matching model name does not make torchvision or `timm` weights compatible.
+To adapt pretrained weights to your own classes, load them before replacing the
+classifier; see the [transfer-learning guide](https://frgfm.github.io/holocron/getting-started/classification/).
+
+Legacy weight loaders log a warning and keep the affected model's initial
+parameters when no weights are available. YOLO26 builders instead raise
+`ValueError` for `pretrained=True`. No full detection checkpoints are published; a pretrained
+classification backbone is not a pretrained detector. Train models without
+weights with the [reference scripts](references/).
+
+## Loss functions
+
+`PolyLoss` expects raw logits and either `torch.int64` class indices or soft
+class probabilities. See the [loss input guide and runnable example](https://frgfm.github.io/holocron/reference/nn/#loss-functions)
+for tensor shapes, target types and the current `ignore_index` limitations.
 
 
 ## Installation
