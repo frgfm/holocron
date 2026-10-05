@@ -119,18 +119,19 @@ def evaluate(args):
                 lambda: model(image), args.batch_size, args.it, args.warmup, lambda: synchronize(device)
             )
         result["peak_rss_mib"] = peak_rss_mib()
+        result["runtime"] = {"device_name": str(device)}
         if device.type == "cuda":
             result["cuda_peak_allocated_mib"] = torch.cuda.max_memory_allocated(device) / 1024**2
             result["cuda_peak_reserved_mib"] = torch.cuda.max_memory_reserved(device) / 1024**2
+            result["runtime"].update({
+                "device_name": torch.cuda.get_device_name(device),
+                "cuda_version": torch.version.cuda,
+                "cudnn_benchmark": torch.backends.cudnn.benchmark,
+                "cudnn_allow_tf32": torch.backends.cudnn.allow_tf32,
+                "matmul_allow_tf32": torch.backends.cuda.matmul.allow_tf32,
+            })
         if not torch.isfinite(output).all():
             raise ValueError("Model output contains non-finite values")
-        result["runtime"] = {
-            "device_name": torch.cuda.get_device_name(device) if device.type == "cuda" else platform.processor(),
-            "cuda_version": torch.version.cuda,
-            "cudnn_benchmark": torch.backends.cudnn.benchmark,
-            "cudnn_allow_tf32": torch.backends.cudnn.allow_tf32,
-            "matmul_allow_tf32": torch.backends.cuda.matmul.allow_tf32,
-        }
     else:
         import numpy as np
         import onnxruntime
@@ -178,9 +179,9 @@ def environment():
                 [git, "-C", str(root), "status", "--porcelain", "--untracked-files=no"],
                 capture_output=True,
                 text=True,
-                check=True,
+                check=False,
             )
-            dirty = bool(status.stdout)
+            dirty = bool(status.stdout) if status.returncode == 0 else None
     versions = {}
     for package in ("pylocron", "torch", "torchvision", "numpy", "onnx", "onnxruntime"):
         try:
@@ -216,26 +217,14 @@ def main(args):
         runs = [json.loads(run_child(args, *extra)) for _ in range(args.repeat)]
 
     summary = {}
+    # Keep the largest memory peak; use medians for timings and throughput.
     for key in runs[0]:
         if key not in {"pid", "runtime"}:
             values = [run[key] for run in runs if run[key] is not None]
             summary[key] = (max(values) if "peak" in key else statistics.median(values)) if values else None
     summary["median_range_ms"] = [min(run["median_ms"] for run in runs), max(run["median_ms"] for run in runs)]
     config = {
-        name: getattr(args, name)
-        for name in (
-            "arch",
-            "backend",
-            "device",
-            "size",
-            "batch_size",
-            "it",
-            "warmup",
-            "threads",
-            "seed",
-            "pretrained",
-            "repeat",
-        )
+        key: value for key, value in vars(args).items() if key not in {"output", "worker", "export_to", "onnx_path"}
     }
     report = {"schema_version": 1, "config": config, "environment": environment(), "runs": runs, "summary": summary}
     if args.output:
@@ -245,7 +234,8 @@ def main(args):
     print(f"{args.arch}: {args.backend}, {args.device}, batch {args.batch_size}, {args.repeat} fresh processes")
     print(
         f"First call: {summary['first_ms']:.2f} ms; median: {summary['median_ms']:.2f} ms; "
-        f"p95: {summary['p95_ms']:.2f} ms; throughput: {summary['throughput_per_s']:.2f} images/s; peak RSS: {rss}"
+        f"p95 (median across runs): {summary['p95_ms']:.2f} ms; "
+        f"throughput: {summary['throughput_per_s']:.2f} images/s; peak RSS: {rss}"
     )
     print(f"Run median range: {summary['median_range_ms'][0]:.2f}-{summary['median_range_ms'][1]:.2f} ms")
 

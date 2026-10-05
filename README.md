@@ -208,7 +208,7 @@ The command measures PyTorch on CPU by default. Use `--device cuda:0` or `--devi
 Use `--backend onnx` to measure ONNX Runtime on CPU. Its export runs in a separate process and uses temporary files.
 The ONNX worker checks its output against the PyTorch export reference.
 
-Each command runs five fresh worker processes. It reports the first forward call, median and 95th-percentile
+Each command runs five fresh worker processes by default. It reports the first forward call, median and 95th-percentile
 warmed batch latency, and sustained throughput in images per second. GPU timing waits for work to finish.
 The summary uses medians across workers for timings and throughput. It shows the range of worker medians.
 Peak RSS is the highest resident process memory across workers, recorded after inference.
@@ -216,6 +216,7 @@ It includes imports, model setup, and warm-up. It excludes the parent process, O
 RSS is unavailable on Windows.
 CUDA workers also save peak tensor allocations and allocator reservations in the JSON file.
 RSS and CUDA memory are separate measurements. First-call timing excludes imports and model setup.
+Compare RSS only between runs using the same runtime and device.
 
 Use `--batch-size`, `--size`, `--threads`, `--it`, `--warmup`, and `--repeat` to set the workload.
 Inputs use float32. Inference uses evaluation mode, disables gradient tracking, and converts reparametrizable
