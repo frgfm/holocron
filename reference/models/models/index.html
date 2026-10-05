@@ -2708,7 +2708,34 @@ The output represents the classification scores for each output classes.</p>
 <li><a href="../classification/repvit/">RepViT</a></li>
 </ul>
 <h3 id="available-checkpoints">Available checkpoints<a class="headerlink" href="#available-checkpoints" title="Permanent link">&para;</a></h3>
-<p>Here is the list of available checkpoints:</p>
+<p>Most classification checkpoints were trained on <a href="https://github.com/fastai/imagenette">Imagenette</a>,
+a ten-class subset of ImageNet. Selected ReXNet variants also provide ImageNet-1K
+weights with 1,000 output classes. Choose a checkpoint by its dataset, not just
+its architecture name. Accuracy values from these two datasets are not comparable.</p>
+<p>Pass a <code>Checkpoint</code> object, for example
+<code>rexnet1_0x(checkpoint=ReXNet1_0x_Checkpoint.IMAGENETTE.value)</code>, to select weights
+explicitly. For models with checkpoint enums, <code>pretrained=True</code>
+selects <code>DEFAULT.value</code>; it does not always select Imagenette. The checkpoint
+defines the preprocessing, output categories and evaluation metrics. See the
+<a href="../../../#quick-start">quick start</a> for inference and the
+<a href="../../../getting-started/classification/">transfer-learning guide</a> to replace the
+classifier after loading weights.</p>
+<p>Weights may be trained in Holocron or ported from another implementation. A
+matching architecture name does not make a torchvision or <code>timm</code> state dictionary
+compatible: parameter names, shapes and preprocessing may differ. Use the
+published Holocron checkpoint or a documented adapter, such as
+<a href="../classification/repvit/#use-the-authors-checkpoint">RepViT's official checkpoint import</a>.</p>
+<p>An implemented architecture does not guarantee pretrained weights. When no
+weights are available, legacy weight loaders log
+<code>Invalid model URL, using default initialization.</code> and keep the model's initial
+parameters. The YOLO26 detection and segmentation builders instead raise
+<code>ValueError</code> for <code>pretrained=True</code>. Check the model's checkpoint documentation
+before using it for inference; train models without weights with the
+<a href="https://github.com/frgfm/Holocron/tree/main/references">reference scripts</a>.</p>
+<p>The table below lists classification checkpoints with recorded metrics.
+<code>darknet24</code> and <code>tridentnet50</code> also have legacy Imagenette weights, but no
+recorded evaluation metrics. Their <code>model.default_cfg</code> is a dictionary with
+<code>input_shape</code>, <code>mean</code>, <code>std</code> and <code>classes</code> keys, rather than a <code>Checkpoint</code> object.</p>
 <p>The chart compares only the 27 Imagenette checkpoints. ImageNet-1K rows remain
 in the table for reference but use a different evaluation dataset.</p>
 <p><img alt="Scatter plot of Imagenette top-one accuracy against parameter count, with the Pareto frontier and default ResNet-18 checkpoint highlighted." src="../../../img/checkpoint-accuracy-vs-parameters.svg" /></p>

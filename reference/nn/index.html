@@ -3085,6 +3085,46 @@ f(x) = max(\mathbb{T}(x), x)
     </div>
 
 </div><h2 id="loss-functions">Loss functions<a class="headerlink" href="#loss-functions" title="Permanent link">&para;</a></h2>
+<p>Check each loss's input contract before using it. <code>N</code> is the batch size and <code>K</code>
+is the number of classes; <code>...</code> represents spatial dimensions, which are optional
+for <code>FocalLoss</code> and <code>PolyLoss</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Loss</th>
+<th>Input</th>
+<th>Target</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>FocalLoss</code></td>
+<td>Raw logits, shape <code>(N, K, ...)</code></td>
+<td>Class indices, shape <code>(N, ...)</code>, dtype <code>torch.int64</code></td>
+</tr>
+<tr>
+<td><code>PolyLoss</code></td>
+<td>Raw logits, shape <code>(N, K, ...)</code></td>
+<td>Class indices with dtype <code>torch.int64</code>, or soft class probabilities with the same shape as the logits</td>
+</tr>
+<tr>
+<td><code>DiceLoss</code></td>
+<td>Class probabilities, shape <code>(N, K, ...)</code></td>
+<td>One-hot or soft targets with the same shape as the input</td>
+</tr>
+</tbody>
+</table>
+<p><code>DiceLoss</code> requires at least one spatial dimension and returns a scalar. It does
+not accept <code>ignore_index</code> or <code>reduction</code> arguments.</p>
+<p>For hard targets, class indices must be in <code>[0, K)</code>, except for ignored values
+supported by the selected loss. A segmentation target has shape <code>(N, H, W)</code>,
+without a class channel. Casting a soft target to <code>torch.int64</code> does not turn it
+into class indices.</p>
+<p><code>FocalLoss(ignore_index=-100)</code> supports ignored hard targets outside the class
+range and excludes them from the loss and gradient. <code>PolyLoss</code> currently does
+not: a hard target containing <code>-100</code> or <code>255</code> outside <code>[0, K)</code> raises <code>RuntimeError</code>,
+even when it matches <code>ignore_index</code>. Its in-range ignore behavior and
+<code>reduction="none"</code> limits are documented below.</p>
 
 
 <div class="doc doc-object doc-module">
@@ -3996,7 +4036,37 @@ Segmentation"</a>.</p>
 
         <p>Implements the Poly1 loss from <a href="https://arxiv.org/pdf/2204.12511.pdf">"PolyLoss: A Polynomial Expansion Perspective of Classification Loss
 Functions"</a>.</p>
+<p>Pass raw logits with shape <code>(N, K, ...)</code>, where <code>K</code> is the number of classes.
+Hard targets have shape <code>(N, ...)</code> and dtype <code>torch.int64</code>, with values in
+<code>[0, K)</code>. Soft targets are floating-point class probabilities with the same
+shape as the logits. Do not apply softmax to the input first.</p>
 
+
+<details class="example" open>
+  <summary>Example</summary>
+  <blockquote>
+<blockquote>
+<blockquote>
+<p>import torch
+from holocron.nn import PolyLoss
+logits = torch.randn(4, 10, requires_grad=True)
+target = torch.tensor([0, 9, 3, 1], dtype=torch.int64)
+loss = PolyLoss()(logits, target)
+loss.backward()</p>
+</blockquote>
+</blockquote>
+</blockquote>
+</details>
+
+<details class="note" open>
+  <summary>Note</summary>
+  <p>Out-of-range hard targets, including the default <code>ignore_index=-100</code>,
+raise <code>RuntimeError</code> if present in the target. Only an in-range class index
+can be ignored for sum/mean reduction. With <code>reduction="none"</code>, ignored
+positions are not zeroed and hard-target losses are returned as a flat
+tensor. See the <a href="https://frgfm.github.io/holocron/reference/nn/#loss-functions">loss input guide</a>
+for a loss that supports out-of-range ignored targets.</p>
+</details>
 
 <table>
       <thead>
@@ -4012,7 +4082,8 @@ Functions"</a>.</p>
             </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
-                <p>args of <a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-class&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-class-name&quot;&gt;Loss&lt;/span&gt;" href="#holocron.nn.Loss"><code>Loss</code></a></p>
+                <p>positional weight, ignore_index and reduction arguments of
+<a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-class&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-class-name&quot;&gt;Loss&lt;/span&gt;" href="#holocron.nn.Loss"><code>Loss</code></a></p>
               </div>
               <p>
                   <span class="doc-param-annotation">
@@ -4032,7 +4103,7 @@ Functions"</a>.</p>
             </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
-                <p>epsilon 1 from the paper</p>
+                <p>epsilon 1 from the paper (default: 2.0)</p>
               </div>
               <p>
                   <span class="doc-param-annotation">
@@ -4052,7 +4123,8 @@ Functions"</a>.</p>
             </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
-                <p>keyword args of <a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-class&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-class-name&quot;&gt;Loss&lt;/span&gt;" href="#holocron.nn.Loss"><code>Loss</code></a></p>
+                <p>weight, ignore_index and reduction keyword arguments of
+<a class="autorefs autorefs-internal" title="&lt;code class=&quot;doc-symbol doc-symbol-heading doc-symbol-class&quot;&gt;&lt;/code&gt;            &lt;span class=&quot;doc doc-object-name doc-class-name&quot;&gt;Loss&lt;/span&gt;" href="#holocron.nn.Loss"><code>Loss</code></a></p>
               </div>
               <p>
                   <span class="doc-param-annotation">
@@ -4078,21 +4150,21 @@ Functions"</a>.</p>
 
                   <details class="mkdocstrings-source">
                     <summary>Source code in <code>holocron/nn/modules/loss.py</code></summary>
-                    <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-242">242</a></span>
-<span class="normal"><a href="#__codelineno-0-243">243</a></span>
-<span class="normal"><a href="#__codelineno-0-244">244</a></span>
-<span class="normal"><a href="#__codelineno-0-245">245</a></span>
-<span class="normal"><a href="#__codelineno-0-246">246</a></span>
-<span class="normal"><a href="#__codelineno-0-247">247</a></span>
-<span class="normal"><a href="#__codelineno-0-248">248</a></span>
-<span class="normal"><a href="#__codelineno-0-249">249</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-242"><a id="__codelineno-0-242" name="__codelineno-0-242"></a><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
-</span><span id="__span-0-243"><a id="__codelineno-0-243" name="__codelineno-0-243"></a>    <span class="bp">self</span><span class="p">,</span>
-</span><span id="__span-0-244"><a id="__codelineno-0-244" name="__codelineno-0-244"></a>    <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
-</span><span id="__span-0-245"><a id="__codelineno-0-245" name="__codelineno-0-245"></a>    <span class="n">eps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span><span class="p">,</span>
-</span><span id="__span-0-246"><a id="__codelineno-0-246" name="__codelineno-0-246"></a>    <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
-</span><span id="__span-0-247"><a id="__codelineno-0-247" name="__codelineno-0-247"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-0-248"><a id="__codelineno-0-248" name="__codelineno-0-248"></a>    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</span><span id="__span-0-249"><a id="__codelineno-0-249" name="__codelineno-0-249"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">eps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">eps</span>
+                    <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-265">265</a></span>
+<span class="normal"><a href="#__codelineno-0-266">266</a></span>
+<span class="normal"><a href="#__codelineno-0-267">267</a></span>
+<span class="normal"><a href="#__codelineno-0-268">268</a></span>
+<span class="normal"><a href="#__codelineno-0-269">269</a></span>
+<span class="normal"><a href="#__codelineno-0-270">270</a></span>
+<span class="normal"><a href="#__codelineno-0-271">271</a></span>
+<span class="normal"><a href="#__codelineno-0-272">272</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-265"><a id="__codelineno-0-265" name="__codelineno-0-265"></a><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+</span><span id="__span-0-266"><a id="__codelineno-0-266" name="__codelineno-0-266"></a>    <span class="bp">self</span><span class="p">,</span>
+</span><span id="__span-0-267"><a id="__codelineno-0-267" name="__codelineno-0-267"></a>    <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+</span><span id="__span-0-268"><a id="__codelineno-0-268" name="__codelineno-0-268"></a>    <span class="n">eps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span><span class="p">,</span>
+</span><span id="__span-0-269"><a id="__codelineno-0-269" name="__codelineno-0-269"></a>    <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+</span><span id="__span-0-270"><a id="__codelineno-0-270" name="__codelineno-0-270"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-0-271"><a id="__codelineno-0-271" name="__codelineno-0-271"></a>    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="__span-0-272"><a id="__codelineno-0-272" name="__codelineno-0-272"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">eps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">eps</span>
 </span></code></pre></div></td></tr></table></div>
                   </details>
 

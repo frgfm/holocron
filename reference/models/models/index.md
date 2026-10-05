@@ -37,7 +37,15 @@ Classification models expect a 4D image tensor as an input (N x C x H x W) and r
 
 ### Available checkpoints
 
-Here is the list of available checkpoints:
+Most classification checkpoints were trained on [Imagenette](https://github.com/fastai/imagenette), a ten-class subset of ImageNet. Selected ReXNet variants also provide ImageNet-1K weights with 1,000 output classes. Choose a checkpoint by its dataset, not just its architecture name. Accuracy values from these two datasets are not comparable.
+
+Pass a `Checkpoint` object, for example `rexnet1_0x(checkpoint=ReXNet1_0x_Checkpoint.IMAGENETTE.value)`, to select weights explicitly. For models with checkpoint enums, `pretrained=True` selects `DEFAULT.value`; it does not always select Imagenette. The checkpoint defines the preprocessing, output categories and evaluation metrics. See the [quick start](../../../#quick-start) for inference and the [transfer-learning guide](../../../getting-started/classification/) to replace the classifier after loading weights.
+
+Weights may be trained in Holocron or ported from another implementation. A matching architecture name does not make a torchvision or `timm` state dictionary compatible: parameter names, shapes and preprocessing may differ. Use the published Holocron checkpoint or a documented adapter, such as [RepViT's official checkpoint import](../classification/repvit/#use-the-authors-checkpoint).
+
+An implemented architecture does not guarantee pretrained weights. When no weights are available, legacy weight loaders log `Invalid model URL, using default initialization.` and keep the model's initial parameters. The YOLO26 detection and segmentation builders instead raise `ValueError` for `pretrained=True`. Check the model's checkpoint documentation before using it for inference; train models without weights with the [reference scripts](https://github.com/frgfm/Holocron/tree/main/references).
+
+The table below lists classification checkpoints with recorded metrics. `darknet24` and `tridentnet50` also have legacy Imagenette weights, but no recorded evaluation metrics. Their `model.default_cfg` is a dictionary with `input_shape`, `mean`, `std` and `classes` keys, rather than a `Checkpoint` object.
 
 The chart compares only the 27 Imagenette checkpoints. ImageNet-1K rows remain in the table for reference but use a different evaluation dataset.
 
