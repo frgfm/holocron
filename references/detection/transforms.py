@@ -7,6 +7,7 @@
 
 import torch
 from torchvision import tv_tensors
+from torchvision.transforms.v2 import functional as F
 
 
 class VOCTargetTransform:
@@ -33,7 +34,7 @@ class VOCTargetTransform:
         labels = torch.tensor([self.class_map[obj["name"]] for obj in target["annotation"]["object"]], dtype=torch.long)
 
         return image, {
-            "boxes": tv_tensors.BoundingBoxes(boxes, format="XYXY", canvas_size=(image.height, image.width)),
+            "boxes": tv_tensors.BoundingBoxes(boxes, format="XYXY", canvas_size=tuple(F.get_size(image))),
             "labels": labels,
         }
 
@@ -45,5 +46,6 @@ def convert_to_relative(image, target):
         The image and target with clipped relative box coordinates.
     """
     boxes = target["boxes"].as_subclass(torch.Tensor)
-    boxes = (boxes / boxes.new_tensor([image.width, image.height, image.width, image.height])).clamp(0, 1)
+    height, width = F.get_size(image)
+    boxes = (boxes / boxes.new_tensor([width, height, width, height])).clamp(0, 1)
     return image, {**target, "boxes": boxes}

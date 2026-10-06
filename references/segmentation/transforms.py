@@ -11,8 +11,35 @@ from torchvision.transforms import v2 as T
 from torchvision.transforms.v2 import InterpolationMode
 from torchvision.transforms.v2 import functional as F
 
-Resize = T.Resize
 RandomHorizontalFlip = T.RandomHorizontalFlip
+
+
+def _resize_mask(image, target):
+    """Match PIL nearest-neighbor pixel positions with native tensor resizing.
+
+    Returns:
+        The resized image and its aligned semantic mask.
+    """
+    mask = F.resize(
+        target.as_subclass(torch.Tensor).unsqueeze(0),
+        F.get_size(image),
+        interpolation=InterpolationMode.NEAREST_EXACT,
+    ).squeeze(0)
+    return image, tv_tensors.Mask(mask)
+
+
+class Resize(T.Resize):
+    """Resize the image natively and retain the reference mask's pixel mapping."""
+
+    def forward(self, image, target):
+        return _resize_mask(super().forward(image), target)
+
+
+class _RandomResize(T.RandomResize):
+    """Choose the image size natively and preserve reference mask sampling."""
+
+    def forward(self, image, target):
+        return _resize_mask(super().forward(image), target)
 
 
 class Compose(T.Compose):
@@ -32,8 +59,8 @@ def RandomResize(min_size, max_size=None, interpolation=InterpolationMode.BILINE
         A native fixed or random resize transform.
     """
     if max_size is None or min_size == max_size:
-        return T.Resize(min_size, interpolation=interpolation)
-    return T.RandomResize(min_size, max_size, interpolation=interpolation)
+        return Resize(min_size, interpolation=interpolation)
+    return _RandomResize(min_size, max_size, interpolation=interpolation)
 
 
 class RandomCrop(T.RandomCrop):
@@ -48,11 +75,10 @@ class RandomCrop(T.RandomCrop):
 
 
 class ToTensor(T.Compose):
-    """Return plain float images and integer masks without scaling class labels."""
+    """Convert image and mask dtypes while retaining their native type metadata."""
 
     def __init__(self):
         super().__init__([
             T.ToImage(),
             T.ToDtype({tv_tensors.Image: torch.float32, tv_tensors.Mask: torch.int64}, scale=True),
-            T.ToPureTensor(),
         ])

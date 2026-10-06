@@ -141,6 +141,7 @@ def main(args):
                 T.ColorJitter(brightness=0.3, contrast=0.3, saturation=0.1, hue=0.02),
                 ToTensor(),
                 normalize,
+                T.ToPureTensor(),
             ]),
         )
 
@@ -178,6 +179,7 @@ def main(args):
                 Resize((crop_size, crop_size), interpolation_mode),
                 ToTensor(),
                 normalize,
+                T.ToPureTensor(),
             ]),
         )
 

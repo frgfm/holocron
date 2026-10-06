@@ -7,7 +7,8 @@ from references.detection.transforms import VOCTargetTransform, convert_to_relat
 
 
 @pytest.mark.parametrize("relative", [False, True])
-def test_paired_resize_flip_preserves_boxes_and_labels(relative):
+@pytest.mark.parametrize("tensor_image", [False, True])
+def test_paired_resize_flip_preserves_boxes_and_labels(relative, tensor_image):
     annotation = {
         "annotation": {
             "object": [
@@ -19,8 +20,17 @@ def test_paired_resize_flip_preserves_boxes_and_labels(relative):
     transforms = [VOCTargetTransform(["cat", "dog"]), T.Resize((8, 12)), T.RandomHorizontalFlip(1)]
     if relative:
         transforms.append(convert_to_relative)
-    transforms.extend([T.ToImage(), T.ToDtype(torch.float32, scale=True), T.ToPureTensor()])
-    image, target = T.Compose(transforms)(Image.new("RGB", (20, 10)), annotation)
+    transforms.extend([
+        T.ColorJitter(brightness=0.3, contrast=0.3, saturation=0.1, hue=0.02),
+        T.ToImage(),
+        T.ToDtype(torch.float32, scale=True),
+        T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+        T.ToPureTensor(),
+    ])
+    image = Image.new("RGB", (20, 10))
+    if tensor_image:
+        image = T.ToImage()(image)
+    image, target = T.Compose(transforms)(image, annotation)
     expected = torch.tensor([[7.2, 0.8, 10.8, 4], [0, 0, 12, 8]])
     if relative:
         expected /= torch.tensor([12, 8, 12, 8])
@@ -28,6 +38,7 @@ def test_paired_resize_flip_preserves_boxes_and_labels(relative):
     assert image.shape == (3, 8, 12)
     assert type(target["boxes"]) is torch.Tensor
     assert target["labels"].tolist() == [0, 1]
+    assert target["labels"].dtype == torch.int64
 
 
 def test_empty_detection_targets_keep_box_shape():
