@@ -469,6 +469,9 @@ def find_image_size(dataset: Sequence[tuple[Image.Image, Any]], **kwargs: Any) -
         dataset: an iterator yielding a [`PIL.Image.Image`][PIL.Image.Image] and a target object
         **kwargs: keyword args of [`matplotlib.pyplot.show`][matplotlib.pyplot.show]
     """
+    import matplotlib.pyplot as plt  # noqa: PLC0415
+    import numpy as np  # noqa: PLC0415
+
     # Record height & width
     shapes_ = parallel(lambda x: x[0].size, dataset, progress=True)
 

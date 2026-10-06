@@ -526,7 +526,7 @@ def __init__(
 Scout(base_optimizer: Optimizer, sync_rate: float = 0.5, sync_period: int = 6)
 ```
 
-Bases: `Optimizer`
+Bases: `Lookahead`
 
 Implements a new optimizer wrapper based on ["Lookahead Optimizer: k steps forward, 1 step back"](https://arxiv.org/pdf/1907.08610.pdf).
 
@@ -555,20 +555,6 @@ def __init__(
     sync_rate: float = 0.5,
     sync_period: int = 6,
 ) -> None:
-    if sync_rate < 0 or sync_rate > 1:
-        raise ValueError(f"expected positive float lower than 1 as sync_rate, received: {sync_rate}")
-    if not isinstance(sync_period, int) or sync_period < 1:
-        raise ValueError(f"expected positive integer as sync_period, received: {sync_period}")
-    # Optimizer attributes
-    self.defaults = {"sync_rate": sync_rate, "sync_period": sync_period}
-    self.state = defaultdict(dict)
-    # Base optimizer attributes
-    self.base_optimizer = base_optimizer
-    # Wrapper attributes
-    self.fast_steps = 0
-    self.param_groups = []
-    for group in self.base_optimizer.param_groups:
-        self._add_param_group(group)
-    # Buffer for scouting
+    super().__init__(base_optimizer, sync_rate, sync_period)
     self.buffer = [p.data.unsqueeze(0) for group in self.param_groups for p in group["params"]]
 ```
