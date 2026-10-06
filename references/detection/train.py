@@ -20,14 +20,14 @@ from transforms import Compose, ImageTransform, RandomHorizontalFlip, Resize, VO
 
 from holocron.models import detection
 from holocron.trainer import DetectionTrainer
-from holocron.trainer._reference import (
+from holocron.utils.misc import find_image_size
+from references._common import (
     add_loading_args,
     create_loader,
     create_optimizer,
     load_checkpoint,
     run_training,
 )
-from holocron.utils.misc import find_image_size
 
 VOC_CLASSES = [
     "aeroplane",

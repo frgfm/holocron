@@ -14,8 +14,8 @@ from tqdm.auto import tqdm
 
 from holocron import trainer
 from holocron.nn import GlobalAvgPool2d
-from holocron.trainer._reference import load_checkpoint, run_training  # noqa: PLC2701
 from holocron.trainer.detection import assign_iou
+from references._common import load_checkpoint, run_training  # noqa: PLC2701
 
 
 def test_training_import_does_not_load_plotting():

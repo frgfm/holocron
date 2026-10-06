@@ -10,6 +10,8 @@ cd Holocron
 uv sync --locked --extra training
 ```
 
+Shared CLI setup and training actions live in [`_common.py`](_common.py). They belong to the reference recipes; the installed `holocron.trainer` package provides the training primitives.
+
 ## Available tasks
 
 ### Image classification

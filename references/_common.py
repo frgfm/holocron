@@ -3,7 +3,6 @@
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
-# ruff: noqa: T201
 """Common setup for the reference training scripts."""
 
 import datetime
@@ -17,8 +16,8 @@ from torch import nn
 from torch.optim import SGD, AdamW, Optimizer, RAdam
 from torch.utils.data import DataLoader, Dataset, RandomSampler, SequentialSampler
 
-from ..optim import AdaBelief, AdamP, AdEMAMix
-from .core import Trainer
+from holocron.optim import AdaBelief, AdamP, AdEMAMix
+from holocron.trainer import Trainer
 
 
 def load_checkpoint(trainer: Trainer, path: str) -> None:
@@ -40,7 +39,7 @@ def run_training(
     """Run the common reference action and finish optional experiment tracking."""
     if args.test_only:
         print("Running evaluation")
-        print(trainer._eval_metrics_str(trainer.evaluate()))  # noqa: SLF001
+        print(trainer._eval_metrics_str(trainer.evaluate()))
         return
     if args.find_lr:
         print("Looking for optimal LR")
@@ -65,7 +64,7 @@ def run_training(
 
     run = None
     if args.wb:
-        import wandb  # ty: ignore[unresolved-import]  # noqa: PLC0415
+        import wandb  # noqa: PLC0415
 
         timestamp = datetime.datetime.now(tz=datetime.UTC).strftime("%Y%m%d-%H%M%S")
         name = f"{args.arch}-{timestamp}" if args.name is None else args.name

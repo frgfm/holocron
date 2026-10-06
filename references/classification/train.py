@@ -24,15 +24,15 @@ from holocron.models import classification
 from holocron.models.presets import CIFAR10 as CIF10
 from holocron.models.presets import IMAGENETTE
 from holocron.trainer import ClassificationTrainer
-from holocron.trainer._reference import (
+from holocron.utils.data import Mixup
+from holocron.utils.misc import find_image_size
+from references._common import (
     add_loading_args,
     create_loader,
     create_optimizer,
     load_checkpoint,
     run_training,
 )
-from holocron.utils.data import Mixup
-from holocron.utils.misc import find_image_size
 
 # Prevent the annoying console log of codecarbon
 logger = logging.getLogger("codecarbon")
