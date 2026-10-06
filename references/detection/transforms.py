@@ -6,11 +6,12 @@
 """Transformation for object detection"""
 
 import torch
-from torchvision.transforms import v2 as T
-from torchvision.transforms.v2 import functional as F
+from torchvision import tv_tensors
 
 
 class VOCTargetTransform:
+    """Decode VOC boxes and labels for native paired transforms."""
+
     def __init__(self, classes):
         self.class_map = {label: idx for idx, label in enumerate(classes)}
 
@@ -27,99 +28,22 @@ class VOCTargetTransform:
                 for obj in target["annotation"]["object"]
             ],
             dtype=torch.float32,
-        )
+        ).reshape(-1, 4)
         # Encode class labels
         labels = torch.tensor([self.class_map[obj["name"]] for obj in target["annotation"]["object"]], dtype=torch.long)
 
-        return image, {"boxes": boxes, "labels": labels}
-
-
-class Compose(T.Compose):
-    def __call__(self, image, target):
-        for t in self.transforms:
-            image, target = t(image, target)
-        return image, target
-
-
-class ImageTransform:
-    def __init__(self, transform):
-        self.transform = transform
-
-    def __call__(self, image, target):
-        image = self.transform.__call__(image)
-        return image, target
-
-    def __repr__(self):
-        return self.transform.__repr__()
-
-
-class CenterCrop(T.CenterCrop):
-    def __call__(self, image, target):
-        image = F.center_crop(image, self.size)
-        x = int(image.size[0] / 2 - self.size[0] / 2)
-        y = int(image.size[1] / 2 - self.size[1] / 2)
-        # Crop
-        target["boxes"][:, [0, 2]] = target["boxes"][:, [0, 2]].clamp_(x, x + self.size[0])
-        target["boxes"][:, [1, 3]] = target["boxes"][:, [1, 3]].clamp_(y, y + self.size[1])
-        target["boxes"][:, [0, 2]] -= x
-        target["boxes"][:, [1, 3]] -= y
-
-        return image, target
-
-
-class Resize(T.Resize):
-    def __call__(self, image, target):
-        if isinstance(self.size, int):
-            if image.size[1] < image.size[0]:
-                target["boxes"] *= self.size / image.size[1]
-            else:
-                target["boxes"] *= self.size / image.size[0]
-        elif isinstance(self.size, tuple):
-            target["boxes"][:, [0, 2]] *= self.size[0] / image.size[0]
-            target["boxes"][:, [1, 3]] *= self.size[1] / image.size[1]
-        return F.resize(image, self.size, self.interpolation), target
-
-
-class RandomResizedCrop(T.RandomResizedCrop):
-    def __call__(self, image, target):
-        i, j, h, w = self.get_params(image, self.scale, self.ratio)
-        image = F.resized_crop(image, i, j, h, w, self.size, self.interpolation)
-        # Crop
-        target["boxes"][:, [0, 2]] = target["boxes"][:, [0, 2]].clamp_(j, j + w)
-        target["boxes"][:, [1, 3]] = target["boxes"][:, [1, 3]].clamp_(i, i + h)
-        # Reset origin
-        target["boxes"][:, [0, 2]] -= j
-        target["boxes"][:, [1, 3]] -= i
-        # Remove targets that are out of crop
-        target_filter = (target["boxes"][:, 0] != target["boxes"][:, 2]) & (
-            target["boxes"][:, 1] != target["boxes"][:, 3]
-        )
-        target["boxes"] = target["boxes"][target_filter]
-        target["labels"] = target["labels"][target_filter]
-        # Resize
-        target["boxes"][:, [0, 2]] *= self.size[0] / w
-        target["boxes"][:, [1, 3]] *= self.size[1] / h
-
-        return image, target
+        return image, {
+            "boxes": tv_tensors.BoundingBoxes(boxes, format="XYXY", canvas_size=(image.height, image.width)),
+            "labels": labels,
+        }
 
 
 def convert_to_relative(image, target):
-    target["boxes"][:, [0, 2]] /= image.size[0]
-    target["boxes"][:, [1, 3]] /= image.size[1]
+    """Convert boxes into the normalized coordinates expected by Holocron.
 
-    # Clip
-    target["boxes"][:, [0, 2]] = target["boxes"][:, [0, 2]].clamp_(0, 1)
-    target["boxes"][:, [1, 3]] = target["boxes"][:, [1, 3]].clamp_(0, 1)
-
-    return image, target
-
-
-class RandomHorizontalFlip(T.RandomHorizontalFlip):
-    def __call__(self, image, target):
-        if torch.rand(1).item() < self.p:
-            _, width = image.size
-            image = F.hflip(image)
-            target["boxes"][:, [0, 2]] = width - target["boxes"][:, [0, 2]]
-            # Reorder them correctly
-            target["boxes"] = target["boxes"][:, [2, 1, 0, 3]]
-        return image, target
+    Returns:
+        The image and target with clipped relative box coordinates.
+    """
+    boxes = target["boxes"].as_subclass(torch.Tensor)
+    boxes = (boxes / boxes.new_tensor([image.width, image.height, image.width, image.height])).clamp(0, 1)
+    return image, {**target, "boxes": boxes}

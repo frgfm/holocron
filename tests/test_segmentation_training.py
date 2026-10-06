@@ -183,8 +183,23 @@ def test_paired_transforms_keep_mask_labels_and_ignore_padding():
     assert set(targets.unique().tolist()) == {0, 20, 255}
     valid = targets != 255
     assert torch.equal((images[0] * 255).round().long()[valid], targets[valid])
-    resized = seg_transforms.Resize((17, 19))(Image.fromarray(image), Image.fromarray(target))[1]
+    resized = seg_transforms.Compose([seg_transforms.Resize((17, 19))])(
+        Image.fromarray(image), Image.fromarray(target)
+    )[1]
     assert set(np.unique(np.array(resized))) == {0, 20}
+
+
+@pytest.mark.parametrize("shape", [(1, 3), (3, 1), (1, 1)])
+def test_mask_conversion_preserves_single_pixel_axes(shape):
+    target = np.full(shape, 20, dtype=np.uint8)
+    image = np.repeat(target[..., None], 3, axis=-1)
+    images, targets = seg_transforms.Compose([seg_transforms.ToTensor()])(
+        Image.fromarray(image), Image.fromarray(target)
+    )
+    assert images.shape == (3, *shape)
+    assert targets.shape == shape
+    assert targets.dtype == torch.int64
+    assert (targets == 20).all()
 
 
 @pytest.mark.parametrize("arch", ["unet", "unetpp", "unet3p"])
