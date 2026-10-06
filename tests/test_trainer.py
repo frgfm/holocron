@@ -1,15 +1,53 @@
 import math
+import sys
 import warnings
+from argparse import Namespace
+from io import StringIO
 
 import pytest
 import torch
 from torch import nn
 from torch.utils.data import DataLoader, Dataset, TensorDataset
 from torchvision.models import get_model, get_model_weights
+from tqdm.auto import tqdm
 
 from holocron import trainer
 from holocron.nn import GlobalAvgPool2d
 from holocron.trainer.detection import assign_iou
+from references._common import run_training  # noqa: PLC2701
+
+
+@pytest.mark.parametrize("failure", [False, True])
+def test_reference_tracking_reports_training_status(monkeypatch, failure):
+    exit_codes = []
+
+    run = Namespace(finish=lambda exit_code=0: exit_codes.append(exit_code))
+    monkeypatch.setitem(sys.modules, "wandb", Namespace(init=lambda **_kwargs: run, log=lambda _metrics: None))
+
+    def fit(*_args, **_kwargs):
+        if failure:
+            raise RuntimeError("training failed")
+
+    learner = Namespace(fit_n_epochs=fit)
+    args = Namespace(
+        test_only=False,
+        find_lr=False,
+        check_setup=False,
+        wb=True,
+        name="test",
+        arch="linear",
+        epochs=1,
+        lr=0.01,
+        freeze_until=None,
+        sched="cosine",
+        norm_wd=None,
+    )
+    if failure:
+        with pytest.raises(RuntimeError, match="training failed"):
+            run_training(learner, args, project="test", config={})
+    else:
+        run_training(learner, args, project="test", config={})
+    assert exit_codes == [int(failure)]
 
 
 class MockClassificationDataset(Dataset):
@@ -172,7 +210,7 @@ def test_gradient_accumulation_matches_large_batch():
     torch.testing.assert_close(accumulated.model.weight, large_batch.model.weight)
 
 
-def test_gradient_accumulation_flushes_partial_batch(monkeypatch):
+def test_gradient_accumulation_flushes_partial_batch():
     x = torch.arange(1, 6, dtype=torch.float32).unsqueeze(1)
     target = torch.zeros_like(x)
     learner = _linear_trainer(x, target, gradient_acc=2, optimizer_cls=_CountingSGD)
@@ -188,9 +226,8 @@ def test_gradient_accumulation_flushes_partial_batch(monkeypatch):
         def step(self):
             self.steps += 1
 
-    monkeypatch.setattr("holocron.trainer.core.progress_bar", lambda data, **_kwargs: data)
     learner.scheduler = Scheduler()
-    learner._fit_epoch(None)
+    learner._fit_epoch()
 
     assert (
         len(learner.optimizer.used_lrs)
@@ -213,7 +250,9 @@ def test_find_lr_gradient_accumulation(monkeypatch, gradient_acc, num_it, expect
     learner._get_loss = lambda *_args: learner.model.weight.sum() * 0 + next(loss_iter)
     monkeypatch.setattr("holocron.trainer.core.MultiplicativeLR", _CountingScheduler)
     progress_totals = []
-    monkeypatch.setattr("holocron.trainer.core.progress_bar", lambda data, total: progress_totals.append(total) or data)
+    monkeypatch.setattr(
+        "holocron.trainer.core.tqdm", lambda data, **kwargs: progress_totals.append(kwargs["total"]) or data
+    )
 
     with warnings.catch_warnings(record=True) as caught:
         warnings.simplefilter("always")
@@ -233,7 +272,7 @@ def test_find_lr_gradient_accumulation(monkeypatch, gradient_acc, num_it, expect
     assert not any("lr_scheduler.step() before optimizer.step()" in str(warning.message) for warning in caught)
     if expected_steps > 1:
         plotted_lrs = []
-        monkeypatch.setattr("holocron.trainer.core.plt.plot", lambda lrs, _losses: plotted_lrs.extend(lrs))
+        monkeypatch.setattr("matplotlib.pyplot.plot", lambda lrs, _losses: plotted_lrs.extend(lrs))
         learner.plot_recorder(block=False)
         assert plotted_lrs == pytest.approx(learner.lr_recorder)
 
@@ -270,7 +309,7 @@ def test_find_lr_ignores_amp_overflow(monkeypatch):
     learner.amp = True
     monkeypatch.setattr("holocron.trainer.core.GradScaler", SkipFirstGradScaler)
     monkeypatch.setattr("holocron.trainer.core.MultiplicativeLR", _CountingScheduler)
-    monkeypatch.setattr("holocron.trainer.core.progress_bar", lambda data, **_kwargs: data)
+    monkeypatch.setattr("holocron.trainer.core.tqdm", lambda data, **_kwargs: data)
 
     learner.find_lr(start_lr=1e-3, end_lr=1e-1, num_it=2)
 
@@ -508,3 +547,26 @@ def test_detection_trainer(tmpdir_factory):
         gradient_clip=0.1,
     )
     _test_trainer(learner, num_it, "roi_heads.box_predictor.cls_score.weight", "backbone", 5e-4)
+
+
+def test_training_progress_obeys_refresh_interval(monkeypatch):
+    bars = []
+
+    class CountingProgress(tqdm):
+        def __init__(self, *args, **kwargs):
+            self.redraws = 0
+            kwargs.update(mininterval=60, file=StringIO())
+            super().__init__(*args, **kwargs)
+            bars.append(self)
+
+        def display(self, *args, **kwargs):
+            self.redraws += 1
+            return super().display(*args, **kwargs)
+
+    monkeypatch.setattr("holocron.trainer.core.tqdm", CountingProgress)
+    inputs = torch.ones(50, 1)
+    learner = _linear_trainer(inputs, torch.zeros_like(inputs), gradient_acc=1)
+    learner.scheduler = torch.optim.lr_scheduler.StepLR(learner.optimizer, step_size=1, gamma=1)
+    learner._fit_epoch()
+    assert learner.step == 50
+    assert bars[0].redraws <= 3

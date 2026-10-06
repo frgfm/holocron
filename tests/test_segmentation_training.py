@@ -1,5 +1,6 @@
 import math
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 import torch
@@ -239,7 +240,7 @@ def test_reference_training_and_checkpoint_reload(arch, loss, monkeypatch, tmp_p
 
 
 def test_plotting_small_batch_preserves_training_tensors(monkeypatch):
-    monkeypatch.setattr(train.plt, "show", lambda: None)
+    monkeypatch.setattr(plt, "show", lambda: None)
     images = torch.rand(1, 3, 8, 8)
     targets = torch.full((1, 8, 8), 255)
     originals = images.clone(), targets.clone()
@@ -247,7 +248,7 @@ def test_plotting_small_batch_preserves_training_tensors(monkeypatch):
     train.plot_predictions(images, torch.rand(1, 3, 8, 8), targets, ignore_index=255)
     assert torch.equal(images, originals[0])
     assert torch.equal(targets, originals[1])
-    train.plt.close("all")
+    plt.close("all")
 
 
 @pytest.mark.parametrize("mode", ["train", "find-size", "torchvision"])

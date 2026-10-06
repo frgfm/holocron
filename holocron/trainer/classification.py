@@ -7,8 +7,6 @@ import math
 from collections.abc import Sequence
 from typing import Any, cast
 
-import matplotlib.pyplot as plt
-import numpy as np
 import torch
 from torch import Tensor
 from torchvision.transforms.functional import to_pil_image
@@ -100,6 +98,9 @@ class ClassificationTrainer(Trainer):
         Raises:
             AssertionError: if the argument 'classes' is not specified for multi-class classification
         """
+        import matplotlib.pyplot as plt  # noqa: PLC0415
+        import numpy as np  # noqa: PLC0415
+
         # Record loss, prob, target, image
         losses = np.zeros(num_samples, dtype=np.float32)
         preds = np.zeros(num_samples, dtype=int)

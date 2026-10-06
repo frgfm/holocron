@@ -5,17 +5,13 @@
 
 """Training script for object detection"""
 
-import datetime
 import math
 import time
 from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 
-import matplotlib.pyplot as plt
 import numpy as np
 import torch
-import wandb
 from codecarbon import track_emissions
-from matplotlib.patches import Rectangle
 from torchvision.datasets import VOCDetection
 from torchvision.models import detection as tv_detection
 from torchvision.transforms import v2 as T
@@ -24,8 +20,14 @@ from transforms import Compose, ImageTransform, RandomHorizontalFlip, Resize, VO
 
 from holocron.models import detection
 from holocron.trainer import DetectionTrainer
-from holocron.trainer._reference import add_loading_args, create_loader, create_optimizer
 from holocron.utils.misc import find_image_size
+from references._common import (
+    add_loading_args,
+    create_loader,
+    create_optimizer,
+    load_checkpoint,
+    run_training,
+)
 
 VOC_CLASSES = [
     "aeroplane",
@@ -62,6 +64,9 @@ def collate_fn(batch):
 
 def plot_samples(images, targets, num_samples=8):
     # Unnormalize image
+    import matplotlib.pyplot as plt  # noqa: PLC0415
+    from matplotlib.patches import Rectangle  # noqa: PLC0415
+
     nb_samples = min(num_samples, len(images))
     num_cols = min(nb_samples, 4)
     num_rows = math.ceil(nb_samples / num_cols)
@@ -166,7 +171,6 @@ def main(args):
 
     optimizer = create_optimizer(model, args)
 
-    log_wb = lambda metrics: wandb.log(metrics) if args.wb else None
     trainer = DetectionTrainer(
         model,
         train_loader,
@@ -179,70 +183,27 @@ def main(args):
         skip_nan_loss=True,
         gradient_clip=0.1,
         gradient_acc=args.grad_acc,
-        on_epoch_end=log_wb,
     )
 
-    if args.resume:
-        print(f"Resuming {args.resume}")
-        checkpoint = torch.load(args.resume, map_location="cpu")
-        trainer.load(checkpoint)
+    load_checkpoint(trainer, args.resume)
 
-    if args.test_only:
-        print("Running evaluation")
-        eval_metrics = trainer.evaluate()
-        print(trainer._eval_metrics_str(eval_metrics))
-        return
-
-    if args.find_lr:
-        print("Looking for optimal LR")
-        trainer.find_lr(
-            args.freeze_until,
-            start_lr=args.find_lr_start,
-            end_lr=args.find_lr_end,
-            norm_weight_decay=args.norm_wd,
-            num_it=min(len(train_loader), 100),
-        )
-        trainer.plot_recorder()
-        return
-
-    if args.check_setup:
-        print("Checking batch overfitting")
-        trainer.check_setup(
-            args.freeze_until, args.lr, norm_weight_decay=args.norm_wd, num_it=min(len(train_loader), 100)
-        )
-        return
-
-    # Training monitoring
-    current_time = datetime.datetime.now(tz=datetime.UTC).strftime("%Y%m%d-%H%M%S")
-    exp_name = f"{args.arch}-{current_time}" if args.name is None else args.name
-
-    # W&B
-    if args.wb:
-        run = wandb.init(
-            name=exp_name,
-            project="holocron-object-detection",
-            config={
-                "learning_rate": args.lr,
-                "scheduler": args.sched,
-                "weight_decay": args.weight_decay,
-                "epochs": args.epochs,
-                "batch_size": args.batch_size,
-                "architecture": args.arch,
-                "source": args.source,
-                "input_size": args.img_size,
-                "optimizer": args.opt,
-                "dataset": "PASCAL VOC2012 Detection",
-            },
-        )
-
-    print("Start training")
-    start_time = time.time()
-    trainer.fit_n_epochs(args.epochs, args.lr, args.freeze_until, args.sched, norm_weight_decay=args.norm_wd)
-    total_time_str = str(datetime.timedelta(seconds=int(time.time() - start_time)))
-    print(f"Training time {total_time_str}")
-
-    if args.wb:
-        run.finish()
+    run_training(
+        trainer,
+        args,
+        project="holocron-object-detection",
+        config={
+            "learning_rate": args.lr,
+            "scheduler": args.sched,
+            "weight_decay": args.weight_decay,
+            "epochs": args.epochs,
+            "batch_size": args.batch_size,
+            "architecture": args.arch,
+            "source": args.source,
+            "input_size": args.img_size,
+            "optimizer": args.opt,
+            "dataset": "PASCAL VOC2012 Detection",
+        },
+    )
 
 
 def get_parser():

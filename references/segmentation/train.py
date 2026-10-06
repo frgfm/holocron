@@ -5,12 +5,10 @@
 
 """Training script for semantic segmentation"""
 
-import datetime
 import time
 from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 from pathlib import Path
 
-import matplotlib.pyplot as plt
 import torch
 from torch import nn
 from torchvision.datasets import VOCSegmentation
@@ -26,8 +24,14 @@ else:
 import holocron
 from holocron.models import segmentation
 from holocron.trainer import SegmentationTrainer
-from holocron.trainer._reference import add_loading_args, create_loader, create_optimizer
 from holocron.utils.misc import find_image_size
+from references._common import (
+    add_loading_args,
+    create_loader,
+    create_optimizer,
+    load_checkpoint,
+    run_training,
+)
 
 VOC_CLASSES = [
     "background",
@@ -56,6 +60,8 @@ VOC_CLASSES = [
 
 def plot_samples(images, targets, ignore_index=None):
     # Unnormalize image
+    import matplotlib.pyplot as plt  # noqa: PLC0415
+
     nb_samples = min(4, len(images))
     _, axes = plt.subplots(2, nb_samples, figsize=(5 * nb_samples, 5), squeeze=False)
     for idx in range(nb_samples):
@@ -78,6 +84,8 @@ def plot_samples(images, targets, ignore_index=None):
 
 def plot_predictions(images, preds, targets, ignore_index=None):
     # Unnormalize image
+    import matplotlib.pyplot as plt  # noqa: PLC0415
+
     nb_samples = min(4, len(images))
     _, axes = plt.subplots(3, nb_samples, figsize=(5 * nb_samples, 5), squeeze=False)
     for idx in range(nb_samples):
@@ -114,9 +122,6 @@ def main(args):
     source = segmentation if args.source == "holocron" else tv_segmentation
     if args.arch not in source.__dict__ or not callable(source.__dict__[args.arch]):
         raise ValueError(f"Unknown {args.source} segmentation architecture: {args.arch}")
-    if args.wb:
-        import wandb  # noqa: PLC0415
-
     torch.backends.cudnn.benchmark = True
 
     # Data loading
@@ -212,7 +217,6 @@ def main(args):
     # Optimizer setup
     optimizer = create_optimizer(model, args)
 
-    log_wb = wandb.log if args.wb else None
     trainer = SegmentationTrainer(
         model,
         train_loader,
@@ -224,12 +228,8 @@ def main(args):
         num_classes=len(VOC_CLASSES),
         gradient_acc=args.grad_acc,
         amp=args.amp,
-        on_epoch_end=log_wb,
     )
-    if args.resume:
-        print(f"Resuming {args.resume}")
-        checkpoint = torch.load(args.resume, map_location="cpu", weights_only=True)
-        trainer.load(checkpoint)
+    load_checkpoint(trainer, args.resume)
 
     if args.show_preds:
         x, target = next(iter(train_loader))
@@ -240,55 +240,25 @@ def main(args):
         plot_predictions(x.cpu(), preds.cpu(), target.cpu(), ignore_index=255)
         return
 
-    if args.test_only:
-        print("Running evaluation")
-        eval_metrics = trainer.evaluate()
-        print(trainer._eval_metrics_str(eval_metrics))
-        return
-
-    if args.find_lr:
-        print("Looking for optimal LR")
-        trainer.find_lr(args.freeze_until, norm_weight_decay=args.norm_wd, num_it=min(len(train_loader), 100))
-        trainer.plot_recorder()
-        return
-
-    if args.check_setup:
-        print("Checking batch overfitting")
-        trainer.check_setup(args.freeze_until, args.lr, norm_weight_decay=args.norm_wd, num_it=100)
-        return
-
-    # Training monitoring
-    current_time = datetime.datetime.now(tz=datetime.UTC).strftime("%Y%m%d-%H%M%S")
-    exp_name = f"{args.arch}-{current_time}" if args.name is None else args.name
-
-    # W&B
-    if args.wb:
-        run = wandb.init(
-            name=exp_name,
-            project="holocron-semantic-segmentation",
-            config={
-                "learning_rate": args.lr,
-                "scheduler": args.sched,
-                "weight_decay": args.weight_decay,
-                "epochs": args.epochs,
-                "batch_size": args.batch_size,
-                "architecture": args.arch,
-                "source": args.source,
-                "input_size": args.img_size,
-                "optimizer": args.opt,
-                "dataset": "Pascal VOC2012 Segmentation",
-                "loss": args.loss,
-            },
-        )
-
-    print("Start training")
-    start_time = time.time()
-    trainer.fit_n_epochs(args.epochs, args.lr, args.freeze_until, args.sched, norm_weight_decay=args.norm_wd)
-    total_time_str = str(datetime.timedelta(seconds=int(time.time() - start_time)))
-    print(f"Training time {total_time_str}")
-
-    if args.wb:
-        run.finish()
+    run_training(
+        trainer,
+        args,
+        project="holocron-semantic-segmentation",
+        config={
+            "learning_rate": args.lr,
+            "scheduler": args.sched,
+            "weight_decay": args.weight_decay,
+            "epochs": args.epochs,
+            "batch_size": args.batch_size,
+            "architecture": args.arch,
+            "source": args.source,
+            "input_size": args.img_size,
+            "optimizer": args.opt,
+            "dataset": "Pascal VOC2012 Segmentation",
+            "loss": args.loss,
+        },
+        setup_iterations=100,
+    )
 
 
 def get_parser():
