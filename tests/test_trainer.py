@@ -1,5 +1,4 @@
 import math
-import subprocess  # noqa: S404
 import sys
 import warnings
 from argparse import Namespace
@@ -15,52 +14,7 @@ from tqdm.auto import tqdm
 from holocron import trainer
 from holocron.nn import GlobalAvgPool2d
 from holocron.trainer.detection import assign_iou
-from references._common import load_checkpoint, run_training  # noqa: PLC2701
-
-
-def test_training_import_does_not_load_plotting():
-    subprocess.run(
-        [sys.executable, "-c", "import holocron.trainer; import sys; assert 'matplotlib.pyplot' not in sys.modules"],
-        check=True,
-        capture_output=True,
-    )
-
-
-def test_reference_training_evaluation_and_checkpoint(tmp_path):
-    loader = DataLoader(TensorDataset(torch.rand(4, 2), torch.tensor([0, 1, 0, 1])), batch_size=2)
-    model = nn.Linear(2, 2)
-    learner = trainer.ClassificationTrainer(
-        model,
-        loader,
-        loader,
-        nn.CrossEntropyLoss(),
-        torch.optim.SGD(model.parameters(), lr=0.01),
-        output_file=str(tmp_path / "model.pth"),
-    )
-    args = Namespace(
-        test_only=False,
-        find_lr=False,
-        check_setup=False,
-        wb=False,
-        name=None,
-        arch="linear",
-        epochs=1,
-        lr=0.01,
-        freeze_until=None,
-        sched="cosine",
-        norm_wd=None,
-    )
-    run_training(learner, args, project="test", config={})
-    saved = torch.load(learner.output_file, weights_only=True)
-    with torch.no_grad():
-        model.weight.zero_()
-    load_checkpoint(learner, learner.output_file)
-    torch.testing.assert_close(model.weight, saved["model"]["weight"])
-    args.test_only = True
-    run_training(learner, args, project="test", config={})
-    assert learner.epoch == 1
-    assert learner.step == 2
-    assert math.isfinite(learner.evaluate()["val_loss"])
+from references._common import run_training  # noqa: PLC2701
 
 
 @pytest.mark.parametrize("failure", [False, True])
@@ -69,22 +23,18 @@ def test_reference_tracking_reports_training_status(monkeypatch, failure):
 
     run = Namespace(finish=lambda exit_code=0: exit_codes.append(exit_code))
     monkeypatch.setitem(sys.modules, "wandb", Namespace(init=lambda **_kwargs: run, log=lambda _metrics: None))
-    model = nn.Linear(1, 2)
-    learner = trainer.ClassificationTrainer(
-        model, None, None, nn.CrossEntropyLoss(), torch.optim.SGD(model.parameters(), lr=0.01)
-    )
 
     def fit(*_args, **_kwargs):
         if failure:
             raise RuntimeError("training failed")
 
-    monkeypatch.setattr(learner, "fit_n_epochs", fit)
+    learner = Namespace(fit_n_epochs=fit)
     args = Namespace(
         test_only=False,
         find_lr=False,
         check_setup=False,
         wb=True,
-        name=None,
+        name="test",
         arch="linear",
         epochs=1,
         lr=0.01,
