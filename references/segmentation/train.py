@@ -17,9 +17,9 @@ from torchvision.transforms import v2 as T
 from torchvision.transforms.v2.functional import InterpolationMode, to_pil_image
 
 if __package__:
-    from .transforms import Compose, ImageTransform, RandomCrop, RandomHorizontalFlip, RandomResize, Resize, ToTensor
+    from .transforms import Compose, RandomCrop, RandomHorizontalFlip, RandomResize, Resize, ToTensor
 else:
-    from transforms import Compose, ImageTransform, RandomCrop, RandomHorizontalFlip, RandomResize, Resize, ToTensor
+    from transforms import Compose, RandomCrop, RandomHorizontalFlip, RandomResize, Resize, ToTensor
 
 import holocron
 from holocron.models import segmentation
@@ -143,9 +143,10 @@ def main(args):
                 RandomResize(min_size, max_size, interpolation_mode),
                 RandomCrop(crop_size),
                 RandomHorizontalFlip(0.5),
-                ImageTransform(T.ColorJitter(brightness=0.3, contrast=0.3, saturation=0.1, hue=0.02)),
+                T.ColorJitter(brightness=0.3, contrast=0.3, saturation=0.1, hue=0.02),
                 ToTensor(),
-                ImageTransform(normalize),
+                normalize,
+                T.ToPureTensor(),
             ]),
         )
 
@@ -182,7 +183,8 @@ def main(args):
             transforms=Compose([
                 Resize((crop_size, crop_size), interpolation_mode),
                 ToTensor(),
-                ImageTransform(normalize),
+                normalize,
+                T.ToPureTensor(),
             ]),
         )
 

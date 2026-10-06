@@ -3,117 +3,82 @@
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
-"""Transformation for semantic segmentation"""
+"""Native paired transforms with VOC mask typing and right/bottom padding."""
 
-import numpy as np
 import torch
-from torchvision.transforms import v2 as transforms
+from torchvision import tv_tensors
+from torchvision.transforms import v2 as T
 from torchvision.transforms.v2 import InterpolationMode
 from torchvision.transforms.v2 import functional as F
 
-
-def pad_if_smaller(img, size, fill=0):
-    min_size = min(img.size)
-    if min_size < size:
-        ow, oh = img.size
-        padh = size - oh if oh < size else 0
-        padw = size - ow if ow < size else 0
-        img = F.pad(img, (0, 0, padw, padh), fill=fill)
-    return img
+RandomHorizontalFlip = T.RandomHorizontalFlip
 
 
-class Compose(transforms.Compose):
-    def __init__(self, transforms):
-        super().__init__(transforms)
+def _resize_mask(image, target):
+    """Match PIL nearest-neighbor pixel positions with native tensor resizing.
 
-    def __call__(self, image, target):
-        for t in self.transforms:
-            image, target = t(image, target)
-        return image, target
-
-
-class Resize:
-    def __init__(self, output_size, interpolation=InterpolationMode.BILINEAR):
-        self.output_size = output_size
-        self.interpolation = interpolation
-
-    def __call__(self, image, target):
-        image = F.resize(image, self.output_size, interpolation=self.interpolation)
-        target = F.resize(target, self.output_size, interpolation=InterpolationMode.NEAREST)
-        return image, target
-
-    def __repr__(self):
-        return f"{self.__class__.__name__}(output_size={self.output_size})"
+    Returns:
+        The resized image and its aligned semantic mask.
+    """
+    mask = F.resize(
+        target.as_subclass(torch.Tensor).unsqueeze(0),
+        F.get_size(image),
+        interpolation=InterpolationMode.NEAREST_EXACT,
+    ).squeeze(0)
+    return image, tv_tensors.Mask(mask)
 
 
-class RandomResize:
-    def __init__(self, min_size, max_size=None, interpolation=InterpolationMode.BILINEAR):
-        self.min_size = min_size
-        if max_size is None:
-            max_size = min_size
-        self.max_size = max_size
-        self.interpolation = interpolation
+class Resize(T.Resize):
+    """Resize the image natively and retain the reference mask's pixel mapping."""
 
-    def __call__(self, image, target):
-        if self.min_size == self.max_size:
-            size = self.min_size
-        else:
-            size = torch.randint(self.min_size, self.max_size, (1,)).item()
-        image = F.resize(image, size, interpolation=self.interpolation)
-        target = F.resize(target, size, interpolation=InterpolationMode.NEAREST)
-        return image, target
-
-    def __repr__(self):
-        return f"{self.__class__.__name__}(min_size={self.min_size}, max_size={self.max_size})"
+    def forward(self, image, target):
+        return _resize_mask(super().forward(image), target)
 
 
-class RandomHorizontalFlip:
-    def __init__(self, prob):
-        self.prob = prob
+class _RandomResize(T.RandomResize):
+    """Choose the image size natively and preserve reference mask sampling."""
 
-    def __call__(self, image, target):
-        if torch.rand(1).item() < self.prob:
-            image = F.hflip(image)
-            # Flip the segmentation
-            target = F.hflip(target)
-
-        return image, target
-
-    def __repr__(self):
-        return f"{self.__class__.__name__}(p={self.prob})"
+    def forward(self, image, target):
+        return _resize_mask(super().forward(image), target)
 
 
-class RandomCrop:
-    def __init__(self, size):
-        self.size = size
+class Compose(T.Compose):
+    """Type the semantic mask while retaining its two spatial axes."""
 
-    def __call__(self, image, target):
-        image = pad_if_smaller(image, self.size)
-        target = pad_if_smaller(target, self.size, fill=255)
-        crop_params = transforms.RandomCrop.get_params(image, (self.size, self.size))
-        image = F.crop(image, *crop_params)
-        target = F.crop(target, *crop_params)
-        return image, target
-
-    def __repr__(self):
-        return f"{self.__class__.__name__}(size={self.size})"
+    def forward(self, image, target):
+        mask = tv_tensors.Mask(target)
+        if mask.ndim == 3:
+            mask = tv_tensors.Mask(mask.squeeze(0))
+        return super().forward(image, mask)
 
 
-class ToTensor:
-    def __call__(self, img, target):
-        img = F.to_dtype(F.to_image(img), torch.float32, scale=True)
-        target = torch.as_tensor(np.array(target), dtype=torch.int64)
+def RandomResize(min_size, max_size=None, interpolation=InterpolationMode.BILINEAR):  # noqa: N802
+    """Use native resizing, including the fixed-size reference configuration.
 
-        return img, target
+    Returns:
+        A native fixed or random resize transform.
+    """
+    if max_size is None or min_size == max_size:
+        return Resize(min_size, interpolation=interpolation)
+    return _RandomResize(min_size, max_size, interpolation=interpolation)
 
 
-class ImageTransform:
-    def __init__(self, transform):
-        self.transform = transform
+class RandomCrop(T.RandomCrop):
+    """Pad the right and bottom with ignored mask labels before a native crop."""
 
-    def __call__(self, image, target):
-        image = self.transform.__call__(image)
-        return image, target
+    def forward(self, image, target):
+        height, width = F.get_size(image)
+        padding = [0, 0, max(self.size[1] - width, 0), max(self.size[0] - height, 0)]
+        if any(padding):
+            image, target = T.Pad(padding, fill={tv_tensors.Mask: 255})(image, target)
+        return super().forward(image, target)
 
-    def __repr__(self):
-        return self.transform.__repr__()
+
+class ToTensor(T.Compose):
+    """Convert image and mask dtypes while retaining their native type metadata."""
+
+    def __init__(self):
+        super().__init__([
+            T.ToImage(),
+            T.ToDtype({tv_tensors.Image: torch.float32, tv_tensors.Mask: torch.int64}, scale=True),
+        ])

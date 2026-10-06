@@ -176,6 +176,8 @@ def test_paired_transforms_keep_mask_labels_and_ignore_padding():
         seg_transforms.RandomCrop(11),
         seg_transforms.RandomHorizontalFlip(1),
         seg_transforms.ToTensor(),
+        train.T.Normalize([0.5] * 3, [0.25] * 3),
+        train.T.ToPureTensor(),
     ])
     images, targets = pipeline(Image.fromarray(image), Image.fromarray(target))
     assert images.shape == (3, 11, 11)
@@ -183,9 +185,24 @@ def test_paired_transforms_keep_mask_labels_and_ignore_padding():
     assert targets.dtype == torch.long
     assert set(targets.unique().tolist()) == {0, 20, 255}
     valid = targets != 255
-    assert torch.equal((images[0] * 255).round().long()[valid], targets[valid])
-    resized = seg_transforms.Resize((17, 19))(Image.fromarray(image), Image.fromarray(target))[1]
+    assert torch.equal(((images[0] * 0.25 + 0.5) * 255).round().long()[valid], targets[valid])
+    resized = seg_transforms.Compose([seg_transforms.Resize((17, 19))])(
+        Image.fromarray(image), Image.fromarray(target)
+    )[1]
     assert set(np.unique(np.array(resized))) == {0, 20}
+
+
+@pytest.mark.parametrize("shape", [(1, 3), (3, 1), (1, 1)])
+def test_mask_conversion_preserves_single_pixel_axes(shape):
+    target = np.full(shape, 20, dtype=np.uint8)
+    image = np.repeat(target[..., None], 3, axis=-1)
+    images, targets = seg_transforms.Compose([seg_transforms.ToTensor()])(
+        Image.fromarray(image), Image.fromarray(target)
+    )
+    assert images.shape == (3, *shape)
+    assert targets.shape == shape
+    assert targets.dtype == torch.int64
+    assert (targets == 20).all()
 
 
 @pytest.mark.parametrize("arch", ["unet", "unetpp", "unet3p"])
@@ -330,3 +347,11 @@ def test_yolo26_semantic_reference_training_and_checkpoint(monkeypatch, tmp_path
     assert state["model"]["classifier.1.weight"].shape[0] == 21
     args.resume, args.test_only = str(checkpoint), True
     train.main(args)
+
+
+@pytest.mark.parametrize("random_resize", [False, True])
+def test_mask_resize_preserves_pil_pixel_positions(random_resize):
+    target = Image.fromarray(np.tile(np.array([0, 0, 20], dtype=np.uint8), (3, 1)))
+    transform = seg_transforms.RandomResize(2, 3) if random_resize else seg_transforms.Resize((2, 2))
+    _, resized = seg_transforms.Compose([transform, seg_transforms.ToTensor()])(Image.new("RGB", (3, 3)), target)
+    assert torch.equal(resized, torch.tensor([[0, 20], [0, 20]]))

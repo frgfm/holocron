@@ -16,7 +16,11 @@ from torchvision.datasets import VOCDetection
 from torchvision.models import detection as tv_detection
 from torchvision.transforms import v2 as T
 from torchvision.transforms.v2.functional import InterpolationMode, to_pil_image
-from transforms import Compose, ImageTransform, RandomHorizontalFlip, Resize, VOCTargetTransform, convert_to_relative
+
+if __package__:
+    from .transforms import VOCTargetTransform, convert_to_relative
+else:
+    from transforms import VOCTargetTransform, convert_to_relative
 
 from holocron.models import detection
 from holocron.trainer import DetectionTrainer
@@ -113,15 +117,16 @@ def main(args):
             args.data_path,
             image_set="train",
             download=True,
-            transforms=Compose([
+            transforms=T.Compose([
                 VOCTargetTransform(VOC_CLASSES),
-                Resize((args.img_size, args.img_size), interpolation=interpolation_mode),
-                RandomHorizontalFlip(),
+                T.Resize((args.img_size, args.img_size), interpolation=interpolation_mode),
+                T.RandomHorizontalFlip(),
                 convert_to_relative if args.source == "holocron" else lambda x, y: (x, y),
-                ImageTransform(T.ColorJitter(brightness=0.3, contrast=0.3, saturation=0.1, hue=0.02)),
-                ImageTransform(T.PILToTensor()),
-                ImageTransform(T.ConvertImageDtype(torch.float32)),
-                ImageTransform(normalize),
+                T.ColorJitter(brightness=0.3, contrast=0.3, saturation=0.1, hue=0.02),
+                T.ToImage(),
+                T.ToDtype(torch.float32, scale=True),
+                normalize,
+                T.ToPureTensor(),
             ]),
         )
 
@@ -150,13 +155,14 @@ def main(args):
             args.data_path,
             image_set="val",
             download=True,
-            transforms=Compose([
+            transforms=T.Compose([
                 VOCTargetTransform(VOC_CLASSES),
-                Resize((args.img_size, args.img_size), interpolation=interpolation_mode),
+                T.Resize((args.img_size, args.img_size), interpolation=interpolation_mode),
                 convert_to_relative if args.source == "holocron" else lambda x, y: (x, y),
-                ImageTransform(T.PILToTensor()),
-                ImageTransform(T.ConvertImageDtype(torch.float32)),
-                ImageTransform(normalize),
+                T.ToImage(),
+                T.ToDtype(torch.float32, scale=True),
+                normalize,
+                T.ToPureTensor(),
             ]),
         )
 
