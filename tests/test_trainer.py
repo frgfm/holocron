@@ -3,12 +3,14 @@ import subprocess  # noqa: S404
 import sys
 import warnings
 from argparse import Namespace
+from io import StringIO
 
 import pytest
 import torch
 from torch import nn
 from torch.utils.data import DataLoader, Dataset, TensorDataset
 from torchvision.models import get_model, get_model_weights
+from tqdm.auto import tqdm
 
 from holocron import trainer
 from holocron.nn import GlobalAvgPool2d
@@ -61,19 +63,22 @@ def test_reference_training_evaluation_and_checkpoint(tmp_path):
     assert math.isfinite(learner.evaluate()["val_loss"])
 
 
-def test_reference_tracking_finishes_on_training_failure(monkeypatch):
-    finished = []
-    run = Namespace(finish=lambda: finished.append(True))
+@pytest.mark.parametrize("failure", [False, True])
+def test_reference_tracking_reports_training_status(monkeypatch, failure):
+    exit_codes = []
+
+    run = Namespace(finish=lambda exit_code=0: exit_codes.append(exit_code))
     monkeypatch.setitem(sys.modules, "wandb", Namespace(init=lambda **_kwargs: run, log=lambda _metrics: None))
     model = nn.Linear(1, 2)
     learner = trainer.ClassificationTrainer(
         model, None, None, nn.CrossEntropyLoss(), torch.optim.SGD(model.parameters(), lr=0.01)
     )
 
-    def fail(*_args, **_kwargs):
-        raise RuntimeError("training failed")
+    def fit(*_args, **_kwargs):
+        if failure:
+            raise RuntimeError("training failed")
 
-    monkeypatch.setattr(learner, "fit_n_epochs", fail)
+    monkeypatch.setattr(learner, "fit_n_epochs", fit)
     args = Namespace(
         test_only=False,
         find_lr=False,
@@ -87,9 +92,12 @@ def test_reference_tracking_finishes_on_training_failure(monkeypatch):
         sched="cosine",
         norm_wd=None,
     )
-    with pytest.raises(RuntimeError, match="training failed"):
+    if failure:
+        with pytest.raises(RuntimeError, match="training failed"):
+            run_training(learner, args, project="test", config={})
+    else:
         run_training(learner, args, project="test", config={})
-    assert finished == [True]
+    assert exit_codes == [int(failure)]
 
 
 class MockClassificationDataset(Dataset):
@@ -589,3 +597,26 @@ def test_detection_trainer(tmpdir_factory):
         gradient_clip=0.1,
     )
     _test_trainer(learner, num_it, "roi_heads.box_predictor.cls_score.weight", "backbone", 5e-4)
+
+
+def test_training_progress_obeys_refresh_interval(monkeypatch):
+    bars = []
+
+    class CountingProgress(tqdm):
+        def __init__(self, *args, **kwargs):
+            self.redraws = 0
+            kwargs.update(mininterval=60, file=StringIO())
+            super().__init__(*args, **kwargs)
+            bars.append(self)
+
+        def display(self, *args, **kwargs):
+            self.redraws += 1
+            return super().display(*args, **kwargs)
+
+    monkeypatch.setattr("holocron.trainer.core.tqdm", CountingProgress)
+    inputs = torch.ones(50, 1)
+    learner = _linear_trainer(inputs, torch.zeros_like(inputs), gradient_acc=1)
+    learner.scheduler = torch.optim.lr_scheduler.StepLR(learner.optimizer, step_size=1, gamma=1)
+    learner._fit_epoch()
+    assert learner.step == 50
+    assert bars[0].redraws <= 3

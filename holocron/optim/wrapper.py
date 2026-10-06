@@ -109,9 +109,6 @@ class Lookahead(Optimizer):
         """
         # Clone & detach params from base optimizer
         group = {"params": [p.clone().detach() for p in param_group["params"]], "lr": param_group["lr"]}
-        # Uneeded grads
-        for p in group["params"]:
-            p.reguires_grad = False
         self.param_groups.append(group)
 
     def add_param_group(self, param_group: dict[str, Any]) -> None:

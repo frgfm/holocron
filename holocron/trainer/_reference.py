@@ -74,14 +74,16 @@ def run_training(
 
     print("Start training")
     start_time = time.time()
+    exit_code = 1
     try:
         trainer.fit_n_epochs(
             args.epochs, args.lr, args.freeze_until, args.sched, norm_weight_decay=args.norm_wd, **scheduler_kwargs
         )
         print(f"Training time {datetime.timedelta(seconds=int(time.time() - start_time))}")
+        exit_code = 0
     finally:
         if run is not None:
-            run.finish()
+            run.finish(exit_code=exit_code)
 
 
 def create_optimizer(model: nn.Module, args: Namespace) -> Optimizer:

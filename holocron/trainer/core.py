@@ -163,7 +163,7 @@ class Trainer:
                 nan_cnt += 1
                 if nan_cnt > self.nan_tolerance:
                     raise ValueError(f"loss value has been NaN or inf for more than {self.nan_tolerance} steps.")
-            pb.set_postfix_str(f"Training loss: {batch_loss.item():.4}")
+            pb.set_postfix_str(f"Training loss: {batch_loss.item():.4}", refresh=False)
 
             self.step += 1
         if self._optimizer_step():
