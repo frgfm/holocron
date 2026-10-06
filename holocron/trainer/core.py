@@ -9,15 +9,12 @@ from collections.abc import Callable, Sequence
 from pathlib import Path
 from typing import Any, cast
 
-import matplotlib.pyplot as plt
-import numpy as np
 import torch
-from fastprogress import master_bar, progress_bar
-from fastprogress.fastprogress import ConsoleMasterBar, NBMasterBar
 from torch import Tensor, nn
 from torch.amp.grad_scaler import GradScaler
 from torch.optim.lr_scheduler import CosineAnnealingLR, LRScheduler, MultiplicativeLR, OneCycleLR
 from torch.utils.data import DataLoader
+from tqdm.auto import tqdm
 
 from .utils import freeze_bn, freeze_model, split_normalization_params
 
@@ -140,11 +137,8 @@ class Trainer:
         self.min_loss = state["min_loss"]
         self.model.load_state_dict(state["model"])
 
-    def _fit_epoch(self, mb: ConsoleMasterBar | NBMasterBar) -> None:
+    def _fit_epoch(self) -> None:
         """Fit a single epoch
-
-        Args:
-            mb: primary progress bar
 
         Raises:
             ValueError: if the loss value is NaN or inf
@@ -153,7 +147,7 @@ class Trainer:
 
         nan_cnt = 0
 
-        pb = progress_bar(self.train_loader, parent=mb)
+        pb = tqdm(self.train_loader, desc="Training", leave=False)
         for x, target in pb:
             x, target = self.to_cuda(x, target)
 
@@ -169,7 +163,7 @@ class Trainer:
                 nan_cnt += 1
                 if nan_cnt > self.nan_tolerance:
                     raise ValueError(f"loss value has been NaN or inf for more than {self.nan_tolerance} steps.")
-            pb.comment = f"Training loss: {batch_loss.item():.4}"
+            pb.set_postfix_str(f"Training loss: {batch_loss.item():.4}")
 
             self.step += 1
         if self._optimizer_step():
@@ -328,14 +322,11 @@ class Trainer:
         if self.amp:
             self.scaler = GradScaler("cuda")
 
-        mb = master_bar(range(num_epochs))
-        for _ in mb:
-            self._fit_epoch(mb)
+        for _ in tqdm(range(num_epochs), desc="Epochs"):
+            self._fit_epoch()
             eval_metrics = self.evaluate()
 
-            # master bar
-            mb.main_bar.comment = f"Epoch {self.epoch}/{self.start_epoch + num_epochs}"
-            mb.write(f"Epoch {self.epoch}/{self.start_epoch + num_epochs} - {self._eval_metrics_str(eval_metrics)}")
+            tqdm.write(f"Epoch {self.epoch}/{self.start_epoch + num_epochs} - {self._eval_metrics_str(eval_metrics)}")
 
             if eval_metrics["val_loss"] < self.min_loss:
                 print(  # noqa: T201
@@ -387,7 +378,7 @@ class Trainer:
 
         batch_iter = iter(self.train_loader)
         final_step_batches = num_it - self.gradient_acc * (num_steps - 1)
-        for step_idx in progress_bar(range(num_steps), total=num_steps):
+        for step_idx in tqdm(range(num_steps), total=num_steps, desc="Learning rates"):
             step_batches = final_step_batches if step_idx == num_steps - 1 else self.gradient_acc
             stepped = False
             while not stepped:
@@ -424,6 +415,8 @@ class Trainer:
         Raises:
             AssertionError: if the number of learning rate recorder and loss recorder are not the same or if the number of learning rate recorder is 0
         """
+        import matplotlib.pyplot as plt  # noqa: PLC0415
+
         if len(self.lr_recorder) != len(self.loss_recorder) or len(self.lr_recorder) == 0:
             raise AssertionError("Please run the `lr_find` method first")
 
@@ -461,6 +454,8 @@ class Trainer:
         Raises:
             ValueError: if the loss value is NaN or inf
         """
+        import matplotlib.pyplot as plt  # noqa: PLC0415
+
         freeze_model(self.model.train(), freeze_until)
         # Update param groups & LR
         self._reset_opt(lr, norm_weight_decay)
@@ -484,7 +479,7 @@ class Trainer:
 
             losses.append(batch_loss.item())
 
-        plt.plot(np.arange(len(losses)), losses)
+        plt.plot(range(len(losses)), losses)
         plt.xlabel("Optimization steps")
         plt.ylabel("Training loss")
         plt.grid(True, linestyle="--", axis="x")
