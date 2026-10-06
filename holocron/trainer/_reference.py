@@ -65,7 +65,7 @@ def run_training(
 
     run = None
     if args.wb:
-        import wandb  # noqa: PLC0415
+        import wandb  # ty: ignore[unresolved-import]  # noqa: PLC0415
 
         timestamp = datetime.datetime.now(tz=datetime.UTC).strftime("%Y%m%d-%H%M%S")
         name = f"{args.arch}-{timestamp}" if args.name is None else args.name
