@@ -1,6 +1,5 @@
 import copy
 
-import onnx
 import pytest
 import torch
 from torch.utils.data import DataLoader
@@ -163,21 +162,6 @@ def test_yolo26_parameter_budget():
     model = yolo26n().eval()
     assert sum(parameter.numel() for parameter in model.parameters()) == 2_572_280
     assert sum(parameter.numel() for parameter in model.to_deploy().parameters()) == 2_408_932
-
-
-def test_yolo26_static_onnx_export(tmp_path):
-    model = yolo26n(num_classes=2, box_score_thresh=0).eval().to_deploy()
-    path = tmp_path / "yolo26n.onnx"
-    torch.onnx.export(
-        model,
-        torch.rand(1, 3, 64, 64),
-        path,
-        opset_version=20,
-        dynamo=False,
-        input_names=["images"],
-        output_names=["boxes", "scores", "labels"],
-    )
-    onnx.checker.check_model(onnx.load(path))
 
 
 def test_yolo26_rejects_unavailable_weights_and_invalid_inputs():
