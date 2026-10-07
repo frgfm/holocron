@@ -2121,9 +2121,9 @@ untrained or poorly trained weights can still produce duplicate detections.
 into convolution, and removes the unused branch. Keep the original model for
 training. To restore deployment weights, construct the same model and call
 <code>eval().to_deploy()</code> before <code>load_state_dict()</code>.</p>
-<p>A fixed-batch, fixed-resolution ONNX opset-20 export of the fused NMS-free
-model passes the ONNX checker. Use <code>torch.onnx.export(..., dynamo=False)</code>.
-Dynamic batch or image sizes and ONNX Runtime parity have not been validated.</p>
+<p>Fixed-batch, fixed-resolution ONNX opset-20 exports of the fused model pass
+ONNX Runtime CPU parity checks, with and without NMS. See the
+<a href="../../models/#onnx-export">export guide</a>. Dynamic batch or image sizes have not been validated.</p>
 <p>The existing <code>DetectionTrainer</code> and VOC reference script can train this model:</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>uv<span class="w"> </span>run<span class="w"> </span>--no-sync<span class="w"> </span>python<span class="w"> </span>references/detection/train.py<span class="w"> </span>VOC2012<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span>--arch<span class="w"> </span>yolo26n<span class="w"> </span>--img-size<span class="w"> </span><span class="m">640</span><span class="w"> </span>--opt<span class="w"> </span>adamw<span class="w"> </span>--lr<span class="w"> </span><span class="m">0</span>.001<span class="w"> </span><span class="se">\</span>

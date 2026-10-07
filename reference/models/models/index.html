@@ -807,6 +807,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#onnx-export" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ONNX export
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#classification" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2222,6 +2233,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#onnx-export" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ONNX export
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#classification" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2693,7 +2715,7 @@ does not instantiate models or download weights.</p>
 <td>15 families</td>
 <td>Imagenette checkpoints with top-1/top-5 metrics; selected ReXNet ImageNet-1K checkpoints</td>
 <td><a href="https://github.com/frgfm/holocron/blob/main/references/classification/train.py">Reference script</a></td>
-<td><a href="https://github.com/frgfm/holocron/blob/main/scripts/export_to_onnx.py">Classification export</a></td>
+<td><a href="#onnx-export">CPU inference parity</a> tested for all factories</td>
 <td><strong>Validated</strong></td>
 </tr>
 <tr>
@@ -2701,15 +2723,15 @@ does not instantiate models or download weights.</p>
 <td>U-Net, U-Net++, UNet3+, <a href="../segmentation/yolo26/">YOLO26 nano</a></td>
 <td>Only the legacy <code>unet_rexnet13</code> weights; dataset and metric are not documented</td>
 <td><a href="https://github.com/frgfm/holocron/blob/main/references/segmentation/train.py">Reference script</a></td>
-<td>YOLO26 export and CPU reference parity tested</td>
+<td><a href="#onnx-export">CPU inference parity</a> tested for all factories</td>
 <td><strong>Unbenchmarked</strong> on standard benchmarks; YOLO26 small-data learning checks available</td>
 </tr>
 <tr>
 <td>Object detection</td>
-<td>YOLOv1, YOLOv2, YOLOv4</td>
+<td>YOLOv1, YOLOv2, YOLOv4, YOLO26 nano</td>
 <td>None</td>
 <td><a href="https://github.com/frgfm/holocron/blob/main/references/detection/train.py">Reference script</a></td>
-<td><a href="https://github.com/frgfm/holocron/blob/main/tests/test_models_detection.py">Export tests</a>; runtime parity not benchmarked</td>
+<td><a href="#onnx-export">CPU inference parity</a> tested for all factories</td>
 <td><strong>Experimental</strong>; <a href="#yolo-training-validation">YOLOv4 learning check verified</a></td>
 </tr>
 <tr>
@@ -2726,6 +2748,48 @@ does not instantiate models or download weights.</p>
 <strong>Unbenchmarked</strong> means an implementation or legacy weight exists without a
 documented evaluation dataset and metric. <strong>Experimental</strong> means the API is
 available, but published task weights and a confirmed benchmark are not.</p>
+<h2 id="onnx-export">ONNX export<a class="headerlink" href="#onnx-export" title="Permanent link">&para;</a></h2>
+<p>From a repository checkout, export a trained model and check its answers in ONNX Runtime:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>uv<span class="w"> </span>sync<span class="w"> </span>--locked<span class="w"> </span>--extra<span class="w"> </span>scripts
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>uv<span class="w"> </span>run<span class="w"> </span>--no-sync<span class="w"> </span>python<span class="w"> </span>scripts/export_to_onnx.py<span class="w"> </span>resnet18<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span>--checkpoint<span class="w"> </span>checkpoints/model.pth<span class="w"> </span>--num-classes<span class="w"> </span><span class="m">10</span><span class="w"> </span>--height<span class="w"> </span><span class="m">224</span><span class="w"> </span>--width<span class="w"> </span><span class="m">224</span><span class="w"> </span>--path<span class="w"> </span>model.onnx
+</span></code></pre></div>
+<p>The checkpoint can be a raw state dictionary or a trainer checkpoint containing <code>model</code>.
+Use the same architecture, class count and input channels as training. Export loads the
+training weights without downloading backbone weights.</p>
+<p>The contract is CPU FP32, ONNX opset 20, and a fixed <code>(batch, channels, height, width)</code> input
+named <code>images</code>. Re-export for a different shape. Classification and segmentation return <code>logits</code>;
+detection returns <code>boxes_0</code>, <code>scores_0</code>, <code>labels_0</code>, then the same fields for each subsequent
+batch item. Boxes are normalized xyxy coordinates; detection counts can vary with the input.
+Provide the same resized, normalized image tensors used for PyTorch inference; preprocessing
+and class names are not bundled into the graph.
+YOLOv1 requires 448-by-448 images; YOLO26 detection requires dimensions divisible by 32.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">onnxruntime</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ort</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="n">session</span> <span class="o">=</span> <span class="n">ort</span><span class="o">.</span><span class="n">InferenceSession</span><span class="p">(</span><span class="s2">&quot;model.onnx&quot;</span><span class="p">,</span> <span class="n">providers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;CPUExecutionProvider&quot;</span><span class="p">])</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="n">images</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;preprocessed_images.npy&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>  <span class="c1"># shape (1, 3, 224, 224)</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="n">outputs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">((</span><span class="n">output</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">output</span> <span class="ow">in</span> <span class="n">session</span><span class="o">.</span><span class="n">get_outputs</span><span class="p">()),</span> <span class="n">session</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;images&quot;</span><span class="p">:</span> <span class="n">images</span><span class="p">})))</span>
+</span></code></pre></div>
+<p>The exporter checks the ONNX graph and compares runtime shapes, dtypes and finite values with
+PyTorch on the sample, blank and fresh random inputs. Float outputs use <code>rtol=1e-3, atol=3e-5</code>;
+labels must match exactly. Detection records are compared independent of their order.
+Near-tied class scores or equal-score top-k/NMS can change labels or selected boxes across
+runtimes; such differences fail verification. These checks establish numerical parity for the
+tested inputs, not dataset accuracy. The output file is replaced only after verification passes.
+Dynamic shapes, quantization and Core ML conversion remain future work.</p>
+<p>For a custom architecture, call <code>export_model(model, images, path)</code> from
+<code>scripts.export_to_onnx.py</code> with an evaluation model on CPU and FP32 inputs. It accepts the same
+tensor or detection-list outputs as the built-in models and raises on incompatible export or
+runtime differences. The helper puts the model in evaluation mode; it leaves its inference
+branches intact, so the same model can be exported again. For a smaller deployment graph,
+optionally call the architecture's <code>reparametrize()</code> or <code>fuse()</code> method first. YOLO26 detection
+uses its independent <code>to_deploy()</code> copy automatically.
+CI discovers vision factories through <code>list_models()</code> and exercises every factory with three
+classes and fixed inputs (64 pixels, or 448 for YOLOv1). Fixtures with nearly constant outputs
+get up to two blank/random BatchNorm calibration batches. Each fixture must respond to its input
+beyond the comparison tolerance; regressions also exercise deliberately broken exports that ignore
+the image.</p>
 <h2 id="classification">Classification<a class="headerlink" href="#classification" title="Permanent link">&para;</a></h2>
 <p>Classification models expect a 4D image tensor as an input (N x C x H x W) and returns a 2D output (N x K).
 The output represents the classification scores for each output classes.</p>
@@ -3209,9 +3273,9 @@ In evaluation mode, each dictionary has three keys: <code>boxes</code> (normaliz
 class probability for YOLO26), and <code>labels</code> (class indices).
 In training mode, pass a list of target dictionaries with normalized <code>boxes</code> and integer <code>labels</code>;
 the model returns a loss dictionary.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">holocron.models</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">models</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">yolov2</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">yolov2</span><span class="p">(</span><span class="n">num_classes</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">holocron.models</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">models</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="n">yolov2</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">yolov2</span><span class="p">(</span><span class="n">num_classes</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 </span></code></pre></div>
 <h3 id="yolo-training-validation">YOLO training validation<a class="headerlink" href="#yolo-training-validation" title="Permanent link">&para;</a></h3>
 <p>YOLOv4 uses a CSPDarknet53-Mish backbone with an SPP/PAN neck and three detection scales.
@@ -3246,7 +3310,7 @@ parameter gradients. The pretrained backbone weights remain unchanged, and a tra
 </tr>
 <tr>
 <td>YOLOv1/v2/v4 ONNX</td>
-<td>Export tested; inference parity and accuracy not benchmarked</td>
+<td>Fixed-shape export and ONNX Runtime CPU parity tested; accuracy not benchmarked</td>
 </tr>
 <tr>
 <td>Full CUDA/VOC training of the repaired YOLOv4</td>
@@ -4680,9 +4744,9 @@ segmentation architectures have no published weights.</p>
 </div>
 <p>Semantic segmentation models expect a 4D image tensor as an input (N x C x H x W) and returns a classification score
 tensor of size (N x K x Ho x Wo).</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">holocron.models</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">models</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">unet</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">unet</span><span class="p">(</span><span class="n">num_classes</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">holocron.models</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">models</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">unet</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">unet</span><span class="p">(</span><span class="n">num_classes</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 </span></code></pre></div>
 <h3 id="u-net-family">U-Net family<a class="headerlink" href="#u-net-family" title="Permanent link">&para;</a></h3>
 
