@@ -76,8 +76,9 @@ outputs = dict(zip((output.name for output in session.get_outputs()), session.ru
 The exporter checks the ONNX graph and compares runtime shapes, dtypes and finite values with
 PyTorch on the sample, blank and fresh random inputs. Float outputs use `rtol=1e-3, atol=1e-5`;
 labels must match exactly. Detection records are compared independent of their order.
-Equal-score top-k or NMS ties can select different boxes across runtimes; such differences
-fail verification. These checks establish numerical parity for the tested inputs, not dataset accuracy.
+Near-tied class scores or equal-score top-k/NMS can change labels or selected boxes across
+runtimes; such differences fail verification. These checks establish numerical parity for the
+tested inputs, not dataset accuracy.
 Dynamic shapes, quantization and Core ML conversion remain future work.
 
 For a custom architecture, call `export_model(model, images, path)` from

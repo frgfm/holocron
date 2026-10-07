@@ -10,7 +10,6 @@ Holocron model ONNX export
 import argparse
 import inspect
 
-import numpy as np
 import onnx
 import onnxruntime
 import torch
@@ -24,20 +23,28 @@ def _outputs(prediction):
     return {f"{key}_{idx}": value for idx, detection in enumerate(prediction) for key, value in detection.items()}
 
 
-def _sort_detections(outputs):
-    # Equal scores can reorder detections across runtimes. Compare complete box/score/label records.
+def _match_detections(outputs, reference):
+    # Match complete records: tied scores and coordinate round-off can change their order.
     for name, boxes in list(outputs.items()):
         if name.startswith("boxes_"):
-            # Round sorting keys only: compare the original values at the tolerance below.
-            order = np.lexsort((
-                outputs["scores" + name[5:]].numpy().round(5),
-                outputs["labels" + name[5:]].numpy(),
-                *boxes.numpy().round(5).T[::-1],
-            ))
-            for key in ("boxes", "scores", "labels"):
-                field = key + name[5:]
-                outputs[field] = outputs[field][order]
-    return outputs
+            if boxes.shape != reference[name].shape:
+                raise AssertionError(f"Detection counts differ for {name!r}")
+            fields = [key + name[5:] for key in ("boxes", "scores", "labels")]
+            expected = torch.cat((reference[name], reference[fields[1]][:, None]), dim=1)
+            actual = torch.cat((boxes, outputs[fields[1]][:, None]), dim=1)
+            available = torch.ones(len(boxes), dtype=torch.bool)
+            order = []
+            for record, label in zip(actual, outputs[fields[2]], strict=True):
+                distance = ((expected - record).abs() / (1e-5 + 1e-3 * expected.abs())).amax(dim=1)
+                distance[~available | (reference[fields[2]] != label)] = torch.inf
+                match = distance.argmin()
+                if distance[match] > 1:
+                    raise AssertionError(f"No matching box/score/label record for {name!r}")
+                available[match] = False
+                order.append(match)
+            indices = torch.tensor(order, dtype=torch.long)
+            for field in fields:
+                reference[field] = reference[field][indices]
 
 
 @torch.inference_mode()
@@ -75,8 +82,7 @@ def export_model(model, images, path):
         outputs = dict(
             zip(reference, map(torch.from_numpy, session.run(None, {"images": sample.numpy()})), strict=True)
         )
-        _sort_detections(outputs)
-        _sort_detections(reference)
+        _match_detections(outputs, reference)
         for name, expected in reference.items():
             actual = outputs[name]
             if not torch.isfinite(actual).all() or not torch.isfinite(expected).all():

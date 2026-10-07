@@ -27,6 +27,9 @@ def test_model_onnx_inference(arch, tmp_path):
         for module in model.modules():
             if isinstance(module, (nn.Conv2d, nn.Linear)) and not torch.count_nonzero(module.weight):
                 nn.init.normal_(module.weight, std=0.01)
+                if module.bias is not None:
+                    # Give class logits a margin instead of rounding to the same confidence.
+                    nn.init.normal_(module.bias, std=0.1)
         model.box_score_thresh = 0
     path = tmp_path / "model.onnx"
     images = torch.rand(1, 3, side, side)
