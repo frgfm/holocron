@@ -9,7 +9,21 @@ from torch import nn
 
 from holocron import models
 from holocron.models.detection.yolo import _post_process  # noqa: PLC2701
-from scripts.export_to_onnx import export_model, main
+from scripts.export_to_onnx import _match_detections, _outputs, export_model, main  # noqa: PLC2701
+
+
+@torch.no_grad()
+def _calibrate(model, side):
+    # Fresh running stats can make deep networks almost constant; emulate a training batch.
+    norms = [module for module in model.modules() if isinstance(module, (nn.BatchNorm1d, nn.BatchNorm2d))]
+    if norms:
+        for module in norms:
+            module.train()
+            module.momentum = 0.99  # Retain initial variance to avoid enormous normalization gains.
+        images = torch.rand(2, 3, side, side)
+        images[0] = 0
+        model(images)
+    model.eval()
 
 
 @pytest.mark.parametrize("arch", models.list_models())
@@ -31,11 +45,17 @@ def test_model_onnx_inference(arch, tmp_path):
                     # Give class logits a margin instead of rounding to the same confidence.
                     nn.init.normal_(module.bias, std=0.1)
         model.box_score_thresh = 0
+    _calibrate(model, side)
     path = tmp_path / "model.onnx"
     images = torch.rand(1, 3, side, side)
-    if task == "detection":
-        with torch.inference_mode():
-            assert model(images)[0]["boxes"].shape[0] > 0
+    with torch.inference_mode():
+        prediction, blank = model(images), model(torch.zeros_like(images))
+        if task == "detection":
+            assert len(prediction[0]["boxes"]) > 0
+            with pytest.raises(AssertionError, match=r"Detection counts differ|No matching"):
+                _match_detections(_outputs(blank), _outputs(prediction))
+        else:
+            assert not torch.allclose(prediction, blank, rtol=1e-3, atol=3e-5)
     export_model(model, images, path)
     graph = onnx.load(path, load_external_data=False)
     assert graph.opset_import[0].version == 20
@@ -65,13 +85,63 @@ def test_detection_onnx_empty_and_nonempty(tmp_path):
     export_model(model, images, tmp_path / "model.onnx")
 
 
-def test_onnx_verification_catches_traced_input_branch(tmp_path):
+def test_detection_matching_reassigns_ambiguous_records():
+    expected = {
+        "boxes_0": torch.tensor([[0.5, 0, 1, 1], [0.5009, 0, 1, 1]]),
+        "scores_0": torch.tensor([0.5, 0.5]),
+        "labels_0": torch.tensor([0, 0]),
+    }
+    actual = {name: value.clone() for name, value in expected.items()}
+    actual["boxes_0"][:, 0] = torch.tensor([0.5004, 0.5])
+    _match_detections(actual, expected)
+    for name, value in actual.items():
+        torch.testing.assert_close(value, expected[name], rtol=1e-3, atol=3e-5)
+    actual["labels_0"][0] = 1
+    with pytest.raises(AssertionError, match="No matching"):
+        _match_detections(actual, expected)
+
+
+@pytest.mark.parametrize("existing_file", [False, True])
+def test_onnx_verification_catches_traced_input_branch(existing_file, tmp_path):
     class InputBranch(nn.Module):
         def forward(self, images):  # noqa: PLR6301
             return images + (1 if images.sum() > 0 else 0)
 
+    path = tmp_path / "model.onnx"
+    if existing_file:
+        export_model(nn.Identity(), torch.ones(1, 3, 4, 4), path)
+        original = path.read_bytes()
     with pytest.raises(AssertionError, match="not close"):
-        export_model(InputBranch(), torch.ones(1, 3, 4, 4), tmp_path / "model.onnx")
+        export_model(InputBranch(), torch.ones(1, 3, 4, 4), path)
+    assert list(tmp_path.iterdir()) == ([path] if existing_file else [])
+    if existing_file:
+        assert path.read_bytes() == original
+
+
+@pytest.mark.parametrize("arch", ["rexnet1_0x", "repvit_m0_9"])
+def test_onnx_verification_catches_frozen_image(arch, tmp_path):
+    class FrozenImage(nn.Module):
+        def __init__(self, model):
+            super().__init__()
+            self.model = model
+
+        def forward(self, images):
+            return self.model(images * 0 if torch.onnx.is_in_onnx_export() else images)
+
+    torch.manual_seed(42)
+    model = models.get_model(arch, num_classes=3).eval()
+    _calibrate(model, 64)
+    with pytest.raises(AssertionError, match="not close"):
+        export_model(FrozenImage(model), torch.rand(1, 3, 64, 64), tmp_path / "model.onnx")
+
+
+@pytest.mark.parametrize("arch", ["repvgg_a0", "mobileone_s0"])
+def test_onnx_repeated_export(arch, tmp_path):
+    model = models.get_model(arch, num_classes=3).eval()
+    export_model(model, torch.rand(1, 3, 64, 64), tmp_path / "model.onnx")
+    model.reparametrize()
+    export_model(model, torch.rand(1, 3, 64, 96), tmp_path / "model.onnx")
+    export_model(model, torch.rand(1, 3, 64, 64), tmp_path / "model.onnx")
 
 
 @pytest.mark.parametrize("trainer_checkpoint", [False, True])

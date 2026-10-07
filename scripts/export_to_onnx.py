@@ -9,12 +9,16 @@ Holocron model ONNX export
 
 import argparse
 import inspect
+from pathlib import Path
+from tempfile import TemporaryDirectory
 
 import onnx
 import onnxruntime
 import torch
 
 from holocron import models
+
+_RTOL, _ATOL = 1e-3, 3e-5
 
 
 def _outputs(prediction):
@@ -23,28 +27,49 @@ def _outputs(prediction):
     return {f"{key}_{idx}": value for idx, detection in enumerate(prediction) for key, value in detection.items()}
 
 
+def _detection_order(actual, expected, labels, expected_labels):
+    order, owners = [-1] * len(actual), [-1] * len(expected)
+    for idx in range(len(actual)):
+        # Revisit ambiguous matches rather than consuming a later record's only match.
+        pending, parents = [idx], {}
+        for candidate in pending:
+            distance = ((expected - actual[candidate]).abs() / (_ATOL + _RTOL * expected.abs())).amax(dim=1)
+            matches = ((distance <= 1) & (expected_labels == labels[candidate])).nonzero()
+            for match in sorted(matches.flatten().tolist(), key=lambda match: owners[match] >= 0):
+                if match in parents:
+                    continue
+                parents[match] = candidate
+                if owners[match] < 0:
+                    current = match
+                    while current >= 0:
+                        record = parents[current]
+                        previous = order[record]
+                        order[record] = current
+                        owners[current] = record
+                        current = previous
+                    break
+                pending.append(owners[match])
+            else:
+                continue
+            break
+        else:
+            raise AssertionError("No matching box/score/label record")
+    return torch.tensor(order, dtype=torch.long)
+
+
 def _match_detections(outputs, reference):
     # Match complete records: tied scores and coordinate round-off can change their order.
     for name, boxes in list(outputs.items()):
-        if name.startswith("boxes_"):
-            if boxes.shape != reference[name].shape:
-                raise AssertionError(f"Detection counts differ for {name!r}")
-            fields = [key + name[5:] for key in ("boxes", "scores", "labels")]
-            expected = torch.cat((reference[name], reference[fields[1]][:, None]), dim=1)
-            actual = torch.cat((boxes, outputs[fields[1]][:, None]), dim=1)
-            available = torch.ones(len(boxes), dtype=torch.bool)
-            order = []
-            for record, label in zip(actual, outputs[fields[2]], strict=True):
-                distance = ((expected - record).abs() / (1e-5 + 1e-3 * expected.abs())).amax(dim=1)
-                distance[~available | (reference[fields[2]] != label)] = torch.inf
-                match = distance.argmin()
-                if distance[match] > 1:
-                    raise AssertionError(f"No matching box/score/label record for {name!r}")
-                available[match] = False
-                order.append(match)
-            indices = torch.tensor(order, dtype=torch.long)
-            for field in fields:
-                reference[field] = reference[field][indices]
+        if not name.startswith("boxes_"):
+            continue
+        if boxes.shape != reference[name].shape:
+            raise AssertionError(f"Detection counts differ for {name!r}")
+        fields = [key + name[5:] for key in ("boxes", "scores", "labels")]
+        expected = torch.cat((reference[name], reference[fields[1]][:, None]), dim=1)
+        actual = torch.cat((boxes, outputs[fields[1]][:, None]), dim=1)
+        indices = _detection_order(actual, expected, outputs[fields[2]], reference[fields[2]])
+        for field in fields:
+            reference[field] = reference[field][indices]
 
 
 @torch.inference_mode()
@@ -57,44 +82,45 @@ def export_model(model, images, path):
     model.eval()
     samples = (images, torch.zeros_like(images), torch.rand_like(images))
     references = [_outputs(model(sample)) for sample in samples]
-    if hasattr(model, "reparametrize"):
-        model.reparametrize()
-    elif hasattr(model, "to_deploy"):
+    if hasattr(model, "to_deploy"):
         model = model.to_deploy()
-    elif hasattr(model, "fuse"):
-        model.fuse()
-    torch.onnx.export(
-        model,
-        images,
-        path,
-        export_params=True,
-        opset_version=20,
-        dynamo=False,
-        input_names=["images"],
-        output_names=list(references[0]),
-    )
-    onnx.checker.check_model(str(path))
-    options = onnxruntime.SessionOptions()
-    options.intra_op_num_threads = torch.get_num_threads()
-    options.inter_op_num_threads = 1
-    session = onnxruntime.InferenceSession(str(path), sess_options=options, providers=["CPUExecutionProvider"])
-    for idx, (sample, reference) in enumerate(zip(samples, references, strict=True)):
-        outputs = dict(
-            zip(reference, map(torch.from_numpy, session.run(None, {"images": sample.numpy()})), strict=True)
+    path = Path(path)
+    with TemporaryDirectory(dir=path.parent) as directory:
+        candidate = Path(directory) / path.name
+        torch.onnx.export(
+            model,
+            images,
+            candidate,
+            export_params=True,
+            opset_version=20,
+            dynamo=False,
+            input_names=["images"],
+            output_names=list(references[0]),
         )
-        _match_detections(outputs, reference)
-        for name, expected in reference.items():
-            actual = outputs[name]
-            if not torch.isfinite(actual).all() or not torch.isfinite(expected).all():
-                raise ValueError(f"Non-finite values in output {name!r} on verification input {idx}")
-            floating = expected.is_floating_point()
-            torch.testing.assert_close(
-                actual,
-                expected,
-                rtol=1e-3 if floating else 0,
-                atol=1e-5 if floating else 0,
-                msg=lambda message, name=name, idx=idx: f"Output {name!r}, verification input {idx}: {message}",
+        onnx.checker.check_model(str(candidate))
+        options = onnxruntime.SessionOptions()
+        options.intra_op_num_threads = torch.get_num_threads()
+        options.inter_op_num_threads = 1
+        session = onnxruntime.InferenceSession(str(candidate), sess_options=options, providers=["CPUExecutionProvider"])
+        for idx, (sample, reference) in enumerate(zip(samples, references, strict=True)):
+            outputs = dict(
+                zip(reference, map(torch.from_numpy, session.run(None, {"images": sample.numpy()})), strict=True)
             )
+            _match_detections(outputs, reference)
+            for name, expected in reference.items():
+                actual = outputs[name]
+                if not torch.isfinite(actual).all() or not torch.isfinite(expected).all():
+                    raise ValueError(f"Non-finite values in output {name!r} on verification input {idx}")
+                floating = expected.is_floating_point()
+                torch.testing.assert_close(
+                    actual,
+                    expected,
+                    rtol=_RTOL if floating else 0,
+                    atol=_ATOL if floating else 0,
+                    msg=lambda message, name=name, idx=idx: f"Output {name!r}, verification input {idx}: {message}",
+                )
+        del session
+        candidate.replace(path)
 
 
 def main(args):

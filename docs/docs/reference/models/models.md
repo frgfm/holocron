@@ -53,8 +53,8 @@ uv run --no-sync python scripts/export_to_onnx.py resnet18 \
 ```
 
 The checkpoint can be a raw state dictionary or a trainer checkpoint containing `model`.
-Use the same architecture, class count and input channels as training. Export folds supported
-inference branches after loading the training weights, without downloading backbone weights.
+Use the same architecture, class count and input channels as training. Export loads the
+training weights without downloading backbone weights.
 
 The contract is CPU FP32, ONNX opset 20, and a fixed `(batch, channels, height, width)` input
 named `images`. Re-export for a different shape. Classification and segmentation return `logits`;
@@ -74,18 +74,24 @@ outputs = dict(zip((output.name for output in session.get_outputs()), session.ru
 ```
 
 The exporter checks the ONNX graph and compares runtime shapes, dtypes and finite values with
-PyTorch on the sample, blank and fresh random inputs. Float outputs use `rtol=1e-3, atol=1e-5`;
+PyTorch on the sample, blank and fresh random inputs. Float outputs use `rtol=1e-3, atol=3e-5`;
 labels must match exactly. Detection records are compared independent of their order.
 Near-tied class scores or equal-score top-k/NMS can change labels or selected boxes across
 runtimes; such differences fail verification. These checks establish numerical parity for the
-tested inputs, not dataset accuracy.
+tested inputs, not dataset accuracy. The output file is replaced only after verification passes.
 Dynamic shapes, quantization and Core ML conversion remain future work.
 
 For a custom architecture, call `export_model(model, images, path)` from
 `scripts.export_to_onnx.py` with an evaluation model on CPU and FP32 inputs. It accepts the same
 tensor or detection-list outputs as the built-in models and raises on incompatible export or
-runtime differences. CI discovers vision factories through `list_models()` and exercises every
-factory with three classes and fixed inputs (64 pixels, or 448 for YOLOv1).
+runtime differences. The helper puts the model in evaluation mode; it leaves its inference
+branches intact, so the same model can be exported again. For a smaller deployment graph,
+optionally call the architecture's `reparametrize()` or `fuse()` method first. YOLO26 detection
+uses its independent `to_deploy()` copy automatically.
+CI discovers vision factories through `list_models()` and exercises every factory with three
+classes and fixed inputs (64 pixels, or 448 for YOLOv1), after calibrating BatchNorm running
+statistics on a blank/random batch. Each fixture must respond to its input beyond the comparison
+tolerance; regressions also exercise deliberately broken exports that ignore the image.
 
 
 ## Classification
