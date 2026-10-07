@@ -52,7 +52,8 @@ def test_model_onnx_inference(arch, tmp_path):
     if task == "detection":
         for module in model.modules():
             if isinstance(module, (nn.Conv2d, nn.Linear)) and not torch.count_nonzero(module.weight):
-                nn.init.normal_(module.weight, std=0.01)
+                # Keep box logits moderate: exponential decoding amplifies round-off.
+                nn.init.normal_(module.weight, std=0.001)
                 if module.bias is not None:
                     # Give class logits a margin instead of rounding to the same confidence.
                     nn.init.normal_(module.bias, std=0.1)
