@@ -63,13 +63,20 @@ def run_training(
         return
 
     run = None
+    callback = trainer.on_epoch_end
     if args.wb:
         import wandb  # noqa: PLC0415
 
         timestamp = datetime.datetime.now(tz=datetime.UTC).strftime("%Y%m%d-%H%M%S")
         name = f"{args.arch}-{timestamp}" if args.name is None else args.name
         run = wandb.init(name=name, project=project, config=config)
-        trainer.on_epoch_end = wandb.log
+
+        def log_epoch(metrics: dict[str, float]) -> None:
+            if callback is not None:
+                callback(metrics)
+            wandb.log(metrics)
+
+        trainer.on_epoch_end = log_epoch
 
     print("Start training")
     start_time = time.time()
@@ -81,6 +88,7 @@ def run_training(
         print(f"Training time {datetime.timedelta(seconds=int(time.time() - start_time))}")
         exit_code = 0
     finally:
+        trainer.on_epoch_end = callback
         if run is not None:
             run.finish(exit_code=exit_code)
 

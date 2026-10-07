@@ -28,7 +28,7 @@ def test_reference_tracking_reports_training_status(monkeypatch, failure):
         if failure:
             raise RuntimeError("training failed")
 
-    learner = Namespace(fit_n_epochs=fit)
+    learner = Namespace(fit_n_epochs=fit, on_epoch_end=None)
     args = Namespace(
         test_only=False,
         find_lr=False,

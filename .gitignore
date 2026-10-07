@@ -127,6 +127,7 @@ flagged/
 
 # Training
 checkpoints/
+runs/
 
 # Docs
 docs/site
