@@ -74,7 +74,7 @@ loaded.load_state_dict(torch.load("semantic-fused.pth", weights_only=True))
 
 Construct and fuse the destination model before loading fused weights. Keep
 an unfused checkpoint if further training is needed. CPU tests check fused
-prediction parity, saved-state reload, ONNX export and ONNX reference evaluator
+prediction parity, saved-state reload, ONNX export and ONNX Runtime CPU
 parity. CUDA, TensorRT, quantization, and upstream weight conversion are not
 validated here.
 

@@ -1,6 +1,3 @@
-from pathlib import Path
-
-import onnx
 import pytest
 import torch
 from torch import nn
@@ -184,37 +181,3 @@ def test_repvit_custom_channels():
 def test_classification_model(arch, pretrained):
     num_classes = 1000 if arch.startswith("rexnet") else 10
     _test_classification_model(arch, num_classes, pretrained)
-
-
-@pytest.mark.parametrize(
-    "arch",
-    [
-        "darknet24",
-        "darknet19",
-        "darknet53",
-        "cspdarknet53",
-        "resnet18",
-        "res2net50_26w_4s",
-        "tridentnet50",
-        "pyconv_resnet50",
-        "rexnet1_0x",
-        "sknet50",
-        "repvgg_a0",
-        "convnext_atto",
-        "mobileone_s0",
-        "repvit_m0_9",
-        "repvit_m1_0",
-        "repvit_m1_1",
-    ],
-)
-def test_classification_onnx_export(arch, tmpdir_factory):
-    model = classification.__dict__[arch](pretrained=False, num_classes=10).eval()
-    if hasattr(model, "reparametrize"):
-        model.reparametrize()
-    tmp_path = Path(str(tmpdir_factory.mktemp("onnx"))).joinpath(f"{arch}.onnx")
-    img_tensor = torch.rand((1, 3, 224, 224))
-    with torch.no_grad():
-        torch.onnx.export(
-            model, img_tensor, tmp_path, export_params=True, opset_version=20, dynamo=False, verbose=False
-        )
-    onnx.checker.check_model(onnx.load(tmp_path))

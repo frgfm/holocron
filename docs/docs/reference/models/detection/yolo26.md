@@ -63,9 +63,9 @@ into convolution, and removes the unused branch. Keep the original model for
 training. To restore deployment weights, construct the same model and call
 `eval().to_deploy()` before `load_state_dict()`.
 
-A fixed-batch, fixed-resolution ONNX opset-20 export of the fused NMS-free
-model passes the ONNX checker. Use `torch.onnx.export(..., dynamo=False)`.
-Dynamic batch or image sizes and ONNX Runtime parity have not been validated.
+Fixed-batch, fixed-resolution ONNX opset-20 exports of the fused model pass
+ONNX Runtime CPU parity checks, with and without NMS. See the
+[export guide](../models.md#onnx-export). Dynamic batch or image sizes have not been validated.
 
 The existing `DetectionTrainer` and VOC reference script can train this model:
 

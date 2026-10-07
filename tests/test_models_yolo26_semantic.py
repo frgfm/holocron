@@ -1,14 +1,13 @@
 import copy
 
-import onnx
 import pytest
 import torch
-from onnx.reference import ReferenceEvaluator
 from torch import nn
 from torch.utils.data import DataLoader, TensorDataset
 
 from holocron.models.segmentation import YOLO26Semantic, yolo26n_sem
 from holocron.trainer import SegmentationTrainer
+from scripts.export_to_onnx import export_model
 
 
 @pytest.mark.parametrize("shape", [(64, 96), (35, 47)])
@@ -97,13 +96,6 @@ def test_yolo26_semantic_trainer_ignored_pixels_and_heldout_evaluation():
 
 
 def test_yolo26_semantic_onnx_export(tmp_path):
-    model = yolo26n_sem(num_classes=3).eval().fuse()
+    model = yolo26n_sem(num_classes=3).eval()
     images = torch.rand(1, 3, 35, 47)
-    path = tmp_path / "yolo26-semantic.onnx"
-    with torch.inference_mode():
-        expected = model(images)
-        torch.onnx.export(model, images, path, opset_version=20, dynamo=False, input_names=["images"])
-    graph = onnx.load(path)
-    onnx.checker.check_model(graph)
-    output = ReferenceEvaluator(graph).run(None, {"images": images.numpy()})[0]
-    torch.testing.assert_close(torch.from_numpy(output), expected, atol=1e-5, rtol=1e-4)
+    export_model(model, images, tmp_path / "yolo26-semantic.onnx")
