@@ -26,6 +26,18 @@ def _calibrate(model, side):
     model.eval()
 
 
+@torch.inference_mode()
+def _responds_to_input(model, images):
+    prediction, blank = model(images), model(torch.zeros_like(images))
+    if isinstance(prediction, torch.Tensor):
+        return not torch.allclose(prediction, blank, rtol=1e-3, atol=3e-5)
+    try:
+        _match_detections(_outputs(blank), _outputs(prediction))
+    except AssertionError:
+        return True
+    return False
+
+
 @pytest.mark.parametrize("arch", models.list_models())
 def test_model_onnx_inference(arch, tmp_path):
     torch.manual_seed(42)
@@ -45,17 +57,18 @@ def test_model_onnx_inference(arch, tmp_path):
                     # Give class logits a margin instead of rounding to the same confidence.
                     nn.init.normal_(module.bias, std=0.1)
         model.box_score_thresh = 0
-    _calibrate(model, side)
     path = tmp_path / "model.onnx"
     images = torch.rand(1, 3, side, side)
-    with torch.inference_mode():
-        prediction, blank = model(images), model(torch.zeros_like(images))
-        if task == "detection":
-            assert len(prediction[0]["boxes"]) > 0
-            with pytest.raises(AssertionError, match=r"Detection counts differ|No matching"):
-                _match_detections(_outputs(blank), _outputs(prediction))
-        else:
-            assert not torch.allclose(prediction, blank, rtol=1e-3, atol=3e-5)
+    responds = _responds_to_input(model, images)
+    for _ in range(2):
+        if responds:
+            break
+        _calibrate(model, side)
+        responds = _responds_to_input(model, images)
+    assert responds
+    if task == "detection":
+        with torch.inference_mode():
+            assert len(model(images)[0]["boxes"]) > 0
     export_model(model, images, path)
     graph = onnx.load(path, load_external_data=False)
     assert graph.opset_import[0].version == 20

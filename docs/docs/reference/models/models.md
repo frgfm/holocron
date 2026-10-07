@@ -89,9 +89,10 @@ branches intact, so the same model can be exported again. For a smaller deployme
 optionally call the architecture's `reparametrize()` or `fuse()` method first. YOLO26 detection
 uses its independent `to_deploy()` copy automatically.
 CI discovers vision factories through `list_models()` and exercises every factory with three
-classes and fixed inputs (64 pixels, or 448 for YOLOv1), after calibrating BatchNorm running
-statistics on a blank/random batch. Each fixture must respond to its input beyond the comparison
-tolerance; regressions also exercise deliberately broken exports that ignore the image.
+classes and fixed inputs (64 pixels, or 448 for YOLOv1). Fixtures with nearly constant outputs
+get up to two blank/random BatchNorm calibration batches. Each fixture must respond to its input
+beyond the comparison tolerance; regressions also exercise deliberately broken exports that ignore
+the image.
 
 
 ## Classification
