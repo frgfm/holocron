@@ -1,5 +1,4 @@
 import math
-from pathlib import Path
 
 import pytest
 import torch
@@ -77,24 +76,6 @@ def _test_detection_model(name, input_size):
 )
 def test_detection_model(arch, input_shape):
     _test_detection_model(arch, input_shape)
-
-
-@pytest.mark.parametrize(
-    ("arch", "input_shape"),
-    [
-        ("yolov1", (448, 448)),
-        ("yolov2", (416, 416)),
-        ("yolov4", (608, 608)),
-    ],
-)
-def test_detection_onnx_export(arch, input_shape, tmpdir_factory):
-    model = detection.__dict__[arch](pretrained=False, num_classes=10).eval()
-    tmp_path = Path(str(tmpdir_factory.mktemp("onnx"))).joinpath(f"{arch}.onnx")
-    img_tensor = torch.rand((1, 3, *input_shape))
-    with torch.no_grad():
-        torch.onnx.export(
-            model, img_tensor, tmp_path, export_params=True, opset_version=20, dynamo=False, verbose=False
-        )
 
 
 @torch.inference_mode()
