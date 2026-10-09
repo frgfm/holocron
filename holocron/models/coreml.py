@@ -29,8 +29,30 @@ def _check_prediction(actual: torch.Tensor, expected: torch.Tensor, stage: str, 
         raise RuntimeError(f"{stage} verification input {index}: {exc}") from exc
 
 
+def _check_input(model: nn.Module, example_input: torch.Tensor, path: Path, verify: bool) -> None:
+    if path.exists() or path.is_symlink():
+        raise FileExistsError(f"Refusing to overwrite Core ML destination: {path}")
+    if path.suffix != ".mlpackage":
+        raise ValueError("Core ML destination must end in .mlpackage")
+    if example_input.ndim != 4 or example_input.shape[0] != 1 or min(example_input.shape) < 1:
+        raise ValueError("Core ML input must have fixed shape (1, channels, height, width)")
+    if example_input.dtype != torch.float32 or not torch.isfinite(example_input).all():
+        raise ValueError("Core ML input must contain finite FP32 values")
+    if verify and (
+        platform.system() != "Darwin" or platform.machine() != "arm64" or int(platform.mac_ver()[0].split(".")[0]) < 12
+    ):
+        raise RuntimeError(
+            "Core ML verification requires Apple Silicon macOS 12+; use verify=False for unverified export"
+        )
+    if any(
+        tensor.is_floating_point() and tensor.dtype != torch.float32
+        for tensor in (*model.parameters(), *model.buffers())
+    ):
+        raise ValueError("Core ML export requires FP32 model parameters and buffers")
+
+
 @torch.no_grad()
-def export_coreml(model: nn.Module, example_input: torch.Tensor, path: str | Path, *, verify: bool = True) -> Path:  # noqa: PLR0912
+def export_coreml(model: nn.Module, example_input: torch.Tensor, path: str | Path, *, verify: bool = True) -> Path:
     """Save a fixed-shape, batch-one FP32 classifier as an ML Program.
 
     Uses an independent CPU evaluation copy; the caller's model and input are untouched.
@@ -54,20 +76,7 @@ def export_coreml(model: nn.Module, example_input: torch.Tensor, path: str | Pat
         RuntimeError: If tracing, conversion or runtime verification fails or is unavailable.
     """
     path = Path(path)
-    if path.exists() or path.is_symlink():
-        raise FileExistsError(f"Refusing to overwrite Core ML destination: {path}")
-    if path.suffix != ".mlpackage":
-        raise ValueError("Core ML destination must end in .mlpackage")
-    if example_input.ndim != 4 or example_input.shape[0] != 1 or min(example_input.shape) < 1:
-        raise ValueError("Core ML input must have fixed shape (1, channels, height, width)")
-    if example_input.dtype != torch.float32 or not torch.isfinite(example_input).all():
-        raise ValueError("Core ML input must contain finite FP32 values")
-    if verify and (
-        platform.system() != "Darwin" or platform.machine() != "arm64" or int(platform.mac_ver()[0].split(".")[0]) < 12
-    ):
-        raise RuntimeError(
-            "Core ML verification requires Apple Silicon macOS 12+; use verify=False for unverified export"
-        )
+    _check_input(model, example_input, path, verify)
     if not verify:
         warnings.warn("Core ML inference was not checked (verify=False). Only tracing is verified.", stacklevel=2)
     try:
@@ -78,11 +87,6 @@ def export_coreml(model: nn.Module, example_input: torch.Tensor, path: str | Pat
         ) from exc
 
     model = copy.deepcopy(model).cpu().eval()
-    if any(
-        tensor.is_floating_point() and tensor.dtype != torch.float32
-        for tensor in (*model.parameters(), *model.buffers())
-    ):
-        raise ValueError("Core ML export requires FP32 model parameters and buffers")
     images = example_input.detach().cpu().clone()
     samples = (
         images,
