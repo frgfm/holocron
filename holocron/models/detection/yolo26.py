@@ -284,7 +284,9 @@ class YOLO26(nn.Module):
         predictions = []
         for raw_boxes, image_logits in zip(boxes, logits, strict=True):
             image_boxes = raw_boxes.clamp(0, 1)
-            scores, labels = image_logits.sigmoid().max(-1)
+            # Preserve class order before small probabilities lose precision in exported runtimes.
+            scores, labels = image_logits.max(-1)
+            scores = scores.sigmoid()
             valid_boxes = (image_boxes[:, 2:] > image_boxes[:, :2]).all(-1)
             selection_scores = scores.masked_fill(~valid_boxes, -torch.inf)
             candidate_limit = 3000 if self.nms else self.max_detections
