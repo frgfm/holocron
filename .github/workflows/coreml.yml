@@ -53,4 +53,10 @@ jobs:
       - name: Record dependencies and require runtime prediction
         run: |
           python -c "import platform, torch, coremltools; assert platform.machine() == 'arm64'; print(platform.platform(), platform.python_version(), torch.__version__, coremltools.__version__)"
-          pytest tests/test_models_coreml.py --no-cov -v -s
+          pytest tests/test_models_coreml.py --cov-report=xml -v -s
+      - uses: codecov/codecov-action@v7
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: unittests
+          files: ./coverage.xml
+          fail_ci_if_error: true
