@@ -11,7 +11,7 @@ from holocron.trainer import ClassificationTrainer, DetectionTrainer, Segmentati
 from holocron.utils import CTCCodec
 from holocron.utils.data import Mixup
 from references._common import add_loading_args, create_loader  # noqa: PLC2701
-from references.classification.benchmark_repvit_imagenette import count_macs
+from references.classification.benchmark_repvit_imagenette import count_macs, write_json
 from references.recognition.train import ctc_loss
 
 DEVICES = [
@@ -160,3 +160,13 @@ def test_benchmark_macs_count_convolution_and_linear():
     model = nn.Sequential(nn.Conv2d(3, 4, 3), nn.AdaptiveAvgPool2d(1), nn.Flatten(), nn.Linear(4, 5)).eval()
     assert count_macs(model) == 222 * 222 * 4 * 3 * 3 * 3 + 5 * 4
     assert not model[0]._forward_hooks
+
+
+def test_benchmark_json_preserves_last_record_on_nonfinite_result(tmp_path):
+    path = tmp_path / "results.json"
+    write_json(path, {"accuracy": 0.9})
+    original = path.read_bytes()
+    with pytest.raises(ValueError):
+        write_json(path, {"accuracy": float("nan")})
+    assert path.read_bytes() == original
+    assert not path.with_suffix(".tmp").exists()

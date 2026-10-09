@@ -21,6 +21,14 @@ from holocron.trainer import resolve_device
 from scripts.eval_latency import measure, peak_rss_mib, synchronize
 
 
+def write_json(path, value):
+    """Replace a benchmark record only after finite JSON has been written."""
+    text = json.dumps(value, indent=2, allow_nan=False) + "\n"
+    temporary = path.with_suffix(".tmp")
+    temporary.write_text(text)
+    temporary.replace(path)
+
+
 def count_macs(model):
     """Count convolution and linear multiply-accumulates for one 224px image.
 
@@ -126,7 +134,7 @@ def main(args):
 
         def record(metrics, history=history, arch=arch, start=start):
             history.append({"epoch": len(history) + 1, **metrics, "elapsed_seconds": time.perf_counter() - start})
-            (args.output_dir / f"{arch}-progress.json").write_text(json.dumps(history, indent=2) + "\n")
+            write_json(args.output_dir / f"{arch}-progress.json", history)
 
         if device.type == "cuda":
             torch.cuda.reset_peak_memory_stats(device)
@@ -205,7 +213,7 @@ def main(args):
                 lambda model=fused, image=image: model(image), 1, 100, 20, sync=lambda: synchronize(device)
             )
         report["models"].append(result)
-        (args.output_dir / "results.json").write_text(json.dumps(report, indent=2) + "\n")
+        write_json(args.output_dir / "results.json", report)
         print(
             json.dumps({"architecture": arch, "selected": result["selected_metrics"], "seconds": elapsed}), flush=True
         )
