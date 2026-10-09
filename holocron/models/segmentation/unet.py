@@ -300,7 +300,7 @@ class UBlock(nn.Module):
         upfeat_ = self.upsample(upfeat)
 
         # Crop upsampled features
-        if downfeat.shape[-2:] != upfeat_.shape[-2:]:
+        if torch.jit.is_tracing() or downfeat.shape[-2:] != upfeat_.shape[-2:]:
             upfeat_ = F.interpolate(upfeat_, downfeat.shape[-2:], mode="nearest")
 
         # Concatenate both feature maps and forward them
@@ -397,7 +397,7 @@ class DynamicUNet(nn.Module):
 
         if self.upsample is not None:
             x = self.upsample(x)
-            if x.shape[-2:] != input_size:
+            if torch.jit.is_tracing() or x.shape[-2:] != input_size:
                 x = F.interpolate(x, size=input_size, mode="bilinear", align_corners=True)
 
         # Classifier
