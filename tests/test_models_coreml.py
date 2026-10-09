@@ -106,20 +106,52 @@ def test_coreml_classifier(arch, reparameterized, trainer_checkpoint, coreml, tm
     shutil.rmtree(path)
 
 
-@pytest.mark.parametrize("frozen", [False, True])
-def test_coreml_rejects_incorrect_trace(frozen, coreml, tmp_path):  # noqa: ARG001
+@pytest.mark.parametrize("mode", ["branch", "frozen", "nonfinite"])
+def test_coreml_rejects_incorrect_trace(mode, coreml, tmp_path):  # noqa: ARG001
     class BrokenClassifier(nn.Module):
         def forward(self, images):  # noqa: PLR6301
-            if frozen:
+            if mode == "nonfinite":
+                return images.mean(dim=(2, 3)) / 0
+            if mode == "frozen":
                 return (images * 0 if torch.jit.is_tracing() else images).mean(dim=(2, 3))
             return images.mean(dim=(2, 3)) + (1 if images.sum() > 0 else 0)
 
     with (
         pytest.warns(UserWarning, match="inference was not checked"),
-        pytest.raises(RuntimeError, match="Tracing verification input"),
+        pytest.raises(RuntimeError, match="non-finite logits" if mode == "nonfinite" else "Tracing verification input"),
     ):
         export_coreml(BrokenClassifier(), torch.ones(1, 3, 4, 4), tmp_path / "model.mlpackage", verify=False)
     assert not list(tmp_path.iterdir())
+
+
+@pytest.mark.parametrize(
+    ("model", "images", "filename", "message"),
+    [
+        (nn.Identity(), torch.ones(2, 3, 4, 4), "model.mlpackage", "fixed shape"),
+        (nn.Identity(), torch.ones(1, 3, 4, 4).double(), "model.mlpackage", "finite FP32"),
+        (nn.Identity(), torch.full((1, 3, 4, 4), float("nan")), "model.mlpackage", "finite FP32"),
+        (
+            nn.Sequential(nn.Flatten(), nn.Linear(48, 3)).double(),
+            torch.ones(1, 3, 4, 4),
+            "model.mlpackage",
+            "FP32 model",
+        ),
+        (nn.Identity(), torch.ones(1, 3, 4, 4), "model.mlmodel", "end in"),
+        (nn.Identity(), torch.ones(1, 3, 4, 4), "model.mlpackage", "FP32 logits"),
+    ],
+)
+def test_coreml_rejects_invalid_contract(model, images, filename, message, coreml, tmp_path):  # noqa: ARG001
+    with pytest.raises(ValueError, match=message):
+        export_coreml(model, images, tmp_path / filename, verify=False)
+
+
+def test_coreml_missing_dependency(monkeypatch, tmp_path):
+    monkeypatch.setitem(sys.modules, "coremltools", None)
+    with (
+        pytest.warns(UserWarning, match="inference was not checked"),
+        pytest.raises(ImportError, match="optional Core ML dependencies"),
+    ):
+        export_coreml(nn.Identity(), torch.ones(1, 3, 4, 4), tmp_path / "model.mlpackage", verify=False)
 
 
 def test_coreml_failures_preserve_destination(coreml, monkeypatch, tmp_path):
