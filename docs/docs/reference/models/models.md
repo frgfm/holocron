@@ -119,23 +119,18 @@ from holocron.models.coreml import export_coreml
 export_coreml(model, preprocessed_images, "classifier.mlpackage")
 ```
 
-The package is an ML Program targeting **macOS 12+ / iOS 15+**. Verification requires Apple Silicon
-macOS and runs actual Core ML CPU inference with FP32 compute on the supplied tensor, zeros and
-an independent deterministic random tensor. Shapes, FP32 dtype, finite values and logits must
-agree with a CPU evaluation copy of PyTorch (`rtol=1e-3, atol=3e-5`). The caller's weights,
-architecture and training flags are preserved. Existing destinations are refused; failed exports
-leave them intact. Tracing is checked on all three inputs, including in unverified mode.
-Linux can convert with `--unverified` (API: `verify=False`), which reports that Core ML inference
-was **not checked**. Conversion success alone does not establish numerical parity.
+The ML Program targets **macOS 12+ / iOS 15+**, with fixed dimensions, batch one and FP32 compute.
+By default, Apple Silicon macOS compares actual Core ML CPU predictions with PyTorch on the
+supplied tensor, zeros and deterministic random input (`rtol=1e-3, atol=3e-5`). It checks shapes,
+dtype and finite logits, preserves the caller's model, and refuses existing destinations.
+Linux requires `--unverified` (API: `verify=False`): tracing is checked, but Core ML inference is
+**not checked**. iOS deployment is intended; numerical validation is on macOS, without iOS device tests.
 
-The initial tests use three classes and 64×64 inputs for ResNet18 and MobileOne-S0, including
-already reparameterized and repeated MobileOne exports. Numerical validation is on macOS;
-iOS is an intended deployment target, without device-level validation. Use Python 3.11–3.13
-and coremltools 9.0. The compatibility probe used Python 3.11, PyTorch 2.13.0 and coremltools 9.0;
-coremltools warns that upstream has tested PyTorch only through 2.7.0. Dependencies remain optional.
-Batch size is one and dimensions are fixed; dynamic shapes, quantization, performance measurements,
-segmentation, detection and broader architecture coverage are deferred. ONNX remains the separate
-cloud CPU deployment path.
+Use Python 3.11–3.13 and optional coremltools 9.0. The compatibility probe and macOS tests used
+Python 3.11 and PyTorch 2.13.0; coremltools warns that upstream testing ends at PyTorch 2.7.0.
+Tests validate the two architectures with three classes and 64×64 inputs, including fused/repeated
+MobileOne. Dynamic shapes, quantization, benchmarks and other tasks/architectures are deferred.
+ONNX remains the separate cloud CPU deployment path.
 
 Add `classifier.mlpackage` to an Xcode app target. Xcode compiles it to `classifier.mlmodelc`.
 The input `images` is a Float32 `MLMultiArray` in **NCHW** order `(1, 3, height, width)`;

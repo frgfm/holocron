@@ -6,7 +6,6 @@
 """Holocron classification checkpoint to Core ML export."""
 
 import argparse
-import logging
 
 import torch
 
@@ -33,7 +32,6 @@ def main(args):
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("arch", choices=("resnet18", "mobileone_s0"), help="Architecture to restore")
     parser.add_argument("--checkpoint", required=True, help="Raw state_dict or trainer checkpoint containing model")

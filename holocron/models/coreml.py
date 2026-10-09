@@ -4,7 +4,6 @@
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
 import copy
-import logging
 import platform
 import warnings
 from pathlib import Path
@@ -16,7 +15,6 @@ from torch import nn
 
 __all__ = ["export_coreml"]
 
-logger = logging.getLogger(__name__)
 _RTOL, _ATOL = 1e-3, 3e-5
 
 
@@ -53,27 +51,25 @@ def _check_input(model: nn.Module, example_input: torch.Tensor, path: Path, veri
 
 @torch.no_grad()
 def export_coreml(model: nn.Module, example_input: torch.Tensor, path: str | Path, *, verify: bool = True) -> Path:
-    """Save a fixed-shape, batch-one FP32 classifier as an ML Program.
+    """Save a new ML Program package from a batch-one, FP32 NCHW tensor.
 
-    Uses an independent CPU evaluation copy; the caller's model and input are untouched.
-    Checks tracing on the example, zeros and deterministic random input. By default,
-    also checks actual Core ML CPU predictions on Apple Silicon macOS 12 or newer.
-    ResNet18 and MobileOne-S0 (including reparameterized models) are the initial test scope.
+    The model must return FP32 logits shaped (1, classes). Uses an independent CPU
+    evaluation copy; the caller's model and input are untouched. Checks tracing on
+    the example, zeros and deterministic random input. By default, also requires
+    actual Core ML CPU prediction parity on Apple Silicon macOS 12+; verify=False
+    explicitly permits unverified conversion. The destination must end in .mlpackage
+    and its parent must exist. Existing paths are refused; failures leave them intact.
 
-    Args:
-        model: FP32 classifier returning a single tensor of shape (1, classes).
-        example_input: Representative FP32 tensor in NCHW layout, with batch size one.
-        path: New .mlpackage destination; its parent directory must exist.
-        verify: Require Core ML runtime parity. False explicitly permits unverified conversion.
+    Validated architectures: ResNet18 and MobileOne-S0, including reparameterized models.
 
     Returns:
         The saved package path.
 
     Raises:
-        FileExistsError: If the destination already exists.
-        ValueError: If the input, model dtype, output or destination is incompatible.
-        ImportError: If the optional coremltools dependency is missing.
-        RuntimeError: If tracing, conversion or runtime verification fails or is unavailable.
+        ValueError: Incompatible input, model or output.
+        ImportError: Missing coremltools.
+        FileExistsError: Existing destination.
+        RuntimeError: Tracing/conversion/verification failure or unavailable runtime.
     """
     path = Path(path)
     _check_input(model, example_input, path, verify)
@@ -133,9 +129,6 @@ def export_coreml(model: nn.Module, example_input: torch.Tensor, path: str | Pat
                 for index, (sample, expected) in enumerate(zip(samples, references, strict=True)):
                     actual = torch.from_numpy(runtime.predict({"images": sample.numpy()})["logits"])
                     _check_prediction(actual, expected, "Core ML CPU", index)
-                    logger.info(
-                        "Core ML CPU input %d: max absolute error %.8g", index, (actual - expected).abs().max().item()
-                    )
             except Exception as exc:
                 raise RuntimeError(f"Core ML runtime verification failed: {exc}") from exc
         if path.exists() or path.is_symlink():

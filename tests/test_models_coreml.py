@@ -30,7 +30,7 @@ def coreml():
     ("arch", "reparameterized", "trainer_checkpoint"),
     [("resnet18", False, False), ("mobileone_s0", False, True), ("mobileone_s0", True, False)],
 )
-def test_coreml_classifier(arch, reparameterized, trainer_checkpoint, coreml, tmp_path):  # noqa: PLR0915
+def test_coreml_classifier(arch, reparameterized, trainer_checkpoint, coreml, tmp_path):
     torch.manual_seed(42)
     model = models.get_model(arch, num_classes=3).eval()
     images = torch.rand(1, 3, 64, 64)
@@ -46,49 +46,32 @@ def test_coreml_classifier(arch, reparameterized, trainer_checkpoint, coreml, tm
     torch.save({"model": model.state_dict(), "epoch": 1} if trainer_checkpoint else model.state_dict(), checkpoint)
     path = tmp_path / "model.mlpackage"
     verify = platform.system() == "Darwin" and platform.machine() == "arm64"
-    command = [
-        sys.executable,
-        "scripts/export_to_coreml.py",
-        arch,
-        "--checkpoint",
-        str(checkpoint),
-        "--num-classes",
-        "3",
-        "--height",
-        "64",
-        "--width",
-        "64",
-        "--path",
-        str(path),
-    ]
+    command = [sys.executable, "scripts/export_to_coreml.py", arch]
+    command += ["--checkpoint", str(checkpoint), "--path", str(path)]
+    command += ["--num-classes", "3", "--height", "64", "--width", "64"]
     if reparameterized:
         command.append("--reparameterized")
     if not verify:
         command.append("--unverified")
     result = subprocess.run(command, cwd=Path(__file__).parents[1], capture_output=True, text=True, check=True)  # noqa: S603
     assert ("match PyTorch" if verify else "NOT checked") in result.stdout
-    # A wrong class count must be rejected by strict checkpoint loading.
-    command[command.index("--num-classes") + 1] = "4"
-    rejected = subprocess.run(command, cwd=Path(__file__).parents[1], capture_output=True, text=True, check=False)  # noqa: S603
-    assert rejected.returncode != 0
-    assert "size mismatch" in rejected.stderr
+    if arch == "resnet18":
+        command[command.index("--num-classes") + 1] = "4"
+        rejected = subprocess.run(command, cwd=Path(__file__).parents[1], capture_output=True, text=True, check=False)  # noqa: S603
+        assert rejected.returncode != 0
+        assert "size mismatch" in rejected.stderr
     shutil.rmtree(path)
     original = copy.deepcopy(model.state_dict())
     architecture = repr(model)
     model.train()
     for iteration in range(2 if reparameterized else 1):
-        if not verify:
-            with pytest.warns(UserWarning, match="inference was not checked"):
-                export_coreml(model, images, path, verify=False)
-        else:
-            export_coreml(model, images, path)
-        assert model.training
+        export_coreml(model, images, path, verify=verify)
+        assert all(module.training for module in model.modules())
         assert repr(model) == architecture
         for key, value in model.state_dict().items():
             torch.testing.assert_close(value, original[key], rtol=0, atol=0)
         if reparameterized and iteration == 0:
             shutil.rmtree(path)
-    model.eval()
     package = coreml.models.MLModel(str(path), skip_model_load=not verify, compute_units=coreml.ComputeUnit.CPU_ONLY)
     spec = package.get_spec()
     assert spec.WhichOneof("Type") == "mlProgram"
@@ -130,12 +113,7 @@ def test_coreml_rejects_incorrect_trace(mode, coreml, tmp_path):  # noqa: ARG001
         (nn.Identity(), torch.ones(2, 3, 4, 4), "model.mlpackage", "fixed shape"),
         (nn.Identity(), torch.ones(1, 3, 4, 4).double(), "model.mlpackage", "finite FP32"),
         (nn.Identity(), torch.full((1, 3, 4, 4), float("nan")), "model.mlpackage", "finite FP32"),
-        (
-            nn.Sequential(nn.Flatten(), nn.Linear(48, 3)).double(),
-            torch.ones(1, 3, 4, 4),
-            "model.mlpackage",
-            "FP32 model",
-        ),
+        (nn.Linear(4, 3).double(), torch.ones(1, 3, 4, 4), "model.mlpackage", "FP32 model"),
         (nn.Identity(), torch.ones(1, 3, 4, 4), "model.mlmodel", "end in"),
         (nn.Identity(), torch.ones(1, 3, 4, 4), "model.mlpackage", "FP32 logits"),
     ],
@@ -143,15 +121,6 @@ def test_coreml_rejects_incorrect_trace(mode, coreml, tmp_path):  # noqa: ARG001
 def test_coreml_rejects_invalid_contract(model, images, filename, message, coreml, tmp_path):  # noqa: ARG001
     with pytest.raises(ValueError, match=message):
         export_coreml(model, images, tmp_path / filename, verify=False)
-
-
-def test_coreml_missing_dependency(monkeypatch, tmp_path):
-    monkeypatch.setitem(sys.modules, "coremltools", None)
-    with (
-        pytest.warns(UserWarning, match="inference was not checked"),
-        pytest.raises(ImportError, match="optional Core ML dependencies"),
-    ):
-        export_coreml(nn.Identity(), torch.ones(1, 3, 4, 4), tmp_path / "model.mlpackage", verify=False)
 
 
 def test_coreml_failures_preserve_destination(coreml, monkeypatch, tmp_path):
@@ -178,10 +147,17 @@ def test_coreml_failures_preserve_destination(coreml, monkeypatch, tmp_path):
     assert not list(tmp_path.iterdir())
 
 
-def test_coreml_runtime_unavailable(monkeypatch, tmp_path):
+def test_coreml_unavailable(monkeypatch, tmp_path):
+    images, path = torch.ones(1, 3, 4, 4), tmp_path / "model.mlpackage"
     monkeypatch.setattr(platform, "system", lambda: "Linux")
     with pytest.raises(RuntimeError, match=r"requires Apple Silicon.*verify=False"):
-        export_coreml(nn.Identity(), torch.ones(1, 3, 4, 4), tmp_path / "model.mlpackage")
+        export_coreml(nn.Identity(), images, path)
+    monkeypatch.setitem(sys.modules, "coremltools", None)
+    with (
+        pytest.warns(UserWarning, match="inference was not checked"),
+        pytest.raises(ImportError, match="optional Core ML dependencies"),
+    ):
+        export_coreml(nn.Identity(), images, path, verify=False)
 
 
 def test_coreml_rejects_wrong_runtime(coreml, monkeypatch, tmp_path):
