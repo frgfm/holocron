@@ -1,8 +1,12 @@
+import json
 import math
+import sys
 from argparse import ArgumentParser, Namespace
+from types import SimpleNamespace
 
 import pytest
 import torch
+from PIL import Image
 from torch import nn
 from torch.utils.data import DataLoader, TensorDataset
 
@@ -11,6 +15,7 @@ from holocron.trainer import ClassificationTrainer, DetectionTrainer, Segmentati
 from holocron.utils import CTCCodec
 from holocron.utils.data import Mixup
 from references._common import add_loading_args, create_loader  # noqa: PLC2701
+from references.classification import benchmark_repvit_imagenette as benchmark
 from references.classification.benchmark_repvit_imagenette import count_macs, write_json
 from references.recognition.train import ctc_loss
 
@@ -170,3 +175,63 @@ def test_benchmark_json_preserves_last_record_on_nonfinite_result(tmp_path):
         write_json(path, {"accuracy": float("nan")})
     assert path.read_bytes() == original
     assert not path.with_suffix(".tmp").exists()
+
+
+def test_cpu_benchmark_writes_real_results_and_rejects_overwrite(tmp_path, monkeypatch):
+    # Energy tracking is outside this CPU integration check and is an optional training extra.
+    monkeypatch.setitem(sys.modules, "codecarbon", SimpleNamespace(track_emissions=lambda: lambda function: function))
+    data = tmp_path / "images"
+    for split, copies in [("train", 4), ("val", 1)]:
+        for label in range(10):
+            folder = data / split / str(label)
+            folder.mkdir(parents=True)
+            for index in range(copies):
+                Image.new("RGB", (64, 64), (label * 20, index * 20, 100)).save(folder / f"{index}.png")
+    original_measure = benchmark.measure
+    monkeypatch.setattr(
+        benchmark,
+        "measure",
+        lambda function, batch_size, _iterations, _warmup, **kwargs: original_measure(
+            function, batch_size, 3, 1, **kwargs
+        ),
+    )
+    args = Namespace(
+        data_path=data,
+        output_dir=tmp_path / "results",
+        device="cpu",
+        epochs=1,
+        workers=0,
+        threads=2,
+        seed=0,
+        batch_size=8,
+        amp=False,
+        arch=["repvit_m0_9"],
+    )
+    benchmark.main(args)
+    path = args.output_dir / "results.json"
+    report = json.loads(path.read_text())
+    result = report["models"][0]
+    assert report["runtime"]["device"] == "cpu"
+    assert report["dataset"]["train_samples"] == 40
+    assert report["dataset"]["validation_samples"] == 10
+    assert result["selected_epoch"] == 1
+    assert result["checkpoint_sha256"]
+    assert 0 <= result["selected_metrics"]["acc1"] <= 1
+    assert result["parameters"]["deployment"] < result["parameters"]["training"]
+    assert result["macs"]["deployment"] > 0
+    assert result["deployment_latency"]["median_ms"] > 0
+    previous = path.read_bytes()
+    with pytest.raises(ValueError, match="fresh output"):
+        benchmark.main(args)
+    assert path.read_bytes() == previous
+
+
+def test_invalid_devices_rejected_before_moving_model(monkeypatch):
+    model = nn.Linear(1, 1)
+    with pytest.raises(ValueError, match="either gpu or device"):
+        ClassificationTrainer(model, None, None, None, torch.optim.SGD(model.parameters(), lr=0.1), gpu=0, device="cpu")
+    with pytest.raises(ValueError, match="Device must be"):
+        resolve_device("meta")
+    monkeypatch.setattr(torch.backends.mps, "is_available", lambda: True)
+    with pytest.raises(ValueError, match="Invalid MPS"):
+        resolve_device("mps:1")
