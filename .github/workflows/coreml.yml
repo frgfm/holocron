@@ -5,18 +5,22 @@ on:
     branches: main
     paths:
       - '.github/workflows/coreml.yml'
+      - '.github/workflows/package.yml'
       - 'holocron/**'
       - 'scripts/export_to_coreml.py'
-      - 'tests/test_models_coreml.py'
+      - 'scripts/export_to_onnx.py'
+      - 'tests/**'
       - 'pyproject.toml'
       - 'uv.lock'
   push:
     branches: main
     paths:
       - '.github/workflows/coreml.yml'
+      - '.github/workflows/package.yml'
       - 'holocron/**'
       - 'scripts/export_to_coreml.py'
-      - 'tests/test_models_coreml.py'
+      - 'scripts/export_to_onnx.py'
+      - 'tests/**'
       - 'pyproject.toml'
       - 'uv.lock'
 
