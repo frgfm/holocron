@@ -92,11 +92,17 @@ def test_coreml_classifier(arch, reparameterized, trainer_checkpoint, coreml, tm
 @pytest.mark.parametrize("mode", ["branch", "frozen", "nonfinite"])
 def test_coreml_rejects_incorrect_trace(mode, coreml, tmp_path):  # noqa: ARG001
     class BrokenClassifier(nn.Module):
-        def forward(self, images):  # noqa: PLR6301
+        def __init__(self):
+            super().__init__()
+            self.register_buffer("logits", torch.zeros(1, 3))
+
+        def forward(self, images):
             if mode == "nonfinite":
                 return images.mean(dim=(2, 3)) / 0
             if mode == "frozen":
-                return (images * 0 if torch.jit.is_tracing() else images).mean(dim=(2, 3))
+                if torch.jit.is_tracing():
+                    return self.logits.clone() + images.mean(dim=(2, 3)) * 0
+                return self.logits.copy_(images.mean(dim=(2, 3)))
             return images.mean(dim=(2, 3)) + (1 if images.sum() > 0 else 0)
 
     with (

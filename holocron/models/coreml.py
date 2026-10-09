@@ -89,17 +89,18 @@ def export_coreml(model: nn.Module, example_input: torch.Tensor, path: str | Pat
         torch.zeros_like(images),
         torch.rand(images.shape, dtype=torch.float32, generator=torch.Generator().manual_seed(0)),
     )
-    references = [model(sample.clone()) for sample in samples]
-    if any(
-        not isinstance(output, torch.Tensor)
-        or output.ndim != 2
-        or output.shape[0] != 1
-        or output.shape[1] < 1
-        or output.dtype != torch.float32
-        for output in references
-    ):
-        raise ValueError("Core ML classifier must return FP32 logits with shape (1, classes)")
-    references = [output.detach().clone() for output in references]
+    references = []
+    for sample in samples:
+        output = model(sample.clone())
+        if (
+            not isinstance(output, torch.Tensor)
+            or output.ndim != 2
+            or output.shape[0] != 1
+            or output.shape[1] < 1
+            or output.dtype != torch.float32
+        ):
+            raise ValueError("Core ML classifier must return FP32 logits with shape (1, classes)")
+        references.append(output.detach().clone())
     try:
         traced = torch.jit.trace(model, images.clone(), check_trace=False)
         for index, (sample, expected) in enumerate(zip(samples, references, strict=True)):
