@@ -95,6 +95,8 @@ def test_yolo26_nms_free_and_optional_nms():
     model.nms = True
     assert len(model.post_process(boxes, logits)[0]["boxes"]) == 1
     assert len(model.post_process(boxes + 2, logits)[0]["boxes"]) == 0
+    # Saturated scores must retain the class with the largest logit.
+    assert model.post_process(boxes[:, :1], logits.new_tensor([[[20, 30]]]))[0]["labels"].item() == 1
 
 
 def test_yolo26_detection_trainer_tuple_collation():
