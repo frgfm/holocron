@@ -21,15 +21,18 @@ from references._common import run_training  # noqa: PLC2701
 @pytest.mark.parametrize("failure", [False, True])
 def test_reference_tracking_reports_training_status(monkeypatch, failure):
     exit_codes = []
+    received, logged = [], []
+    callback = received.append
 
     run = Namespace(finish=lambda exit_code=0: exit_codes.append(exit_code))
-    monkeypatch.setitem(sys.modules, "wandb", Namespace(init=lambda **_kwargs: run, log=lambda _metrics: None))
+    monkeypatch.setitem(sys.modules, "wandb", Namespace(init=lambda **_kwargs: run, log=logged.append))
 
     def fit(*_args, **_kwargs):
+        learner.on_epoch_end({"val_loss": 0.2})
         if failure:
             raise RuntimeError("training failed")
 
-    learner = Namespace(fit_n_epochs=fit, on_epoch_end=None)
+    learner = Namespace(fit_n_epochs=fit, on_epoch_end=callback)
     args = Namespace(
         test_only=False,
         find_lr=False,
@@ -49,6 +52,8 @@ def test_reference_tracking_reports_training_status(monkeypatch, failure):
     else:
         run_training(learner, args, project="test", config={})
     assert exit_codes == [int(failure)]
+    assert received == logged == [{"val_loss": 0.2}]
+    assert learner.on_epoch_end is callback
 
 
 class MockClassificationDataset(Dataset):
