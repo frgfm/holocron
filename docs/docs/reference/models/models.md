@@ -79,7 +79,7 @@ labels must match exactly. Detection records are compared independent of their o
 Near-tied class scores or equal-score top-k/NMS can change labels or selected boxes across
 runtimes; such differences fail verification. These checks establish numerical parity for the
 tested inputs, not dataset accuracy. The output file is replaced only after verification passes.
-Dynamic shapes, quantization and Core ML conversion remain future work.
+Dynamic shapes and quantization remain future work. For Apple applications, see [Core ML export](#core-ml-export).
 
 For a custom architecture, call `export_model(model, images, path)` from
 `scripts.export_to_onnx.py` with an evaluation model on CPU and FP32 inputs. It accepts the same
@@ -94,6 +94,79 @@ get up to two blank/random BatchNorm calibration batches. Each fixture must resp
 beyond the comparison tolerance; regressions also exercise deliberately broken exports that ignore
 the image.
 
+
+## Core ML export
+
+Train with the [classification reference script](https://github.com/frgfm/holocron/blob/main/references/classification/train.py),
+or use a checkpoint you already trained. From a repository checkout on Apple Silicon:
+
+```bash
+uv sync --locked --python 3.11 --extra training --extra coreml
+uv run --no-sync python references/classification/train.py ./imagenette2-320/ \
+    --arch resnet18 --output-file checkpoints/model.pth
+uv run --no-sync python scripts/export_to_coreml.py resnet18 \
+    --checkpoint checkpoints/model.pth --num-classes 10 --height 224 --width 224 --path classifier.mlpackage
+```
+
+Raw state dictionaries and trainer checkpoints containing `model` both load strictly on CPU;
+use the architecture and class count from training. The CLI supports `resnet18` and `mobileone_s0`.
+For a MobileOne checkpoint saved after `eval().reparametrize()`, add `--reparameterized`.
+The reusable API also accepts custom classifiers; other Holocron architectures are not validated:
+
+```python
+from holocron.models.coreml import export_coreml
+
+export_coreml(model, preprocessed_images, "classifier.mlpackage")
+```
+
+The ML Program targets **macOS 12+ / iOS 15+**, with fixed dimensions, batch one and FP32 compute.
+By default, Apple Silicon macOS compares actual Core ML CPU predictions with PyTorch on the
+supplied tensor, zeros and deterministic random input (`rtol=1e-3, atol=3e-5`). It checks shapes,
+dtype and finite logits, preserves the caller's model, and refuses existing destinations.
+Linux requires `--unverified` (API: `verify=False`): tracing is checked, but Core ML inference is
+**not checked**. iOS deployment is intended; numerical validation is on macOS, without iOS device tests.
+
+Use Python 3.11–3.13 and optional coremltools 9.0. The compatibility probe and macOS tests used
+Python 3.11 and PyTorch 2.13.0; coremltools warns that upstream testing ends at PyTorch 2.7.0.
+Tests validate the two architectures with three classes and 64×64 inputs, including fused/repeated
+MobileOne. Dynamic shapes, quantization, benchmarks and other tasks/architectures are deferred.
+ONNX remains the separate cloud CPU deployment path.
+
+Add `classifier.mlpackage` to an Xcode app target. Xcode compiles it to `classifier.mlmodelc`.
+The input `images` is a Float32 `MLMultiArray` in **NCHW** order `(1, 3, height, width)`;
+the output `logits` is `(1, num_classes)`, before softmax. Supply the same RGB resize/crop,
+interpolation and normalization as PyTorch evaluation. There is no image preprocessing or class
+label mapping inside the package. For the Imagenette reference recipe, resize the shorter edge
+to 232 with bilinear interpolation, then take a 224×224 center crop. Convert RGB bytes to
+`[0, 1]`, then subtract `(0.485, 0.456, 0.406)` and divide by `(0.229, 0.224, 0.225)` per channel.
+Custom training may require different values. Re-export for a different resolution.
+
+```swift
+import CoreML
+
+// rgb contains resized/cropped 224×224 RGB pixels, interleaved, each Float in [0, 1].
+func classify(rgb: [Float]) throws -> MLMultiArray {
+    precondition(rgb.count == 224 * 224 * 3)
+    let config = MLModelConfiguration()
+    config.computeUnits = .cpuOnly // Matches the numerical baseline.
+    let url = Bundle.main.url(forResource: "classifier", withExtension: "mlmodelc")!
+    let model = try MLModel(contentsOf: url, configuration: config)
+    let images = try MLMultiArray(shape: [1, 3, 224, 224], dataType: .float32)
+    let mean: [Float] = [0.485, 0.456, 0.406]
+    let std: [Float] = [0.229, 0.224, 0.225]
+    for c in 0..<3 {
+        for y in 0..<224 {
+            for x in 0..<224 {
+                let value = (rgb[(y * 224 + x) * 3 + c] - mean[c]) / std[c]
+                images[[0, c, y, x] as [NSNumber]] = NSNumber(value: value)
+            }
+        }
+    }
+    let input = try MLDictionaryFeatureProvider(dictionary: ["images": images])
+    return try model.prediction(from: input).featureValue(for: "logits")!.multiArrayValue!
+}
+// The index of the largest logit selects a class in your training class order.
+```
 
 ## Classification
 
