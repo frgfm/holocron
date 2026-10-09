@@ -141,7 +141,8 @@ Add `classifier.mlpackage` to an Xcode app target. Xcode compiles it to `classif
 The input `images` is a Float32 `MLMultiArray` in **NCHW** order `(1, 3, height, width)`;
 the output `logits` is `(1, num_classes)`, before softmax. Supply the same RGB resize/crop,
 interpolation and normalization as PyTorch evaluation. There is no image preprocessing or class
-label mapping inside the package. For the Imagenette reference recipe, convert RGB bytes to
+label mapping inside the package. For the Imagenette reference recipe, resize the shorter edge
+to 232 with bilinear interpolation, then take a 224×224 center crop. Convert RGB bytes to
 `[0, 1]`, then subtract `(0.485, 0.456, 0.406)` and divide by `(0.229, 0.224, 0.225)` per channel.
 Custom training may require different values. Re-export for a different resolution.
 
