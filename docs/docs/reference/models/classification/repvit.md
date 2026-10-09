@@ -164,16 +164,27 @@ The Holocron comparison trains from scratch on Imagenette without a teacher:
 effective batch size 32, AMP, AdamP at `1e-3`, OneCycle, Mixup `0.2`, and label
 smoothing `0.1`. MobileOne-S2 uses the identical command as the baseline.
 
-CUDA measurements remain a separate acceptance gate for
-[issue #499](https://github.com/frgfm/holocron/issues/499); they are not inferred
-from local CPU or MPS checks.
+The controlled comparison can run on CPU, CUDA, or Apple Silicon MPS using
+[`benchmark_repvit_imagenette.py`](https://github.com/frgfm/holocron/blob/main/references/classification/benchmark_repvit_imagenette.py).
+Use the same backend, precision, and physical batch size for all four models.
+The default campaign trains all variants for 20 epochs:
+
+```shell
+uv run --no-sync python -m references.classification.benchmark_repvit_imagenette \
+  /path/to/imagenette2-320 /path/to/fresh-results --device mps
+```
+
+The campaign records selected and final validation metrics, parameter counts,
+convolution/linear MACs, synchronized fused inference timing, and memory readings.
+MPS reports sampled tensor and driver allocations rather than CUDA VRAM. A CUDA
+measurement cannot be inferred from a CPU or MPS run.
 
 | Model | Parameters before/after fusion | MACs | Top-1 | Top-5 | Status |
 |---|---:|---:|---:|---:|---|
-| RepViT-M0.9 | 4,722,410 / 4,685,906 | Pending | Pending | Pending | CUDA run required |
-| RepViT-M1.0 | 6,408,390 / 6,365,802 | Pending | Pending | Pending | CUDA run required |
-| RepViT-M1.1 | 7,781,018 / 7,736,442 | Pending | Pending | Pending | CUDA run required |
-| MobileOne-S2 | Pending rerun | Pending | Pending | Pending | CUDA run required |
+| RepViT-M0.9 | 4,722,410 / 4,685,906 | Pending | Pending | Pending | Controlled run required |
+| RepViT-M1.0 | 6,408,390 / 6,365,802 | Pending | Pending | Pending | Controlled run required |
+| RepViT-M1.1 | 7,781,018 / 7,736,442 | Pending | Pending | Pending | Controlled run required |
+| MobileOne-S2 | Pending rerun | Pending | Pending | Pending | Controlled run required |
 
 These parameter counts use Imagenette's 10 classes. The paper's counts use
 an ImageNet-1K classifier with 1,000 classes.

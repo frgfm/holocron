@@ -8,6 +8,7 @@ import torch
 from torch import Tensor
 from torch.distributions.beta import Beta
 from torch.nn.functional import one_hot
+from torch.utils.data import default_collate
 
 __all__ = ["Mixup"]
 
@@ -64,3 +65,14 @@ class Mixup(torch.nn.Module):
         targets.mul_(lam).add_(mixed_target)
 
         return inputs, targets
+
+    def collate(self, batch: list[tuple[Tensor, int]]) -> tuple[Tensor, Tensor]:
+        """Collate and mix a batch using a worker-picklable bound method.
+
+        Args:
+            batch: dataset images and class indices
+
+        Returns:
+            Collated mixed images and soft class targets.
+        """
+        return self(*default_collate(batch))

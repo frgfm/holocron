@@ -61,18 +61,26 @@ class DetectionTrainer(Trainer):
         on_epoch_end: callback triggered at the end of an epoch
     """
 
-    @staticmethod
-    def _to_cuda(  # type: ignore[override]
-        x: list[Tensor], target: list[dict[str, Tensor]]
+    def to_device(  # type: ignore[override]
+        self, x: list[Tensor], target: list[dict[str, Tensor]]
     ) -> tuple[list[Tensor], list[dict[str, Tensor]]]:
-        x = [x_.cuda(non_blocking=True) for x_ in x]
-        target = [{k: v.cuda(non_blocking=True) for k, v in t.items()} for t in target]
+        """Move detection images and target dictionaries to the selected device.
+
+        Args:
+            x: input images
+            target: detection target dictionaries
+
+        Returns:
+            Images and targets on the trainer device.
+        """
+        x = [x_.to(self.device, non_blocking=self.device.type == "cuda") for x_ in x]
+        target = [{k: v.to(self.device, non_blocking=self.device.type == "cuda") for k, v in t.items()} for t in target]
         return x, target
 
     def _get_loss(self, x: list[Tensor], target: list[dict[str, Tensor]]) -> Tensor:  # type: ignore[override]
         # AMP
         if self.amp:
-            with torch.amp.autocast("cuda"):
+            with torch.amp.autocast(self.device.type):
                 # Forward & loss computation
                 loss_dict = self.model(x, target)
                 return sum(loss_dict.values())
@@ -103,10 +111,10 @@ class DetectionTrainer(Trainer):
         correct, clf_error, loc_fn, loc_fp, num_samples = 0, 0, 0, 0, 0
 
         for x, target in self.val_loader:
-            x, target = self.to_cuda(x, target)
+            x, target = self.to_device(x, target)
 
             if self.amp:
-                with torch.amp.autocast("cuda"):
+                with torch.amp.autocast(self.device.type):
                     detections = self.model(x)
             else:
                 detections = self.model(x)
