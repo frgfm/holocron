@@ -116,6 +116,7 @@ def test_detection_matching_reassigns_ambiguous_records():
 
 
 @pytest.mark.parametrize("existing_file", [False, True])
+@pytest.mark.filterwarnings("ignore:Converting a tensor to a Python boolean:torch.jit.TracerWarning:test_models_onnx$")
 def test_onnx_verification_catches_traced_input_branch(existing_file, tmp_path):
     class InputBranch(nn.Module):
         def forward(self, images):  # noqa: PLR6301
@@ -125,6 +126,7 @@ def test_onnx_verification_catches_traced_input_branch(existing_file, tmp_path):
     if existing_file:
         export_model(nn.Identity(), torch.ones(1, 3, 4, 4), path)
         original = path.read_bytes()
+    # Deliberately freeze an input-dependent branch; verification must reject the resulting graph.
     with pytest.raises(AssertionError, match="not close"):
         export_model(InputBranch(), torch.ones(1, 3, 4, 4), path)
     assert list(tmp_path.iterdir()) == ([path] if existing_file else [])
