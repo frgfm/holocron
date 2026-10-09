@@ -102,12 +102,6 @@ explicit = true
 [tool.pytest.ini_options]
 testpaths = ["tests/"]
 addopts = "--cov=holocron"
-filterwarnings = [
-    # Match known legacy API notices only; keep correctness warnings visible.
-    'ignore:`torch\.jit\.script` is deprecated\.:DeprecationWarning:torch\.jit\._script$',
-    'ignore:You are using the legacy TorchScript-based ONNX export\.:DeprecationWarning:scripts\.export_to_onnx$',
-    'ignore:The feature will be removed\. Please remove usage of this function$:DeprecationWarning:torch\.onnx\.(utils|_internal\.torchscript_exporter\.utils)$',
-]
 
 [tool.lint-my-headers]
 owner = "François-Guillaume Fernandez"

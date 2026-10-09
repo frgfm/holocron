@@ -97,18 +97,17 @@ class UpPath(nn.Module):
             upfeat_ = F.interpolate(upfeat, size=downfeats[0].shape[-2:], mode="bilinear", align_corners=True)
         else:
             upfeat_ = self.upsample(upfeat)
-        if self.padding > 0 and downfeats[0].shape[-2:] != upfeat_.shape[-2:]:
+        if self.padding > 0 and not self.bilinear_upsampling:
             delta_h = downfeats[0].shape[-2] - upfeat_.shape[-2]
             delta_w = downfeats[0].shape[-1] - upfeat_.shape[-1]
             upfeat_ = F.pad(upfeat_, (delta_w // 2, delta_w - delta_w // 2, delta_h // 2, delta_h - delta_h // 2))
         # Crop contracting path features
         for idx, downfeat in enumerate(downfeats):
-            if downfeat.shape[-2:] != upfeat_.shape[-2:]:
-                delta_w = downfeat.shape[-1] - upfeat_.shape[-1]
-                delta_h = downfeat.shape[-2] - upfeat_.shape[-2]
-                w_slice = slice(delta_w // 2, delta_w // 2 + upfeat_.shape[-1])
-                h_slice = slice(delta_h // 2, delta_h // 2 + upfeat_.shape[-2])
-                downfeats[idx] = downfeat[..., h_slice, w_slice]
+            delta_w = downfeat.shape[-1] - upfeat_.shape[-1]
+            delta_h = downfeat.shape[-2] - upfeat_.shape[-2]
+            w_slice = slice(delta_w // 2, delta_w // 2 + upfeat_.shape[-1])
+            h_slice = slice(delta_h // 2, delta_h // 2 + upfeat_.shape[-2])
+            downfeats[idx] = downfeat[..., h_slice, w_slice]
         # Concatenate both feature maps and forward them
         return self.block(torch.cat((*downfeats, upfeat_), dim=1))
 

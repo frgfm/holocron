@@ -74,7 +74,8 @@ class PredictionHead(nn.Module):
                 torch.arange(width, device=feature.device, dtype=torch.float32),
                 indexing="ij",
             )
-            scale = feature.new_tensor((1 / width, 1 / height), dtype=torch.float32)
+            one = feature.new_ones((), dtype=torch.float32)
+            scale = torch.stack((one / width, one / height))
             points.append((torch.stack((x, y), -1).reshape(-1, 2) + 0.5) * scale)
             scales.append(scale.expand(height * width, 2))
         raw = torch.cat(distances, 1).float()
