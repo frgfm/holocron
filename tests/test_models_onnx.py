@@ -84,6 +84,19 @@ def test_yolo26_onnx_batch(nms, tmp_path):
     export_model(model, torch.rand(2, 3, 64, 96), tmp_path / "model.onnx")
 
 
+def test_yolo26_onnx_preserves_class_order_for_small_probabilities(tmp_path):
+    model = models.get_model("yolo26n", num_classes=3, box_score_thresh=0)
+
+    class PostProcess(nn.Module):
+        def forward(self, images):  # noqa: PLR6301
+            boxes = images.new_tensor([[[0, 0, 1, 1]]])
+            return model.post_process(boxes, images[:, :, 0, 0][:, None])
+
+    images = torch.tensor([-25.0, -24.0, -23.0]).reshape(1, 3, 1, 1)
+    assert PostProcess()(images)[0]["labels"].tolist() == [2]
+    export_model(PostProcess(), images, tmp_path / "model.onnx")
+
+
 def test_detection_onnx_empty_and_nonempty(tmp_path):
     class PostProcess(nn.Module):
         def forward(self, images):  # noqa: PLR6301

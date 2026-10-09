@@ -19,6 +19,8 @@ from torch.utils.data import DataLoader, Dataset, RandomSampler, SequentialSampl
 from holocron.optim import AdaBelief, AdamP, AdEMAMix
 from holocron.trainer import Trainer
 
+OPTIMIZERS = {"sgd": SGD, "radam": RAdam, "adamw": AdamW, "adamp": AdamP, "adabelief": AdaBelief, "ademamix": AdEMAMix}
+
 
 def load_checkpoint(trainer: Trainer, path: str) -> None:
     """Load the requested reference checkpoint before a task-specific action."""
@@ -63,13 +65,20 @@ def run_training(
         return
 
     run = None
+    callback = trainer.on_epoch_end
     if args.wb:
         import wandb  # noqa: PLC0415
 
         timestamp = datetime.datetime.now(tz=datetime.UTC).strftime("%Y%m%d-%H%M%S")
         name = f"{args.arch}-{timestamp}" if args.name is None else args.name
         run = wandb.init(name=name, project=project, config=config)
-        trainer.on_epoch_end = wandb.log
+
+        def log_epoch(metrics: dict[str, float]) -> None:
+            if callback is not None:
+                callback(metrics)
+            wandb.log(metrics)
+
+        trainer.on_epoch_end = log_epoch
 
     print("Start training")
     start_time = time.time()
@@ -81,6 +90,7 @@ def run_training(
         print(f"Training time {datetime.timedelta(seconds=int(time.time() - start_time))}")
         exit_code = 0
     finally:
+        trainer.on_epoch_end = callback
         if run is not None:
             run.finish(exit_code=exit_code)
 
@@ -94,22 +104,14 @@ def create_optimizer(model: nn.Module, args: Namespace) -> Optimizer:
     Raises:
         ValueError: If the optimizer name is unknown.
     """
-    optimizers = {
-        "sgd": SGD,
-        "radam": RAdam,
-        "adamw": AdamW,
-        "adamp": AdamP,
-        "adabelief": AdaBelief,
-        "ademamix": AdEMAMix,
-    }
-    if args.opt not in optimizers:
+    if args.opt not in OPTIMIZERS:
         raise ValueError(f"Unknown optimizer: {args.opt}")
     options = {}
     if args.opt == "sgd":
         options["momentum"] = getattr(args, "momentum", 0.9)
     elif args.opt != "adamw":
         options.update(betas=(0.95, 0.99, 0.9999) if args.opt == "ademamix" else (0.95, 0.99), eps=1e-6)
-    return optimizers[args.opt](
+    return OPTIMIZERS[args.opt](
         [p for p in model.parameters() if p.requires_grad], args.lr, weight_decay=args.weight_decay, **options
     )
 

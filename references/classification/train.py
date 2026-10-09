@@ -9,11 +9,11 @@ import logging
 import math
 import time
 from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
+from functools import partial
 from pathlib import Path
 
 import numpy as np
 import torch
-from codecarbon import track_emissions
 from torch import nn
 from torch.utils.data._utils.collate import default_collate
 from torchvision.datasets import CIFAR10, CIFAR100, ImageFolder
@@ -27,6 +27,7 @@ from holocron.trainer import ClassificationTrainer
 from holocron.utils.data import Mixup
 from holocron.utils.misc import find_image_size
 from references._common import (
+    OPTIMIZERS,
     add_loading_args,
     create_loader,
     create_optimizer,
@@ -45,6 +46,28 @@ logger.setLevel(logging.ERROR)
 
 def worker_init_fn(worker_id: int) -> None:
     np.random.default_rng((worker_id + torch.initial_seed()) % np.iinfo(np.int32).max)
+
+
+def collate_mixup(batch, *, num_classes, alpha):
+    return Mixup(num_classes, alpha=alpha)(*default_collate(batch))
+
+
+def scheduler_kwargs(args):
+    return {"div_factor": 100, "pct_start": 0.1} if args.sched == "onecycle" else {}
+
+
+def create_trainer(model, train_loader, val_loader, args):
+    return ClassificationTrainer(
+        model,
+        train_loader,
+        val_loader,
+        nn.CrossEntropyLoss(label_smoothing=args.label_smoothing),
+        create_optimizer(model, args),
+        args.device,
+        args.output_file,
+        gradient_acc=args.grad_acc,
+        amp=args.amp,
+    )
 
 
 def plot_samples(images, targets, num_samples=8):
@@ -76,7 +99,29 @@ def plot_samples(images, targets, num_samples=8):
     plt.show()
 
 
-@track_emissions()
+def imagefolder_transforms(args):
+    normalize = T.Normalize(mean=IMAGENETTE.mean, std=IMAGENETTE.std)
+    interpolation = InterpolationMode.BILINEAR
+    return (
+        T.Compose([
+            T.RandomResizedCrop(args.train_crop_size, scale=(0.3, 1.0), interpolation=interpolation),
+            T.RandomHorizontalFlip(),
+            T.TrivialAugmentWide(interpolation=interpolation),
+            T.PILToTensor(),
+            T.ConvertImageDtype(torch.float32),
+            normalize,
+            T.RandomErasing(p=args.random_erase, scale=(0.02, 0.2), value="random"),
+        ]),
+        T.Compose([
+            T.Resize(args.val_resize_size, interpolation=interpolation),
+            T.CenterCrop(args.val_crop_size),
+            T.PILToTensor(),
+            T.ConvertImageDtype(torch.float32),
+            normalize,
+        ]),
+    )
+
+
 def main(args):
     print(args)
 
@@ -92,6 +137,7 @@ def main(args):
     )
 
     interpolation = InterpolationMode.BILINEAR
+    train_transform, val_transform = imagefolder_transforms(args)
 
     num_classes = None
     if not args.test_only:
@@ -99,15 +145,7 @@ def main(args):
         if args.dataset.lower() == "imagenette":
             train_set = ImageFolder(
                 Path(args.data_path).joinpath("train"),
-                T.Compose([
-                    T.RandomResizedCrop(args.train_crop_size, scale=(0.3, 1.0), interpolation=interpolation),
-                    T.RandomHorizontalFlip(),
-                    T.TrivialAugmentWide(interpolation=interpolation),
-                    T.PILToTensor(),
-                    T.ConvertImageDtype(torch.float32),
-                    normalize,
-                    T.RandomErasing(p=args.random_erase, scale=(0.02, 0.2), value="random"),
-                ]),
+                train_transform,
             )
         else:
             cifar_version = CIFAR100 if args.dataset.lower() == "cifar100" else CIFAR10
@@ -134,8 +172,7 @@ def main(args):
         num_classes = len(train_set.classes)
         collate_fn = default_collate
         if args.mixup_alpha > 0:
-            mix = Mixup(len(train_set.classes), alpha=args.mixup_alpha)
-            collate_fn = lambda batch: mix(*default_collate(batch))
+            collate_fn = partial(collate_mixup, num_classes=len(train_set.classes), alpha=args.mixup_alpha)
         train_loader = create_loader(
             train_set, args, training=True, worker_init_fn=worker_init_fn, collate_fn=collate_fn
         )
@@ -154,13 +191,7 @@ def main(args):
         if args.dataset.lower() == "imagenette":
             val_set = ImageFolder(
                 Path(args.data_path).joinpath("val"),
-                T.Compose([
-                    T.Resize(args.val_resize_size, interpolation=interpolation),
-                    T.CenterCrop(args.val_crop_size),
-                    T.PILToTensor(),
-                    T.ConvertImageDtype(torch.float32),
-                    normalize,
-                ]),
+                val_transform,
             )
         else:
             cifar_version = CIFAR100 if args.dataset.lower() == "cifar100" else CIFAR10
@@ -178,22 +209,7 @@ def main(args):
 
     model = classification.__dict__[args.arch](args.pretrained, num_classes=num_classes)
 
-    criterion = nn.CrossEntropyLoss(label_smoothing=args.label_smoothing)
-
-    # Create the contiguous parameters.
-    optimizer = create_optimizer(model, args)
-
-    trainer = ClassificationTrainer(
-        model,
-        train_loader,
-        val_loader,
-        criterion,
-        optimizer,
-        args.device,
-        args.output_file,
-        gradient_acc=args.grad_acc,
-        amp=args.amp,
-    )
+    trainer = create_trainer(model, train_loader, val_loader, args)
     load_checkpoint(trainer, args.resume)
 
     if args.plot_loss and not args.test_only:
@@ -222,8 +238,7 @@ def main(args):
             "mixup_alpha": args.mixup_alpha,
             "seed": args.seed,
         },
-        div_factor=100,
-        pct_start=0.1,
+        **scheduler_kwargs(args),
     )
 
 
@@ -255,7 +270,7 @@ def get_parser():
     group.add_argument("--lr", default=1e-3, type=float, help="initial learning rate")
     group.add_argument("--freeze-until", default=None, type=str, help="Last layer to freeze")
     group.add_argument("--grad-acc", default=1, type=int, help="Number of batches to accumulate the gradient of")
-    group.add_argument("--opt", default="adamp", type=str, help="optimizer")
+    group.add_argument("--opt", default="adamp", type=str, choices=OPTIMIZERS, help="optimizer")
     group.add_argument("--sched", default="onecycle", type=str, help="Scheduler to be used")
     group.add_argument("--wd", "--weight-decay", default=0, type=float, help="weight decay", dest="weight_decay")
     group.add_argument("--norm-wd", default=None, type=float, help="weight decay of norm parameters")
@@ -277,5 +292,7 @@ def get_parser():
 
 
 if __name__ == "__main__":
+    from codecarbon import track_emissions
+
     args = get_parser().parse_args()
-    main(args)
+    track_emissions()(main)(args)
