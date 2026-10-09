@@ -462,14 +462,9 @@ def test_binary_classification_trainer():
     optimizer = torch.optim.Adam(model.parameters())
     criterion = nn.BCEWithLogitsLoss()
 
+    gpu = 0 if torch.cuda.is_available() else None
     learner = trainer.BinaryClassificationTrainer(
-        model,
-        train_loader,
-        train_loader,
-        criterion,
-        optimizer,
-        gpu=0 if torch.cuda.is_available() else None,
-        amp=torch.cuda.is_available(),
+        model, train_loader, train_loader, criterion, optimizer, gpu=gpu, amp=gpu is not None
     )
 
     res = learner.evaluate()

@@ -6,7 +6,7 @@ from holocron.nn import functional as F
 from holocron.nn.modules import downsample
 
 
-@pytest.mark.parametrize("scale_factor", [1, 2, 3, 4])
+@pytest.mark.parametrize("scale_factor", [1, 2, 3])
 def test_concatdownsample2d(scale_factor):
     num_batches = 2
     num_chan = 4

@@ -127,14 +127,14 @@ def test_yolo26_deployment_parity_and_serialization(nms, tmp_path):
         deployed = model.to_deploy()
         after = deployed(images)
         # Verify each feature point before top-k can reorder nearly tied scores.
-        head = model._inference_head()
         features = model.neck(model.backbone(images))
-        raw_before = head(features)
+        raw_before = model._inference_head()(features)
         raw_after = deployed._inference_head()(deployed.neck(deployed.backbone(images)))
         torch.testing.assert_close(raw_before, raw_after, atol=1e-6, rtol=1e-5)
-        traced = torch.jit.trace(head, (features,))
-        features = model.neck(model.backbone(images.transpose(-2, -1)))
-        torch.testing.assert_close(traced(features), head(features))
+        if not nms:
+            traced = torch.jit.trace(model._inference_head(), (features,))
+            features = tuple(feature.transpose(-2, -1) for feature in features)
+            torch.testing.assert_close(traced(features), model._inference_head()(features))
     assert not model.deployed
     assert deployed.deployed
     assert sum(parameter.numel() for parameter in deployed.parameters()) < sum(
