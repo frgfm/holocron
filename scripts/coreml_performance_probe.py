@@ -20,7 +20,7 @@ def emit(label, result):
     print(label + " " + json.dumps(result, sort_keys=True), flush=True)
 
 
-def torch_worker(directory, arch, fused, threads):
+def torch_worker(directory, arch, fused, threads, device="cpu"):
     import numpy as np
     import torch
     from holocron import models
@@ -34,23 +34,34 @@ def torch_worker(directory, arch, fused, threads):
     state = torch.load(directory / "checkpoint.pth", map_location="cpu", weights_only=True)
     model.load_state_dict(state, strict=True)
     del state
+    model.to(device)
     inputs = [torch.from_numpy(np.fromfile(directory / f"input{i}.bin", dtype=np.float32).reshape(1, 3, 224, 224)) for i in range(3)]
     gc.collect()
+
+    def predict(value):
+        # Include host input transfer and host-readable output, matching the app API.
+        output = model(value.to(device)).cpu().numpy().copy()
+        if device == "mps":
+            torch.mps.synchronize()
+        return output
+
     with torch.inference_mode():
-        outputs = [model(value).numpy().copy().tolist()[0] for value in inputs]
+        outputs = [predict(value).tolist()[0] for value in inputs]
         for i in range(30):
-            model(inputs[i % 3]).numpy().copy()
+            predict(inputs[i % 3])
         warm = rss()
         durations = []
         for i in range(150):
             start = time.perf_counter_ns()
-            model(inputs[i % 3]).numpy().copy()
+            predict(inputs[i % 3])
             durations.append((time.perf_counter_ns() - start) / 1e6)
     durations.sort()
-    print(json.dumps({"backend": "pytorch_cpu", "threads": threads,
+    print(json.dumps({"backend": "pytorch_" + device, "threads": threads,
                       "median_ms": durations[75], "p95_ms": durations[142],
                       "baseline_rss_bytes": baseline, "warm_rss_bytes": warm,
                       "peak_rss_bytes": resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,
+                      "gpu_allocated_bytes": torch.mps.current_allocated_memory() if device == "mps" else 0,
+                      "gpu_driver_bytes": torch.mps.driver_allocated_memory() if device == "mps" else 0,
                       "outputs": outputs}), flush=True)
 
 
@@ -81,7 +92,8 @@ def prepare(directory, arch, fused):
     (directory / "references.json").write_text(json.dumps([value.tolist()[0] for value in references]))
 
 
-def main():
+def main(gpu_only=False):
+    from collections import Counter
     import coremltools as ct
     import numpy as np
     import torch
@@ -104,16 +116,33 @@ def main():
             directory.mkdir()
             subprocess.run([sys.executable, __file__, "prepare", str(directory), arch, str(int(fused))], check=True)
             references = np.asarray(json.loads((directory / "references.json").read_text()), dtype=np.float32)
-            rounds = []
+            plan = ct.models.compute_plan.MLComputePlan.load_from_path(str(directory / "model.mlmodelc"), compute_units=ct.ComputeUnit.ALL)
+            preferred, convolution_devices = Counter(), Counter()
+            for function in plan.model_structure.program.functions.values():
+                for operation in function.block.operations:
+                    usage = plan.get_compute_device_usage_for_mlprogram_operation(operation)
+                    if usage is not None:
+                        device = type(usage.preferred_compute_device).__name__
+                        preferred[device] += 1
+                        if operation.operator_name == "conv":
+                            convolution_devices[device] += 1
+            emit("BENCH_PLAN", {"configuration": label, "preferred_devices": dict(preferred),
+                               "convolution_devices": dict(convolution_devices)})
 
             def run(backend, threads=0):
-                command = ([sys.executable, __file__, "torch", str(directory), arch, str(int(fused)), str(threads)]
-                           if backend == "pytorch_cpu" else ["/tmp/coreml-probe", str(directory), backend.removeprefix("coreml_")])
+                command = ([sys.executable, __file__, "torch", str(directory), arch, str(int(fused)), str(threads), backend.removeprefix("pytorch_")]
+                           if backend.startswith("pytorch_") else ["/tmp/coreml-probe", str(directory), backend.removeprefix("coreml_")])
                 output = subprocess.check_output(command, text=True)
                 result = json.loads(output.strip().splitlines()[-1])
                 actual = np.asarray(result.pop("outputs"), dtype=np.float32)
                 assert actual.shape == references.shape and np.isfinite(actual).all()
-                np.testing.assert_allclose(actual, references, rtol=1e-3, atol=3e-5)
+                try:
+                    np.testing.assert_allclose(actual, references, rtol=1e-3, atol=3e-5)
+                    result["parity"] = True
+                except AssertionError as exc:
+                    result.update(parity=False, parity_failure=str(exc))
+                    if backend != "pytorch_mps":
+                        raise
                 error = np.abs(actual - references)
                 result.update(configuration=label, max_abs=float(error.max()),
                               max_rel=float((error / np.maximum(np.abs(references), 1e-12)).max()))
@@ -121,13 +150,18 @@ def main():
                 results.append(result)
                 return result
 
-            sweep = [run("pytorch_cpu", threads) for threads in range(1, min(4, os.cpu_count()) + 1)]
-            fastest = min(sweep, key=lambda result: result["median_ms"])
-            threads = fastest["threads"]
-            selected = {"pytorch_cpu": [fastest], "coreml_cpu": [], "coreml_all": []}
+            if gpu_only:
+                assert torch.backends.mps.is_available()
+                threads = 2
+                selected = {"pytorch_mps": [], "coreml_cpu": [], "coreml_all": []}
+            else:
+                sweep = [run("pytorch_cpu", threads) for threads in range(1, min(4, os.cpu_count()) + 1)]
+                fastest = min(sweep, key=lambda result: result["median_ms"])
+                threads = fastest["threads"]
+                selected = {"pytorch_cpu": [fastest], "coreml_cpu": [], "coreml_all": []}
             for repetition in range(3):
                 # Reverse order in alternate repetitions to reduce ordering bias.
-                order = ["pytorch_cpu", "coreml_cpu", "coreml_all"]
+                order = list(selected)
                 if repetition % 2:
                     order.reverse()
                 for backend in order:
@@ -135,7 +169,8 @@ def main():
                         continue
                     selected[backend].append(run(backend, threads))
             for backend, samples in selected.items():
-                summary = {"configuration": label, "backend": backend, "threads": threads if backend == "pytorch_cpu" else "managed",
+                summary = {"configuration": label, "backend": backend, "threads": threads if backend.startswith("pytorch_") else "managed",
+                           "parity": all(item["parity"] for item in samples),
                            "median_ms": float(np.median([item["median_ms"] for item in samples])),
                            "median_range_ms": [min(item["median_ms"] for item in samples), max(item["median_ms"] for item in samples)],
                            "p95_ms": float(np.median([item["p95_ms"] for item in samples])),
@@ -151,9 +186,9 @@ def main():
 
 
 if __name__ == "__main__":
-    if len(sys.argv) == 1:
-        main()
+    if len(sys.argv) == 1 or sys.argv[1] == "gpu":
+        main(gpu_only=len(sys.argv) > 1)
     elif sys.argv[1] == "prepare":
         prepare(Path(sys.argv[2]), sys.argv[3], bool(int(sys.argv[4])))
     else:
-        torch_worker(Path(sys.argv[2]), sys.argv[3], bool(int(sys.argv[4])), int(sys.argv[5]))
+        torch_worker(Path(sys.argv[2]), sys.argv[3], bool(int(sys.argv[4])), int(sys.argv[5]), sys.argv[6])
