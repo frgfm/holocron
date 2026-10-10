@@ -1,0 +1,40 @@
+name: coreml-performance-probe
+
+on:
+  push:
+    branches: ['chore/coreml-performance-probe']
+
+permissions:
+  contents: read
+
+jobs:
+  measure:
+    runs-on: macos-15
+    timeout-minutes: 25
+    env:
+      OMP_NUM_THREADS: '2'
+    steps:
+      - uses: actions/checkout@v7
+      - name: Require Apple Silicon and record host
+        run: |
+          test "$(uname -m)" = arm64
+          sw_vers
+          sysctl -n machdep.cpu.brand_string hw.ncpu hw.memsize
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.11'
+          architecture: arm64
+      - uses: astral-sh/setup-uv@v7
+        with:
+          version: '0.12.5'
+          activate-environment: true
+      - run: uv sync --locked --extra coreml
+      - name: Compile native application probe
+        run: xcrun swiftc -O scripts/coreml_probe.swift -o /tmp/coreml-probe
+      - name: Measure actual predictions in isolated processes
+        run: python scripts/coreml_performance_probe.py
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: coreml-performance-results
+          path: /tmp/coreml-performance-results.json
