@@ -18,6 +18,7 @@ from torch.utils.data import DataLoader, Dataset, RandomSampler, SequentialSampl
 
 from holocron.optim import AdaBelief, AdamP, AdEMAMix
 from holocron.trainer import Trainer
+from holocron.trainer.utils import resolve_device
 
 
 def load_checkpoint(trainer: Trainer, path: str) -> None:
@@ -120,7 +121,7 @@ def create_loader(dataset: Dataset, args: Namespace, *, training: bool, **kwargs
     Returns:
         Loader with random training or sequential validation sampling.
     """
-    options = {"drop_last": training, "pin_memory": True, **kwargs}
+    options = {"drop_last": training, "pin_memory": resolve_device(args.device).type == "cuda", **kwargs}
     return DataLoader(
         dataset,
         batch_size=args.batch_size,
@@ -134,7 +135,7 @@ def create_loader(dataset: Dataset, args: Namespace, *, training: bool, **kwargs
 def add_loading_args(parser: ArgumentParser) -> None:
     """Add the common hardware and data-loading argument groups."""
     group = parser.add_argument_group("Hardware")
-    group.add_argument("--device", default=None, type=int, help="device")
+    group.add_argument("--device", default="auto", help="auto, cpu, cuda, cuda:N, mps, or a legacy CUDA index")
     group.add_argument("--amp", help="Use Automatic Mixed Precision", action="store_true")
     group = parser.add_argument_group("Data loading")
     group.add_argument("-b", "--batch-size", default=32, type=int, help="batch size")

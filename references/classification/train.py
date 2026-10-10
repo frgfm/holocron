@@ -77,7 +77,7 @@ def plot_samples(images, targets, num_samples=8):
 
 
 @track_emissions()
-def main(args):
+def main(args, on_epoch_end=None):
     print(args)
 
     torch.manual_seed(args.seed)
@@ -129,13 +129,12 @@ def main(args):
         if args.find_size:
             print("Looking for optimal image size")
             find_image_size(train_set)
-            return
+            return None
 
         num_classes = len(train_set.classes)
         collate_fn = default_collate
         if args.mixup_alpha > 0:
-            mix = Mixup(len(train_set.classes), alpha=args.mixup_alpha)
-            collate_fn = lambda batch: mix(*default_collate(batch))
+            collate_fn = Mixup(len(train_set.classes), alpha=args.mixup_alpha).collate
         train_loader = create_loader(
             train_set, args, training=True, worker_init_fn=worker_init_fn, collate_fn=collate_fn
         )
@@ -147,7 +146,7 @@ def main(args):
     if args.show_samples:
         x, target = next(iter(train_loader))
         plot_samples(x, target)
-        return
+        return None
 
     if not (args.find_lr or args.check_setup):
         st = time.time()
@@ -189,17 +188,18 @@ def main(args):
         val_loader,
         criterion,
         optimizer,
-        args.device,
-        args.output_file,
+        output_file=args.output_file,
+        device=args.device,
         gradient_acc=args.grad_acc,
         amp=args.amp,
+        on_epoch_end=on_epoch_end,
     )
     load_checkpoint(trainer, args.resume)
 
     if args.plot_loss and not args.test_only:
         print("Checking top losses")
         trainer.plot_top_losses(IMAGENETTE["mean"], IMAGENETTE["std"], IMAGENETTE["classes"])
-        return
+        return None
 
     run_training(
         trainer,
@@ -225,6 +225,7 @@ def main(args):
         div_factor=100,
         pct_start=0.1,
     )
+    return trainer
 
 
 def get_parser():

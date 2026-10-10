@@ -49,7 +49,7 @@ class ClassificationTrainer(Trainer):
 
         val_loss, top1, top5, num_samples, num_valid_batches = 0.0, 0, 0, 0, 0
         for x, target in self.val_loader:
-            x, target = self.to_cuda(x, target)
+            x, target = self.to_device(x, target)
 
             loss, out = self._get_loss(x, target, return_logits=True)  # ty: ignore[invalid-argument-type]
 
@@ -116,7 +116,7 @@ class ClassificationTrainer(Trainer):
         train_iter = iter(self.train_loader)
 
         for x, target in tqdm(train_iter):
-            x, target = self.to_cuda(x, target)
+            x, target = self.to_device(x, target)
 
             # Forward
             batch_loss, logits = self._get_loss(x, target, return_logits=True)  # ty: ignore[invalid-argument-type]
@@ -134,7 +134,7 @@ class ClassificationTrainer(Trainer):
                 added_idcs = [idx - num_samples for idx in idcs if idx >= num_samples]
                 # Update
                 losses = np.concatenate((losses[kept_idcs], batch_loss.cpu().numpy()[added_idcs]))
-                probs = np.concatenate((probs[kept_idcs], probs_.cpu().numpy()))
+                probs = np.concatenate((probs[kept_idcs], probs_.float().cpu().numpy()[added_idcs]))
                 if not self.is_binary:
                     preds = np.concatenate((preds[kept_idcs], logits[added_idcs].argmax(dim=1).cpu().numpy()))
                 targets = np.concatenate((targets[kept_idcs], target[added_idcs].cpu().numpy()))  # ty: ignore[invalid-argument-type]
@@ -197,7 +197,7 @@ class BinaryClassificationTrainer(ClassificationTrainer):
 
         # AMP
         if self.amp:
-            with torch.amp.autocast("cuda"):
+            with torch.amp.autocast(self.device.type):
                 # Forward
                 out = self.model(x)
                 # Loss computation
@@ -224,7 +224,7 @@ class BinaryClassificationTrainer(ClassificationTrainer):
 
         val_loss, top1, num_samples, num_valid_batches = 0.0, 0.0, 0, 0
         for x, target in self.val_loader:
-            x, target = self.to_cuda(x, target)
+            x, target = self.to_device(x, target)
 
             loss, out = self._get_loss(x, target, return_logits=True)  # ty: ignore[invalid-argument-type]
 

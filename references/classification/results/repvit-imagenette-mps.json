@@ -1,0 +1,330 @@
+{
+  "scope": "Controlled Imagenette scratch training; not ImageNet or paper accuracy reproduction",
+  "runtime": {
+    "device": "mps",
+    "torch": "2.13.0",
+    "python": "3.12.13",
+    "platform": "macOS-15.7.7-arm64-arm-64bit",
+    "cpu": "arm",
+    "threads": 4,
+    "cpu_model": "Apple M3 Pro",
+    "unified_memory_bytes": 38654705664
+  },
+  "recipe": {
+    "epochs": 20,
+    "seed": 0,
+    "physical_batch_size": 32,
+    "gradient_accumulation": 1,
+    "effective_batch_size": 32,
+    "workers": 4,
+    "train_crop_size": 176,
+    "validation_resize_size": 232,
+    "validation_crop_size": 224,
+    "optimizer": "AdamP",
+    "learning_rate": 0.001,
+    "scheduler": "OneCycle",
+    "mixup_alpha": 0.2,
+    "label_smoothing": 0.1,
+    "pretrained": false,
+    "amp": true,
+    "autocast_dtype": "torch.float16",
+    "selection": "minimum validation loss; final and selected metrics reported separately"
+  },
+  "dataset": {
+    "path": "imagenette2-320",
+    "archive_sha256": "569b4497c98db6dd29f335d1f109cf315fe127053cedf69010d047f0188e158c",
+    "train_samples": 9469,
+    "validation_samples": 3925,
+    "class_to_index": {
+      "n01440764": 0,
+      "n02102040": 1,
+      "n02979186": 2,
+      "n03000684": 3,
+      "n03028079": 4,
+      "n03394916": 5,
+      "n03417042": 6,
+      "n03425413": 7,
+      "n03445777": 8,
+      "n03888257": 9
+    },
+    "source_url": "https://s3.amazonaws.com/fast-ai-imageclas/imagenette2-320.tgz"
+  },
+  "macs_scope": "Convolution and linear MACs at batch 1, 224x224; normalization and activations excluded",
+  "timing_scope": "Wall time includes dataset/model setup, training and validation; excludes deployment profiling",
+  "models": [
+    {
+      "architecture": "repvit_m0_9",
+      "training_elapsed_seconds": 1817.5901195000006,
+      "training_samples_per_wall_second": 103.87380409612749,
+      "history": [
+        {"epoch": 1, "val_loss": 2.0612302524287527, "acc1": 0.292484076433121, "acc5": 0.7495541401273885, "elapsed_seconds": 105.87365562500008},
+        {"epoch": 2, "val_loss": 1.8043699351752676, "acc1": 0.4303184713375796, "acc5": 0.8733757961783439, "elapsed_seconds": 196.7190907500003},
+        {"epoch": 3, "val_loss": 1.65725293101334, "acc1": 0.4973248407643312, "acc5": 0.8871337579617834, "elapsed_seconds": 289.4446443750003},
+        {"epoch": 4, "val_loss": 1.5607348806489774, "acc1": 0.5444585987261147, "acc5": 0.9207643312101911, "elapsed_seconds": 378.870024542},
+        {"epoch": 5, "val_loss": 1.5628733819093161, "acc1": 0.5500636942675159, "acc5": 0.9156687898089172, "elapsed_seconds": 468.01234920800016},
+        {"epoch": 6, "val_loss": 1.4623622235243883, "acc1": 0.6025477707006369, "acc5": 0.9340127388535032, "elapsed_seconds": 557.2594678330001},
+        {"epoch": 7, "val_loss": 1.4013205088251006, "acc1": 0.6214012738853503, "acc5": 0.9406369426751592, "elapsed_seconds": 647.1276325830004},
+        {"epoch": 8, "val_loss": 1.3588775992393494, "acc1": 0.6392356687898089, "acc5": 0.9434394904458598, "elapsed_seconds": 736.873422958},
+        {"epoch": 9, "val_loss": 1.3249355758108743, "acc1": 0.6629299363057325, "acc5": 0.9464968152866242, "elapsed_seconds": 824.7651272500002},
+        {"epoch": 10, "val_loss": 1.3623647617130745, "acc1": 0.6349044585987261, "acc5": 0.9452229299363057, "elapsed_seconds": 912.4553342500003},
+        {"epoch": 11, "val_loss": 1.2820389401621934, "acc1": 0.6738853503184713, "acc5": 0.9528662420382166, "elapsed_seconds": 1000.1477374169999},
+        {"epoch": 12, "val_loss": 1.2330193975107457, "acc1": 0.7047133757961783, "acc5": 0.9569426751592357, "elapsed_seconds": 1087.321754875},
+        {"epoch": 13, "val_loss": 1.1880328926613661, "acc1": 0.728407643312102, "acc5": 0.9569426751592357, "elapsed_seconds": 1174.6536825000003},
+        {"epoch": 14, "val_loss": 1.164249375099089, "acc1": 0.7329936305732484, "acc5": 0.9650955414012738, "elapsed_seconds": 1263.3641789170006},
+        {"epoch": 15, "val_loss": 1.1329701833608674, "acc1": 0.7498089171974522, "acc5": 0.9643312101910828, "elapsed_seconds": 1357.7987520830002},
+        {"epoch": 16, "val_loss": 1.1285364836212095, "acc1": 0.7538853503184714, "acc5": 0.9650955414012738, "elapsed_seconds": 1448.720955875},
+        {"epoch": 17, "val_loss": 1.1018898593700999, "acc1": 0.7666242038216561, "acc5": 0.9684076433121019, "elapsed_seconds": 1541.7870080419998},
+        {"epoch": 18, "val_loss": 1.0974363224293158, "acc1": 0.7678980891719746, "acc5": 0.9701910828025477, "elapsed_seconds": 1633.5320697920006},
+        {"epoch": 19, "val_loss": 1.096209794040618, "acc1": 0.7696815286624203, "acc5": 0.9676433121019108, "elapsed_seconds": 1724.7494162499997},
+        {"epoch": 20, "val_loss": 1.096619231914117, "acc1": 0.769171974522293, "acc5": 0.969171974522293, "elapsed_seconds": 1817.586566}
+      ],
+      "final_metrics": {
+        "val_loss": 1.096619231914117,
+        "acc1": 0.769171974522293,
+        "acc5": 0.969171974522293
+      },
+      "memory": {
+        "sampled_peak_mps_tensor_bytes": 1521305344,
+        "sampled_peak_mps_driver_bytes": 2686271488,
+        "process_lifetime_peak_rss_mib": 732.296875,
+        "sampling_interval_seconds": 0.05,
+        "cuda_peak_allocated_bytes": null
+      },
+      "selected_epoch": 19,
+      "selected_metrics": {
+        "val_loss": 1.096209794040618,
+        "acc1": 0.7696815286624203,
+        "acc5": 0.9676433121019108
+      },
+      "checkpoint_sha256": "a75edb2768bff87cd142506a51bbd055db9e8dae9156441652879c03f47d545a",
+      "fusion_cpu_max_absolute_error": 6.258487701416016e-7,
+      "parameters": {
+        "training": 4722410,
+        "deployment": 4685906
+      },
+      "macs": {
+        "training": 816516672,
+        "deployment": 815237184
+      },
+      "deployment_latency": {
+        "first_ms": 874.7228749998612,
+        "median_ms": 4.75335399960386,
+        "p95_ms": 5.557333000069775,
+        "throughput_per_s": 237.24515650206666
+      },
+      "deployment_metrics": {
+        "val_loss": 1.096130660394343,
+        "acc1": 0.7686624203821656,
+        "acc5": 0.9676433121019108
+      }
+    },
+    {
+      "architecture": "repvit_m1_0",
+      "training_elapsed_seconds": 2222.0372190420003,
+      "training_samples_per_wall_second": 84.96707363047611,
+      "history": [
+        {"epoch": 1, "val_loss": 2.00522786814992, "acc1": 0.31949044585987263, "acc5": 0.790828025477707, "elapsed_seconds": 130.79774208300023},
+        {"epoch": 2, "val_loss": 2.0151063795012187, "acc1": 0.38292993630573247, "acc5": 0.8369426751592357, "elapsed_seconds": 251.03156187500008},
+        {"epoch": 3, "val_loss": 1.6462524232825613, "acc1": 0.498343949044586, "acc5": 0.8968152866242038, "elapsed_seconds": 361.61177529200086},
+        {"epoch": 4, "val_loss": 1.5015567938486736, "acc1": 0.5589808917197452, "acc5": 0.9268789808917197, "elapsed_seconds": 478.2043822080004},
+        {"epoch": 5, "val_loss": 1.4205634085143484, "acc1": 0.6145222929936306, "acc5": 0.9363057324840764, "elapsed_seconds": 598.7092055000003},
+        {"epoch": 6, "val_loss": 1.3961396963615729, "acc1": 0.6292993630573248, "acc5": 0.9447133757961783, "elapsed_seconds": 707.6749560420003},
+        {"epoch": 7, "val_loss": 1.410561499556875, "acc1": 0.6247133757961784, "acc5": 0.9380891719745222, "elapsed_seconds": 818.2621266250007},
+        {"epoch": 8, "val_loss": 1.2755360802014668, "acc1": 0.6807643312101911, "acc5": 0.9490445859872612, "elapsed_seconds": 928.6284135420001},
+        {"epoch": 9, "val_loss": 1.2702617742181794, "acc1": 0.6873885350318472, "acc5": 0.9579617834394905, "elapsed_seconds": 1038.6430840000003},
+        {"epoch": 10, "val_loss": 1.2033378089346536, "acc1": 0.7128662420382166, "acc5": 0.9612738853503184, "elapsed_seconds": 1149.41517475},
+        {"epoch": 11, "val_loss": 1.139965244909612, "acc1": 0.7429299363057325, "acc5": 0.9650955414012738, "elapsed_seconds": 1259.7319496250002},
+        {"epoch": 12, "val_loss": 1.0945331919484023, "acc1": 0.7620382165605095, "acc5": 0.9699363057324841, "elapsed_seconds": 1370.6628047500008},
+        {"epoch": 13, "val_loss": 1.079701412014845, "acc1": 0.7635668789808917, "acc5": 0.9699363057324841, "elapsed_seconds": 1479.7835060420002},
+        {"epoch": 14, "val_loss": 1.0672140131151773, "acc1": 0.7747770700636942, "acc5": 0.9694267515923567, "elapsed_seconds": 1586.0154406250003},
+        {"epoch": 15, "val_loss": 1.0337887440270526, "acc1": 0.7913375796178344, "acc5": 0.9742675159235669, "elapsed_seconds": 1690.566692583},
+        {"epoch": 16, "val_loss": 1.015834660549474, "acc1": 0.8007643312101911, "acc5": 0.9740127388535031, "elapsed_seconds": 1794.4158106250006},
+        {"epoch": 17, "val_loss": 1.0066832570525688, "acc1": 0.7989808917197452, "acc5": 0.9760509554140128, "elapsed_seconds": 1898.3932493750008},
+        {"epoch": 18, "val_loss": 0.9965136671453957, "acc1": 0.8012738853503185, "acc5": 0.9755414012738853, "elapsed_seconds": 2004.8593315830003},
+        {"epoch": 19, "val_loss": 0.9926137827276215, "acc1": 0.803312101910828, "acc5": 0.9735031847133758, "elapsed_seconds": 2114.082497542},
+        {"epoch": 20, "val_loss": 0.9944500928002644, "acc1": 0.8048407643312102, "acc5": 0.975796178343949, "elapsed_seconds": 2222.034668792}
+      ],
+      "final_metrics": {
+        "val_loss": 0.9944500928002644,
+        "acc1": 0.8048407643312102,
+        "acc5": 0.975796178343949
+      },
+      "memory": {
+        "sampled_peak_mps_tensor_bytes": 1784092416,
+        "sampled_peak_mps_driver_bytes": 2985639936,
+        "process_lifetime_peak_rss_mib": 732.296875,
+        "sampling_interval_seconds": 0.05,
+        "cuda_peak_allocated_bytes": null
+      },
+      "selected_epoch": 19,
+      "selected_metrics": {
+        "val_loss": 0.9926137827276215,
+        "acc1": 0.803312101910828,
+        "acc5": 0.9735031847133758
+      },
+      "checkpoint_sha256": "ae51224a52880343c4d859ccafaa086ed7e06ed55d9fa03d66785cbd2a045a23",
+      "fusion_cpu_max_absolute_error": 0.0000014901161193847656,
+      "parameters": {
+        "training": 6408390,
+        "deployment": 6365802
+      },
+      "macs": {
+        "training": 1107186080,
+        "deployment": 1105693344
+      },
+      "deployment_latency": {
+        "first_ms": 599.1478329997335,
+        "median_ms": 4.421749999437452,
+        "p95_ms": 4.877374999523454,
+        "throughput_per_s": 251.3483791163737
+      },
+      "deployment_metrics": {
+        "val_loss": 0.9923307338381201,
+        "acc1": 0.8030573248407643,
+        "acc5": 0.9737579617834395
+      }
+    },
+    {
+      "architecture": "repvit_m1_1",
+      "training_elapsed_seconds": 2340.996519082999,
+      "training_samples_per_wall_second": 80.64941509351564,
+      "history": [
+        {"epoch": 1, "val_loss": 2.0548373470461465, "acc1": 0.30471337579617835, "acc5": 0.7788535031847134, "elapsed_seconds": 133.53508133299965},
+        {"epoch": 2, "val_loss": 1.8507535341309338, "acc1": 0.4140127388535032, "acc5": 0.8415286624203822, "elapsed_seconds": 255.437702833},
+        {"epoch": 3, "val_loss": 1.6649909552519884, "acc1": 0.5034394904458599, "acc5": 0.9115923566878981, "elapsed_seconds": 374.18171045799954},
+        {"epoch": 4, "val_loss": 1.526523211622626, "acc1": 0.5650955414012739, "acc5": 0.9126114649681528, "elapsed_seconds": 493.97726045799936},
+        {"epoch": 5, "val_loss": 1.4633880233376977, "acc1": 0.6028025477707006, "acc5": 0.9256050955414012, "elapsed_seconds": 608.4983157919996},
+        {"epoch": 6, "val_loss": 1.41430394630122, "acc1": 0.6221656050955414, "acc5": 0.9421656050955414, "elapsed_seconds": 724.8239855829997},
+        {"epoch": 7, "val_loss": 1.3448435378268482, "acc1": 0.6430573248407643, "acc5": 0.9403821656050956, "elapsed_seconds": 843.359983458},
+        {"epoch": 8, "val_loss": 1.2905460184182578, "acc1": 0.683312101910828, "acc5": 0.953375796178344, "elapsed_seconds": 958.4613465420007},
+        {"epoch": 9, "val_loss": 1.2896174366881208, "acc1": 0.6723566878980892, "acc5": 0.9495541401273885, "elapsed_seconds": 1072.1670061669993},
+        {"epoch": 10, "val_loss": 1.1808096984537637, "acc1": 0.716687898089172, "acc5": 0.9615286624203822, "elapsed_seconds": 1188.743583166999},
+        {"epoch": 11, "val_loss": 1.130686939731846, "acc1": 0.7464968152866241, "acc5": 0.969171974522293, "elapsed_seconds": 1302.760634332999},
+        {"epoch": 12, "val_loss": 1.0906207648719228, "acc1": 0.772484076433121, "acc5": 0.9689171974522293, "elapsed_seconds": 1419.6244792079997},
+        {"epoch": 13, "val_loss": 1.1189487634635553, "acc1": 0.7528662420382166, "acc5": 0.965859872611465, "elapsed_seconds": 1533.9735742079993},
+        {"epoch": 14, "val_loss": 1.041511033124071, "acc1": 0.7864968152866242, "acc5": 0.9735031847133758, "elapsed_seconds": 1648.6879315419992},
+        {"epoch": 15, "val_loss": 1.04019214854977, "acc1": 0.7844585987261147, "acc5": 0.975031847133758, "elapsed_seconds": 1764.9910755830006},
+        {"epoch": 16, "val_loss": 1.0023758707007742, "acc1": 0.8015286624203821, "acc5": 0.9760509554140128, "elapsed_seconds": 1881.2204326669998},
+        {"epoch": 17, "val_loss": 0.9984003063139877, "acc1": 0.8073885350318472, "acc5": 0.9788535031847134, "elapsed_seconds": 1995.8262061250007},
+        {"epoch": 18, "val_loss": 0.9849105089660583, "acc1": 0.8096815286624204, "acc5": 0.9793630573248407, "elapsed_seconds": 2110.824905416999},
+        {"epoch": 19, "val_loss": 0.9859540622408797, "acc1": 0.8147770700636943, "acc5": 0.979108280254777, "elapsed_seconds": 2224.308907041999},
+        {"epoch": 20, "val_loss": 0.9804007013638815, "acc1": 0.8152866242038217, "acc5": 0.9785987261146497, "elapsed_seconds": 2340.985265333}
+      ],
+      "final_metrics": {
+        "val_loss": 0.9804007013638815,
+        "acc1": 0.8152866242038217,
+        "acc5": 0.9785987261146497
+      },
+      "memory": {
+        "sampled_peak_mps_tensor_bytes": 1943803136,
+        "sampled_peak_mps_driver_bytes": 3159031808,
+        "process_lifetime_peak_rss_mib": 840.9375,
+        "sampling_interval_seconds": 0.05,
+        "cuda_peak_allocated_bytes": null
+      },
+      "selected_epoch": 20,
+      "selected_metrics": {
+        "val_loss": 0.9804007013638815,
+        "acc1": 0.8152866242038217,
+        "acc5": 0.9785987261146497
+      },
+      "checkpoint_sha256": "459540bf29c6f91130f9e0cf438bbbb2215bc89b2571b9dc9c990633a80b0732",
+      "fusion_cpu_max_absolute_error": 9.5367431640625e-7,
+      "parameters": {
+        "training": 7781018,
+        "deployment": 7736442
+      },
+      "macs": {
+        "training": 1338223360,
+        "deployment": 1336617728
+      },
+      "deployment_latency": {
+        "first_ms": 432.6997499993013,
+        "median_ms": 5.854395500136889,
+        "p95_ms": 7.558833000075538,
+        "throughput_per_s": 165.93601829694234
+      },
+      "deployment_metrics": {
+        "val_loss": 0.9804464283028269,
+        "acc1": 0.8152866242038217,
+        "acc5": 0.978343949044586
+      }
+    },
+    {
+      "architecture": "mobileone_s2",
+      "training_elapsed_seconds": 2777.672441458999,
+      "training_samples_per_wall_second": 67.97057751735154,
+      "history": [
+        {"epoch": 1, "val_loss": 2.2387190543539157, "acc1": 0.22394904458598727, "acc5": 0.6107006369426752, "elapsed_seconds": 154.94942858399918},
+        {"epoch": 2, "val_loss": 2.019842028617859, "acc1": 0.2945222929936306, "acc5": 0.818343949044586, "elapsed_seconds": 291.3616573750005},
+        {"epoch": 3, "val_loss": 1.8195293051440542, "acc1": 0.39184713375796176, "acc5": 0.883312101910828, "elapsed_seconds": 428.41774358399925},
+        {"epoch": 4, "val_loss": 1.7551598345361106, "acc1": 0.44764331210191083, "acc5": 0.8726114649681529, "elapsed_seconds": 566.5768719169992},
+        {"epoch": 5, "val_loss": 1.895767918447169, "acc1": 0.44993630573248405, "acc5": 0.8894267515923567, "elapsed_seconds": 704.8975492919999},
+        {"epoch": 6, "val_loss": 1.5565232460091754, "acc1": 0.5436942675159235, "acc5": 0.9294267515923567, "elapsed_seconds": 845.2190551669992},
+        {"epoch": 7, "val_loss": 1.4128812580573848, "acc1": 0.6152866242038216, "acc5": 0.9375796178343949, "elapsed_seconds": 982.6850310419995},
+        {"epoch": 8, "val_loss": 1.5438678022322616, "acc1": 0.5699363057324841, "acc5": 0.9355414012738853, "elapsed_seconds": 1115.2241812499997},
+        {"epoch": 9, "val_loss": 1.322430106682506, "acc1": 0.6573248407643312, "acc5": 0.94828025477707, "elapsed_seconds": 1252.245878624999},
+        {"epoch": 10, "val_loss": 1.2972300580846585, "acc1": 0.6764331210191082, "acc5": 0.9536305732484076, "elapsed_seconds": 1384.7054671669994},
+        {"epoch": 11, "val_loss": 1.228672192833288, "acc1": 0.6945222929936306, "acc5": 0.9587261146496815, "elapsed_seconds": 1515.611846124999},
+        {"epoch": 12, "val_loss": 1.1943744353162564, "acc1": 0.7128662420382166, "acc5": 0.969171974522293, "elapsed_seconds": 1648.526674834},
+        {"epoch": 13, "val_loss": 1.1242313385009766, "acc1": 0.7444585987261146, "acc5": 0.9709554140127389, "elapsed_seconds": 1787.9555574999995},
+        {"epoch": 14, "val_loss": 1.1039139395806847, "acc1": 0.7523566878980892, "acc5": 0.9694267515923567, "elapsed_seconds": 1926.7606329589998},
+        {"epoch": 15, "val_loss": 1.0656958614907615, "acc1": 0.7714649681528662, "acc5": 0.9742675159235669, "elapsed_seconds": 2073.861927583999},
+        {"epoch": 16, "val_loss": 1.0453363065797139, "acc1": 0.7844585987261147, "acc5": 0.975031847133758, "elapsed_seconds": 2214.354160499999},
+        {"epoch": 17, "val_loss": 1.023823845192669, "acc1": 0.7918471337579618, "acc5": 0.9770700636942675, "elapsed_seconds": 2357.1963144170004},
+        {"epoch": 18, "val_loss": 1.0190599866029693, "acc1": 0.790828025477707, "acc5": 0.979108280254777, "elapsed_seconds": 2498.2550573749995},
+        {"epoch": 19, "val_loss": 1.0092686405026816, "acc1": 0.8007643312101911, "acc5": 0.9780891719745223, "elapsed_seconds": 2636.135340249999},
+        {"epoch": 20, "val_loss": 1.0078583757082622, "acc1": 0.8017834394904458, "acc5": 0.9763057324840765, "elapsed_seconds": 2777.662091209}
+      ],
+      "final_metrics": {
+        "val_loss": 1.0078583757082622,
+        "acc1": 0.8017834394904458,
+        "acc5": 0.9763057324840765
+      },
+      "memory": {
+        "sampled_peak_mps_tensor_bytes": 2453710080,
+        "sampled_peak_mps_driver_bytes": 3567370240,
+        "process_lifetime_peak_rss_mib": 840.9375,
+        "sampling_interval_seconds": 0.05,
+        "cuda_peak_allocated_bytes": null
+      },
+      "selected_epoch": 20,
+      "selected_metrics": {
+        "val_loss": 1.0078583757082622,
+        "acc1": 0.8017834394904458,
+        "acc5": 0.9763057324840765
+      },
+      "checkpoint_sha256": "f53e4d37c1cbe0421e2d358e3cb93a2f20fd7cf562146fe38c342c6ac23a7208",
+      "fusion_cpu_max_absolute_error": 7.003545761108398e-7,
+      "parameters": {
+        "training": 5854324,
+        "deployment": 5778152
+      },
+      "macs": {
+        "training": 1280700160,
+        "deployment": 1277470080
+      },
+      "deployment_latency": {
+        "first_ms": 214.64375000141445,
+        "median_ms": 2.5622290004321258,
+        "p95_ms": 2.993625001181499,
+        "throughput_per_s": 479.30931680739326
+      },
+      "deployment_metrics": {
+        "val_loss": 1.0079667989800616,
+        "acc1": 0.8007643312101911,
+        "acc5": 0.9760509554140128
+      }
+    }
+  ],
+  "source_revision": "c9265956110acee302aafcde2e32f90cf3d9a48b",
+  "measurement_limits": [
+    "Single seed, 20-epoch Imagenette validation; not ImageNet paper reproduction.",
+    "Models trained sequentially in one process. MPS driver allocation includes allocator/graph caches.",
+    "MPS memory was sampled every 50 ms and is not an exact peak or CUDA VRAM.",
+    "RSS is a process-lifetime peak, not a fresh per-model process peak.",
+    "Deployment timing is fused FP16 autocast inference at batch 1 after 20 warmups and 100 synchronized samples; preprocessing/data transfer excluded.",
+    "Selected checkpoint accuracy is reported both before and after fusion; FP16 class decisions can differ slightly.",
+    "CUDA hardware was not available. CPU amd64 compatibility was checked in CI, not in the full training campaign."
+  ]
+}
