@@ -56,6 +56,7 @@ def main():  # noqa: PLR0912
         for step in setup_action["runs"]["steps"]
         if step["uses"].startswith("astral-sh/setup-uv@")
     )
+    uv_build_requirement = f">={uv_version},<1.0.0"
     deps_dict = {
         "uv": [{"file": SETUP_ACTION, "version": f"=={uv_version}"}],
         "ruff": [],
@@ -78,6 +79,17 @@ def main():  # noqa: PLR0912
     for pyproject_path in PYPROJECTS:
         with Path(pyproject_path).open("rb") as f:
             pyproject = tomllib.load(f)
+
+        if pyproject_path == "./pyproject.toml":
+            build_requires = [
+                parse_dep_str(requirement) for requirement in pyproject.get("build-system", {}).get("requires", [])
+            ]
+            uv_build_version = next(
+                (requirement["version"] for requirement in build_requires if requirement["pkg"] == "uv_build"),
+                None,
+            )
+            if uv_build_version != uv_build_requirement:
+                raise AssertionError(f"{pyproject_path} must require uv_build{uv_build_requirement}")
 
         optional_deps = pyproject["project"]["optional-dependencies"]
         for requirements in (
