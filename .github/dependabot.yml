@@ -30,6 +30,14 @@ updates:
           - "mkdocs*"
           - "mkdocstrings*"
           - "griffe*"
+      tests-security:
+        applies-to: "security-updates"
+        patterns:
+          - "pytest*"
+      pytorch-security:
+        applies-to: "security-updates"
+        patterns:
+          - "torch*"
   - package-ecosystem: "uv"
     directory: "/"
     target-branch: "main"
