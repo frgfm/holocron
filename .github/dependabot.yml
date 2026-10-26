@@ -1,4 +1,4 @@
-# Security updates stay enabled; allow-lists on main target version updates only.
+# Unfiltered security entries are separate from version-update allow-lists.
 # https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference
 
 version: 2
@@ -18,6 +18,18 @@ updates:
       actions:
         patterns:
           - "*"
+  - package-ecosystem: "uv"
+    directory: "/"
+    open-pull-requests-limit: 0
+    schedule:
+      interval: "daily"
+    groups:
+      docs-security:
+        applies-to: "security-updates"
+        patterns:
+          - "mkdocs*"
+          - "mkdocstrings*"
+          - "griffe*"
   - package-ecosystem: "uv"
     directory: "/"
     target-branch: "main"
