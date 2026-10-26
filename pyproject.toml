@@ -1,5 +1,5 @@
 [build-system]
-requires = ["uv_build>=0.13.4,<1.0.0"]
+requires = ["uv_build>=0.13.5,<0.14"]
 build-backend = "uv_build"
 
 [project]
@@ -61,7 +61,6 @@ training = [
     "codecarbon>=2.0.0,<3.0.0",
 ]
 quality = [
-    "uv==0.13.4",
     "ruff==0.17.2",
     "ty==0.0.91",
     "lint-my-headers==0.6.0",
