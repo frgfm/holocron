@@ -62,7 +62,7 @@ training = [
 ]
 quality = [
     "ruff==0.17.2",
-    "ty==0.0.91",
+    "ty==0.0.92",
     "lint-my-headers==0.6.0",
     "types-tqdm",
     "types-Pillow",
