@@ -76,6 +76,7 @@ plugins:
         - getting-started/installation.md
         - getting-started/classification.md
         - getting-started/experiments.md
+        - getting-started/deployment.md
         - getting-started/notebooks.md
       Package Reference:
         - reference/models/models.md
@@ -176,6 +177,7 @@ nav:
     - getting-started/installation.md
     - getting-started/classification.md
     - Local experiments: getting-started/experiments.md
+    - Deployment sweeps: getting-started/deployment.md
     - getting-started/notebooks.md
   - Package Reference:
     - Models:
