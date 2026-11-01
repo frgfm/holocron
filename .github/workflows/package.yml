@@ -11,6 +11,8 @@ on:
       - 'tests/**'
       - 'scripts/export_to_onnx.py'
       - 'scripts/export_to_coreml.py'
+      - 'scripts/eval_latency.py'
+      - 'scripts/*deployment*'
       - 'pyproject.toml'
       - 'uv.lock'
   pull_request:
@@ -23,6 +25,8 @@ on:
       - 'tests/**'
       - 'scripts/export_to_onnx.py'
       - 'scripts/export_to_coreml.py'
+      - 'scripts/eval_latency.py'
+      - 'scripts/*deployment*'
       - 'pyproject.toml'
       - 'uv.lock'
   release:

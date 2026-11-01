@@ -229,11 +229,11 @@ def run_child(args, *extra):
 
 def environment():
     spec = importlib.util.find_spec("holocron")
-    root = Path(spec.origin).resolve().parents[1]
+    root = Path(spec.origin).resolve().parents[1] if spec and spec.origin else None
     git = shutil.which("git")
     revision = None
     dirty = None
-    if git:
+    if git and root:
         revision_result = subprocess.run(  # noqa: S603
             [git, "-C", str(root), "rev-parse", "HEAD"], capture_output=True, text=True, check=False
         )
@@ -247,7 +247,17 @@ def environment():
             )
             dirty = bool(status.stdout) if status.returncode == 0 else None
     versions = {}
-    for package in ("pylocron", "torch", "torchvision", "numpy", "onnx", "onnxruntime"):
+    for package in (
+        "pylocron",
+        "torch",
+        "torchvision",
+        "numpy",
+        "Pillow",
+        "onnx",
+        "onnxruntime",
+        "ncnn",
+        "coremltools",
+    ):
         try:
             versions[package] = importlib.metadata.version(package)
         except importlib.metadata.PackageNotFoundError:
