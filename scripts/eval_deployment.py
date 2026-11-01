@@ -10,7 +10,6 @@
 
 import argparse
 import csv
-import fcntl
 import hashlib
 import io
 import json
@@ -335,6 +334,8 @@ def accuracy(args, bundle, output, record, predict):
 
 def timing(args, bundle, record, predict, image):
     protocol = bundle["protocol"]
+    # Preserve the recorded sweep order, with a full cycle for multiples of 37.
+    stride = 37 if math.gcd(37, len(bundle["samples"])) == 1 else 1
     cool(record, limit=64)
     for _ in range(protocol["warmup"]):
         predict(image)
@@ -342,7 +343,7 @@ def timing(args, bundle, record, predict, image):
     for index in range(protocol["iterations"]):
         if index % 20 == 0:
             cool(record, limit=65)
-        sample = bundle["samples"][(index * 37) % len(bundle["samples"])]
+        sample = bundle["samples"][(index * stride) % len(bundle["samples"])]
         data = (args.bundle / sample["path"]).read_bytes()
         image = preprocess(data, bundle["preprocessing"])
         begin = time.perf_counter()
@@ -408,12 +409,28 @@ def worker(args, bundle, output, identity):
 def run(args):  # noqa: PLR0915 -- the coordinator owns process execution and reporting
     bundle = load_bundle(args.bundle)
     env = environment()
-    env["packages"] = dict(sorted((dist.metadata["Name"], dist.version) for dist in distributions()))
+    env["packages"] = dict(
+        sorted((dist.metadata["Name"], dist.version) for dist in distributions() if dist.metadata["Name"])
+    )
     env["thread_environment"] = {
         name: os.environ.get(name) for name in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS")
     }
+    measured = {
+        key: env[key]
+        for key in (
+            "python",
+            "platform",
+            "processor",
+            "machine",
+            "logical_cpus",
+            "cpu_affinity",
+            "hostname",
+            "thread_environment",
+        )
+    }
+    measured["versions"] = {name: value for name, value in env["versions"].items() if name != "pylocron"}
     identity = hashlib.sha256(
-        json.dumps({"bundle": digest(args.bundle / "bundle.json"), "environment": env}, sort_keys=True).encode()
+        json.dumps({"bundle": digest(args.bundle / "bundle.json"), "environment": measured}, sort_keys=True).encode()
     ).hexdigest()
     if args.worker:
         return worker(args, bundle, args.output, identity)["status"] == "failed"
@@ -424,7 +441,9 @@ def run(args):  # noqa: PLR0915 -- the coordinator owns process execution and re
     if not selected:
         raise ValueError("No cases selected")
     root = args.output / identity[:16]
-    root.mkdir(parents=True, exist_ok=True)
+    scope = hashlib.sha256(json.dumps(sorted(selected)).encode()).hexdigest()[:16]
+    report_root = root if set(selected) == set(bundle["cases"]) else root / "selections" / scope
+    report_root.mkdir(parents=True, exist_ok=True)
     report = {
         "identity": identity,
         "expected_cases": selected,
@@ -438,7 +457,7 @@ def run(args):  # noqa: PLR0915 -- the coordinator owns process execution and re
         },
         "cases": {},
     }
-    save_report(root / "report.json", report)
+    save_report(report_root / "report.json", report)
     failed = False
     for name in selected:
         results = {}
@@ -483,9 +502,7 @@ def run(args):  # noqa: PLR0915 -- the coordinator owns process execution and re
             if result["status"] != "completed":
                 break
         report["cases"][name] = results
-        save_report(root / "report.json", report)
-    report["complete"] = True
-    save_report(root / "report.json", report)
+        save_report(report_root / "report.json", report)
     rows = []
     for name, results in report["cases"].items():
         accuracy = results.get("accuracy", {})
@@ -508,7 +525,7 @@ def run(args):  # noqa: PLR0915 -- the coordinator owns process execution and re
                 timing_repeats=len(timing),
             )
         rows.append(row)
-    with (root / "summary.csv").open("w", newline="") as stream:
+    with (report_root / "summary.csv").open("w", newline="") as stream:
         writer = csv.DictWriter(
             stream,
             fieldnames=[
@@ -524,7 +541,9 @@ def run(args):  # noqa: PLR0915 -- the coordinator owns process execution and re
         )
         writer.writeheader()
         writer.writerows(rows)
-    print(root / "report.json", flush=True)
+    report["complete"] = True
+    save_report(report_root / "report.json", report)
+    print(report_root / "report.json", flush=True)
     return failed
 
 
@@ -543,6 +562,8 @@ if __name__ == "__main__":
     args.bundle, args.output = args.bundle.resolve(), args.output.resolve()
     if args.worker:
         sys.exit(run(args))
+    import fcntl
+
     # One sweep per user/host, including invocations using different output directories.
     with (Path(tempfile.gettempdir()) / f"holocron-deployment-{os.getuid()}.lock").open("a") as lock:
         try:

@@ -12,14 +12,14 @@ bundle=$(cd "$1" && pwd)
 targets=$2
 mkdir -p "$3"
 results=$(cd "$3" && pwd)
-checksum=$(shasum -a 256 "$bundle/bundle.json")
+checksum=$(shasum -a 256 "$bundle/bundle.json" 2>/dev/null || sha256sum "$bundle/bundle.json")
 bundle_id=${checksum%% *}
 while IFS="$(printf '\t')" read -r host python directory || [ -n "$host" ]; do
     case "$host" in ''|'#'*) continue ;; esac
     # Paths are intentionally whitespace-free; never interpolate arbitrary shell syntax into SSH.
     case "$host:$python:$directory" in *[!a-zA-Z0-9_@./:-]*|-*) echo "Invalid target row: $host" >&2; exit 2 ;; esac
     case "$host" in .|..|*/*|*:*) echo "Invalid SSH alias: $host" >&2; exit 2 ;; esac
-    [ -n "$python" ] && [ -n "$directory" ]
+    [ -n "$python" ] && [ -n "$directory" ] || { echo "Missing Python or working directory: $host" >&2; exit 2; }
     if [ "$host" != local ]; then
         case "$python:$directory" in /*:/*) ;; *) echo "Remote paths must be absolute: $host" >&2; exit 2 ;; esac
     fi

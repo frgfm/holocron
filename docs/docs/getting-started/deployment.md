@@ -31,7 +31,8 @@ Only `schema_version`, `manifest`, `reference` and `cases` are required.
 full manifest. Reference logits must follow the accuracy manifest order, with
 shape `(samples, classes)`, finite values and no pickle. The checkpoint and
 conversion-protocol files are preserved as provenance; their relationship to the
-exported weights is supplied by the caller.
+exported weights is supplied by the caller. Checkpoint and calibration bytes are
+included for archival reproducibility even though inference does not read them.
 
 The image manifest uses paths relative to itself, exact raw-byte SHA-256 hashes,
 and ordered class names. For example (replace the sample hash):
@@ -79,13 +80,17 @@ Artifact paths resolve from `cases.json`. NCNN options default to false;
 `use_bf16_storage` and `use_bf16_packed` are also supported. Core ML expects tensor
 input `images` and output `logits`; compute units can be `CPU_ONLY`, `CPU_AND_GPU`,
 `CPU_AND_NE` or `ALL`. ONNX/NCNN discover their input/output names.
+`minimum_target` and `reduce_range`, when supplied, describe the artifact's export
+settings; they do not convert or requantize it during evaluation.
 
 ```sh
 python scripts/prepare_deployment.py config.json bundle/
 ```
 
-Run preparation in the export environment with NumPy and the selected runtimes
-installed. The new directory contains copies of all inputs, reference logits,
+Run preparation in the export environment with NumPy, ONNX for ONNX artifacts,
+and the selected runtimes installed. ONNX models must embed their weights;
+models that depend on external weight files are rejected before publication.
+The new directory contains copies of all inputs, reference logits,
 runner source, provenance, per-runtime pinned requirements and `bundle.json` with
 file hashes. Symlinks are dereferenced. Existing destinations are refused; a
 failed preparation does not publish a partial bundle. Keep these large bundles
@@ -107,6 +112,9 @@ prediction on other operating systems and recognized missing operator/CPU suppor
 are recorded as `unsupported`. Broken artifacts, missing packages, version
 mismatches and inference errors are `failed`, produce logs and return a nonzero
 exit code. Failures do not prevent other candidates from running.
+Subset runs write their own `report.json` and `summary.csv` under
+`<identity>/selections/<selection>/`, preserving the full comparison. They share
+accuracy caches with the full run; their selected cases get fresh timings.
 
 For several machines, create `targets.tsv` with three tab-separated fields:
 SSH alias (or `local`), Python executable, and an isolated remote working directory.
@@ -123,20 +131,24 @@ rimward-edge-02	/home/rimward/runtime/bin/python	/home/rimward/sweep
 sh scripts/run_deployment_sweep.sh bundle/ targets.tsv results/
 ```
 
-The launcher requires SSH, rsync and shasum. It copies changed bytes into a bundle
+The launcher requires SSH, rsync and shasum or sha256sum. It copies changed bytes into a bundle
 hash directory, runs hosts in parallel, and collects their reports and worker logs.
 It does not install packages or modify services. A host lock prevents concurrent
 sweeps under the same OS user. Results live under each host and an identity derived
-from the bundle, hardware/OS, installed packages, Python and thread environment.
+from the bundle, hardware/OS, runtime versions, Python and thread environment.
+The full installed-package list remains in the report; unrelated package installs
+and repository changes do not invalidate accuracy caches.
 
 ## Interpret results
 
-`report.json` lists expected cases and marks whether the sweep finished. It
+`report.json` lists expected cases and marks whether the sweep finished, including
+writing the CSV. `complete` means all requested cases were attempted, not that
+every case passed; inspect case statuses and the exit code for failures. It
 preserves per-case settings, accuracy, precision probes, raw timings,
 versions and errors; `summary.csv` compares successful cases and shows unsupported
 or failed cases. File hashes and frozen runner source are verified before execution.
-Accuracy uses atomic 100-image chunks. `--resume` reuses matching completed accuracy
-or chunks; probes and timings always run again.
+Accuracy uses atomic 100-image chunks. `--resume` reuses completed accuracy results
+or matching chunks; probes and timings always run again.
 
 Each supported case has separate accuracy and two fresh timing processes. Each
 timing process performs ten warmups and 100 paired inference-only and in-memory

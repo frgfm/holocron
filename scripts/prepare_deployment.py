@@ -6,6 +6,7 @@
 """Freeze exported classifiers, image manifests and reference logits for device evaluation."""
 
 import argparse
+import hashlib
 import json
 import shutil
 from importlib.metadata import version
@@ -22,9 +23,24 @@ else:
     from eval_latency import environment, save_report
 
 
+def validate_embedded_onnx(path):
+    import onnx  # noqa: PLC0415 -- preparation uses the existing export dependencies
+
+    def visit(message):
+        if isinstance(message, onnx.TensorProto) and message.data_location == onnx.TensorProto.EXTERNAL:
+            raise ValueError("ONNX artifact must be self-contained; embed external weights")
+        for field, value in message.ListFields():
+            if field.message_type is not None:
+                for child in value if field.is_repeated else (value,):
+                    visit(child)
+
+    visit(onnx.load(path, load_external_data=False))
+
+
 def prepare(config_path, destination):  # noqa: PLR0912, PLR0915 -- assemble one atomic, self-contained bundle
     config_path, destination = Path(config_path).resolve(), Path(destination).absolute()
-    config = json.loads(config_path.read_text())
+    config_bytes = config_path.read_bytes()
+    config = json.loads(config_bytes)
     if config.pop("schema_version") != 1:
         raise ValueError("Unsupported configuration version")
     unknown = set(config) - {
@@ -78,12 +94,13 @@ def prepare(config_path, destination):  # noqa: PLR0912, PLR0915 -- assemble one
         samples, indices, seen = [], {}, set()
         for sample in manifest["samples"]:
             path = safe_path(manifest_path.parent, sample["path"])
-            if digest(path) != sample["sha256"]:
+            stored = copy(path, "validation")
+            if digest(root / stored) != sample["sha256"]:
                 raise ValueError(f"Sample hash mismatch: {path}")
             if sample["path"] in indices:
                 raise ValueError(f"Duplicate sample ID: {sample['path']}")
             indices[sample["path"]] = len(samples)
-            samples.append({**sample, "id": sample["path"], "path": copy(path, "validation")})
+            samples.append({**sample, "id": sample["path"], "path": stored})
             seen.add(sample["sha256"])
         accuracy_indices = []
         for sample in accuracy["samples"]:
@@ -97,13 +114,16 @@ def prepare(config_path, destination):  # noqa: PLR0912, PLR0915 -- assemble one
             calibration_path = source("calibration")
             for sample in json.loads(calibration_path.read_text())["samples"]:
                 path = safe_path(calibration_path.parent, sample["path"])
-                if digest(path) != sample["sha256"] or sample["sha256"] in seen:
+                stored = copy(path, "calibration")
+                if digest(root / stored) != sample["sha256"] or sample["sha256"] in seen:
                     raise ValueError(f"Calibration hash mismatch or validation overlap: {path}")
-                calibration.append({**sample, "path": copy(path, "calibration")})
+                calibration.append({**sample, "path": stored})
         for case in cases.values():
             for field in ("artifact", "param"):
                 if field in case:
                     case[field] = copy(cases_path.parent / case[field], "artifacts")
+            if case["backend"] == "onnx":
+                validate_embedded_onnx(root / case["artifact"])
 
         (root / "scripts").mkdir()
         for name in ("eval_deployment.py", "eval_latency.py"):
@@ -117,13 +137,14 @@ def prepare(config_path, destination):  # noqa: PLR0912, PLR0915 -- assemble one
             )
         provenance = {
             "builder": environment(),
-            "config_sha256": digest(config_path),
+            "config_sha256": hashlib.sha256(config_bytes).hexdigest(),
             "preparer_sha256": digest(__file__),
         }
         for key in ("checkpoint", "provenance"):
             if key in config:
                 path = source(key)
-                provenance[key] = {"sha256": digest(path), "path": copy(path, "provenance")}
+                stored = copy(path, "provenance")
+                provenance[key] = {"sha256": digest(root / stored), "path": stored}
         bundle = {
             "schema_version": 1,
             "preprocessing": {key: manifest[key] for key in ("input_shape", "resize", "mean", "std")},
