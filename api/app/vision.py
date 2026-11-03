@@ -41,8 +41,11 @@ def preprocess_image(pil_img: Image.Image) -> np.ndarray:
     Returns:
         the resized and normalized image of shape (1, C, H, W)
     """
+    size = CLF_CFG["input_shape"][-2:][::-1]
+    # JPEG only: decode at reduced scale, kept >= 2x target so the resize still antialiases
+    pil_img.draft(None, (2 * size[0], 2 * size[1]))
     # Resizing (PIL takes (W, H) order for resizing)
-    img = pil_img.resize(CLF_CFG["input_shape"][-2:][::-1], Image.BILINEAR)
+    img = pil_img.resize(size, Image.BILINEAR)
     # (H, W, C) --> (C, H, W)
     img = np.asarray(img).transpose((2, 0, 1)).astype(np.float32) / 255
     # Normalization
