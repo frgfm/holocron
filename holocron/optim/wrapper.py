@@ -202,7 +202,7 @@ class Scout(Lookahead):
                 p = self.buffer.pop()
                 update = p[1:] - p[:-1]
                 max_dev = (update - torch.mean(update, dim=0)).abs().max(dim=0).values
-                update_similarity.append((torch.std(update, dim=0) / max_dev).mean().item())
+                update_similarity.append(torch.where(max_dev == 0, 0, torch.std(update, dim=0) / max_dev).mean().item())
             update_coherence = sum(update_similarity) / len(update_similarity)
 
             sync_rate = max(1 - update_coherence, self.defaults["sync_rate"])
