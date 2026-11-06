@@ -3,7 +3,6 @@
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
-from collections import defaultdict
 from collections.abc import Callable
 from typing import Any
 
@@ -42,16 +41,11 @@ class Lookahead(Optimizer):
             raise ValueError(f"expected positive float lower than 1 as sync_rate, received: {sync_rate}")
         if not isinstance(sync_period, int) or sync_period < 1:
             raise ValueError(f"expected positive integer as sync_period, received: {sync_period}")
-        # Optimizer attributes
-        self.defaults = {"sync_rate": sync_rate, "sync_period": sync_period}
-        self.state = defaultdict(dict)
+        super().__init__(base_optimizer.param_groups, {"sync_rate": sync_rate, "sync_period": sync_period})
         # Base optimizer attributes
         self.base_optimizer = base_optimizer
         # Wrapper attributes
         self.fast_steps = 0
-        self.param_groups = []
-        for group in self.base_optimizer.param_groups:
-            self._add_param_group(group)
 
     def __getstate__(self) -> dict[str, Any]:
         return {
@@ -63,13 +57,22 @@ class Lookahead(Optimizer):
         }
 
     def state_dict(self) -> dict[str, Any]:  # noqa: D102
-        return dict(**super().state_dict(), base_state_dict=self.base_optimizer.state_dict())
+        return dict(
+            **super().state_dict(),
+            base_state_dict=self.base_optimizer.state_dict(),
+            defaults=self.defaults.copy(),
+            fast_steps=self.fast_steps,
+            slow_params=[[p.detach() for p in group["params"]] for group in self.param_groups],
+        )
 
     def load_state_dict(self, state_dict: dict[str, Any]) -> None:  # noqa: D102
         self.base_optimizer.load_state_dict(state_dict["base_state_dict"])
         super().load_state_dict(state_dict)
-        # Update last key of class dict
-        self.__setstate__({"base_state_dict": self.base_optimizer.state_dict()})
+        self.defaults = state_dict["defaults"].copy()
+        self.fast_steps = state_dict["fast_steps"]
+        for group, saved_params in zip(self.param_groups, state_dict["slow_params"], strict=True):
+            for p, saved in zip(group["params"], saved_params, strict=True):
+                p.copy_(saved)
 
     def zero_grad(self, set_to_none: bool = True) -> None:  # noqa: D102
         self.base_optimizer.zero_grad(set_to_none)
@@ -117,11 +120,10 @@ class Lookahead(Optimizer):
         Args:
             param_group: parameter group
         """
-        # Add param group to base optimizer
-        self.base_optimizer.add_param_group(param_group)
-
-        # Add the corresponding slow param group
-        self._add_param_group(self.base_optimizer.param_groups[-1])
+        # Optimizer.__init__ passes groups already registered with the base optimizer.
+        if hasattr(self, "base_optimizer"):
+            self.base_optimizer.add_param_group(param_group)
+        self._add_param_group(param_group)
 
     def sync_params(self, sync_rate: float = 0.0) -> None:
         """Synchronize parameters as follows:
@@ -165,6 +167,14 @@ class Scout(Lookahead):
     ) -> None:
         super().__init__(base_optimizer, sync_rate, sync_period)
         self.buffer = [p.data.unsqueeze(0) for group in self.param_groups for p in group["params"]]
+
+    def state_dict(self) -> dict[str, Any]:  # noqa: D102
+        return dict(**super().state_dict(), buffer=self.buffer)
+
+    def load_state_dict(self, state_dict: dict[str, Any]) -> None:  # noqa: D102
+        super().load_state_dict(state_dict)
+        params = [p for group in self.param_groups for p in group["params"]]
+        self.buffer = [saved.to(p).clone() for p, saved in zip(params, state_dict["buffer"], strict=True)]
 
     def step(self, closure: Callable[[], float] | None = None) -> float | None:  # type: ignore[override]
         """Performs a single optimization step.
