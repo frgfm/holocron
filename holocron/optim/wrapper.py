@@ -165,8 +165,12 @@ class Scout(Lookahead):
         sync_rate: float = 0.5,
         sync_period: int = 6,
     ) -> None:
+        self.buffer: list[torch.Tensor] = []
         super().__init__(base_optimizer, sync_rate, sync_period)
-        self.buffer = [p.data.unsqueeze(0) for group in self.param_groups for p in group["params"]]
+
+    def add_param_group(self, param_group: dict[str, Any]) -> None:  # noqa: D102
+        super().add_param_group(param_group)
+        self.buffer.extend(p.data.unsqueeze(0) for p in self.param_groups[-1]["params"])
 
     def state_dict(self) -> dict[str, Any]:  # noqa: D102
         return dict(**super().state_dict(), buffer=self.buffer)
