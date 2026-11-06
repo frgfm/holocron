@@ -22,6 +22,13 @@ def test_freeze_bn():
     assert torch.equal(mod[1].running_mean, rm)
     assert torch.equal(mod[1].running_var, rv)
 
+    # Unfreezing must resume statistics updates.
+    trainer.freeze_model(mod.train())
+    _ = mod(torch.rand((1, 3, 32, 32)))
+    assert torch.equal(mod[1].num_batches_tracked, nb + 1)
+    assert not torch.equal(mod[1].running_mean, rm)
+    assert not torch.equal(mod[1].running_var, rv)
+
 
 def test_freeze_model():
     # Simple model
