@@ -65,6 +65,22 @@ with PyTorch and macOS versions.
 
 ## Miscellaneous
 
+`freeze_model(model.train(), last_frozen_layer)` freezes parameters through the
+named layer and makes the remaining parameters trainable. By default, affine
+BatchNorm layers whose parameters are frozen are put in evaluation mode, keeping
+their running statistics fixed. Their `track_running_stats` setting is preserved.
+
+To unfreeze for another training phase, call `freeze_model(model.train())`.
+BatchNorm layers that track running statistics will resume updating them; layers
+configured with `track_running_stats=False` retain that behavior. To update
+statistics while keeping affine parameters frozen, use
+`freeze_model(model.train(), last_frozen_layer, frozen_bn_stat_update=True)`.
+
+In a custom loop, call `freeze_bn(model.train())` when returning from validation
+to training so frozen BatchNorm layers remain in evaluation mode. The trainer
+does this at the start of every epoch and handles unfreezing when a subsequent
+`fit_n_epochs` call omits `freeze_until`.
+
 ::: holocron.trainer
     options:
         heading_level: 3

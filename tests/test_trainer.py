@@ -226,6 +226,36 @@ def test_onecycle_rejects_single_warmup_update():
         learner._reset_scheduler(0.1, 1, "onecycle", pct_start=0.1)
 
 
+def test_trainer_unfreezes_batchnorm_between_training_phases(tmp_path):
+    inputs = torch.tensor([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0], [7.0, 8.0]])
+    loader = DataLoader(TensorDataset(inputs, torch.tensor([0, 1, 0, 1])), batch_size=2)
+    model = nn.Sequential(nn.BatchNorm1d(2), nn.Linear(2, 2))
+    bn = model[0]
+    history = []
+    learner = trainer.ClassificationTrainer(
+        model,
+        loader,
+        loader,
+        nn.CrossEntropyLoss(),
+        torch.optim.SGD(model.parameters(), lr=0.01),
+        output_file=str(tmp_path / "checkpoint.pth"),
+        on_epoch_end=lambda _metrics: history.append(bn.num_batches_tracked.item()),
+    )
+
+    learner.fit_n_epochs(2, 0.01, freeze_until="0", sched_type="cosine")
+    assert history == [0, 0]
+    torch.testing.assert_close(bn.running_mean, torch.zeros(2))
+    torch.testing.assert_close(bn.running_var, torch.ones(2))
+    assert not bn.training  # Validation leaves the model in evaluation mode.
+
+    learner.fit_n_epochs(2, 0.01, sched_type="cosine")
+    assert history == [0, 0, 2, 4]
+    assert bn.track_running_stats
+    assert all(p.requires_grad for p in bn.parameters())
+    assert not torch.equal(bn.running_mean, torch.zeros(2))
+    assert not torch.equal(bn.running_var, torch.ones(2))
+
+
 def test_gradient_accumulation_matches_large_batch():
     x = torch.tensor([[1.0], [3.0]])
     target = torch.tensor([[2.0], [0.0]])

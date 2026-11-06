@@ -53,7 +53,12 @@ def resolve_device(device: int | str | torch.device | None = None) -> torch.devi
 
 
 def freeze_bn(mod: nn.Module) -> None:
-    """Prevents parameter and stats from updating in Batchnorm layers that are frozen
+    """Put affine BatchNorm layers with frozen parameters in evaluation mode.
+
+    Running statistics stay fixed without changing ``track_running_stats``.
+    Call this after ``mod.train()`` to reapply freezing at each training epoch.
+    Once the parameters are unfrozen, ``mod.train()`` restores normal BatchNorm
+    behavior with its original statistics-tracking configuration.
 
     Example:
         ```python
@@ -69,8 +74,6 @@ def freeze_bn(mod: nn.Module) -> None:
     # Loop on modules
     for m in mod.modules():
         if isinstance(m, _BatchNorm) and m.affine and all(not p.requires_grad for p in m.parameters()):
-            # Switch back to commented code when https://github.com/pytorch/pytorch/issues/37823 is resolved
-            m.track_running_stats = False
             m.eval()
 
 
@@ -80,6 +83,10 @@ def freeze_model(
     frozen_bn_stat_update: bool = False,
 ) -> None:
     """Freeze a specific range of model layers.
+
+    Parameters outside the frozen range are made trainable. Call ``model.train()``
+    before this function when starting a training phase, including when unfreezing
+    with ``last_frozen_layer=None``. BatchNorm statistics tracking is preserved.
 
     Example:
         ```python
@@ -92,7 +99,8 @@ def freeze_model(
     Args:
         model: model to train
         last_frozen_layer: last layer to freeze. Assumes layers have been registered in forward order
-        frozen_bn_stat_update: force stats update in BN layers that are frozen
+        frozen_bn_stat_update: leave frozen BatchNorm layers in their current mode,
+            allowing statistics updates in training mode when tracking is enabled
 
     Raises:
         ValueError: if the last frozen layer is not found
