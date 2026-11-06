@@ -492,11 +492,11 @@ class Trainer:
         for idx in range(num_it):
             # Forward
             batch_loss: Tensor = self._get_loss(x, target)  # type: ignore[assignment]
-            # Backprop
-            self._backprop_step(batch_loss, force=idx + 1 == num_it)
-
             if torch.isnan(batch_loss) or torch.isinf(batch_loss):
                 raise ValueError("loss value is NaN or inf.")
+
+            # Backprop
+            self._backprop_step(batch_loss, force=idx + 1 == num_it)
 
             losses.append(batch_loss.item())
 

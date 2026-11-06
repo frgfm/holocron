@@ -350,6 +350,14 @@ def test_find_lr_ignores_amp_overflow(monkeypatch):
     assert learner._grad_count == 0
 
 
+@pytest.mark.parametrize("value", [float("nan"), float("inf")])
+def test_check_setup_rejects_nonfinite_loss_before_update(value):
+    learner = _linear_trainer(torch.tensor([[value]]), torch.zeros(1, 1), 1, _CountingSGD)
+    with pytest.raises(ValueError, match="loss value is NaN or inf"):
+        learner.check_setup(num_it=1)
+    assert not learner.optimizer.used_lrs
+
+
 def _test_trainer(
     learner: trainer.Trainer, num_it: int, ref_param: str, freeze_until: str | None = None, lr: float = 1e-3
 ) -> None:
