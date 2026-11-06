@@ -460,6 +460,28 @@ def test_classification_trainer(tmpdir_factory):
     _test_trainer(learner, num_it, "3.weight", None)
 
 
+def test_top_losses_restore_reduction_after_error(monkeypatch):
+    inputs, targets = torch.ones(2, 2), torch.zeros(2, dtype=torch.long)
+    loader = DataLoader(TensorDataset(inputs, targets), batch_size=2)
+    model = nn.Linear(2, 2)
+    criterion = nn.CrossEntropyLoss(reduction="sum")
+    learner = trainer.ClassificationTrainer(
+        model, loader, loader, criterion, torch.optim.SGD(model.parameters(), lr=0.01)
+    )
+
+    def fail_forward(*_args, **_kwargs):
+        raise RuntimeError("inference failed")
+
+    with monkeypatch.context() as patch:
+        patch.setattr(model, "forward", fail_forward)
+        with pytest.raises(RuntimeError, match="inference failed"):
+            learner.plot_top_losses((0, 0, 0), (1, 1, 1), ["A", "B"])
+
+    assert criterion.reduction == "sum"
+    criterion(model(inputs), targets).backward()
+    assert model.weight.grad is not None
+
+
 def test_top_loss_confidence_matches_selected_samples(monkeypatch):
     logits = torch.zeros(16, 3)
     logits[:, 1] = torch.arange(16)
