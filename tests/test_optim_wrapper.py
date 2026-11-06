@@ -66,6 +66,9 @@ def test_wrapper_checkpoint_resume(optimizer_cls, saved_steps, tmp_path):
     params = [torch.nn.Parameter(torch.tensor([1.0, -2.0])), torch.nn.Parameter(torch.tensor([3.0]))]
     base = SGD([{"params": [p], "lr": lr} for p, lr in zip(params, [0.1, 0.2], strict=True)], momentum=0.9)
     original = optimizer_cls(base, sync_rate=0.8, sync_period=3)
+    if optimizer_cls is wrapper.Lookahead:
+        params.append(torch.nn.Parameter(torch.tensor([0.5])))
+        original.add_param_group({"params": [params[-1]], "lr": 0.05})
 
     def step(optimizer, parameters, index):
         for p in parameters:
