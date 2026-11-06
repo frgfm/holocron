@@ -81,7 +81,7 @@ class ClassificationTrainer(Trainer):
         )
 
     @torch.inference_mode()
-    def plot_top_losses(
+    def plot_top_losses(  # noqa: PLR0915
         self,
         mean: tuple[float, float, float],
         std: tuple[float, float, float],
@@ -114,38 +114,39 @@ class ClassificationTrainer(Trainer):
         # Switch to unreduced loss
         reduction = self.criterion.reduction
         self.criterion.reduction = "none"  # type: ignore[assignment]
-        self.model.eval()
+        try:
+            self.model.eval()
 
-        train_iter = iter(self.train_loader)
+            train_iter = iter(self.train_loader)
 
-        for x, target in tqdm(train_iter):
-            x, target = self.to_cuda(x, target)
+            for x, target in tqdm(train_iter):
+                x, target = self.to_cuda(x, target)
 
-            # Forward
-            batch_loss, logits = self._get_loss(x, target, return_logits=True)  # ty: ignore[invalid-argument-type]
+                # Forward
+                batch_loss, logits = self._get_loss(x, target, return_logits=True)  # ty: ignore[invalid-argument-type]
 
-            # Binary
-            if self.is_binary:
-                batch_loss = batch_loss.squeeze(1)
-                probs_ = torch.sigmoid(logits.squeeze(1))
-            else:
-                probs_ = torch.softmax(logits, 1).max(dim=1).values
+                # Binary
+                if self.is_binary:
+                    batch_loss = batch_loss.squeeze(1)
+                    probs_ = torch.sigmoid(logits.squeeze(1))
+                else:
+                    probs_ = torch.softmax(logits, 1).max(dim=1).values
 
-            if torch.any(batch_loss > losses.min()):
-                idcs = np.concatenate((losses, batch_loss.cpu().numpy())).argsort()[-num_samples:]
-                kept_idcs = [idx for idx in idcs if idx < num_samples]
-                added_idcs = [idx - num_samples for idx in idcs if idx >= num_samples]
-                # Update
-                losses = np.concatenate((losses[kept_idcs], batch_loss.cpu().numpy()[added_idcs]))
-                probs = np.concatenate((probs[kept_idcs], probs_.float().cpu().numpy()[added_idcs]))
-                if not self.is_binary:
-                    preds = np.concatenate((preds[kept_idcs], logits[added_idcs].argmax(dim=1).cpu().numpy()))
-                targets = np.concatenate((targets[kept_idcs], target[added_idcs].cpu().numpy()))  # ty: ignore[invalid-argument-type]
-                imgs = x[added_idcs].cpu() * torch.tensor(std).view(-1, 1, 1)
-                imgs += torch.tensor(mean).view(-1, 1, 1)
-                images = [images[idx] for idx in kept_idcs] + [to_pil_image(img) for img in imgs]
-
-        self.criterion.reduction = reduction
+                if torch.any(batch_loss > losses.min()):
+                    idcs = np.concatenate((losses, batch_loss.cpu().numpy())).argsort()[-num_samples:]
+                    kept_idcs = [idx for idx in idcs if idx < num_samples]
+                    added_idcs = [idx - num_samples for idx in idcs if idx >= num_samples]
+                    # Update
+                    losses = np.concatenate((losses[kept_idcs], batch_loss.cpu().numpy()[added_idcs]))
+                    probs = np.concatenate((probs[kept_idcs], probs_.float().cpu().numpy()[added_idcs]))
+                    if not self.is_binary:
+                        preds = np.concatenate((preds[kept_idcs], logits[added_idcs].argmax(dim=1).cpu().numpy()))
+                    targets = np.concatenate((targets[kept_idcs], target[added_idcs].cpu().numpy()))  # ty: ignore[invalid-argument-type]
+                    imgs = x[added_idcs].cpu() * torch.tensor(std).view(-1, 1, 1)
+                    imgs += torch.tensor(mean).view(-1, 1, 1)
+                    images = [images[idx] for idx in kept_idcs] + [to_pil_image(img) for img in imgs]
+        finally:
+            self.criterion.reduction = reduction
 
         if not self.is_binary and classes is None:
             raise AssertionError("arg 'classes' must be specified for multi-class classification")
