@@ -60,7 +60,7 @@ def test_scout():
     _test_wrapper("Scout")
 
     p = torch.nn.Parameter(torch.ones(2))
-    optimizer = wrapper.Scout(SGD([p], lr=0.125), sync_period=3)
+    optimizer = wrapper.Scout(SGD([p], lr=0.125), sync_rate=0.25, sync_period=3)
     for gradient in (1.0, 2.0, 3.0):
         p.grad = torch.tensor([gradient, 0.0])
         optimizer.step()
