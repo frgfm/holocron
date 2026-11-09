@@ -61,12 +61,12 @@ training = [
     "codecarbon>=2.0.0,<3.0.0",
 ]
 quality = [
-    "ruff==0.17.3",
-    "ty==0.0.96",
+    "ruff==0.17.4",
+    "ty==0.0.98",
     "lint-my-headers==0.6.0",
     "types-tqdm",
     "types-Pillow",
-    "prek==0.5.9",
+    "prek==0.5.10",
 ]
 scripts = [
     "onnx>=1.22.0,<2.0.0",
@@ -240,7 +240,7 @@ no-matching-overload = "ignore"
 not-iterable = "ignore"
 not-subscriptable = "ignore"
 redundant-cast = "ignore"
-unresolved-import = "warn"
+import-not-found = "warn"
 unresolved-attribute = "ignore"
 unsupported-operator = "ignore"
 unused-ignore-comment = "ignore"
