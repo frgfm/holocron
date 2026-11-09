@@ -16,6 +16,18 @@ the model's original precision. MPS mixed precision was validated with the
 locked PyTorch 2.13 environment on an M3 Pro; backend operator support can vary
 with PyTorch and macOS versions.
 
+Checkpoints saved during training include optimizer, scheduler, AMP scaler, and
+PyTorch RNG state. To continue the saved schedule at an epoch boundary:
+
+```python
+trainer.load(torch.load("checkpoint.pth", map_location="cpu", weights_only=True))
+trainer.fit_n_epochs(remaining_epochs, original_lr, resume=True)
+```
+
+Use the original training settings and epoch budget; `remaining_epochs` is the
+additional work to run. Omitting `resume=True` starts a fresh phase, including
+when loading older checkpoints containing only weights and counters.
+
 ::: holocron.trainer.Trainer
     options:
         heading_level: 3

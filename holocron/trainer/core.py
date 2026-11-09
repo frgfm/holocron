@@ -89,6 +89,8 @@ class Trainer:
         self._params: tuple[ParamSeq, ParamSeq] = ([], [])
         self.lr_recorder: list[float] = []
         self.loss_recorder: list[float] = []
+        self._fit_config: dict[str, Any] | None = None
+        self._resume_state: dict[str, Any] | None = None
         if device is None:
             self.set_device(gpu)
         else:
@@ -120,7 +122,12 @@ class Trainer:
 
         Args:
             output_file: destination file path
+
+        Raises:
+            ValueError: if gradients are still being accumulated
         """
+        if self._grad_count:
+            raise ValueError("Save checkpoints after an optimizer update or at an epoch boundary")
         path = Path(output_file).resolve()
         path.parent.mkdir(parents=True, exist_ok=True)
         with TemporaryDirectory(dir=path.parent) as directory:
@@ -131,6 +138,14 @@ class Trainer:
                     "step": self.step,
                     "min_loss": self.min_loss,
                     "model": self.model.state_dict(),
+                    "optimizer": self.optimizer.state_dict(),
+                    "scheduler": self.scheduler.state_dict() if hasattr(self, "scheduler") else None,
+                    "scaler": self.scaler.state_dict() if hasattr(self, "scaler") else None,
+                    "fit_config": self._fit_config,
+                    "rng": torch.get_rng_state(),
+                    "device_rng": getattr(torch, self.device.type).get_rng_state(self.device)
+                    if self.device.type in {"cuda", "mps"}
+                    else None,
                 },
                 candidate,
                 _use_new_zipfile_serialization=False,
@@ -140,7 +155,7 @@ class Trainer:
             candidate.replace(path)
 
     def load(self, state: dict[str, Any]) -> None:
-        """Resume from a trainer state
+        """Load model weights and counters; use fit_n_epochs(resume=True) to continue the saved training phase.
 
         Args:
             state: checkpoint dictionary
@@ -150,6 +165,7 @@ class Trainer:
         self.step = state["step"]
         self.min_loss = state["min_loss"]
         self.model.load_state_dict(state["model"])
+        self._resume_state = {key: value for key, value in state.items() if key != "model"}
 
     def _fit_epoch(self) -> None:
         """Fit a single epoch
@@ -322,6 +338,7 @@ class Trainer:
         freeze_until: str | None = None,
         sched_type: str = "onecycle",
         norm_weight_decay: float | None = None,
+        resume: bool = False,
         **kwargs: Any,
     ) -> None:
         """Train the model for a given number of epochs.
@@ -332,16 +349,57 @@ class Trainer:
             freeze_until: last layer to freeze
             sched_type: type of scheduler to use
             norm_weight_decay: weight decay to apply to normalization parameters
+            resume: continue the loaded checkpoint's training phase for num_epochs additional epochs
             **kwargs: keyword args passed to the [`LRScheduler`][torch.optim.lr_scheduler.LRScheduler]
+
+        Raises:
+            ValueError: if resume has no compatible checkpoint or exceeds the saved schedule
         """
+        config = {
+            "lr": lr,
+            "freeze_until": freeze_until,
+            "sched_type": sched_type,
+            "norm_weight_decay": norm_weight_decay,
+            "amp": self.amp,
+            "gradient_acc": self.gradient_acc,
+            "kwargs": kwargs,
+            "num_epochs": num_epochs,
+            "optimizer_type": type(self.optimizer).__qualname__,
+            "gradient_clip": self.grad_clip,
+            "steps_per_epoch": math.ceil(len(self.train_loader) / self.gradient_acc),
+            "device_type": self.device.type,
+        }
+        state = self._resume_state if resume else None
+        if resume:
+            if state is None or not state.get("fit_config"):
+                raise ValueError("Resume requires a checkpoint saved during fit_n_epochs")
+            saved_config = state["fit_config"]
+            if any(config[key] != saved_config[key] for key in config if key != "num_epochs"):
+                raise ValueError("Resume requires the checkpoint's training settings")
+            if num_epochs > saved_config["num_epochs"] - (self.epoch - saved_config["start_epoch"]):
+                raise ValueError("Requested epochs exceed the checkpoint's remaining schedule")
+            config["num_epochs"] = saved_config["num_epochs"]
+        config["start_epoch"] = saved_config["start_epoch"] if resume else self.epoch
+
         freeze_model(self.model.train(), freeze_until)
         # Update param groups & LR
         self._reset_opt(lr, norm_weight_decay)
         # Scheduler
-        self._reset_scheduler(lr, num_epochs, sched_type, **kwargs)
+        self._reset_scheduler(lr, config["num_epochs"], sched_type, **kwargs)
 
         if self.amp:
             self.scaler = GradScaler(self.device.type, enabled=self.device.type != "cpu")
+
+        if state is not None:
+            self.optimizer.load_state_dict(state["optimizer"])
+            self.scheduler.load_state_dict(state["scheduler"])
+            if self.amp:
+                self.scaler.load_state_dict(state["scaler"])
+            torch.set_rng_state(state["rng"].cpu())
+            if self.device.type in {"cuda", "mps"} and state["device_rng"] is not None:
+                getattr(torch, self.device.type).set_rng_state(state["device_rng"].cpu(), self.device)
+        self._fit_config = config
+        self._resume_state = None
 
         for _ in tqdm(range(num_epochs), desc="Epochs"):
             self._fit_epoch()

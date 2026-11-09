@@ -535,6 +535,57 @@ def test_classification_validation_rejects_partial_nonfinite_loss():
         learner.evaluate()
 
 
+@pytest.mark.parametrize("sched_type", ["cosine", "onecycle"])
+@pytest.mark.parametrize("amp", [False, True])
+def test_resume_matches_uninterrupted_training(monkeypatch, tmp_path, sched_type, amp):
+    monkeypatch.setattr(
+        "holocron.trainer.core.GradScaler", lambda *_args, **_kwargs: torch.amp.GradScaler("cpu", growth_interval=1)
+    )
+    loader = DataLoader(
+        TensorDataset(torch.arange(6.0).view(-1, 1), torch.zeros(6, dtype=torch.long)), batch_size=2, shuffle=True
+    )
+
+    def make_trainer():
+        model = nn.Sequential(nn.Dropout(0.25), nn.Linear(1, 2))
+        return trainer.ClassificationTrainer(
+            model,
+            loader,
+            loader,
+            nn.CrossEntropyLoss(),
+            torch.optim.SGD(model.parameters(), lr=0.01, momentum=0.9),
+            gradient_acc=2,
+            amp=amp,
+            output_file=str(tmp_path / "best.pth"),
+        )
+
+    original = make_trainer()
+    path = tmp_path / "resume.pth"
+    original.on_epoch_end = lambda _metrics: original.save(str(path)) if original.epoch == 2 else None
+    original.fit_n_epochs(4, 0.01, sched_type=sched_type)
+    restored = make_trainer()
+    with pytest.raises(ValueError, match="checkpoint saved during"):
+        restored.fit_n_epochs(2, 0.01, sched_type=sched_type, resume=True)
+    restored.load(torch.load(path, weights_only=True))
+    with pytest.raises(ValueError, match="training settings"):
+        restored.fit_n_epochs(2, 0.02, sched_type=sched_type, resume=True)
+    with pytest.raises(ValueError, match="remaining schedule"):
+        restored.fit_n_epochs(3, 0.01, sched_type=sched_type, resume=True)
+    restored.fit_n_epochs(2, 0.01, sched_type=sched_type, resume=True)
+    torch.testing.assert_close(restored.model.state_dict(), original.model.state_dict(), rtol=0, atol=0)
+    torch.testing.assert_close(restored.optimizer.state_dict(), original.optimizer.state_dict(), rtol=0, atol=0)
+    assert restored.scheduler.state_dict() == original.scheduler.state_dict()
+    assert (restored.epoch, restored.step, restored.min_loss) == (original.epoch, original.step, original.min_loss)
+    if amp:
+        assert restored.scaler.state_dict() == original.scaler.state_dict()
+
+
+def test_checkpoint_rejects_pending_gradients(tmp_path):
+    learner = _linear_trainer(torch.ones(1, 1), torch.zeros(1, 1), gradient_acc=2)
+    learner._backprop_step(learner._get_loss(torch.ones(1, 1), torch.zeros(1, 1)))
+    with pytest.raises(ValueError, match="epoch boundary"):
+        learner.save(str(tmp_path / "checkpoint.pth"))
+
+
 def test_checkpoint_save_failure_preserves_previous_file(monkeypatch, tmp_path):
     learner = _linear_trainer(torch.zeros(1, 1), torch.zeros(1, 1), gradient_acc=1)
     path = tmp_path / "checkpoint.pth"
