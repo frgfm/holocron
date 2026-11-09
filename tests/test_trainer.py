@@ -2,6 +2,8 @@ import math
 import sys
 import warnings
 from argparse import Namespace
+from contextlib import nullcontext
+from copy import deepcopy
 from io import StringIO
 from pathlib import Path
 
@@ -305,6 +307,47 @@ def test_find_lr_gradient_accumulation(monkeypatch, gradient_acc, num_it, expect
         monkeypatch.setattr("matplotlib.pyplot.plot", lambda lrs, _losses: plotted_lrs.extend(lrs))
         learner.plot_recorder(block=False)
         assert plotted_lrs == pytest.approx(learner.lr_recorder)
+
+
+@pytest.mark.parametrize("exit_kind", ["success", "error", "nonfinite"])
+def test_find_lr_restores_training_state(monkeypatch, exit_kind):
+    learner = _linear_trainer(torch.ones(6, 1), torch.zeros(6, 1), 2)
+    learner.model = nn.Sequential(nn.Dropout(0.25), learner.model)
+    learner.optimizer.param_groups[0]["momentum"] = 0.9
+    for _ in range(3):
+        learner._backprop_step(learner._get_loss(torch.ones(1, 1), torch.zeros(1, 1)))
+    learner.model.eval()
+    learner.model[0].train()
+    parameter = next(learner.model.parameters())
+    parameter.requires_grad_(False)
+    model_state, optimizer_state = deepcopy(learner.model.state_dict()), deepcopy(learner.optimizer.state_dict())
+    gradient, groups, defaults = parameter.grad, learner.optimizer.param_groups, learner.optimizer.defaults.copy()
+    modes, rng = [module.training for module in learner.model.modules()], torch.get_rng_state()
+    learner.amp, learner.scaler = True, torch.amp.GradScaler("cpu", enabled=False)
+    scaler = learner.scaler
+    get_loss, calls = learner._get_loss, []
+
+    def loss(*args):
+        calls.append(None)
+        if exit_kind == "error" and len(calls) == 4:
+            raise RuntimeError("inference failed")
+        result = get_loss(*args)
+        return result * float("nan") if exit_kind == "nonfinite" and len(calls) == 3 else result
+
+    monkeypatch.setattr(learner, "_get_loss", loss)
+    with pytest.raises(RuntimeError, match="inference failed") if exit_kind == "error" else nullcontext():
+        learner.find_lr(num_it=4)
+    torch.testing.assert_close(learner.model.state_dict(), model_state, rtol=0, atol=0)
+    torch.testing.assert_close(learner.optimizer.state_dict(), optimizer_state, rtol=0, atol=0)
+    assert learner.optimizer.param_groups is groups
+    assert learner.optimizer.defaults == defaults
+    assert parameter.grad is gradient
+    assert not parameter.requires_grad
+    assert learner._grad_count == 1
+    assert [module.training for module in learner.model.modules()] == modes
+    assert learner.scaler is scaler
+    assert torch.equal(torch.get_rng_state(), rng)
+    assert len(learner.lr_recorder) == (2 if exit_kind == "success" else 1)
 
 
 def test_find_lr_ignores_amp_overflow(monkeypatch):
