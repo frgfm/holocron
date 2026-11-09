@@ -5,7 +5,9 @@
 
 import math
 from collections import defaultdict
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Generator, Sequence
+from contextlib import contextmanager
+from copy import deepcopy
 from pathlib import Path
 from shutil import copymode
 from tempfile import TemporaryDirectory
@@ -359,6 +361,35 @@ class Trainer:
             if self.on_epoch_end is not None:
                 self.on_epoch_end(eval_metrics)
 
+    @contextmanager
+    def _preserve_training_state(self) -> Generator[None, None, None]:
+        model_state = deepcopy(self.model.state_dict())
+        parameters = [(p, p.requires_grad, p.grad) for p in self.model.parameters()]
+        modes = [(module, module.training) for module in self.model.modules()]
+        # _reset_opt replaces these containers; retain their original objects.
+        state, groups, defaults = self.optimizer.state, self.optimizer.param_groups, self.optimizer.defaults.copy()
+        params, grad_count = self._params, self._grad_count
+        scaler = getattr(self, "scaler", None)
+        devices = [] if self.device.type == "cpu" else [self.device.index or 0]
+        with torch.random.fork_rng(devices=devices, device_type=self.device.type):
+            try:
+                yield
+            finally:
+                self.model.load_state_dict(model_state)
+                self.optimizer.state, self.optimizer.param_groups = state, groups
+                self.optimizer.defaults.clear()
+                self.optimizer.defaults.update(defaults)
+                self._params, self._grad_count = params, grad_count
+                for parameter, requires_grad, gradient in parameters:
+                    parameter.requires_grad_(requires_grad)
+                    parameter.grad = gradient
+                for module, training in modes:
+                    module.training = training
+                if scaler is None:
+                    self.__dict__.pop("scaler", None)
+                else:
+                    self.scaler = scaler
+
     def find_lr(
         self,
         freeze_until: str | None = None,
@@ -370,6 +401,9 @@ class Trainer:
         """Gridsearch the optimal learning rate for the training as described in
         ["Cyclical Learning Rates for Training Neural Networks"](https://arxiv.org/pdf/1506.01186.pdf).
 
+        Restore model and optimizer state after the sweep, including on failure.
+        Keep the recorded learning rates and losses for plot_recorder().
+
         Args:
            freeze_until: last layer to freeze
            start_lr: initial learning rate
@@ -380,10 +414,21 @@ class Trainer:
         Raises:
             ValueError: if the number of iterations is greater than the number of available batches
             RuntimeError: if AMP overflows exhaust the available batches before the sweep completes
-        """
+        """  # noqa: DOC502
         if num_it > len(self.train_loader):
             raise ValueError("the value of `num_it` needs to be lower than the number of available batches")
 
+        with self._preserve_training_state():
+            self._find_lr(freeze_until, start_lr, end_lr, norm_weight_decay, num_it)
+
+    def _find_lr(
+        self,
+        freeze_until: str | None,
+        start_lr: float,
+        end_lr: float,
+        norm_weight_decay: float | None,
+        num_it: int,
+    ) -> None:
         freeze_model(self.model.train(), freeze_until)
         # Update param groups & LR
         self._reset_opt(start_lr, norm_weight_decay)
