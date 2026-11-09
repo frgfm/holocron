@@ -99,7 +99,7 @@ def export_coreml(
     if not verify:
         warnings.warn("Core ML inference was not checked (verify=False). Only tracing is verified.", stacklevel=2)
     try:
-        import coremltools as ct  # ty: ignore[unresolved-import]  # noqa: PLC0415
+        import coremltools as ct  # ty: ignore[import-not-found]  # noqa: PLC0415
     except ImportError as exc:
         raise ImportError(
             "Install the optional Core ML dependencies: pip install 'pylocron[coreml]' (Python 3.11-3.13)"
