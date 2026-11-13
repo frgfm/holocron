@@ -13,7 +13,7 @@ from torch import nn
 from torch.utils.data import DataLoader, TensorDataset
 
 from holocron.optim import AdamP
-from holocron.trainer import ClassificationTrainer, DetectionTrainer, SegmentationTrainer, resolve_device
+from holocron.trainer import ClassificationTrainer, DetectionTrainer, SegmentationTrainer, Trainer, resolve_device
 from holocron.utils import CTCCodec
 from holocron.utils.data import Mixup
 from references._common import create_loader  # noqa: PLC2701
@@ -94,17 +94,17 @@ def test_segmentation_training_device(device, tmp_path):
 
 
 @pytest.mark.parametrize("device", DEVICES)
-def test_detection_target_device(device):
+@pytest.mark.parametrize("trainer_cls", [Trainer, DetectionTrainer])
+def test_detection_target_device(device, trainer_cls):
     model = nn.Linear(1, 1)
-    learner = DetectionTrainer(model, None, None, None, torch.optim.SGD(model.parameters(), lr=0.01), device=device)
+    learner = trainer_cls(model, None, None, None, torch.optim.SGD(model.parameters(), lr=0.01), device=device)
     images, targets = learner.to_device(
-        [torch.zeros(3, 8, 8)],
+        [torch.zeros(3, 8, 8)] if trainer_cls is DetectionTrainer else torch.zeros(1, 3, 8, 8),
         [{"boxes": torch.zeros(0, 4), "labels": torch.zeros(0, dtype=torch.long)}],
     )
     assert images[0].device.type == torch.device(device).type
     assert all(value.device.type == torch.device(device).type for value in targets[0].values())
-    legacy_images, _ = learner.to_cuda(images, targets)
-    torch.testing.assert_close(legacy_images[0], images[0])
+    torch.testing.assert_close(learner.to_cuda(images, targets), (images, targets))
 
 
 def test_device_selection_and_legacy_cuda_indices(monkeypatch):

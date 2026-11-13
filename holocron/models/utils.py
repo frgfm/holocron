@@ -27,6 +27,16 @@ M = TypeVar("M", bound=nn.Module)
 logger = logging.getLogger(__name__)
 
 
+def _forward_input(input_tensor: torch.Tensor | None, legacy_x: torch.Tensor | None) -> torch.Tensor:
+    if input_tensor is not None:
+        if legacy_x is not None:
+            raise TypeError("Specify either input or x, not both")
+        return input_tensor
+    if legacy_x is None:
+        raise TypeError("An input tensor is required")
+    return legacy_x
+
+
 def conv_sequence(
     in_channels: int,
     out_channels: int,

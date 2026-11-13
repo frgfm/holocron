@@ -15,7 +15,7 @@ from holocron.nn import DropBlock2d, GlobalAvgPool2d
 from holocron.nn.init import init_module
 
 from ..checkpoints import Checkpoint, _handle_legacy_pretrained
-from ..utils import _checkpoint, _configure_model, _imagenette_recipe, conv_sequence
+from ..utils import _checkpoint, _configure_model, _forward_input, _imagenette_recipe, conv_sequence
 from .resnet import _ResBlock
 
 __all__ = ["Darknet53_Checkpoint", "DarknetV3", "darknet53"]
@@ -150,7 +150,12 @@ class DarknetBodyV3(nn.Sequential):
 
         return nn.Sequential(*layers)
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor | list[torch.Tensor]:
+    def forward(
+        self,
+        input: torch.Tensor | None = None,  # noqa: A002
+        x: torch.Tensor | None = None,
+    ) -> torch.Tensor | list[torch.Tensor]:
+        x = _forward_input(input, x)
         if self.num_features == 1:
             return super().forward(x)
 

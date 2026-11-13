@@ -16,7 +16,7 @@ from torchvision.ops.stochastic_depth import StochasticDepth
 from holocron.nn import GlobalAvgPool2d
 
 from ..checkpoints import Checkpoint, _handle_legacy_pretrained
-from ..utils import _checkpoint, _configure_model, _imagenette_recipe, conv_sequence
+from ..utils import _checkpoint, _configure_model, _forward_input, _imagenette_recipe, conv_sequence
 from .resnet import _ResBlock
 
 __all__ = [
@@ -37,7 +37,8 @@ __all__ = [
 class LayerNorm2d(nn.LayerNorm):
     """Compatibility wrapper of LayerNorm on 2D tensors"""
 
-    def forward(self, x: Tensor) -> Tensor:
+    def forward(self, input: Tensor | None = None, x: Tensor | None = None) -> Tensor:  # noqa: A002
+        x = _forward_input(input, x)
         return super().forward(x.permute(0, 2, 3, 1)).permute(0, 3, 1, 2)
 
 
@@ -48,7 +49,7 @@ class LayerScale(nn.Module):
         super().__init__()
         self.register_parameter("weight", nn.Parameter(scale * torch.ones(chans)))
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:  # ty: ignore[invalid-mutable-override]
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         return x * self.weight.reshape(1, -1, *((1,) * (x.ndim - 2)))  # ty: ignore[call-non-callable]
 
 

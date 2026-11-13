@@ -11,7 +11,7 @@ from torch import nn
 from torch.nn import functional as F
 
 from ..presets import IMAGENETTE
-from ..utils import conv_sequence, load_pretrained_params
+from ..utils import _forward_input, conv_sequence, load_pretrained_params
 from .resnet import ResNet, _ResBlock
 
 __all__ = ["Tridentneck", "tridentnet50"]
@@ -34,7 +34,12 @@ class TridentConv2d(nn.Conv2d):
         if self.dilation[0] != 1 and self.dilation[0] != self.num_branches:
             raise ValueError(f"expected dilation to either be 1 or {self.num_branches}.")
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
+    def forward(
+        self,
+        input: torch.Tensor | None = None,  # noqa: A002
+        x: torch.Tensor | None = None,
+    ) -> torch.Tensor:
+        x = _forward_input(input, x)
         if x.shape[1] % self.num_branches != 0:
             raise ValueError("expected number of channels of input tensor to be a multiple of `num_branches`.")
 

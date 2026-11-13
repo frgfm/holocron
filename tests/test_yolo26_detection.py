@@ -1,4 +1,5 @@
 import copy
+from collections import UserList
 
 import pytest
 import torch
@@ -125,7 +126,7 @@ def test_yolo26_deployment_parity_and_serialization(nms, tmp_path):
                 module.bias.uniform_(-0.1, 0.1)
     with torch.inference_mode():
         before = model(images)
-        model_from_list = model(list(images.unbind()))
+        model_from_list = model(UserList(list(images.unbind())))
         deployed = model.to_deploy()
         after = deployed(images)
         # Verify each feature point before top-k can reorder nearly tied scores.
