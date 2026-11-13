@@ -8,7 +8,9 @@
 import argparse
 import hashlib
 import json
+import os
 import shutil
+from contextlib import suppress
 from importlib.metadata import version
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -163,7 +165,16 @@ def prepare(config_path, destination):  # noqa: PLR0912, PLR0915 -- assemble one
         }
         validate_manifest(bundle)
         save_report(root / "bundle.json", bundle)
-        root.rename(destination)
+        if os.name == "nt":
+            root.rename(destination)  # Windows rename already refuses an existing destination.
+        else:
+            destination.mkdir()  # Reserve the path; POSIX rename would replace a competing empty directory.
+            try:
+                root.rename(destination)
+            except BaseException:
+                with suppress(OSError):
+                    destination.rmdir()
+                raise
     return destination
 
 

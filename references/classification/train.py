@@ -47,6 +47,24 @@ def worker_init_fn(worker_id: int) -> None:
     np.random.default_rng((worker_id + torch.initial_seed()) % np.iinfo(np.int32).max)
 
 
+def evaluation_transform(resize: int, crop: int):
+    """Build the Imagenette evaluation transform used by benchmark trials.
+
+    Returns:
+        The deterministic resize, crop, and normalization pipeline.
+    """
+    return T.Compose([
+        T.Resize(resize, interpolation=InterpolationMode.BILINEAR),
+        T.CenterCrop(crop),
+        T.PILToTensor(),
+        T.ConvertImageDtype(torch.float32),
+        T.Compose([
+            T.Lambda(torch.Tensor.contiguous),
+            T.Normalize(IMAGENETTE.mean, IMAGENETTE.std),
+        ]),
+    ])
+
+
 def plot_samples(images, targets, num_samples=8):
     # Unnormalize image
     import matplotlib.pyplot as plt  # noqa: PLC0415
@@ -165,13 +183,7 @@ def _train(args, on_epoch_end=None, on_setup=None):
         if args.dataset.lower() == "imagenette":
             val_set = ImageFolder(
                 Path(args.data_path).joinpath("val"),
-                T.Compose([
-                    T.Resize(args.val_resize_size, interpolation=interpolation),
-                    T.CenterCrop(args.val_crop_size),
-                    T.PILToTensor(),
-                    T.ConvertImageDtype(torch.float32),
-                    normalize,
-                ]),
+                evaluation_transform(args.val_resize_size, args.val_crop_size),
             )
         else:
             cifar_version = CIFAR100 if args.dataset.lower() == "cifar100" else CIFAR10
