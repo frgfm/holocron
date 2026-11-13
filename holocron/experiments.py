@@ -7,6 +7,7 @@
 
 import hashlib
 import json
+import math
 import subprocess  # noqa: S404
 import time
 import traceback
@@ -18,6 +19,8 @@ from typing import Any, Self
 
 import torch
 from torchvision.datasets import ImageFolder
+from torchvision.transforms import v2 as T
+from torchvision.transforms.v2.functional import InterpolationMode
 
 from holocron.trainer import Trainer
 
@@ -66,6 +69,64 @@ def imagefolder_manifest(splits: dict[str, ImageFolder]) -> dict[str, Any]:
         identity = json.dumps(samples, sort_keys=True, separators=(",", ":")).encode("utf-8")
         manifests[split] = {"root": str(root), "samples": samples, "sha256": hashlib.sha256(identity).hexdigest()}
     return {"schema_version": 1, "class_to_idx": mapping, "splits": manifests}
+
+
+def evaluation_preprocessing(transform: Any) -> dict[str, Any] | None:
+    """Describe an evaluation transform only when deployment replay matches it.
+
+    Returns:
+        Input shape, resize size, and normalization values, or ``None`` if unsupported.
+    """
+    classes = (T.Resize, T.CenterCrop, T.PILToTensor, T.ConvertImageDtype, T.Compose)
+    if (
+        type(transform) is not T.Compose
+        or len(transform.transforms) != len(classes)
+        or not all(type(item) is cls for item, cls in zip(transform.transforms, classes, strict=True))
+    ):
+        return None
+    resize, crop, _, convert_dtype, normalization = transform.transforms
+    if (
+        type(resize.size) is not list
+        or len(resize.size) != 1
+        or type(resize.size[0]) is not int
+        or type(crop.size) is not tuple
+        or len(crop.size) != 2
+    ):
+        return None
+    if any((
+        resize.size[0] < 1,
+        resize.max_size is not None,
+        resize.interpolation is not InterpolationMode.BILINEAR,
+        resize.antialias is not True,
+        crop.size[0] != crop.size[1],
+        crop.size[0] < 1,
+        crop.size[0] > resize.size[0],
+        getattr(crop, "padding", None) is not None,
+        convert_dtype.dtype is not torch.float32,
+    )):
+        return None
+    if (
+        len(normalization.transforms) != 2
+        or type(normalization.transforms[0]) is not T.Lambda
+        or type(normalization.transforms[1]) is not T.Normalize
+    ):
+        return None
+    contiguous, normalize = normalization.transforms
+    if any((
+        contiguous.lambd is not torch.Tensor.contiguous,
+        normalize.inplace,
+        len(normalize.mean) != 3,
+        len(normalize.std) != 3,
+        not all(math.isfinite(value) for value in (*normalize.mean, *normalize.std)),
+        not all(value > 0 for value in normalize.std),
+    )):
+        return None
+    return {
+        "input_shape": [1, 3, crop.size[0], crop.size[1]],
+        "resize": resize.size[0],
+        "mean": list(normalize.mean),
+        "std": list(normalize.std),
+    }
 
 
 def checkpoint_record(path: Path, history: list[dict[str, Any]]) -> tuple[dict[str, Any], dict[str, Any]]:
@@ -161,6 +222,7 @@ class Trial:
             data={split: manifest["sha256"] for split, manifest in data["splits"].items()},
             initialization=initialization,
             preprocessing={split: repr(dataset.transform) for split, dataset in splits.items() if split != "test"},
+            evaluation_preprocessing=evaluation_preprocessing(splits["validation"].transform),
             optimizer=trainer.optimizer.defaults,
         )
         write_json(self.directory / "provenance.json", self.provenance)
