@@ -141,6 +141,7 @@ class BasicBlock(_ResBlock):
             downsample,
             act_layer,
         )
+        self.last_norm_index: int = -1 - int(callable(kwargs.get("attention_layer"))) - int(callable(drop_layer))
 
 
 class Bottleneck(_ResBlock):
@@ -207,6 +208,7 @@ class Bottleneck(_ResBlock):
             downsample,
             act_layer,
         )
+        self.last_norm_index: int = -1 - int(callable(kwargs.get("attention_layer"))) - int(callable(drop_layer))
 
 
 class ChannelRepeat(nn.Module):
@@ -352,8 +354,8 @@ class ResNet(nn.Sequential):
         if zero_init_residual:
             for m in self.modules():
                 if isinstance(m, (Bottleneck, BasicBlock)):
-                    # The last normalization precedes the optional dropout layer.
-                    norm = m.conv[-2 if callable(drop_layer) else -1]
+                    # Attention and dropout can follow the final normalization.
+                    norm = m.conv[m.last_norm_index]
                     weight = getattr(norm, "weight", None)
                     if isinstance(weight, Tensor):
                         nn.init.zeros_(weight)

@@ -12,6 +12,7 @@ from holocron.models.classification.darknetv3 import DarknetBodyV3
 from holocron.models.classification.darknetv4 import DarknetBodyV4
 from holocron.models.classification.repvit import _RepVGGDW  # noqa: PLC2701
 from holocron.models.classification.tridentnet import TridentConv2d
+from holocron.nn import SAM
 from holocron.optim import AdamP
 from holocron.trainer import ClassificationTrainer
 
@@ -45,9 +46,16 @@ def test_forward_helpers_accept_pytorch_input_keyword(factory, channels):
 @pytest.mark.parametrize("block", [classification.BasicBlock, classification.Bottleneck])
 @pytest.mark.parametrize("drop_layer", [None, nn.Dropout2d])
 @pytest.mark.parametrize("norm_layer", [nn.BatchNorm2d, partial(nn.GroupNorm, 1)])
-def test_resnet_zero_init_residual(block, drop_layer, norm_layer):
+@pytest.mark.parametrize("attention_layer", [None, SAM])
+def test_resnet_zero_init_residual(block, drop_layer, norm_layer, attention_layer):
     model = classification.ResNet(
-        block, [1], [4], zero_init_residual=True, drop_layer=drop_layer, norm_layer=norm_layer
+        block,
+        [1],
+        [4],
+        zero_init_residual=True,
+        drop_layer=drop_layer,
+        norm_layer=norm_layer,
+        block_args={"attention_layer": attention_layer},
     ).eval()
     residual = next(module for module in model.modules() if isinstance(module, block))
     norms = [module for module in residual.conv if isinstance(module, (nn.BatchNorm2d, nn.GroupNorm))]
