@@ -229,11 +229,10 @@ python-version = "3.11"
 python-platform = "linux"
 
 [tool.ty.rules]
-# shortcut: PyTorch types Module.forward as writable; remove its narrow method ignores when upstream fixes the annotation.
 call-non-callable = "ignore"
 invalid-argument-type = "ignore"
 invalid-assignment = "ignore"
-invalid-method-override = "ignore"
+incompatible-method-override = "ignore"
 invalid-return-type = "ignore"
 ignore-comment-unknown-rule = "ignore"
 no-matching-overload = "ignore"
@@ -241,7 +240,7 @@ not-iterable = "ignore"
 not-subscriptable = "ignore"
 redundant-cast = "ignore"
 import-not-found = "warn"
-unresolved-attribute = "ignore"
+missing-attribute = "ignore"
 unsupported-operator = "ignore"
 unused-ignore-comment = "ignore"
 

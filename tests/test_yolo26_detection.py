@@ -1,4 +1,5 @@
 import copy
+from collections import UserList
 
 import pytest
 import torch
@@ -7,6 +8,13 @@ from torch.utils.data import DataLoader
 from holocron.models.detection import yolo26n
 from holocron.models.detection.yolo26 import _assign, _paired_ciou  # noqa: PLC2701
 from holocron.trainer import DetectionTrainer
+
+
+def test_yolo26_accepts_general_image_sequences():
+    model = yolo26n(num_classes=2).eval()
+    images = torch.rand(2, 3, 64, 64)
+    with torch.no_grad():
+        torch.testing.assert_close(model(UserList(list(images.unbind()))), model(images))
 
 
 def _targets():

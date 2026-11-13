@@ -11,7 +11,7 @@ from copy import deepcopy
 from pathlib import Path
 from shutil import copymode
 from tempfile import TemporaryDirectory
-from typing import Any, cast
+from typing import Any, cast, overload
 
 import torch
 from torch import Tensor, nn
@@ -186,6 +186,12 @@ class Trainer:
             self.scheduler.step()
         self.epoch += 1
 
+    @overload
+    def to_cuda(self, x: Tensor, target: Tensor) -> tuple[Tensor, Tensor]: ...
+
+    @overload
+    def to_cuda(self, x: Tensor, target: list[dict[str, Tensor]]) -> tuple[Tensor, list[dict[str, Tensor]]]: ...
+
     def to_cuda(
         self, x: Tensor, target: Tensor | list[dict[str, Tensor]]
     ) -> tuple[Tensor, Tensor | list[dict[str, Tensor]]]:
@@ -201,6 +207,12 @@ class Trainer:
         """
         return self.to_device(x, target)
 
+    @overload
+    def to_device(self, x: Tensor, target: Tensor) -> tuple[Tensor, Tensor]: ...
+
+    @overload
+    def to_device(self, x: Tensor, target: list[dict[str, Tensor]]) -> tuple[Tensor, list[dict[str, Tensor]]]: ...
+
     def to_device(
         self, x: Tensor, target: Tensor | list[dict[str, Tensor]]
     ) -> tuple[Tensor, Tensor | list[dict[str, Tensor]]]:
@@ -214,7 +226,12 @@ class Trainer:
             Inputs and targets on the trainer device.
         """
         x = x.to(self.device, non_blocking=self.device.type == "cuda")
-        target = target.to(self.device, non_blocking=self.device.type == "cuda")  # type: ignore[union-attr]
+        if isinstance(target, Tensor):
+            target = target.to(self.device, non_blocking=self.device.type == "cuda")
+        else:
+            target = [
+                {k: v.to(self.device, non_blocking=self.device.type == "cuda") for k, v in t.items()} for t in target
+            ]
         return x, target
 
     def _backprop_step(self, loss: Tensor, force: bool = False) -> bool:

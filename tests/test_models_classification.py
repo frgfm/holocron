@@ -1,12 +1,62 @@
+from functools import partial
+
 import pytest
 import torch
 from torch import nn
 from torch.utils.data import DataLoader, TensorDataset
 
 from holocron.models import classification
+from holocron.models.classification.convnext import LayerNorm2d
+from holocron.models.classification.darknetv2 import DarknetBodyV2
+from holocron.models.classification.darknetv3 import DarknetBodyV3
+from holocron.models.classification.darknetv4 import DarknetBodyV4
 from holocron.models.classification.repvit import _RepVGGDW  # noqa: PLC2701
+from holocron.models.classification.tridentnet import TridentConv2d
 from holocron.optim import AdamP
 from holocron.trainer import ClassificationTrainer
+
+
+@pytest.mark.parametrize(
+    ("factory", "channels"),
+    [
+        (partial(LayerNorm2d, 4), 4),
+        (partial(DarknetBodyV2, [(4, 1), (8, 1)], stem_channels=2), 3),
+        (partial(DarknetBodyV2, [(4, 1), (8, 1)], stem_channels=2, passthrough=True), 3),
+        (partial(DarknetBodyV3, [(4, 1), (8, 1)], stem_channels=2), 3),
+        (partial(DarknetBodyV3, [(4, 1), (8, 1)], stem_channels=2, num_features=2), 3),
+        (partial(DarknetBodyV4, [(4, 1), (8, 1)], stem_channels=2), 3),
+        (partial(DarknetBodyV4, [(4, 1), (8, 1)], stem_channels=2, num_features=2), 3),
+        (partial(TridentConv2d, 2, 2, 3, padding=1), 6),
+    ],
+)
+def test_forward_helpers_accept_pytorch_input_keyword(factory, channels):
+    model = factory().eval()
+    images = torch.rand(2, channels, 16, 16)
+    with torch.no_grad():
+        expected = model(images)
+        torch.testing.assert_close(model(x=images), expected)
+        torch.testing.assert_close(model(input=images), expected)
+    with pytest.raises(TypeError, match="either input or x"):
+        model(input=images, x=images)
+    with pytest.raises(TypeError, match="input tensor is required"):
+        model()
+
+
+@pytest.mark.parametrize("block", [classification.BasicBlock, classification.Bottleneck])
+@pytest.mark.parametrize("drop_layer", [None, nn.Dropout2d])
+@pytest.mark.parametrize("norm_layer", [nn.BatchNorm2d, partial(nn.GroupNorm, 1)])
+def test_resnet_zero_init_residual(block, drop_layer, norm_layer):
+    model = classification.ResNet(
+        block, [1], [4], zero_init_residual=True, drop_layer=drop_layer, norm_layer=norm_layer
+    ).eval()
+    residual = next(module for module in model.modules() if isinstance(module, block))
+    norms = [module for module in residual.conv if isinstance(module, (nn.BatchNorm2d, nn.GroupNorm))]
+    assert torch.count_nonzero(norms[-1].weight) == 0
+    assert torch.all(norms[0].weight == 1)
+    images = torch.randn(2, 64, 8, 8)
+    with torch.no_grad():
+        torch.testing.assert_close(residual.conv(images), torch.zeros(2, 4 * block.expansion, 8, 8))
+        torch.testing.assert_close(residual(images), residual.activation(residual.downsample(images)))
 
 
 def _test_classification_model(name, num_classes, pretrained):

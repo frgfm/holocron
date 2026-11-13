@@ -64,7 +64,7 @@ class DepthConvBlock(nn.ModuleList):
         ])
         super().__init__(layers)
 
-    def forward(self, x: Tensor) -> Tensor:  # ty: ignore[invalid-mutable-override]
+    def forward(self, x: Tensor) -> Tensor:
         return sum(mod(x) for mod in self)
 
     def reparametrize(self) -> nn.Conv2d:
@@ -116,7 +116,7 @@ class PointConvBlock(nn.ModuleList):
         ])
         super().__init__(layers)
 
-    def forward(self, x: Tensor) -> Tensor:  # ty: ignore[invalid-mutable-override]
+    def forward(self, x: Tensor) -> Tensor:
         return sum(mod(x) for mod in self)
 
     def reparametrize(self) -> nn.Conv2d:

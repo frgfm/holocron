@@ -13,7 +13,7 @@ from torch import nn
 from torch.utils.data import DataLoader, TensorDataset
 
 from holocron.optim import AdamP
-from holocron.trainer import ClassificationTrainer, DetectionTrainer, SegmentationTrainer, resolve_device
+from holocron.trainer import ClassificationTrainer, DetectionTrainer, SegmentationTrainer, Trainer, resolve_device
 from holocron.utils import CTCCodec
 from holocron.utils.data import Mixup
 from references._common import create_loader  # noqa: PLC2701
@@ -26,6 +26,19 @@ DEVICES = [
     pytest.param("mps", marks=pytest.mark.skipif(not torch.backends.mps.is_available(), reason="MPS unavailable")),
     pytest.param("cuda:0", marks=pytest.mark.skipif(not torch.cuda.is_available(), reason="CUDA unavailable")),
 ]
+
+
+@pytest.mark.parametrize("method", ["to_device", "to_cuda"])
+def test_base_trainer_moves_detection_targets(method):
+    model = nn.Linear(1, 1)
+    trainer = Trainer(model, None, None, None, torch.optim.SGD(model.parameters(), lr=0.01), device="cpu")
+    images = torch.zeros(1, 3, 8, 8)
+    targets = [{"boxes": torch.ones(1, 4), "labels": torch.zeros(1, dtype=torch.long)}]
+    moved_images, moved_targets = getattr(trainer, method)(images, targets)
+    torch.testing.assert_close(moved_images, images)
+    torch.testing.assert_close(moved_targets, targets)
+    assert moved_targets[0]["labels"].dtype == torch.long
+    assert moved_targets is not targets
 
 
 def test_clean_checkpoint_uses_restricted_loading(monkeypatch, tmp_path):

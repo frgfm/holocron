@@ -90,7 +90,7 @@ class UpPath(nn.Module):
             ),
         )
 
-    def forward(self, downfeats: Tensor | list[Tensor], upfeat: Tensor) -> Tensor:  # ty: ignore[invalid-mutable-override]
+    def forward(self, downfeats: Tensor | list[Tensor], upfeat: Tensor) -> Tensor:
         downfeats = list(downfeats) if isinstance(downfeats, list) else [downfeats]
         # Upsample expansive features
         if self.padding > 0 and self.bilinear_upsampling:
@@ -240,7 +240,7 @@ class UNet(nn.Module):
 
         init_module(self, "relu")
 
-    def forward(self, x: Tensor) -> Tensor:  # ty: ignore[invalid-mutable-override]
+    def forward(self, x: Tensor) -> Tensor:
         xs: list[Tensor] = []
         # Contracting path
         for encoder in self.encoder:
@@ -296,7 +296,7 @@ class UBlock(nn.Module):
             ),
         )
 
-    def forward(self, downfeat: Tensor, upfeat: Tensor) -> Tensor:  # ty: ignore[invalid-mutable-override]
+    def forward(self, downfeat: Tensor, upfeat: Tensor) -> Tensor:
         # Upsample expansive features
         upfeat_ = self.upsample(upfeat)
 
@@ -386,7 +386,7 @@ class DynamicUNet(nn.Module):
             if module is not None:
                 init_module(module, "relu")
 
-    def forward(self, x: Tensor) -> Tensor:  # ty: ignore[invalid-mutable-override]
+    def forward(self, x: Tensor) -> Tensor:
         input_size = x.shape[-2:]
         # Contracting path
         xs: list[Tensor] = list(self.encoder(x).values())
@@ -486,7 +486,7 @@ def unet_tvvgg11(
     Returns:
         semantic segmentation model
     """
-    weights = get_model_weights("vgg11").DEFAULT if pretrained_backbone and not pretrained else None  # ty: ignore[unresolved-attribute]
+    weights = get_model_weights("vgg11").DEFAULT if pretrained_backbone and not pretrained else None
     backbone: nn.Module = get_model("vgg11", weights=weights).features  # ty: ignore[invalid-assignment]
 
     return _dynamic_unet("unet_vgg11", backbone, pretrained, progress, **kwargs)
@@ -508,7 +508,7 @@ def unet_tvresnet34(
     Returns:
         semantic segmentation model
     """
-    weights = get_model_weights("resnet34").DEFAULT if pretrained_backbone and not pretrained else None  # ty: ignore[unresolved-attribute]
+    weights = get_model_weights("resnet34").DEFAULT if pretrained_backbone and not pretrained else None
     backbone = get_model("resnet34", weights=weights)
     kwargs["final_upsampling"] = kwargs.get("final_upsampling", True)
 

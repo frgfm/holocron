@@ -341,7 +341,7 @@ class YOLOv1(_YOLO):
         out = self.block4(out)
         return self.classifier(out)
 
-    def forward(  # ty: ignore[invalid-mutable-override]
+    def forward(
         self, x: Tensor, target: list[dict[str, Tensor]] | None = None
     ) -> dict[str, Tensor] | list[dict[str, Tensor]]:
         """Perform detection on an image tensor and returns either the loss dictionary in training mode

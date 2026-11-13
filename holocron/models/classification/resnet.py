@@ -72,7 +72,7 @@ class _ResBlock(nn.Module):
         if isinstance(act_layer, nn.Module):
             self.activation = act_layer
 
-    def forward(self, x: Tensor) -> Tensor:  # ty: ignore[invalid-mutable-override]
+    def forward(self, x: Tensor) -> Tensor:
         identity = x
 
         out = self.conv(x)
@@ -214,7 +214,7 @@ class ChannelRepeat(nn.Module):
         super().__init__()
         self.chan_repeats: int = chan_repeats
 
-    def forward(self, x: Tensor) -> Tensor:  # ty: ignore[invalid-mutable-override]
+    def forward(self, x: Tensor) -> Tensor:
         repeats = [1] * x.ndim
         # Repeat the tensor along the channel dimension
         repeats[1] = self.chan_repeats
@@ -351,10 +351,12 @@ class ResNet(nn.Sequential):
         # Init shortcut
         if zero_init_residual:
             for m in self.modules():
-                if isinstance(m, Bottleneck):
-                    m.convs[2][1].weight.data.zero_()  # ty: ignore[non-subscriptable]
-                elif isinstance(m, BasicBlock):
-                    m.convs[1][1].weight.data.zero_()  # ty: ignore[non-subscriptable]
+                if isinstance(m, (Bottleneck, BasicBlock)):
+                    # The last normalization precedes the optional dropout layer.
+                    norm = m.conv[-2 if callable(drop_layer) else -1]
+                    weight = getattr(norm, "weight", None)
+                    if isinstance(weight, Tensor):
+                        nn.init.zeros_(weight)
 
     @staticmethod
     def _make_layer(

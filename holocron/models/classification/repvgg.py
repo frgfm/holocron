@@ -68,7 +68,7 @@ class RepBlock(nn.Module):
                 raise ValueError("The number of input and output channels must be identical if identity is used")
             self.branches.append(norm_layer(planes))
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:  # ty: ignore[invalid-mutable-override]
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         out = self.branches(x) if isinstance(self.branches, nn.Conv2d) else sum(branch(x) for branch in self.branches)
         return self.activation(out)
 
@@ -93,19 +93,19 @@ class RepBlock(nn.Module):
 
         # Conv 3x3
         rep.weight.data = fused_k3
-        rep.bias.data = fused_b3  # type: ignore[union-attr]
+        rep.bias = nn.Parameter(fused_b3)
 
         # Conv 1x1
         rep.weight.data[..., 1:2, 1:2] += fused_k1
-        rep.bias.data += fused_b1  # type: ignore[union-attr]
+        rep.bias.data += fused_b1
 
         # Identity
         if len(self.branches) == 3:
             scale_factor = self.branches[2].weight.data / (self.branches[2].running_var + self.branches[2].eps).sqrt()
             # Identity is mapped as a diagonal matrix relatively to the out/in channel dimensions
             rep.weight.data[range(planes), range(inplanes), 1, 1] += scale_factor
-            rep.bias.data += self.branches[2].bias.data  # type: ignore[union-attr]
-            rep.bias.data -= scale_factor * self.branches[2].running_mean  # type: ignore[union-attr]
+            rep.bias.data += self.branches[2].bias.data
+            rep.bias.data -= scale_factor * self.branches[2].running_mean
 
         # Update main branch & delete the others
         self.branches = rep

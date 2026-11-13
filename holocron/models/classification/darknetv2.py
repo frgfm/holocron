@@ -16,7 +16,7 @@ from holocron.nn.init import init_module
 
 from ..checkpoints import Checkpoint, _handle_legacy_pretrained
 from ..presets import IMAGENETTE
-from ..utils import _checkpoint, _configure_model, _imagenette_recipe, conv_sequence
+from ..utils import _checkpoint, _configure_model, _forward_input, _imagenette_recipe, conv_sequence
 
 __all__ = ["Darknet19_Checkpoint", "DarknetV2", "darknet19"]
 
@@ -137,7 +137,12 @@ class DarknetBodyV2(nn.Sequential):
 
         return nn.Sequential(*layers)
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor | tuple[torch.Tensor, torch.Tensor]:
+    def forward(
+        self,
+        input: torch.Tensor | None = None,  # noqa: A002
+        x: torch.Tensor | None = None,
+    ) -> torch.Tensor | tuple[torch.Tensor, torch.Tensor]:
+        x = _forward_input(input, x)
         if self.passthrough:
             self.stem: nn.Sequential
             self.layers: nn.Sequential

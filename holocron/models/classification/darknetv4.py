@@ -16,7 +16,7 @@ from holocron.nn.init import init_module
 
 from ..checkpoints import Checkpoint, _handle_legacy_pretrained
 from ..presets import IMAGENETTE
-from ..utils import _checkpoint, _configure_model, _imagenette_recipe, conv_sequence
+from ..utils import _checkpoint, _configure_model, _forward_input, _imagenette_recipe, conv_sequence
 from .darknetv3 import ResBlock
 
 __all__ = ["CSPDarknet53_Checkpoint", "CSPDarknet53_Mish_Checkpoint", "DarknetV4", "cspdarknet53", "cspdarknet53_mish"]
@@ -110,7 +110,7 @@ class CSPStage(nn.Module):
             )
         )
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:  # ty: ignore[invalid-mutable-override]
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = self.base_layer(x)
         x1, x2 = x.chunk(2, dim=1)
         return self.transition(torch.cat([x1, self.main(x2)], dim=1))
@@ -167,7 +167,12 @@ class DarknetBodyV4(nn.Sequential):
 
         self.num_features: int = num_features
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor | list[torch.Tensor]:
+    def forward(
+        self,
+        input: torch.Tensor | None = None,  # noqa: A002
+        x: torch.Tensor | None = None,
+    ) -> torch.Tensor | list[torch.Tensor]:
+        x = _forward_input(input, x)
         if self.num_features == 1:
             return super().forward(x)
 
