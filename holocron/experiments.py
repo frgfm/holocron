@@ -101,7 +101,6 @@ def evaluation_preprocessing(transform: Any) -> dict[str, Any] | None:
         crop.size[0] != crop.size[1],
         crop.size[0] < 1,
         crop.size[0] > resize.size[0],
-        getattr(crop, "padding", None) is not None,
         convert_dtype.dtype is not torch.float32,
     )):
         return None

@@ -1,5 +1,6 @@
 import io
 import json
+import os
 import shutil
 import subprocess  # noqa: S404
 import sys
@@ -158,7 +159,7 @@ def test_success_and_independent_reader(configuration, monkeypatch, scheduler):
     )
 
 
-@pytest.mark.parametrize("change", ["dtype", "interpolation", "lambda", "order"])
+@pytest.mark.parametrize("change", ["dtype", "interpolation", "lambda", "order", "fixed_resize", "normalization_order"])
 def test_evaluation_preprocessing_rejects_ambiguous_transforms(change):
     transform = train.evaluation_transform(20, 16)
     if change == "dtype":
@@ -167,6 +168,10 @@ def test_evaluation_preprocessing_rejects_ambiguous_transforms(change):
         transform.transforms[0].interpolation = InterpolationMode.NEAREST
     elif change == "lambda":
         transform.transforms[4].transforms[0] = T.Lambda(lambda image: image.contiguous())
+    elif change == "fixed_resize":
+        transform.transforms[0] = T.Resize((20, 20))
+    elif change == "normalization_order":
+        transform.transforms[4].transforms.reverse()
     else:
         transform.transforms[1], transform.transforms[2] = transform.transforms[2], transform.transforms[1]
     assert evaluation_preprocessing(transform) is None
@@ -281,6 +286,35 @@ def test_completed_trial_exports_selected_checkpoint_and_replays(completed_trial
     assert len(bundle["samples"]) == 4
     _replay_bundle(root, path.parent / "replay")
     assert {item: sha256(item) for item in test_images} == test_images
+
+
+def test_trial_cli_exports_and_replays(configuration):
+    path, config = configuration
+    config["recipe"].update(arch="convnext_atto", epochs=1, train_crop_size=32, val_resize_size=36, val_crop_size=32)
+    path.write_text(json.dumps(config))
+    repository = Path(__file__).resolve().parents[1]
+    trial, bundle = path.parent / "cli-trial", path.parent / "cli-bundle"
+    output = path.parent / "cli-replay"
+    for command in (
+        [sys.executable, "-m", "references.classification.experiment", str(path), str(trial)],
+        [sys.executable, str(repository / "scripts/export_trial.py"), str(trial), str(bundle)],
+        [sys.executable, str(bundle / "scripts/eval_deployment.py"), str(bundle), str(output)],
+    ):
+        result = subprocess.run(  # noqa: S603 -- exercise the documented CLI with generated local data
+            command,
+            cwd=repository,
+            env={**os.environ, "OMP_NUM_THREADS": "2"},
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=60,
+        )
+        assert result.returncode == 0, result.stdout + result.stderr
+    report = json.loads(next(output.glob("*/report.json")).read_text())
+    assert report["complete"]
+    accuracy = report["cases"]["onnx-fp32"]["accuracy"]
+    assert accuracy["source_agreement"] == 1
+    assert accuracy["max_logit_difference"] < 1e-3
 
 
 @pytest.mark.parametrize("mutation", ["checkpoint", "image", "preprocessing", "changed-preprocessing", "running"])
