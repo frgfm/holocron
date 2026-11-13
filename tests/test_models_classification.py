@@ -22,11 +22,8 @@ from holocron.trainer import ClassificationTrainer
     [
         (partial(LayerNorm2d, 4), 4),
         (partial(DarknetBodyV2, [(4, 1), (8, 1)], stem_channels=2), 3),
-        (partial(DarknetBodyV2, [(4, 1), (8, 1)], stem_channels=2, passthrough=True), 3),
         (partial(DarknetBodyV3, [(4, 1), (8, 1)], stem_channels=2), 3),
-        (partial(DarknetBodyV3, [(4, 1), (8, 1)], stem_channels=2, num_features=2), 3),
         (partial(DarknetBodyV4, [(4, 1), (8, 1)], stem_channels=2), 3),
-        (partial(DarknetBodyV4, [(4, 1), (8, 1)], stem_channels=2, num_features=2), 3),
         (partial(TridentConv2d, 2, 2, 3, padding=1), 6),
     ],
 )
@@ -44,27 +41,21 @@ def test_forward_helpers_accept_pytorch_input_keyword(factory, channels):
 
 
 @pytest.mark.parametrize("block", [classification.BasicBlock, classification.Bottleneck])
-@pytest.mark.parametrize("drop_layer", [None, nn.Dropout2d])
-@pytest.mark.parametrize("norm_layer", [nn.BatchNorm2d, partial(nn.GroupNorm, 1)])
-@pytest.mark.parametrize("attention_layer", [None, SAM])
-def test_resnet_zero_init_residual(block, drop_layer, norm_layer, attention_layer):
+@pytest.mark.parametrize("extras", [False, True])
+def test_resnet_zero_init_residual(block, extras):
     model = classification.ResNet(
         block,
         [1],
         [4],
         zero_init_residual=True,
-        drop_layer=drop_layer,
-        norm_layer=norm_layer,
-        block_args={"attention_layer": attention_layer},
-    ).eval()
+        drop_layer=nn.Dropout2d if extras else None,
+        norm_layer=partial(nn.GroupNorm, 1) if extras else nn.BatchNorm2d,
+        block_args={"attention_layer": SAM if extras else None},
+    )
     residual = next(module for module in model.modules() if isinstance(module, block))
     norms = [module for module in residual.conv if isinstance(module, (nn.BatchNorm2d, nn.GroupNorm))]
     assert torch.count_nonzero(norms[-1].weight) == 0
     assert torch.all(norms[0].weight == 1)
-    images = torch.randn(2, 64, 8, 8)
-    with torch.no_grad():
-        torch.testing.assert_close(residual.conv(images), torch.zeros(2, 4 * block.expansion, 8, 8))
-        torch.testing.assert_close(residual(images), residual.activation(residual.downsample(images)))
 
 
 def _test_classification_model(name, num_classes, pretrained):

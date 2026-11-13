@@ -28,14 +28,6 @@ logger = logging.getLogger(__name__)
 
 
 def _forward_input(input_tensor: torch.Tensor | None, legacy_x: torch.Tensor | None) -> torch.Tensor:
-    """Resolve PyTorch's input keyword and Holocron's legacy x keyword.
-
-    Returns:
-        The supplied input tensor.
-
-    Raises:
-        TypeError: if no input or both input names are supplied.
-    """
     if input_tensor is not None:
         if legacy_x is not None:
             raise TypeError("Specify either input or x, not both")

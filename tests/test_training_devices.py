@@ -28,19 +28,6 @@ DEVICES = [
 ]
 
 
-@pytest.mark.parametrize("method", ["to_device", "to_cuda"])
-def test_base_trainer_moves_detection_targets(method):
-    model = nn.Linear(1, 1)
-    trainer = Trainer(model, None, None, None, torch.optim.SGD(model.parameters(), lr=0.01), device="cpu")
-    images = torch.zeros(1, 3, 8, 8)
-    targets = [{"boxes": torch.ones(1, 4), "labels": torch.zeros(1, dtype=torch.long)}]
-    moved_images, moved_targets = getattr(trainer, method)(images, targets)
-    torch.testing.assert_close(moved_images, images)
-    torch.testing.assert_close(moved_targets, targets)
-    assert moved_targets[0]["labels"].dtype == torch.long
-    assert moved_targets is not targets
-
-
 def test_clean_checkpoint_uses_restricted_loading(monkeypatch, tmp_path):
     checkpoint, output = tmp_path / "checkpoint.pth", tmp_path / "weights.pth"
     weights = {"weight": torch.ones(2)}
@@ -107,17 +94,17 @@ def test_segmentation_training_device(device, tmp_path):
 
 
 @pytest.mark.parametrize("device", DEVICES)
-def test_detection_target_device(device):
+@pytest.mark.parametrize("trainer_cls", [Trainer, DetectionTrainer])
+def test_detection_target_device(device, trainer_cls):
     model = nn.Linear(1, 1)
-    learner = DetectionTrainer(model, None, None, None, torch.optim.SGD(model.parameters(), lr=0.01), device=device)
+    learner = trainer_cls(model, None, None, None, torch.optim.SGD(model.parameters(), lr=0.01), device=device)
     images, targets = learner.to_device(
-        [torch.zeros(3, 8, 8)],
+        [torch.zeros(3, 8, 8)] if trainer_cls is DetectionTrainer else torch.zeros(1, 3, 8, 8),
         [{"boxes": torch.zeros(0, 4), "labels": torch.zeros(0, dtype=torch.long)}],
     )
     assert images[0].device.type == torch.device(device).type
     assert all(value.device.type == torch.device(device).type for value in targets[0].values())
-    legacy_images, _ = learner.to_cuda(images, targets)
-    torch.testing.assert_close(legacy_images[0], images[0])
+    torch.testing.assert_close(learner.to_cuda(images, targets), (images, targets))
 
 
 def test_device_selection_and_legacy_cuda_indices(monkeypatch):

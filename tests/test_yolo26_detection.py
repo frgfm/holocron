@@ -10,13 +10,6 @@ from holocron.models.detection.yolo26 import _assign, _paired_ciou  # noqa: PLC2
 from holocron.trainer import DetectionTrainer
 
 
-def test_yolo26_accepts_general_image_sequences():
-    model = yolo26n(num_classes=2).eval()
-    images = torch.rand(2, 3, 64, 64)
-    with torch.no_grad():
-        torch.testing.assert_close(model(UserList(list(images.unbind()))), model(images))
-
-
 def _targets():
     return [
         {"boxes": torch.tensor([[0.1, 0.2, 0.6, 0.8], [0.65, 0.4, 0.9, 0.7]]), "labels": torch.tensor([0, 1])},
@@ -133,7 +126,7 @@ def test_yolo26_deployment_parity_and_serialization(nms, tmp_path):
                 module.bias.uniform_(-0.1, 0.1)
     with torch.inference_mode():
         before = model(images)
-        model_from_list = model(list(images.unbind()))
+        model_from_list = model(UserList(list(images.unbind())))
         deployed = model.to_deploy()
         after = deployed(images)
         # Verify each feature point before top-k can reorder nearly tied scores.
