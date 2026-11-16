@@ -229,11 +229,11 @@ python-version = "3.11"
 python-platform = "linux"
 
 [tool.ty.rules]
-call-non-callable = "ignore"
+not-callable = "ignore"
 invalid-argument-type = "ignore"
 invalid-assignment = "ignore"
 incompatible-method-override = "ignore"
-invalid-return-type = "ignore"
+invalid-explicit-return = "ignore"
 ignore-comment-unknown-rule = "ignore"
 no-matching-overload = "ignore"
 not-iterable = "ignore"
