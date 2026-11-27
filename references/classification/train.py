@@ -87,7 +87,7 @@ def main(args):
     return _train(args)
 
 
-def _train(args, on_epoch_end=None, on_setup=None):
+def _train(args, on_epoch_end=None, on_setup=None, *, model=None):
     print(args)
 
     torch.manual_seed(args.seed)
@@ -182,7 +182,8 @@ def _train(args, on_epoch_end=None, on_setup=None):
 
         print(f"Validation set loaded in {time.time() - st:.2f}s ({len(val_set)} samples in {len(val_loader)} batches)")
 
-    model = get_model(args.arch, pretrained=args.pretrained, num_classes=num_classes)
+    if model is None:
+        model = get_model(args.arch, pretrained=args.pretrained, num_classes=num_classes)
 
     criterion = nn.CrossEntropyLoss(label_smoothing=args.label_smoothing)
 

@@ -1,0 +1,146 @@
+{
+  "schema_version": 1,
+  "scope": "Imagenette CPU integration against draft #617",
+  "main_revision": "7559b80ea3531307410207ad3a2eec48a8635020",
+  "prerequisite_revision": "4f3d2cd07c11a6d99f3bc8515a1763b85507f233",
+  "measured_checkout": "c967383aaae90b089b6da9c7f1feabd679972bf8",
+  "environment": {
+    "machine": "Apple M3 Pro",
+    "os": "macOS 15.8.3 arm64",
+    "python": "3.14.6",
+    "onnxruntime": "1.31.0",
+    "Pillow": "13.0.0",
+    "numpy": "2.5.3",
+    "pylocron": "0.3.1.dev0",
+    "torch": "2.14.1",
+    "torchvision": "0.29.1",
+    "wandb": null
+  },
+  "split_samples": {
+    "train": 1000,
+    "val": 200,
+    "test": 200
+  },
+  "decision": "continue",
+  "manually_edited_metadata_files": [],
+  "models": {
+    "mobilenet_v3_small": {
+      "bundle_sha256": "1650579cedfd14de44a93fb4211520de6bc2639a8efe2e2a9b7a8e11964af3cf",
+      "checkpoint_sha256": "87be1ccd83e62fb3e098dc77c4f3335ac6bc3d71c05e62674a30321005642589",
+      "latency_ms": {
+        "inference": 2.3397082495648647,
+        "image_to_logits": 2.854322749954008
+      },
+      "onnx_sha256": "174578bf5a62240958f808e7b55ba035076c69f2ede319867e9a1d92fb6ba228",
+      "peak_rss_mib": 86.71875,
+      "replay_report_sha256": "4c1a6e92bfc0a118f033fd5f8480b56c24f4466df6385a03eed0bdd2dccc4d0f",
+      "replay_validation": {
+        "correct": 20,
+        "samples": 200,
+        "reference_correct": 20,
+        "max_logit_difference": 2.9802322387695312E-8,
+        "source_agreement": 1.0
+      },
+      "selected_epoch": 1,
+      "selected_validation": {
+        "acc1": 0.1,
+        "acc5": 0.5,
+        "samples": 200,
+        "val_loss": 2.3034974098205567
+      },
+      "test": {
+        "correct": 20,
+        "samples": 200,
+        "batch_size": 4
+      },
+      "training_peak_rss_mib": 797.9375,
+      "training_seconds": 119.71106158399925
+    },
+    "resnet18": {
+      "bundle_sha256": "9a10cb0988fa1fe37cd18685f4cd01b0899ac375775b9cec800c0b0d6afa47ee",
+      "checkpoint_sha256": "57086b2424a5c99e24edfa5e63adb796695bf84c24aea6612d9dea90e74d2fd5",
+      "latency_ms": {
+        "inference": 14.450812499489984,
+        "image_to_logits": 15.08062524953857
+      },
+      "onnx_sha256": "721eb63c0330377fcb61ad8e57428d9b7c9c7524e0fe70f94af6e31636157558",
+      "peak_rss_mib": 145.0625,
+      "replay_report_sha256": "81374429d256f6a729107855b096a795d93cb286a854173b7819336015d5ac0d",
+      "replay_validation": {
+        "correct": 81,
+        "samples": 200,
+        "reference_correct": 81,
+        "max_logit_difference": 0.0000030994415283203125,
+        "source_agreement": 1.0
+      },
+      "selected_epoch": 3,
+      "selected_validation": {
+        "acc1": 0.405,
+        "acc5": 0.845,
+        "samples": 200,
+        "val_loss": 1.7513397693634034
+      },
+      "test": {
+        "correct": 85,
+        "samples": 200,
+        "batch_size": 1
+      },
+      "training_peak_rss_mib": 1064.25,
+      "training_seconds": 166.4993035410007
+    }
+  },
+  "selections_sha256": "14c1590074f9b8bb563dd61626cb58ed2a650802dbb166cef2b24ca43b2e5edc",
+  "split_hashes": {
+    "test": "2f0337a85357b5427f8c2fe630ab6756c34f1d870d71525997d88e18c2f94e52",
+    "train": "81279b21ba66dcccf938a2ab39aeebef1057bdc41a239219b19019745b5231fc",
+    "val": "f3f8e72957a2df4fa5b97c869f8fe6260eb040061e108e7523891bff5d491531"
+  },
+  "split_manifest_sha256": "2767f1968c7c834be631f232b3bd2efbcf51dedb97a6df33312d44e8f9112309",
+  "training_prerequisite_revision": "70a9be5720ad5b1697f0d4eb6f68fdf7e6aa118d",
+  "scoring_benchmark": {
+    "validation_samples": 200,
+    "identical_top1_predictions": true,
+    "measured_passes_per_process": 5,
+    "batch_one": [
+      {
+        "peak_rss_mib": 474.265625,
+        "models": {
+          "resnet18": {
+            "wall_seconds_median": 1.7928172910033027,
+            "cpu_seconds_median": 2.233333
+          },
+          "mobilenet_v3_small": {
+            "wall_seconds_median": 10.228638417000184,
+            "cpu_seconds_median": 8.383616
+          }
+        }
+      },
+      {
+        "peak_rss_mib": 480.0,
+        "models": {
+          "resnet18": {
+            "wall_seconds_median": 1.5220800829993095,
+            "cpu_seconds_median": 1.9494380000000007
+          },
+          "mobilenet_v3_small": {
+            "wall_seconds_median": 4.721036625000124,
+            "cpu_seconds_median": 4.855887000000003
+          }
+        }
+      }
+    ],
+    "batch_four_mobilenet_only": {
+      "peak_rss_mib": 484.984375,
+      "models": {
+        "resnet18": {
+          "wall_seconds_median": 1.6154271250015881,
+          "cpu_seconds_median": 2.0398379999999996
+        },
+        "mobilenet_v3_small": {
+          "wall_seconds_median": 2.4122877919980965,
+          "cpu_seconds_median": 2.630829000000002
+        }
+      }
+    }
+  }
+}
