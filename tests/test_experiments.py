@@ -62,6 +62,24 @@ def submit(path, config, trial="trial"):
     return json.loads((path.parent / trial / "result.json").read_text())
 
 
+def test_reference_training_accepts_module(configuration, monkeypatch):
+    path, config = configuration
+    args = train.get_parser().parse_args([str(path.parent)])
+    vars(args).update(config["recipe"], data_path=str(path.parent))
+    args.output_file = str(path.parent / "ordinary-module.pth")
+    model = nn.Sequential(nn.AdaptiveAvgPool2d(1), nn.Flatten(), nn.Linear(3, 2))
+
+    def no_catalog(*_args, **_kwargs):
+        pytest.fail("A supplied module must not go through the model catalog")
+
+    monkeypatch.setattr(train, "get_model", no_catalog)
+    trainer = train._train(args, model=model)
+    assert trainer.model is model
+    assert trainer.epoch == args.epochs
+    state = torch.load(args.output_file, map_location="cpu", weights_only=True)
+    assert state["model"]["2.weight"].shape == (2, 3)
+
+
 @pytest.mark.parametrize(
     ("section", "key", "value"),
     [
