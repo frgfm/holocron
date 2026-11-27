@@ -7,27 +7,26 @@
 
 import argparse
 import hashlib
+import io
 import json
 import shutil
 from pathlib import Path
-from tempfile import TemporaryDirectory
 
 import numpy as np
 import torch
-from torchvision.datasets.folder import pil_loader
+from PIL import Image
 
-from holocron.experiments import evaluation_preprocessing, sha256, write_json
+from holocron.experiments import evaluation_preprocessing, evaluation_transform, sha256, write_json
 from holocron.models import get_model
-from references.classification.train import evaluation_transform
 
 if __package__:
     from .eval_deployment import preprocess, safe_path
     from .export_to_onnx import export_model
-    from .prepare_deployment import prepare
+    from .prepare_deployment import freeze_bundle, stage_bundle
 else:
     from eval_deployment import preprocess, safe_path
     from export_to_onnx import export_model
-    from prepare_deployment import prepare
+    from prepare_deployment import freeze_bundle, stage_bundle
 
 
 @torch.inference_mode()
@@ -79,9 +78,8 @@ def export_trial(trial, destination, *, model=None):  # noqa: PLR0912, PLR0915 -
     if evaluation_preprocessing(transform) != prep or selected["input_shape"] != prep["input_shape"]:
         raise ValueError("Unsupported or inconsistent evaluation preprocessing")
 
-    destination.parent.mkdir(parents=True, exist_ok=True)
-    with TemporaryDirectory(prefix="trial-export-", dir=destination.parent) as temporary:
-        root = Path(temporary)
+    with stage_bundle(destination) as root:
+        (root / "validation").mkdir()
         checkpoint = root / "checkpoint.pth"
         shutil.copyfile(safe_path(trial, selected["checkpoint"]), checkpoint)
         if sha256(checkpoint) != selected["checkpoint_sha256"]:
@@ -93,56 +91,54 @@ def export_trial(trial, destination, *, model=None):  # noqa: PLR0912, PLR0915 -
             model = get_model(selected["architecture"], pretrained=False, num_classes=len(categories))
         model = model.cpu().float().eval()
         model.load_state_dict(state["model"], strict=True)
+        del state
 
-        samples, reference = [], []
-        example = None
-        for sample in validation["samples"]:
-            source = safe_path(Path(validation["root"]), sample["path"])
-            target = safe_path(root / "validation", sample["path"])
-            target.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copyfile(source, target)
-            if sha256(target) != sample["sha256"]:
+        samples, seen = [], set()
+        reference = np.empty((len(validation["samples"]), len(categories)), dtype=np.float32)
+        validation_root = Path(validation["root"])
+        for index, sample in enumerate(validation["samples"]):
+            name = sample["path"]
+            if name in seen:
+                raise ValueError(f"Duplicate sample ID: {name}")
+            seen.add(name)
+            source = safe_path(validation_root, name)
+            raw = source.read_bytes()
+            if hashlib.sha256(raw).hexdigest() != sample["sha256"]:
                 raise ValueError(f"Validation image hash mismatch: {source}")
-            images = transform(pil_loader(target)).unsqueeze(0)
-            if not np.array_equal(images.numpy(), preprocess(target.read_bytes(), prep)):
+            stored = f"validation/{index:04d}-{source.name}"
+            (root / stored).write_bytes(raw)
+            with Image.open(io.BytesIO(raw)) as image:
+                rgb = image.convert("RGB")
+            images = transform(rgb).unsqueeze(0)
+            if not np.array_equal(images.numpy(), preprocess(rgb, prep)):
                 raise ValueError(f"Evaluation preprocessing differs from bundle replay: {source}")
             logits = model(images)
             if (
                 not isinstance(logits, torch.Tensor)
                 or logits.shape != (1, len(categories))
                 or logits.dtype != torch.float32
-                or not torch.isfinite(logits).all()
             ):
-                raise ValueError("Expected finite FP32 classification logits with shape (1, classes)")
-            reference.append(logits.numpy()[0].copy())
-            samples.append({
-                "path": sample["path"],
-                "label": sample["class_index"],
-                "sha256": sample["sha256"],
-            })
-            if example is None:
+                raise ValueError("Expected FP32 classification logits with shape (1, classes)")
+            reference[index] = logits.numpy()[0]
+            samples.append({"id": name, "path": stored, "label": sample["class_index"], "sha256": sample["sha256"]})
+            if index == 0:
                 example = images
 
+        if not np.isfinite(reference).all():
+            raise ValueError("Reference logits must be finite")
         export_model(model, example, root / "model.onnx")
-        np.save(root / "reference.npy", np.stack(reference))
-        write_json(root / "validation" / "manifest.json", {**prep, "categories": categories, "samples": samples})
-        write_json(
-            root / "cases.json",
-            {"onnx-fp32": {"backend": "onnx", "artifact": "model.onnx", "requested_precision": "fp32", "threads": 1}},
+        write_json(root / "trial.json", {"trial": str(trial), **records})
+        cases = {
+            "onnx-fp32": {"backend": "onnx", "artifact": "model.onnx", "requested_precision": "fp32", "threads": 1}
+        }
+        freeze_bundle(
+            root,
+            {**prep, "categories": categories, "samples": samples},
+            cases,
+            reference,
+            {"checkpoint": checkpoint.name, "provenance": "trial.json"},
         )
-        write_json(root / "provenance.json", {"trial": str(trial), **records})
-        write_json(
-            root / "config.json",
-            {
-                "schema_version": 1,
-                "manifest": "validation/manifest.json",
-                "reference": "reference.npy",
-                "cases": "cases.json",
-                "checkpoint": "checkpoint.pth",
-                "provenance": "provenance.json",
-            },
-        )
-        return prepare(root / "config.json", destination)
+    return destination
 
 
 if __name__ == "__main__":

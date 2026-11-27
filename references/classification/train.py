@@ -19,6 +19,7 @@ from torchvision.datasets import CIFAR10, CIFAR100, ImageFolder
 from torchvision.transforms import v2 as T
 from torchvision.transforms.v2.functional import InterpolationMode, to_pil_image
 
+from holocron.experiments import evaluation_transform
 from holocron.models import get_model
 from holocron.models.presets import CIFAR10 as CIF10
 from holocron.models.presets import IMAGENETTE
@@ -45,24 +46,6 @@ logger.setLevel(logging.ERROR)
 
 def worker_init_fn(worker_id: int) -> None:
     np.random.default_rng((worker_id + torch.initial_seed()) % np.iinfo(np.int32).max)
-
-
-def evaluation_transform(resize: int, crop: int):
-    """Build the Imagenette evaluation transform used by benchmark trials.
-
-    Returns:
-        The deterministic resize, crop, and normalization pipeline.
-    """
-    return T.Compose([
-        T.Resize(resize, interpolation=InterpolationMode.BILINEAR),
-        T.CenterCrop(crop),
-        T.PILToTensor(),
-        T.ConvertImageDtype(torch.float32),
-        T.Compose([
-            T.Lambda(torch.Tensor.contiguous),
-            T.Normalize(IMAGENETTE.mean, IMAGENETTE.std),
-        ]),
-    ])
 
 
 def plot_samples(images, targets, num_samples=8):

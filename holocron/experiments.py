@@ -22,6 +22,7 @@ from torchvision.datasets import ImageFolder
 from torchvision.transforms import v2 as T
 from torchvision.transforms.v2.functional import InterpolationMode
 
+from holocron.models.presets import IMAGENETTE
 from holocron.trainer import Trainer
 
 
@@ -71,6 +72,24 @@ def imagefolder_manifest(splits: dict[str, ImageFolder]) -> dict[str, Any]:
     return {"schema_version": 1, "class_to_idx": mapping, "splits": manifests}
 
 
+def evaluation_transform(resize: int, crop: int) -> T.Compose:
+    """Build the reference classification evaluation transform.
+
+    Returns:
+        The deterministic resize, crop, and normalization pipeline.
+    """
+    return T.Compose([
+        T.Resize(resize, interpolation=InterpolationMode.BILINEAR),
+        T.CenterCrop(crop),
+        T.PILToTensor(),
+        T.ConvertImageDtype(torch.float32),
+        T.Compose([
+            T.Lambda(torch.Tensor.contiguous),
+            T.Normalize(IMAGENETTE.mean, IMAGENETTE.std),
+        ]),
+    ])
+
+
 def evaluation_preprocessing(transform: Any) -> dict[str, Any] | None:
     """Describe an evaluation transform only when deployment replay matches it.
 
@@ -78,11 +97,7 @@ def evaluation_preprocessing(transform: Any) -> dict[str, Any] | None:
         Input shape, resize size, and normalization values, or ``None`` if unsupported.
     """
     classes = (T.Resize, T.CenterCrop, T.PILToTensor, T.ConvertImageDtype, T.Compose)
-    if (
-        type(transform) is not T.Compose
-        or len(transform.transforms) != len(classes)
-        or not all(type(item) is cls for item, cls in zip(transform.transforms, classes, strict=True))
-    ):
+    if type(transform) is not T.Compose or tuple(map(type, transform.transforms)) != classes:
         return None
     resize, crop, _, convert_dtype, normalization = transform.transforms
     if (
@@ -104,11 +119,7 @@ def evaluation_preprocessing(transform: Any) -> dict[str, Any] | None:
         convert_dtype.dtype is not torch.float32,
     )):
         return None
-    if (
-        len(normalization.transforms) != 2
-        or type(normalization.transforms[0]) is not T.Lambda
-        or type(normalization.transforms[1]) is not T.Normalize
-    ):
+    if tuple(map(type, normalization.transforms)) != (T.Lambda, T.Normalize):
         return None
     contiguous, normalize = normalization.transforms
     if any((

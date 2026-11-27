@@ -140,17 +140,18 @@ def preprocess(data, prep):
     import numpy as np
     from PIL import Image
 
+    if isinstance(data, Image.Image):
+        image = data
+    else:
+        with Image.open(io.BytesIO(data)) as source:
+            image = source.convert("RGB")
     resize, size = prep["resize"], prep["input_shape"][2]
-    with Image.open(io.BytesIO(data)) as source:
-        image = source.convert("RGB")
-        width, height = image.size
-        dimensions = (
-            (resize, int(resize * height / width)) if width <= height else (int(resize * width / height), resize)
-        )
-        image = image.resize(dimensions, Image.Resampling.BILINEAR)
-        width, height = image.size
-        left, top = round((width - size) / 2), round((height - size) / 2)
-        pixels = np.asarray(image.crop((left, top, left + size, top + size)), np.float32).transpose(2, 0, 1)
+    width, height = image.size
+    dimensions = (resize, int(resize * height / width)) if width <= height else (int(resize * width / height), resize)
+    image = image.resize(dimensions, Image.Resampling.BILINEAR)
+    width, height = image.size
+    left, top = round((width - size) / 2), round((height - size) / 2)
+    pixels = np.asarray(image.crop((left, top, left + size, top + size)), np.float32).transpose(2, 0, 1)
     mean = np.asarray(prep["mean"], np.float32)[:, None, None]
     std = np.asarray(prep["std"], np.float32)[:, None, None]
     return np.ascontiguousarray((pixels * np.float32(1 / 255) - mean) / std)[None]

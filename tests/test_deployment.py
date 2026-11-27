@@ -12,11 +12,10 @@ import numpy as np
 import onnx
 import onnxruntime as ort
 import pytest
-import torch
 from onnx import TensorProto, helper, numpy_helper
 from PIL import Image
-from torchvision.transforms import v2
 
+from holocron.experiments import evaluation_transform
 from scripts import eval_deployment as deployment
 from scripts import prepare_deployment
 from scripts.prepare_deployment import prepare
@@ -94,14 +93,9 @@ def test_preprocessing_matches_torchvision_bilinear_recipe(shape):
     data = io.BytesIO()
     image.save(data, format="PNG")
     prep = {"input_shape": [1, 3, 8, 8], "resize": 9, "mean": [0.485, 0.456, 0.406], "std": [0.229, 0.224, 0.225]}
-    transform = v2.Compose([
-        v2.Resize(9),
-        v2.CenterCrop(8),
-        v2.ToImage(),
-        v2.ToDtype(torch.float32, scale=True),
-        v2.Normalize(prep["mean"], prep["std"]),
-    ])
-    np.testing.assert_array_equal(deployment.preprocess(data.getvalue(), prep)[0], transform(image).numpy())
+    expected = evaluation_transform(9, 8)(image).numpy()[None]
+    np.testing.assert_array_equal(deployment.preprocess(data.getvalue(), prep), expected)
+    np.testing.assert_array_equal(deployment.preprocess(image, prep), expected)
 
 
 def test_freeze_is_portable_and_repeatable(experiment, tmp_path):

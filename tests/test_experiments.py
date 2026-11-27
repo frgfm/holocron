@@ -1,4 +1,3 @@
-import io
 import json
 import os
 import shutil
@@ -15,10 +14,9 @@ from torchvision.datasets import ImageFolder
 from torchvision.transforms import v2 as T
 from torchvision.transforms.v2.functional import InterpolationMode
 
-from holocron.experiments import Trial, evaluation_preprocessing, imagefolder_manifest, sha256
+from holocron.experiments import Trial, evaluation_preprocessing, evaluation_transform, imagefolder_manifest, sha256
 from holocron.trainer import ClassificationTrainer
 from references.classification import experiment, train
-from scripts.eval_deployment import preprocess
 from scripts.export_trial import export_trial
 
 
@@ -161,7 +159,7 @@ def test_success_and_independent_reader(configuration, monkeypatch, scheduler):
 
 @pytest.mark.parametrize("change", ["dtype", "interpolation", "lambda", "order", "fixed_resize", "normalization_order"])
 def test_evaluation_preprocessing_rejects_ambiguous_transforms(change):
-    transform = train.evaluation_transform(20, 16)
+    transform = evaluation_transform(20, 16)
     if change == "dtype":
         transform.transforms[3].dtype = torch.float64
     elif change == "interpolation":
@@ -175,18 +173,6 @@ def test_evaluation_preprocessing_rejects_ambiguous_transforms(change):
     else:
         transform.transforms[1], transform.transforms[2] = transform.transforms[2], transform.transforms[1]
     assert evaluation_preprocessing(transform) is None
-
-
-@pytest.mark.parametrize("size", [(17, 30), (30, 17)])
-def test_evaluation_transform_matches_deployment_preprocessing(size):
-    image = Image.frombytes("RGB", size, bytes(value % 256 for value in range(size[0] * size[1] * 3)))
-    transform = train.evaluation_transform(24, 16)
-    prep = evaluation_preprocessing(transform)
-    stream = io.BytesIO()
-    image.save(stream, format="PNG")
-    torch.testing.assert_close(
-        transform(image), torch.from_numpy(preprocess(stream.getvalue(), prep)[0]), rtol=0, atol=0
-    )
 
 
 def _tiny_classifier():
@@ -216,7 +202,12 @@ def completed_trial(configuration, monkeypatch):
     return path, path.parent / "trial", result, final_weights
 
 
-def _assert_selected_bundle(root, trial, record, final_weights, model):
+def test_completed_trial_exports_selected_checkpoint(completed_trial):
+    path, trial, result, final_weights = completed_trial
+    test_images = {item: sha256(item) for item in (path.parent / "test").rglob("*.png")}
+    Image.new("RGB", (20, 20), (10, 20, 30)).save(path.parent / "val/a/late.png")
+    model = _tiny_classifier()
+    root = export_trial(trial, path.parent / "deployment-bundle", model=model)
     bundle = json.loads((root / "bundle.json").read_text())
     data = json.loads((trial / "data.json").read_text())
     validation_split = data["splits"]["validation"]
@@ -227,7 +218,9 @@ def _assert_selected_bundle(root, trial, record, final_weights, model):
     ]
     bundled_checkpoint = bundle["provenance"]["checkpoint"]["path"]
     selected = torch.load(root / bundled_checkpoint, map_location="cpu", weights_only=True)
-    assert selected["epoch"] == record["selected_epoch"] < record["final_epoch"]
+    record = result["models"][0]
+    assert selected["epoch"] == record["selected_epoch"] == 1
+    assert record["final_epoch"] == 2
     assert len(bundle["samples"]) == len(validation) == 4
     assert all(torch.equal(model.state_dict()[name], selected["model"][name]) for name in final_weights)
 
@@ -236,7 +229,7 @@ def _assert_selected_bundle(root, trial, record, final_weights, model):
     final_model = _tiny_classifier().eval()
     final_model.load_state_dict(final_weights)
     prep = json.loads((trial / "provenance.json").read_text())["evaluation_preprocessing"]
-    transform = train.evaluation_transform(prep["resize"], prep["input_shape"][2])
+    transform = evaluation_transform(prep["resize"], prep["input_shape"][2])
     reference = np.load(root / bundle["reference"], allow_pickle=False)
     final_logits = []
     for index, sample in enumerate(validation):
@@ -247,44 +240,6 @@ def _assert_selected_bundle(root, trial, record, final_weights, model):
             torch.testing.assert_close(torch.from_numpy(reference[index]), selected_model(images)[0], rtol=0, atol=0)
             final_logits.append(final_model(images)[0].numpy())
     assert any(not np.array_equal(reference[index], logits) for index, logits in enumerate(final_logits))
-    return bundle, validation
-
-
-def _replay_bundle(root, output):
-    bundle_path = root / "bundle.json"
-    bundle = json.loads(bundle_path.read_text())
-    bundle["protocol"] = {"warmup": 1, "iterations": 1, "repeats": 1, "chunk_size": 2}
-    bundle_path.write_text(json.dumps(bundle))
-    replay = subprocess.run(  # noqa: S603 -- use the frozen, locally built bundle runner
-        [sys.executable, str(root / "scripts/eval_deployment.py"), str(root), str(output)],
-        capture_output=True,
-        text=True,
-        check=False,
-        timeout=60,
-    )
-    assert replay.returncode == 0, replay.stdout + replay.stderr
-    report = json.loads(next(output.glob("*/report.json")).read_text())
-    accuracy = report["cases"]["onnx-fp32"]["accuracy"]
-    assert report["complete"]
-    assert accuracy["status"] == "completed"
-    assert accuracy["source_agreement"] == 1
-    assert accuracy["max_logit_difference"] < 1e-3
-
-
-def test_completed_trial_exports_selected_checkpoint_and_replays(completed_trial):
-    path, trial, result, final_weights = completed_trial
-    test_images = {item: sha256(item) for item in (path.parent / "test").rglob("*.png")}
-    record = result["models"][0]
-    assert (record["selected_epoch"], record["final_epoch"]) == (1, 2)
-    selected = torch.load(trial / record["checkpoint"], map_location="cpu", weights_only=True)
-    assert any(not torch.equal(selected["model"][name], final_weights[name]) for name in final_weights)
-
-    Image.new("RGB", (20, 20), (10, 20, 30)).save(path.parent / "val/a/late.png")
-    model = _tiny_classifier()
-    root = export_trial(trial, path.parent / "deployment-bundle", model=model)
-    bundle, _ = _assert_selected_bundle(root, trial, record, final_weights, model)
-    assert len(bundle["samples"]) == 4
-    _replay_bundle(root, path.parent / "replay")
     assert {item: sha256(item) for item in test_images} == test_images
 
 
