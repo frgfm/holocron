@@ -19,6 +19,7 @@ from torchvision.datasets import CIFAR10, CIFAR100, ImageFolder
 from torchvision.transforms import v2 as T
 from torchvision.transforms.v2.functional import InterpolationMode, to_pil_image
 
+from holocron.experiments import evaluation_transform
 from holocron.models import get_model
 from holocron.models.presets import CIFAR10 as CIF10
 from holocron.models.presets import IMAGENETTE
@@ -165,13 +166,7 @@ def _train(args, on_epoch_end=None, on_setup=None):
         if args.dataset.lower() == "imagenette":
             val_set = ImageFolder(
                 Path(args.data_path).joinpath("val"),
-                T.Compose([
-                    T.Resize(args.val_resize_size, interpolation=interpolation),
-                    T.CenterCrop(args.val_crop_size),
-                    T.PILToTensor(),
-                    T.ConvertImageDtype(torch.float32),
-                    normalize,
-                ]),
+                evaluation_transform(args.val_resize_size, args.val_crop_size),
             )
         else:
             cifar_version = CIFAR100 if args.dataset.lower() == "cifar100" else CIFAR10

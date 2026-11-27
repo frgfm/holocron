@@ -7,6 +7,12 @@ required. ONNX Runtime and NCNN use one CPU thread; Core ML manages its own thre
 
 ## Prepare a frozen bundle
 
+For a completed [classification trial](experiments.md#export-the-selected-checkpoint),
+run `python scripts/export_trial.py TRIAL OUTPUT`. This generates the ONNX artifact,
+labels, validation manifest and PyTorch reference logits from the trial, checks recorded
+hashes and preprocessing, then uses the same bundle preparation below. No hand-authored
+deployment metadata is needed.
+
 Export using the existing `scripts/export_to_onnx.py`,
 `scripts/export_to_coreml.py` and upstream NCNN/quantization tools. This workflow
 freezes their outputs; it does not choose or rebuild conversion recipes.
@@ -94,7 +100,10 @@ The new directory contains copies of all inputs, reference logits,
 runner source, provenance, per-runtime pinned requirements and `bundle.json` with
 file hashes. Symlinks are dereferenced. Existing destinations are refused; a
 failed preparation does not publish a partial bundle. Keep these large bundles
-outside Git.
+outside Git. On POSIX systems, final publication briefly reserves an empty output
+directory before the complete contents appear atomically. Competing preparations
+cannot replace that directory. A forced process kill during this reservation can
+leave an empty directory; inspect it before removing it and retrying.
 
 ## Run locally or over SSH
 

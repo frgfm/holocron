@@ -12,12 +12,12 @@ import numpy as np
 import onnx
 import onnxruntime as ort
 import pytest
-import torch
 from onnx import TensorProto, helper, numpy_helper
 from PIL import Image
-from torchvision.transforms import v2
 
+from holocron.experiments import evaluation_transform
 from scripts import eval_deployment as deployment
+from scripts import prepare_deployment
 from scripts.prepare_deployment import prepare
 
 
@@ -93,14 +93,9 @@ def test_preprocessing_matches_torchvision_bilinear_recipe(shape):
     data = io.BytesIO()
     image.save(data, format="PNG")
     prep = {"input_shape": [1, 3, 8, 8], "resize": 9, "mean": [0.485, 0.456, 0.406], "std": [0.229, 0.224, 0.225]}
-    transform = v2.Compose([
-        v2.Resize(9),
-        v2.CenterCrop(8),
-        v2.ToImage(),
-        v2.ToDtype(torch.float32, scale=True),
-        v2.Normalize(prep["mean"], prep["std"]),
-    ])
-    np.testing.assert_array_equal(deployment.preprocess(data.getvalue(), prep)[0], transform(image).numpy())
+    expected = evaluation_transform(9, 8)(image).numpy()[None]
+    np.testing.assert_array_equal(deployment.preprocess(data.getvalue(), prep), expected)
+    np.testing.assert_array_equal(deployment.preprocess(image, prep), expected)
 
 
 def test_freeze_is_portable_and_repeatable(experiment, tmp_path):
@@ -289,6 +284,48 @@ def test_freeze_checks_copied_image_bytes(experiment, tmp_path, monkeypatch):
     with pytest.raises(ValueError, match="hash mismatch"):
         prepare(experiment, tmp_path / "changed-copy")
     assert not (tmp_path / "changed-copy").exists()
+
+
+@pytest.mark.parametrize("kind", ["empty", "populated", "symlink"])
+def test_destination_created_during_assembly_is_preserved(experiment, tmp_path, monkeypatch, kind):
+    destination = tmp_path / "bundle"
+    validate = prepare_deployment.validate_manifest
+
+    def competing_writer(bundle):
+        validate(bundle)
+        if kind == "symlink":
+            destination.symlink_to(tmp_path / "missing", target_is_directory=True)
+        else:
+            destination.mkdir()
+            if kind == "populated":
+                (destination / "owner.txt").write_text("keep")
+
+    monkeypatch.setattr(prepare_deployment, "validate_manifest", competing_writer)
+    with pytest.raises(FileExistsError):
+        prepare(experiment, destination)
+    if kind == "symlink":
+        assert destination.is_symlink()
+    else:
+        assert sorted(path.name for path in destination.iterdir()) == (["owner.txt"] if kind == "populated" else [])
+        if kind == "populated":
+            assert (destination / "owner.txt").read_text() == "keep"
+    assert not list(tmp_path.glob("deployment-*"))
+
+
+@pytest.mark.parametrize("failure", ["validation", "rename"])
+def test_failed_assembly_leaves_no_destination(experiment, tmp_path, monkeypatch, failure):
+    def fail(*_args):
+        raise OSError("publication failed")
+
+    if failure == "validation":
+        monkeypatch.setattr(prepare_deployment, "validate_manifest", fail)
+    else:
+        monkeypatch.setattr(Path, "rename", fail)
+    destination = tmp_path / "bundle"
+    with pytest.raises(OSError, match="publication failed"):
+        prepare(experiment, destination)
+    assert not destination.exists()
+    assert not list(tmp_path.glob("deployment-*"))
 
 
 def test_checksum_fallback(tmp_path, monkeypatch):

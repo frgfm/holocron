@@ -8,7 +8,9 @@
 import argparse
 import hashlib
 import json
+import os
 import shutil
+from contextlib import contextmanager, suppress
 from importlib.metadata import version
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -37,7 +39,73 @@ def validate_embedded_onnx(path):
     visit(onnx.load(path, load_external_data=False))
 
 
-def prepare(config_path, destination):  # noqa: PLR0912, PLR0915 -- assemble one atomic, self-contained bundle
+@contextmanager
+def stage_bundle(destination):
+    if destination.exists() or destination.is_symlink():
+        raise FileExistsError(destination)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    with TemporaryDirectory(prefix="deployment-", dir=destination.parent) as temporary:
+        root = Path(temporary) / "bundle"
+        root.mkdir()
+        yield root  # noqa: RUF075 -- body failures must skip publication
+        if os.name == "nt":
+            root.rename(destination)  # Windows rename already refuses an existing destination.
+        else:
+            destination.mkdir()  # Reserve the path; POSIX rename would replace a competing empty directory.
+            try:
+                root.rename(destination)
+            except BaseException:
+                with suppress(OSError):
+                    destination.rmdir()
+                raise
+
+
+def freeze_bundle(
+    root, manifest, cases, reference, provenance_files, *, config_sha256=None, accuracy_indices=None, calibration=()
+):
+    samples = manifest["samples"]
+    if accuracy_indices is None:
+        accuracy_indices = list(range(len(samples)))
+    for case in cases.values():
+        if case["backend"] == "onnx":
+            validate_embedded_onnx(root / case["artifact"])
+
+    (root / "scripts").mkdir()
+    for name in ("eval_deployment.py", "eval_latency.py"):
+        shutil.copyfile(Path(__file__).with_name(name), root / "scripts" / name)
+    np.save(root / "reference.npy", reference)
+    requirements = {}
+    for backend in sorted({case["backend"] for case in cases.values()}):
+        requirements[backend] = {package: version(package) for package in PACKAGES[backend]}
+        (root / f"requirements-{backend}.txt").write_text(
+            "".join(f"{package}=={value}\n" for package, value in requirements[backend].items())
+        )
+    files = {path.relative_to(root).as_posix(): digest(path) for path in sorted(root.rglob("*")) if path.is_file()}
+    for sample in (*samples, *calibration):
+        if files[sample["path"]] != sample["sha256"]:
+            raise ValueError(f"Sample hash mismatch: {sample['path']}")
+    provenance = {key: {"sha256": files[path], "path": path} for key, path in provenance_files.items()}
+    if config_sha256 is not None:
+        provenance["config_sha256"] = config_sha256
+    bundle = {
+        "schema_version": 1,
+        "preprocessing": {key: manifest[key] for key in ("input_shape", "resize", "mean", "std")},
+        "categories": manifest["categories"],
+        "samples": samples,
+        "accuracy_indices": accuracy_indices,
+        "reference": "reference.npy",
+        "calibration": list(calibration),
+        "cases": cases,
+        "requirements": requirements,
+        "provenance": {"builder": environment(), "preparer_sha256": digest(__file__), **provenance},
+        "protocol": {"warmup": 10, "iterations": 100, "repeats": 2, "chunk_size": 100},
+        "files": files,
+    }
+    validate_manifest(bundle)
+    save_report(root / "bundle.json", bundle)
+
+
+def prepare(config_path, destination):  # noqa: PLR0912, PLR0915 -- resolve and snapshot inputs for the bundle
     config_path, destination = Path(config_path).resolve(), Path(destination).absolute()
     config_bytes = config_path.read_bytes()
     config = json.loads(config_bytes)
@@ -73,10 +141,7 @@ def prepare(config_path, destination):  # noqa: PLR0912, PLR0915 -- assemble one
     if reference.shape != expected or not np.isfinite(reference).all():
         raise ValueError(f"Reference logits must be finite with shape {expected}")
 
-    destination.parent.mkdir(parents=True, exist_ok=True)
-    with TemporaryDirectory(prefix="deployment-", dir=destination.parent) as temporary:
-        root = Path(temporary) / "bundle"
-        root.mkdir()
+    with stage_bundle(destination) as root:
         copied = {}
 
         def copy(path, group):
@@ -95,8 +160,6 @@ def prepare(config_path, destination):  # noqa: PLR0912, PLR0915 -- assemble one
         for sample in manifest["samples"]:
             path = safe_path(manifest_path.parent, sample["path"])
             stored = copy(path, "validation")
-            if digest(root / stored) != sample["sha256"]:
-                raise ValueError(f"Sample hash mismatch: {path}")
             if sample["path"] in indices:
                 raise ValueError(f"Duplicate sample ID: {sample['path']}")
             indices[sample["path"]] = len(samples)
@@ -115,55 +178,25 @@ def prepare(config_path, destination):  # noqa: PLR0912, PLR0915 -- assemble one
             for sample in json.loads(calibration_path.read_text())["samples"]:
                 path = safe_path(calibration_path.parent, sample["path"])
                 stored = copy(path, "calibration")
-                if digest(root / stored) != sample["sha256"] or sample["sha256"] in seen:
+                if sample["sha256"] in seen:
                     raise ValueError(f"Calibration hash mismatch or validation overlap: {path}")
                 calibration.append({**sample, "path": stored})
         for case in cases.values():
             for field in ("artifact", "param"):
                 if field in case:
                     case[field] = copy(cases_path.parent / case[field], "artifacts")
-            if case["backend"] == "onnx":
-                validate_embedded_onnx(root / case["artifact"])
 
-        (root / "scripts").mkdir()
-        for name in ("eval_deployment.py", "eval_latency.py"):
-            shutil.copyfile(Path(__file__).with_name(name), root / "scripts" / name)
-        np.save(root / "reference.npy", reference)
-        requirements = {}
-        for backend in sorted({case["backend"] for case in cases.values()}):
-            requirements[backend] = {package: version(package) for package in PACKAGES[backend]}
-            (root / f"requirements-{backend}.txt").write_text(
-                "".join(f"{package}=={value}\n" for package, value in requirements[backend].items())
-            )
-        provenance = {
-            "builder": environment(),
-            "config_sha256": hashlib.sha256(config_bytes).hexdigest(),
-            "preparer_sha256": digest(__file__),
-        }
-        for key in ("checkpoint", "provenance"):
-            if key in config:
-                path = source(key)
-                stored = copy(path, "provenance")
-                provenance[key] = {"sha256": digest(root / stored), "path": stored}
-        bundle = {
-            "schema_version": 1,
-            "preprocessing": {key: manifest[key] for key in ("input_shape", "resize", "mean", "std")},
-            "categories": manifest["categories"],
-            "samples": samples,
-            "accuracy_indices": accuracy_indices,
-            "reference": "reference.npy",
-            "calibration": calibration,
-            "cases": cases,
-            "requirements": requirements,
-            "provenance": provenance,
-            "protocol": {"warmup": 10, "iterations": 100, "repeats": 2, "chunk_size": 100},
-            "files": {
-                path.relative_to(root).as_posix(): digest(path) for path in sorted(root.rglob("*")) if path.is_file()
-            },
-        }
-        validate_manifest(bundle)
-        save_report(root / "bundle.json", bundle)
-        root.rename(destination)
+        provenance = {key: copy(source(key), "provenance") for key in ("checkpoint", "provenance") if key in config}
+        freeze_bundle(
+            root,
+            {**manifest, "samples": samples},
+            cases,
+            reference,
+            provenance,
+            config_sha256=hashlib.sha256(config_bytes).hexdigest(),
+            accuracy_indices=accuracy_indices,
+            calibration=calibration,
+        )
     return destination
 
 

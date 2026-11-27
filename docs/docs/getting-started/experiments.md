@@ -37,7 +37,7 @@ identical bits across runtimes are not promised.
 | File | Contents |
 | --- | --- |
 | `config.json` | Resolved inputs |
-| `provenance.json` | Source revision/dirty state before trial creation, packages, actual transforms, data/init hashes, optimizer defaults |
+| `provenance.json` | Source revision/dirty state before trial creation, packages, actual transforms, supported evaluation preprocessing, data/init hashes, optimizer defaults |
 | `data.json` | Matching class mapping, exact split membership and raw-byte SHA-256 hashes; content shared across splits rejected |
 | `progress.jsonl` | Append-only validation epoch events; no intra-epoch heartbeat |
 | `result.json` | Native benchmark runtime/recipe/data/models plus versioned state, timestamps, elapsed time, epoch, actual device, error/traceback and exit code |
@@ -61,7 +61,41 @@ roots/mapping are separate. Initial weights hash sorted `[name, dtype, shape]` J
 and contiguous CPU tensor bytes. Re-encoded duplicates are not detected. Data/source
 are not snapshotted; absent Git metadata is null. Abrupt kills/storage failures may
 leave `running` or partial progress. Verify checkpoint hashes before use.
-No downloads, true resume, wall-time enforcement, search, export/latency or agent servers.
+Training does not download weights, resume full state, enforce wall time, search or measure deployment latency.
+
+## Export the selected checkpoint
+
+Completed trials can produce a [frozen ONNX deployment bundle](deployment.md)
+without writing labels, image manifests, reference logits or export configuration by hand:
+
+```sh
+uv sync --locked --extra scripts
+uv run --no-sync python scripts/export_trial.py runs/tiny-trial /tmp/tiny-bundle
+uv run --no-sync python /tmp/tiny-bundle/scripts/eval_deployment.py /tmp/tiny-bundle /tmp/tiny-results
+```
+
+The exporter verifies and loads the **selected** checkpoint with `weights_only=True`,
+even when the final epoch differs. It copies the recorded validation images in their
+original order and checks their hashes. Class indices determine label order. Training
+and held-out test images are neither read nor copied. New files in the source dataset
+are not added to the recorded membership.
+
+Supported preprocessing is the reference's RGB, bilinear short-edge resize, square
+center crop and FP32 Imagenette normalization. Trials record this from the actual
+validation transforms. Missing metadata, ambiguous or unsupported transforms, changed
+checkpoint/image bytes and inconsistent records fail before a bundle is published.
+Older trials without this metadata must be rerun; transform descriptions alone do not
+prove their behavior. Export also checks that replay preprocessing matches the reference
+on every validation image, generates PyTorch logits, and verifies ONNX Runtime CPU parity
+on three inputs using the existing exporter.
+
+The bundle includes the checkpoint, trial records and a single `onnx-fp32` case. It uses
+all validation samples for replay; this is not a held-out test score. Existing output
+paths are refused, and failures leave no partial bundle. Keep bundles outside Git.
+For an architecture supplied by Python code, call
+`scripts.export_trial.export_trial(trial, output, model=my_module)` with an ordinary
+`torch.nn.Module`; the function loads the selected weights and moves the module to CPU
+FP32 evaluation mode. No model provider registration is needed.
 
 ## Offline CPU example
 
