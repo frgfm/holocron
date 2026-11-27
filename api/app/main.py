@@ -7,10 +7,11 @@ import time
 from typing import Annotated
 
 from fastapi import FastAPI, File, Request, UploadFile, status
+from PIL import Image
 from pydantic import BaseModel, Field
 
 from app.config import settings
-from app.vision import CLF_CFG, classify_image, decode_image
+from app.vision import CLF_CFG, classify_image
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -31,7 +32,8 @@ class ClsCandidate(BaseModel):
 @app.post("/classification", status_code=status.HTTP_200_OK, summary="Perform image classification")
 def classify(file: Annotated[UploadFile, File(...)]) -> ClsCandidate:
     """Runs holocron vision model to analyze the input image"""
-    probs = classify_image(decode_image(file.file.read()))
+    with Image.open(file.file) as image:
+        probs = classify_image(image)
 
     return ClsCandidate(
         value=CLF_CFG["classes"][probs.argmax()],
