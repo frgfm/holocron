@@ -3,7 +3,6 @@
 # This program is licensed under the Apache License 2.0.
 # See LICENSE or go to <https://www.apache.org/licenses/LICENSE-2.0> for full license details.
 
-import io
 import json
 import logging
 from pathlib import Path
@@ -15,7 +14,7 @@ from PIL import Image
 
 from app.config import settings
 
-__all__ = ["classify_image", "decode_image"]
+__all__ = ["classify_image"]
 
 logger = logging.getLogger("uvicorn.warning")
 
@@ -26,10 +25,6 @@ with Path(hf_hub_download(settings.CLF_HUB_REPO, filename="config.json")).open("
 CLF_ORT = onnxruntime.InferenceSession(hf_hub_download(settings.CLF_HUB_REPO, filename="model.onnx"))
 
 logger.info(f"Model loading completed: {settings.CLF_HUB_REPO}")
-
-
-def decode_image(img_data: bytes) -> Image.Image:
-    return Image.open(io.BytesIO(img_data))
 
 
 def preprocess_image(pil_img: Image.Image) -> np.ndarray:
